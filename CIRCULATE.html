@@ -285,6 +285,10 @@
             0%, 100% { box-shadow: 0 0 20px rgba(34,197,94,0.6), inset 0 0 15px rgba(34,197,94,0.2); }
             50% { box-shadow: 0 0 30px rgba(34,197,94,0.9), inset 0 0 20px rgba(34,197,94,0.3); }
         }
+        @keyframes pvGlow {
+            0%, 100% { box-shadow: 0 0 18px rgba(251,191,36,0.55); }
+            50% { box-shadow: 0 0 32px rgba(251,191,36,0.9); }
+        }
         @keyframes limitedGlow {
             0%, 100% { box-shadow: 0 0 20px rgba(2,132,199,0.6), inset 0 0 15px rgba(2,132,199,0.2); }
             50% { box-shadow: 0 0 30px rgba(2,132,199,0.8), inset 0 0 20px rgba(2,132,199,0.3); }
@@ -1237,6 +1241,13 @@
             <div class="character-price" style="color:#fbbf24;">🎖️ Veteran Mastery</div>
             <button class="info-btn" onclick="event.stopPropagation();showCharInfo('war_veteran')">INFO</button>
         </div>
+        <div class="character-card" onclick="selectCharacter('prime_veteran')" id="primeVeteranCharacter" style="display:none;">
+            <div class="character-preview" style="background:linear-gradient(135deg,#1e3a8a,#3b82f6);box-shadow:0 0 20px rgba(59,130,246,0.8);"></div>
+            <div class="character-name">Prime Veteran</div>
+            <div class="character-ability">The original.<br>Evolves every 30s.<br>R: Veteran Burst</div>
+            <div class="character-price" id="primeVetMainPrice">UNLOCKED ✅</div>
+            <button class="info-btn" onclick="event.stopPropagation();showCharInfo('prime_veteran')">INFO</button>
+        </div>
         <div class="character-card" onclick="selectCharacter('last_architect')" id="lastArchitectCharacter" style="display:none;border-color:rgba(167,139,250,0.4);">
             <div class="character-preview" style="background:linear-gradient(135deg,#4c1d95,#a78bfa);box-shadow:0 0 22px rgba(167,139,250,.85);"></div>
             <div class="character-name" style="color:#c4b5fd;">The Last Architect</div>
@@ -1851,6 +1862,8 @@ const CHARACTERS = {
     yuji_itadori: { name:'Yuji',        color:'#e84d4d', shadow:'#991b1b', projColor:'#e84d4d', ability:'dashpunch',     manaCost:0,  cdMax:0, isYuji:true, isBoxer:true, useImg:false },
     character10b:  { name:'Character 10', color:'#00ff00', shadow:'#00aa00', projColor:'#00ff00', ability:'omnipotent',     manaCost:100, cdMax:600, isCharacter10b:true, useImg:false },
     war_veteran:   { name:'War Veteran',   color:'#60a5fa', shadow:'#1e3a8a', projColor:'#60a5fa', ability:'veteran',        manaCost:20,  cdMax:0,  isVeteran:true, isWarVeteran:true, useImg:false },
+    prime_veteran: { name:'Prime Veteran', color:'#3b82f6', shadow:'#1e3a8a', projColor:'#60a5fa', ability:'veteran', manaCost:20, cdMax:0, isVeteran:true, isPrimeVeteran:true, useImg:false,
+                     msgNormal:'was eliminated', msgSpecial:'was obliterated' },
     last_architect: { name:'Last Architect', color:'#a78bfa', shadow:'#4c1d95', projColor:'#c4b5fd', ability:'ancient_construction', manaCost:35, cdMax:0, isLastArchitect:true, lockDmgUpgrade:true, useImg:false },
     coin_king: { name:'Coin King', color:'#fbbf24', shadow:'#92400e', projColor:'#fef08a', ability:'goldShower', manaCost:50, cdMax:0, isCoinKing:true, isGoldHoarder:true, lockHpUpgrade:true, lockDmgUpgrade:true, useImg:false },
     rouge_square: { name:'Rouge Square', color:'#4444ff', shadow:'#0000aa', projColor:'#8888ff', ability:'dungeonlock', manaCost:35, cdMax:360, isRougeSquare:true, useImg:false },
@@ -1877,7 +1890,7 @@ const PRICES = {
     default:0, goldhoarder:0, vampire:100, builder:100,
     phantom:250, druid:750, pyromancer:1500, cyborg:3000, timewizard:4500,
     fire:500, ice:1000, electric:2500, boxer:500,
-    wemmbu:5000, eggchan:5000, dice:2345, hakari_v2:35000, yuji_itadori:28000, character10b:50000, war_veteran:0, last_architect:0, coin_king:0, rouge_square:250000, gojo:0, jeremiah:0, the_strongest_today:0,
+    wemmbu:5000, eggchan:5000, dice:2345, hakari_v2:35000, yuji_itadori:28000, character10b:50000, war_veteran:0, prime_veteran:0, last_architect:0, coin_king:0, rouge_square:250000, gojo:0, jeremiah:0, the_strongest_today:0,
     necromancer:4000, glass_cannon:3500, tank:2000, speedrunner:2500, hornet:0
 };
 
@@ -9508,6 +9521,21 @@ const CHAR_INFO = {
         playstyle: 'A powerful all-rounder that gradually snowballs throughout the run. Strong from the start and terrifying at Rank 5. Manages well in both early waves and late-game chaos.',
         tip: 'Focus on Damage and Mana upgrades in the wave shop. Save your R for waves with many enemies — at Rank 3+ it clears entire screens. The TP dash is your best escape tool.',
     },
+    prime_veteran: {
+        name: 'Prime Veteran', tag: '🔒 Secret · The Original', icon: '⚔️',
+        iconBg: 'linear-gradient(135deg,#1e3a8a,#3b82f6)', iconGlow: '#60a5fa',
+        stats: [
+            { label: 'Origin', value: 'CIRCULATE OG — the very first character' },
+            { label: 'Damage', value: '10 (scales with tier)' },
+            { label: 'Evolution', value: 'Rookie → Soldier → Elite → Commander → Legend' },
+            { label: 'R Ability', value: 'Veteran Burst — radial shot burst' },
+            { label: 'Unlock', value: 'Complete all 10 OG quests & import save' },
+        ],
+        abilities: `<b>Passive — Evolution:</b> Every 30 seconds you evolve to the next tier (Rookie → Soldier → Elite → Commander → Legend), gaining a damage multiplier and speed bonus each time.<br><br>
+<b>R — Veteran Burst (20 mana):</b> Fires a massive radial burst of shots scaled to your current tier. This is the exact same ability the original CIRCULATE OG Veteran uses.`,
+        playstyle: 'This is the original Veteran character from CIRCULATE OG, preserved exactly as he was. For players who miss the classic feel — same evolution, same burst, same everything.',
+        tip: '🕹️ This is a hidden character for players who found their way from the original game. If you\'re seeing this — welcome back.',
+    },
     last_architect: {
         name: 'The Last Architect', tag: 'Mastery · Siege Commander', icon: '🏛️',
         iconBg: 'linear-gradient(135deg,#4c1d95,#a78bfa)', iconGlow: '#c4b5fd',
@@ -9741,6 +9769,7 @@ function updateShopDisplay(){
         'yuji_itadori': 'yujiCharacter',
             'character10b': 'character10bCharacter',
         'war_veteran': 'warVeteranCharacter',
+        'prime_veteran': 'primeVeteranCharacter',
         'last_architect': 'lastArchitectCharacter',
         'coin_king': 'coinKingCharacter',
         'rouge_square': 'rougeSquareCharacter',
@@ -9764,6 +9793,13 @@ function updateShopDisplay(){
         if (isSelected) wvCard.classList.add('selected');
         const priceEl = wvCard.querySelector('.character-price');
         if (priceEl) priceEl.textContent = masteryEquipped ? '🎖️ Veteran Mastery' : `🎖️ ${veteranWins}/5 Veteran wins`;
+    }
+    const pvCard = document.getElementById('primeVeteranCharacter');
+    if (pvCard) {
+        const pvUnlocked = unlockedCharacters.includes('prime_veteran');
+        pvCard.style.display = pvUnlocked ? '' : 'none';
+        pvCard.classList.remove('selected', 'locked');
+        if (pvUnlocked && currentCharacter === 'prime_veteran') pvCard.classList.add('selected');
     }
     const laCard = document.getElementById('lastArchitectCharacter');
     if (laCard) {
@@ -9852,6 +9888,12 @@ function updateMcSkinClass(){
     else document.body.classList.remove('mc-skin');
 }
 function selectCharacter(name){
+    if (name === 'prime_veteran') {
+        if (!unlockedCharacters.includes('prime_veteran')) {
+            alert('🔒 Secret character!\n\nThis is the original Veteran from CIRCULATE OG, hidden here for players who found their way back.\n\nComplete all 10 quests in CIRCULATE OG, then import your save here to unlock him.');
+            return;
+        }
+    }
     if (name === 'war_veteran') {
         if (!unlockedMasteries.includes('default')) {
             alert(`\uD83C\uDF96\uFE0F War Veteran is locked!\n\nWin 5 games as The Veteran to unlock the War Veteran Mastery.\nYour progress: ${veteranWins}/5 wins`);
