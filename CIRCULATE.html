@@ -4102,7 +4102,7 @@ class Item {
 function getDifficulty(){return Math.floor(currentRound/50);}
 function getSpawnCount(){
     let baseCount = 0;
-    if(currentRound>=500 && currentRound<600) baseCount = 50;
+    if(currentRound>=500 && currentRound<600) baseCount = 25;
     else if(currentRound>=50 && currentRound<500) {
         const progress = (currentRound - 50) / 450;
         baseCount = Math.min(1 + Math.floor(progress * 7), 8);
