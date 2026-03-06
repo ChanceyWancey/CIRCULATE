@@ -1415,6 +1415,8 @@
     <div class="slot-odds">— 10% JACKPOT EACH ROLL —</div>
 </div>
 
+<div id="theEnemyDarkness" style="display:none;position:fixed;inset:0;background:#000;opacity:0;pointer-events:none;z-index:8000;transition:opacity 0.8s;"></div>
+
 <div id="gameContainer">
     <div id="gameWrapper">
         <canvas id="gameCanvas" width="1100" height="700"></canvas>
@@ -2787,6 +2789,7 @@ let rougeSquareDungeonLockWalls = [];
 function tickNewCharacters(ts, dt) {
     const skin = currentCharacter;
 
+
     if (skin === 'jeremiah') {
         jeremiahDmgTimer += dt;
         if (jeremiahDmgTimer >= 30) {
@@ -4115,7 +4118,9 @@ class Item {
 function getDifficulty(){return Math.floor(currentRound/50);}
 function getSpawnCount(){
     let baseCount = 0;
-    if(currentRound>=500 && currentRound<600) baseCount = 25;
+    if(currentRound>=900) baseCount = 25;
+    else if(currentRound>=600) baseCount = Math.min(8 + Math.floor((currentRound-600)/30), 20);
+    else if(currentRound>=500) baseCount = 25;
     else if(currentRound>=50 && currentRound<500) {
         const progress = (currentRound - 50) / 450;
         baseCount = Math.min(1 + Math.floor(progress * 7), 8);
@@ -4135,7 +4140,9 @@ function getSpawnCount(){
     return Math.round(baseCount * biomeMultiplier);
 }
 function getSpawnInterval(){
-    if(currentRound>=500 && currentRound<600) return Math.max(600-Math.floor((currentRound-500)/5),120);
+    if(currentRound>=900) return 120;
+    if(currentRound>=600) return Math.max(200 - Math.floor((currentRound-600)/5), 100);
+    if(currentRound>=500) return Math.max(600-Math.floor((currentRound-500)/5),120);
     if(currentRound>=50 && currentRound<500) {
         const progress = (currentRound - 50) / 450;
         return Math.max(1500 - progress * 1200, 300);
@@ -4168,6 +4175,17 @@ function getEnemyStats(type){
         healthMult = 1 + progress * 0.5;
         speedMult = 1 + progress * 0.25;
         damageMult = 1 + progress * 0.33;
+    }
+    else if(currentRound>=900) {
+        healthMult = 3.0;
+        speedMult = 2.5;
+        damageMult = 3.0;
+    }
+    else if(currentRound>=600) {
+        const p = (currentRound-600)/300;
+        healthMult = 1.5 + p*1.5;
+        speedMult  = 1.5 + p*1.0;
+        damageMult = 1.5 + p*1.5;
     }
     else if(currentRound>=500 && currentRound<600) {
         healthMult = 1.5;
@@ -4455,6 +4473,147 @@ function spawnWave(){
             if (!seenEnemyTypes.includes(type)) { seenEnemyTypes.push(type); savePersistentData(); }
             enemies.push(e);
         },spawnDelay);
+    }
+}
+
+// ── COLLISION HELPER ──
+function circleRect(cx, cy, cr, rx, ry, rw, rh) {
+    const nearX = Math.max(rx, Math.min(cx, rx + rw));
+    const nearY = Math.max(ry, Math.min(cy, ry + rh));
+    const dx = cx - nearX, dy = cy - nearY;
+    return dx * dx + dy * dy < cr * cr;
+}
+
+// ── THE ENEMY ──
+let theEnemyActive = false;
+let theEnemyData = null;
+let theEnemyElapsed = 0;
+let theEnemyHorror = 0;
+
+function spawnTheEnemy() {
+    theEnemyActive = true;
+    theEnemyElapsed = 120; // start at full horror immediately
+    theEnemyHorror = 1;
+    theEnemyCamZoom = 1 + 1.8; // max zoom instantly
+    player._theEnemySlowMult = 0.25 / (player.speed || 5);
+
+    const darkEl = document.getElementById('theEnemyDarkness');
+    if (darkEl) { darkEl.style.display = 'block'; darkEl.style.opacity = '0.82'; }
+
+    // Kill all existing enemies
+    enemies.forEach(e => { e.alive = false; });
+    enemies = [];
+    bossBullets = [];
+    currentBoss = null;
+    walls = []; generateWalls();
+    theEnemyData = {
+        x: canvas.width / 2,
+        y: 60,
+        radius: 14,
+        speed: 0.27,
+        color: '#cc0000',
+        alive: true,
+        pulseT: 0,
+        stepTimer: 0,
+    };
+    floatMoneyText('>:[ IT HAS ARRIVED');
+    playSound(55, 0.4, 'sawtooth');
+    setTimeout(() => playSound(45, 0.3, 'sawtooth'), 400);
+}
+
+function updateTheEnemy(dt) {
+    if (!theEnemyActive || !theEnemyData || !theEnemyData.alive) return;
+    theEnemyElapsed += dt / 60;
+    theEnemyHorror = Math.min(theEnemyElapsed / 120, 1);
+
+    const te = theEnemyData;
+    te.pulseT += dt;
+
+    // Kill any enemies that sneak in
+    enemies.forEach(e => { e.alive = false; });
+    enemies = [];
+
+    // Move directly toward player — no wall collision, pure pursuit
+    const dx = player.x - te.x, dy = player.y - te.y;
+    const dist = Math.hypot(dx, dy);
+    if (dist > 0) {
+        te.x += (dx / dist) * te.speed;
+        te.y += (dy / dist) * te.speed;
+    }
+    te.x = Math.max(te.radius, Math.min(canvas.width - te.radius, te.x));
+    te.y = Math.max(te.radius, Math.min(canvas.height - te.radius, te.y));
+
+    // Step sound
+    te.stepTimer -= dt;
+    if (te.stepTimer <= 0) {
+        te.stepTimer = Math.max(60 - theEnemyHorror*40, 20);
+        playSound(40 + Math.random()*20, 0.04, 'sine');
+    }
+
+    // Player speed locked to 0.25 effective
+    player._theEnemySlowMult = 0.25 / (player.speed || 5);
+
+    // Apply darkness + zoom via CSS
+    const darkness = document.getElementById('theEnemyDarkness');
+    const hf = document.getElementById('theEnemyHeartflash');
+    if (darkness) darkness.style.opacity = (theEnemyHorror * 0.82).toFixed(3);
+    theEnemyCamZoom = 1 + theEnemyHorror * 1.8;
+
+    // Touch = instant death → game over
+    if (dist < te.radius + player.radius + 2) {
+        theEnemyActive = false;
+        player._theEnemySlowMult = 1;
+        theEnemyCamZoom = 1;
+        if (darkness) darkness.style.opacity = '0';
+        endGame();
+    }
+}
+
+let theEnemyCamZoom = 1;
+
+function drawTheEnemy(ctx) {
+    if (!theEnemyActive || !theEnemyData) return;
+    const te = theEnemyData;
+
+    // Glow aura
+    ctx.save();
+    ctx.shadowBlur = 30 + theEnemyHorror * 60;
+    ctx.shadowColor = '#ff0000';
+    ctx.globalAlpha = 0.12 + theEnemyHorror * 0.18;
+    ctx.fillStyle = '#8b0000';
+    ctx.beginPath();
+    ctx.arc(te.x, te.y, te.radius * 2.5 * (1 + Math.sin(te.pulseT*0.05)*0.05), 0, Math.PI*2);
+    ctx.fill();
+    ctx.restore();
+
+    // Body
+    ctx.save();
+    ctx.fillStyle = 'rgba(20,0,0,0.3)';
+    ctx.beginPath(); ctx.arc(te.x, te.y, te.radius, 0, Math.PI*2); ctx.fill();
+
+    // >:[ text
+    ctx.font = `bold ${te.radius * 1.6}px VT323, "Courier New", monospace`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.shadowBlur = 20 + theEnemyHorror * 40;
+    ctx.shadowColor = '#ff0000';
+    ctx.fillStyle = `rgb(${180 + Math.floor(theEnemyHorror*75)},${Math.floor(30 - theEnemyHorror*20)},${Math.floor(30 - theEnemyHorror*20)})`;
+    ctx.fillText('>:[', te.x, te.y);
+    ctx.restore();
+
+    // Horror messages
+    if (theEnemyHorror > 0.3) {
+        const msgs = ['it is getting closer','you cannot run','there is no escape','it sees you','it has always seen you'];
+        const msgIdx = Math.min(Math.floor(theEnemyHorror * 5) - 1, msgs.length-1);
+        if (msgIdx >= 0) {
+            ctx.save();
+            ctx.globalAlpha = (theEnemyHorror - 0.3) * 0.3;
+            ctx.font = '10px Courier New, monospace';
+            ctx.fillStyle = '#8b0000';
+            ctx.textAlign = 'center';
+            ctx.fillText(msgs[msgIdx], canvas.width/2, canvas.height - 20);
+            ctx.restore();
+        }
     }
 }
 
@@ -5307,6 +5466,7 @@ function specialAttack(){
 
             break;
         }
+
         case 'omnipotent': {
             playSound(100, 0.2, 'sine');
             playSound(200, 0.15, 'sine');
@@ -5655,6 +5815,7 @@ function handleKill(e) {
 }
 
 function gainExp(amount){
+    if (theEnemyActive) return; // no level-ups during >:[ encounter
     playSound(800, 0.08, 'sine');
     player.exp+=amount;
     if(player.exp>=expToNextLevel){
@@ -6715,6 +6876,8 @@ function resetGame(){
     currentBoss=null; bossBullets=[]; miniTriangles=[]; bossSpawned=false; triangleEnemyUnlocked=false;
     triangleBossDefeats=0; currentRhomboid=null; rhomboidBullets=[]; rhomboidMinions=[]; rhomboidVortexActive=false;
     passiveState={lifesteal:0,thorns:0,regen:0,manaflow:0,armor:0,magnet:0,explosive:0,crit:0,multishot:0,ghostly:0,goldmag:0,overclock:0,trishot:0,homingshot:0,novaleak:0,aimassist:0,novaHitCount:0,berserkerActive:false,berserkerTimer:0,timeslowActive:false,timeslowTimer:0,regenTimer:0,trishotTimer:0,homingTimer:0,blackholeActive:false,blackholeTimer:0};
+    theEnemyActive = false; theEnemyData = null; theEnemyElapsed = 0; theEnemyHorror = 0; theEnemyCamZoom = 1; player._theEnemySlowMult = 1;
+    const darkReset = document.getElementById('theEnemyDarkness'); if(darkReset) darkReset.style.opacity='0';
     hakariDomainActive = false;
     hakariDomainTimer = 0;
     hakariRollTimer = 0;
@@ -6830,6 +6993,7 @@ function drawPlayer(ts, dt=1){
         ctx.restore();
         return;
     }
+
 
     if(currentCharacter === 'war_veteran') {
         if (true) {
@@ -7292,7 +7456,14 @@ function gameLoop(ts){
         }
     }
 
-    if(!gameRunning)return;
+    if(!gameRunning){
+        // Keep >:[ darkness updating even when paused/level-up screen showing
+        if (theEnemyActive) {
+            const darkness = document.getElementById('theEnemyDarkness');
+            if (darkness) darkness.style.opacity = (theEnemyHorror * 0.82).toFixed(3);
+        }
+        return;
+    }
     const rawDt = lastTs ? Math.min(ts - lastTs, 50) : 16.667;
     const dt = (rawDt / 16.667) * (settings ? settings.gameSpeed : 1);
     lastTs = ts;
@@ -7353,7 +7524,7 @@ function gameLoop(ts){
         saveHQ();
         if(gameRunning) { checkHonored(); }
     }
-    roundTimer+=dt;if(roundTimer>=120&&!sukunaBossActive){currentRound++;roundTimer=0;
+    roundTimer+=dt;if(roundTimer>=120&&!sukunaBossActive&&!theEnemyActive){currentRound++;roundTimer=0;
         if(gameRunning) { checkHonored(); }
         if (currentCharacter === 'gojo') {
             const newPhase = getGojoPhase(currentRound);
@@ -7374,19 +7545,35 @@ function gameLoop(ts){
         }
 
         if(currentRound>0 && currentRound%25===0) earnMoney(25,`wave ${currentRound} milestone`);
-        if(currentRound>0 && currentRound%25===0 && currentRound!==lastShopWave && currentRound<600) {
+        if(currentRound>0 && currentRound%25===0 && currentRound!==lastShopWave && (currentRound<600 || (currentRound>=600 && currentRound<900 && currentCharacter !== 'gojo'))) {
             lastShopWave=currentRound;
             if(currentCharacter !== 'gojo') {
                 openWaveShop(currentRound);
                 return;
             }
         }
-        if(currentRound>=600 && !sukunaBossActive) {
+        if(currentRound>=600 && currentRound<1000 && !sukunaBossActive) {
             if(currentCharacter === 'gojo') {
                 spawnSukunaBoss();
                 return;
             }
-            floatMoneyText('🏆 WAVE 600 REACHED! YOU WIN!');
+        }
+        if(currentRound===900 && currentCharacter !== 'gojo') {
+            enemies.forEach(e => { e.alive = false; });
+            enemies = [];
+            currentBoss = null; bossBullets = []; miniTriangles = [];
+            bossSpawned = false;
+            floatMoneyText('⚠️ WAVE 900 — SOMETHING IS COMING...');
+            playSound(40, 0.3, 'sawtooth');
+            setTimeout(() => playSound(35, 0.2, 'sawtooth'), 600);
+        }
+
+        if(currentRound===950 && !theEnemyActive && currentCharacter !== 'gojo') {
+            spawnTheEnemy();
+            return;
+        }
+        if(currentRound>=1000 && !sukunaBossActive && !theEnemyActive) {
+            floatMoneyText('🏆 WAVE 1000 REACHED! YOU WIN!');
             if (currentCharacter === 'default') {
                 veteranWins++;
                 if (veteranWins >= 5 && !unlockedMasteries.includes('default')) {
@@ -7403,7 +7590,7 @@ function gameLoop(ts){
             return;
         }
     }
-    if(!hakariDomainActive && !sukunaBossActive && ts-lastEnemySpawn>getSpawnInterval()){
+    if(!hakariDomainActive && !sukunaBossActive && !theEnemyActive && !(currentRound>=900 && currentRound<1000) && ts-lastEnemySpawn>getSpawnInterval()){
         spawnWave();
         lastEnemySpawn=ts;
     }
@@ -7469,7 +7656,7 @@ function gameLoop(ts){
             player._gridMoveTimer = 0;
         }
     } else {
-        if(mx||my){const m=Math.sqrt(mx*mx+my*my);const bSpd=passiveState.berserkerActive?1.5:1;const ghSpd=CHARACTERS[currentCharacter].isGoldHoarder?GH_SPEED_MULT:1;const biomeSpd=1+biomeSpeedBonus;player.x+=(mx/m)*player.speed*dt*bSpd*ghSpd*biomeSpd;player.y+=(my/m)*player.speed*dt*bSpd*ghSpd*biomeSpd;}
+        if(mx||my){const m=Math.sqrt(mx*mx+my*my);const bSpd=passiveState.berserkerActive?1.5:1;const ghSpd=CHARACTERS[currentCharacter].isGoldHoarder?GH_SPEED_MULT:1;const biomeSpd=1+biomeSpeedBonus;const teSlow=player._theEnemySlowMult!==undefined?player._theEnemySlowMult:1;player.x+=(mx/m)*player.speed*dt*bSpd*ghSpd*biomeSpd*teSlow;player.y+=(my/m)*player.speed*dt*bSpd*ghSpd*biomeSpd*teSlow;}
     }
     player.x=Math.max(player.radius,Math.min(canvas.width-player.radius,player.x));
     player.y=Math.max(player.radius,Math.min(canvas.height-player.radius,player.y));
@@ -7855,6 +8042,21 @@ function gameLoop(ts){
     });
     enemies=enemies.filter(e=>{if(!e.alive)return false;e.update(dt);if(e.alive)e.draw();return e.alive;});
     tickSpecialEnemies(dt);
+    updateTheEnemy(dt);
+    // Apply camera zoom for The Enemy via canvas CSS
+    if (theEnemyActive) {
+        const zoom = theEnemyCamZoom;
+        const cEl = document.getElementById('gameCanvas');
+        const pw = document.getElementById('gameWrapper');
+        const scaleX = (pw ? pw.offsetWidth : 1100) / 1100;
+        cEl.style.transform = `scale(${zoom})`;
+        cEl.style.transformOrigin = `${player.x / 1100 * 100}% ${player.y / 700 * 100}%`;
+    } else {
+        const cEl = document.getElementById('gameCanvas');
+        cEl.style.transform = '';
+        cEl.style.transformOrigin = '';
+    }
+    drawTheEnemy(ctx);
 
     if (currentBoss && currentBoss.alive) {
         currentBoss.update(dt);
@@ -9646,6 +9848,7 @@ const CHAR_INFO = {
         playstyle: 'Never stop moving. Constant velocity = constant high damage. Circle enemies while shooting.',
         tip: '⚡ Tip: Sprint into a crowd diagonally while shooting to stay at max damage. Circular kiting is your bread and butter.',
     },
+
     jeremiah: {
         name: 'Jeremiah Quinzy Fowler II', tag: 'Quest Unlock · Please Don\'t', icon: '💀',
         iconBg: 'linear-gradient(135deg,#1f2937,#374151)', iconGlow: '#6b7280',
@@ -9726,6 +9929,7 @@ function showCharacterShop(){document.getElementById('mainMenu').style.display='
     if (ckCard) ckCard.style.display = (unlockedMasteries.includes('goldhoarder') && equippedMasteries.includes('goldhoarder')) ? '' : 'none';
     const tstCard = document.getElementById('theStrongestTodayCharacter');
     if (tstCard) tstCard.style.display = (unlockedMasteries.includes('gojo') && equippedMasteries.includes('gojo')) ? '' : 'none';
+
 }
 function backToMenu(){
     stopJackpotMusic();
@@ -9741,7 +9945,7 @@ function startGame(){
     showBiomeIndicator();
     requestAnimationFrame(gameLoop);
 }
-function backToMainMenu(){stopJackpotMusic();hideSlotMachine();document.getElementById('gameOver').style.display='none';document.getElementById('gameContainer').style.display='none';skinOverlay.style.display='none';document.getElementById('mainMenu').style.display='block';updateMoneyDisplay();}
+function backToMainMenu(){stopJackpotMusic();hideSlotMachine();document.getElementById('gameOver').style.display='none';document.getElementById('gameContainer').style.display='none';skinOverlay.style.display='none';document.getElementById('mainMenu').style.display='block';updateMoneyDisplay();const darkBM=document.getElementById('theEnemyDarkness');if(darkBM){darkBM.style.opacity='0';darkBM.style.display='none';}const cBM=document.getElementById('gameCanvas');if(cBM){cBM.style.transform='';}}
 function updateMoneyDisplay(){document.getElementById('totalMoney').textContent=totalMoney;document.getElementById('shopMoney').textContent=totalMoney;}
 function updateShopDisplay(){
     updateMoneyDisplay();
@@ -10883,23 +11087,6 @@ function openBestiary() {
     const grid = document.getElementById('bestiaryGrid');
     // Track seen on spawn — also mark enemies as seen when viewing bestiary if already killed
     grid.innerHTML = BESTIARY.map(e => {
-        const typeKey = e.bType || e.name.toLowerCase().replace(/ /g,'_');
-        const seen = typeKey === '__player__' || seenEnemyTypes.includes(typeKey);
-        if (!seen) return `
-        <div style="
-            background:rgba(255,255,255,0.02);
-            border:1px solid rgba(255,255,255,0.05);
-            border-left:4px solid #374151;
-            border-radius:8px; padding:14px 16px;
-            display:flex; gap:12px; align-items:center;
-            opacity:0.4;
-        ">
-            <div style="font-size:22px;min-width:36px;height:36px;background:rgba(255,255,255,0.04);border-radius:6px;display:flex;align-items:center;justify-content:center;">❓</div>
-            <div>
-                <div style="font-size:13px;font-weight:bold;color:#6b7280;">??? Unknown</div>
-                <div style="font-size:11px;color:rgba(255,255,255,0.3);">Kill this enemy to unlock its entry.</div>
-            </div>
-        </div>`;
         return `
         <div style="
             background:rgba(255,255,255,0.04);
