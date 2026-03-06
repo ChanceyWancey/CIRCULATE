@@ -3827,16 +3827,6 @@ class Enemy {
             ctx.translate(this.x,this.y); ctx.rotate(ca);
             ctx.beginPath(); ctx.moveTo(this.radius,0); ctx.lineTo(this.radius+8+wind*10,0);
             ctx.lineWidth=3+wind*3; ctx.strokeStyle=`rgba(251,191,36,${0.5+wind*0.5})`; ctx.stroke();
-        } else if (this.isMirror) {
-
-            ctx.beginPath();
-            for(let i=0;i<8;i++){const a=(Math.PI/4)*i+this.mirrorAngle*0.5;ctx.lineTo(this.x+Math.cos(a)*this.radius,this.y+Math.sin(a)*this.radius);}
-            ctx.closePath(); ctx.fill();
-            ctx.restore(); ctx.save(); ctx.globalAlpha=(this.drawAlpha||1)*0.8;
-            ctx.strokeStyle='#e0f2fe'; ctx.lineWidth=2; ctx.shadowBlur=12; ctx.shadowColor='#7dd3fc';
-            ctx.beginPath();
-            for(let i=0;i<8;i++){const a=(Math.PI/4)*i+this.mirrorAngle*0.5;ctx.lineTo(this.x+Math.cos(a)*this.radius,this.y+Math.sin(a)*this.radius);}
-            ctx.closePath(); ctx.stroke();
         } else if (this.isTimeBomb) {
             const secsLeft=Math.ceil(this.fuseTimer/60);
             const urgency=Math.max(0,1-this.fuseTimer/600);
@@ -4224,7 +4214,12 @@ function tickSpecialEnemies(dt) {
         if (!e.alive) continue;
 
         if (e.isShielder) {
-            e.shieldFacing = Math.atan2(player.y - e.y, player.x - e.x);
+            const targetAngle = Math.atan2(player.y - e.y, player.x - e.x);
+            let diff = targetAngle - e.shieldFacing;
+            while (diff > Math.PI)  diff -= Math.PI * 2;
+            while (diff < -Math.PI) diff += Math.PI * 2;
+            const turnRate = 0.03; // radians per tick — slow, deliberate turn
+            e.shieldFacing += diff * turnRate;
         }
 
         if (e.isHealer) {
@@ -4314,10 +4309,6 @@ function tickSpecialEnemies(dt) {
                     playSound(350,0.1,'sawtooth');
                 }
             }
-        }
-
-        if (e.isMirror) {
-            e.mirrorAngle = Math.atan2(player.y-e.y, player.x-e.x);
         }
 
         if (e.isTimeBomb) {
@@ -4441,7 +4432,7 @@ function spawnWave(){
             if(currentRound >= 25) typePool.push('phantom_e');
             if(currentRound >= 28) typePool.push('leech');
             if(currentRound >= 30) typePool.push('sniper_e');
-            if(currentRound >= 35) typePool.push('mirror_e');
+            // mirror_e removed
             if(currentRound >= 40) typePool.push('puller');
             if(currentRound >= 45) typePool.push('guardian');
             if(currentRound >= 55) typePool.push('timebomb');
@@ -4459,7 +4450,6 @@ function spawnWave(){
             if(e.isPuller)       { e.color='#7c3aed'; e.expValue=28; }
             if(e.isRegen)        { e.color='#059669'; e.expValue=20; }
             if(e.isCharger)      { e.color='#f59e0b'; e.expValue=18; }
-            if(e.isMirror)       { e.color='#7dd3fc'; e.expValue=22; }
             if(e.isTimeBomb)     { e.color='#dc2626'; e.expValue=40; }
             if(e.isLeech)        { e.color='#be123c'; e.expValue=14; }
             if(e.isGuardian)     { e.color='#b45309'; e.expValue=30; }
@@ -7911,16 +7901,6 @@ function gameLoop(ts){
                     continue;
                 }
 
-                if (e.isMirror) {
-                    const normal=Math.atan2(e.y-proj.y,e.x-proj.x)+Math.PI;
-                    const reflected=2*normal-Math.atan2(proj.vy||0,proj.vx||0);
-                    const spd=Math.hypot(proj.vx||0,proj.vy||0)||4;
-                    bossBullets.push({x:e.x,y:e.y,vx:Math.cos(reflected)*spd,vy:Math.sin(reflected)*spd,damage:proj.damage,radius:proj.radius||5,alive:true,isLine:false,color:'#7dd3fc'});
-                    for(let i=0;i<8;i++) particles.push(new Particle(e.x,e.y,'#7dd3fc'));
-                    if(currentCharacter!=='gojo'&&currentCharacter!=='the_strongest_today') proj.alive=false;
-                    continue;
-                }
-
                 if (e.isGuardian && e.guardTarget && e.guardTarget.alive) {
 
                 }
@@ -11068,7 +11048,6 @@ const BESTIARY = [
     { icon:'🩸', name:'Leech',      bType:'leech',      color:'#be123c', round:28, desc:'Drains your HP and heals itself when in close range. Keep your distance.' },
     { icon:'🎯', name:'Sniper',     bType:'sniper_e',     color:'#94a3b8', round:30, desc:'Stays at range and shoots high-damage projectiles. A laser line telegraphs incoming shots.' },
     { icon:'🌀', name:'Puller',     bType:'puller',     color:'#7c3aed', round:40, desc:'Pulls you toward it from a distance. Pair that with other enemies and it\'s very dangerous.' },
-    { icon:'🪞', name:'Mirror',     bType:'mirror_e',     color:'#7dd3fc', round:35, desc:'Reflects your shots back at you. Attack from angles or use AoE.' },
     { icon:'💣', name:'Time Bomb',  bType:'timebomb',  color:'#dc2626', round:55, desc:'Nearly unkillable — just a walking timer. When it detonates it deals massive AoE damage to everything nearby. Run away!' },
     { icon:'🛡', name:'Guardian',   bType:'guardian',   color:'#b45309', round:45, desc:'Orbits the highest-HP enemy and protects it. Kill the guardian first to expose its target.' },
     { icon:'🪨', name:'Golem',      bType:'golem',      color:'#78716c', round:16, desc:'Heavily armoured from the front (0.3x damage). Hit the glowing orange weak spot on its BACK for 3x damage.' },
