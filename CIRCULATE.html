@@ -978,11 +978,135 @@
             font-size: 11px; font-weight: bold; height: 16px;
             color: #f472b6; text-shadow: 0 0 8px #ec4899;
         }
+
+        /* ══════════════════════════════════════
+           PORTRAIT WARNING OVERLAY
+        ══════════════════════════════════════ */
+        #portraitOverlay {
+            display: none; position: fixed; inset: 0; z-index: 99999;
+            background: #0f172a;
+            flex-direction: column; justify-content: center; align-items: center;
+            text-align: center; padding: 40px;
+        }
+        #portraitOverlay .rotate-icon { font-size: 80px; margin-bottom: 20px; animation: rotateHint 2s ease-in-out infinite; }
+        #portraitOverlay h2 { font-size: 22px; color: #60a5fa; margin-bottom: 10px; font-weight: bold; }
+        #portraitOverlay p  { font-size: 14px; color: rgba(255,255,255,0.5); line-height: 1.8; }
+        @keyframes rotateHint { 0%,100%{transform:rotate(0deg);}50%{transform:rotate(90deg);} }
+
+        /* ══════════════════════════════════════
+           MOBILE VIRTUAL CONTROLS
+        ══════════════════════════════════════ */
+        #mobileControls { display: none; position: fixed; inset: 0; pointer-events: none; z-index: 800; }
+        #joystickZone { position: absolute; left: 0; top: 0; bottom: 0; width: 50%; pointer-events: auto; touch-action: none; }
+        #joystickBase {
+            position: absolute; width: 110px; height: 110px; border-radius: 50%;
+            background: rgba(255,255,255,0.08); border: 2px solid rgba(255,255,255,0.2);
+            transform: translate(-50%,-50%); display: none;
+        }
+        #joystickKnob {
+            position: absolute; width: 46px; height: 46px; border-radius: 50%;
+            background: rgba(255,255,255,0.35); border: 2px solid rgba(255,255,255,0.6);
+            transform: translate(-50%,-50%); left: 50%; top: 50%;
+        }
+        #aimZone { position: absolute; right: 0; top: 0; bottom: 80px; width: 50%; pointer-events: auto; touch-action: none; }
+        #mobileButtons { position: absolute; bottom: 16px; right: 16px; display: flex; flex-direction: column; gap: 10px; align-items: flex-end; pointer-events: auto; }
+        #mobileButtons .mb-row { display: flex; gap: 10px; }
+        .mob-btn {
+            width: 60px; height: 60px; border-radius: 50%;
+            border: 2px solid rgba(255,255,255,0.3); background: rgba(0,0,0,0.55);
+            color: white; font-size: 20px; font-weight: bold; font-family: inherit;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; touch-action: manipulation; user-select: none;
+            -webkit-tap-highlight-color: transparent; transition: background 0.1s, transform 0.1s;
+        }
+        .mob-btn:active { background: rgba(255,255,255,0.22); transform: scale(0.9); }
+        #mobBtnR    { background: rgba(124,58,237,0.6);  border-color: #7c3aed; }
+        #mobBtnDash { background: rgba(59,130,246,0.6);  border-color: #3b82f6; }
+        #mobBtnPause { width: 44px; height: 44px; font-size: 14px; position: fixed; top: 12px; left: 12px; z-index: 850; border-radius: 8px; background: rgba(0,0,0,0.6); border: 2px solid rgba(255,255,255,0.25); }
+
+        /* ══════════════════════════════════════
+           RESPONSIVE — MOBILE (max 900px)
+        ══════════════════════════════════════ */
+        @media (max-width: 900px) {
+            body { overflow: hidden; touch-action: none; }
+            #mainMenu { padding: 28px 18px; max-width: 96vw; width: 96vw; }
+            #mainMenu h1 { font-size: 26px; }
+            .menu-btn { min-width: 160px; padding: 13px 18px; font-size: 12px; margin: 5px 4px; }
+            .currency-display { font-size: 16px; }
+
+            #gameContainer { padding: 0; width: 100vw; height: 100vh; display: flex; flex-direction: column; }
+            #gameWrapper { flex: 1; position: relative; overflow: hidden; }
+            canvas { width: 100% !important; height: 100% !important; border-radius: 0; border: none; border-bottom: 2px solid rgba(100,200,255,0.15); }
+            #hud { flex-wrap: nowrap; gap: 3px; padding: 4px 4px 2px; margin: 0; height: 56px; overflow: hidden; }
+            .stat-box { padding: 3px 5px; min-width: 0; flex: 1; }
+            .stat-label { font-size: 7px; }
+            .stat-value { font-size: 10px; }
+            #controls { display: none; }
+            #statsPanel { display: none; }
+            #fsBtn { display: none; }
+
+            #waveShop { min-width: unset; width: 96vw; max-height: 88vh; padding: 18px 14px; }
+            .shop-grid { grid-template-columns: repeat(auto-fit, minmax(130px,1fr)); gap: 8px; }
+
+            #levelUpNotice { padding: 22px 16px; width: 92vw; max-height: 88vh; }
+            .upgrade-btn { padding: 12px 10px; font-size: 11px; margin-bottom: 6px; }
+
+            #characterShop { padding: 20px 10px; }
+            .character-grid { grid-template-columns: repeat(auto-fit, minmax(120px,1fr)); gap: 10px; }
+
+            #pauseMenu { padding: 28px 20px; }
+            .pause-btn { min-width: 180px; }
+            #settingsMenu { max-width: 96vw; width: 96vw; padding: 22px 14px; }
+            #gameOver { padding: 28px 20px; }
+
+            #hakariSlotMachine { min-width: unset; width: 92vw; }
+        }
+
+        /* ══════════════════════════════════════
+           LANDSCAPE on mobile — game fills screen
+        ══════════════════════════════════════ */
+        @media (max-width: 900px) and (orientation: landscape) {
+            canvas { height: calc(100vh - 50px) !important; }
+            #hud { height: 48px; }
+            .stat-label { font-size: 6px; }
+            .stat-value { font-size: 9px; }
+        }
+
+        /* ══════════════════════════════════════
+           PORTRAIT on mobile — show rotate prompt
+           (portrait + in-game = show overlay)
+        ══════════════════════════════════════ */
+        @media (max-width: 900px) and (orientation: portrait) {
+            #portraitOverlay.game-active { display: flex; }
+        }
     </style>
 </head>
 <body>
 
 <button id="fsBtn" onclick="toggleFullscreen()" title="Fullscreen">⛶</button>
+
+<!-- Portrait rotation warning -->
+<div id="portraitOverlay">
+    <div class="rotate-icon">📱</div>
+    <h2>Rotate Your Device</h2>
+    <p>CIRCULATE plays best in<br><strong>landscape mode</strong>.<br>Rotate your phone sideways!</p>
+</div>
+
+<!-- Mobile virtual controls (shown only on touch devices in-game) -->
+<div id="mobileControls">
+    <div id="joystickZone">
+        <div id="joystickBase"><div id="joystickKnob"></div></div>
+    </div>
+    <div id="aimZone"></div>
+    <div id="mobileButtons">
+        <div class="mb-row" id="mobCharButtons"></div>
+        <div class="mb-row">
+            <button class="mob-btn" id="mobBtnR"    ontouchstart="mobileAbility()" ontouchend="">R</button>
+            <button class="mob-btn" id="mobBtnDash" ontouchstart="mobileDash()"    ontouchend="">💨</button>
+        </div>
+    </div>
+    <button class="mob-btn" id="mobBtnPause" ontouchstart="pauseGame()">⏸</button>
+</div>
 
 <div id="purchaseModal">
     <div id="purchaseBox">
@@ -11292,7 +11416,7 @@ function closeBestiary() {
 
         <div style="display:flex;flex-direction:column;gap:20px;margin-bottom:36px;">
             <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(124,58,237,0.35);border-radius:10px;padding:18px 24px;">
-                <div style="font-size:10px;color:#a78bfa;text-transform:uppercase;letter-spacing:2px;margin-bottom:6px;font-family:monospace;">Owner/Developer</div>
+                <div style="font-size:10px;color:#a78bfa;text-transform:uppercase;letter-spacing:2px;margin-bottom:6px;font-family:monospace;">Owner/Dev</div>
                 <div style="font-size:20px;font-weight:bold;color:#e2e8f0;">Remorse</div>
             </div>
             <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(124,58,237,0.35);border-radius:10px;padding:18px 24px;">
@@ -11310,17 +11434,11 @@ function closeBestiary() {
 
 <script>
 const _creditsSlideAudio = new Audio('https://res.cloudinary.com/dz1dungk5/video/upload/v1772865024/continuous-rock-sliding-sound-effect-_tuberipper-made-with-Voicemod_bi7ii4.mp3');
-_creditsSlideAudio.volume = 0.8;
-let _creditsLoopCount = 0;
-const CREDITS_LOOPS = 4;
+_creditsSlideAudio.loop = true;
+_creditsSlideAudio.volume = 0.3;
 
-_creditsSlideAudio.addEventListener('ended', () => {
-    _creditsLoopCount++;
-    if (_creditsLoopCount < CREDITS_LOOPS) {
-        _creditsSlideAudio.currentTime = 0;
-        _creditsSlideAudio.play().catch(() => {});
-    }
-});
+const CREDITS_SLIDE_DURATION = 16000; // ms — matches the 16s animation
+let _creditsStopTimer = null;
 
 function openCredits() {
     const modal = document.getElementById('creditsModal');
@@ -11328,14 +11446,26 @@ function openCredits() {
     modal.style.display = 'flex';
     box.style.animation = 'none';
     box.offsetHeight;
-    // 4 loops * ~4s each = ~16s total slide
     box.style.animation = 'creditsSlideIn 16s linear forwards';
-    _creditsLoopCount = 0;
+
+    // Start looping sound
     _creditsSlideAudio.currentTime = 0;
     _creditsSlideAudio.play().catch(() => {});
+
+    // Stop exactly when the box lands in position
+    clearTimeout(_creditsStopTimer);
+    _creditsStopTimer = setTimeout(() => {
+        _creditsSlideAudio.pause();
+        _creditsSlideAudio.currentTime = 0;
+    }, CREDITS_SLIDE_DURATION);
 }
 
 function closeCredits() {
+    // Stop sound immediately if still playing
+    clearTimeout(_creditsStopTimer);
+    _creditsSlideAudio.pause();
+    _creditsSlideAudio.currentTime = 0;
+
     const box = document.getElementById('creditsBox');
     box.style.animation = 'creditsSlideOut 0.3s ease-in forwards';
     setTimeout(() => {
@@ -11345,5 +11475,300 @@ function closeCredits() {
 }
 </script>
 
+<script>
+/* ═══════════════════════════════════════════════════════════
+   MOBILE SUPPORT — Touch controls, orientation, auto-fire
+   + Character-specific buttons + Input auto-detection
+═══════════════════════════════════════════════════════════ */
+
+/* ── Input mode auto-detection ──────────────────────────── */
+let _usingTouch = false;
+
+function setInputMode(touch) {
+    if (_usingTouch === touch) return;
+    _usingTouch = touch;
+    const mc = document.getElementById('mobileControls');
+    if (mc) mc.style.display = (touch && document.getElementById('gameContainer').style.display === 'block') ? 'block' : 'none';
+    handleOrientation();
+}
+
+// Switch to touch mode on any touch, back to mouse on any mouse move
+document.addEventListener('touchstart', () => setInputMode(true),  { passive: true });
+document.addEventListener('mousemove',  () => setInputMode(false), { passive: true });
+
+const isMobile = () => navigator.maxTouchPoints > 0 || 'ontouchstart' in window;
+
+/* ── Orientation handler ─────────────────────────────────── */
+function handleOrientation() {
+    const portrait = window.innerHeight > window.innerWidth;
+    const inGame   = document.getElementById('gameContainer').style.display === 'block';
+    const overlay  = document.getElementById('portraitOverlay');
+    if (portrait && inGame && _usingTouch) {
+        overlay.style.display = 'flex';
+    } else {
+        overlay.style.display = 'none';
+    }
+}
+window.addEventListener('resize',           handleOrientation);
+window.addEventListener('orientationchange',() => setTimeout(handleOrientation, 200));
+document.addEventListener('DOMContentLoaded', handleOrientation);
+
+/* ── Show/hide mobile controls ───────────────────────────── */
+function showMobileControls(show) {
+    const mc = document.getElementById('mobileControls');
+    if (!mc) return;
+    mc.style.display = (show && _usingTouch) ? 'block' : 'none';
+    if (show) { updateCharacterButtons(); handleOrientation(); }
+}
+
+/* ─────────────────────────────────────────────────────────
+   CHARACTER-SPECIFIC BUTTON DEFINITIONS
+   Each character gets custom extra buttons beyond R + Dash
+───────────────────────────────────────────────────────── */
+const CHAR_MOBILE_BUTTONS = {
+    // Gojo: F (hold CE→HP)
+    gojo: [
+        { id:'mobF', label:'F', color:'rgba(99,102,241,0.6)', border:'#6366f1',
+          onpress: () => { fKeyHeld = true; },
+          onrelease: () => { fKeyHeld = false; } }
+    ],
+    // The Strongest Today: Z, X, C, F
+    the_strongest_today: [
+        { id:'mobZ', label:'💙', color:'rgba(59,130,246,0.6)', border:'#3b82f6',
+          onpress: () => { if(gameRunning) tst_maximumBlue(); } },
+        { id:'mobX', label:'❤️', color:'rgba(239,68,68,0.6)', border:'#ef4444',
+          onpress: () => { if(gameRunning) tst_maximumRed(); } },
+        { id:'mobC', label:'💜', color:'rgba(168,85,247,0.6)', border:'#a855f7',
+          onpress: () => { if(gameRunning) tst_hollowPurple(); } },
+        { id:'mobF', label:'F', color:'rgba(99,102,241,0.6)', border:'#6366f1',
+          onpress: () => { fKeyHeld = true; },
+          onrelease: () => { fKeyHeld = false; } }
+    ],
+    // Hornet: Q (Bind), E (Shard Trap)
+    hornet: [
+        { id:'mobQ', label:'🩹', color:'rgba(245,158,11,0.6)', border:'#f59e0b',
+          onpress: () => {
+              if(!gameRunning) return;
+              if(hornetSilk < 9) floatMoneyText('🕸️ Need 9 silk!');
+              else if(hornetBindActive || hornetBindWindup > 0) floatMoneyText('⏳ Bind active!');
+              else { hornetSilk -= 9; hornetBindWindup = 60; floatMoneyText('🩹 Binding...'); updateHUD(); }
+          }},
+        { id:'mobE', label:'⚠️', color:'rgba(239,68,68,0.6)', border:'#ef4444',
+          onpress: () => {
+              if(!gameRunning) return;
+              if(hornetShardCooldown > 0) floatMoneyText(`⏳ Shard: ${Math.ceil(hornetShardCooldown/60)}s`);
+              else {
+                  hornetShardTraps.push({ x:player.x, y:player.y, life:600, triggered:false });
+                  hornetShardCooldown = 300;
+                  for(let i=0;i<12;i++) particles.push(new Particle(player.x,player.y,'#fbbf24'));
+                  floatMoneyText('⚠️ Shard Trap!'); playSound(500,0.05,'square');
+              }
+          }}
+    ],
+    // Cyborg: E (toggle mode)
+    cyborg: [
+        { id:'mobE', label:'🤖', color:'rgba(56,189,248,0.6)', border:'#38bdf8',
+          onpress: () => {
+              if(!gameRunning) return;
+              cyborgMode = cyborgMode === 'rapid' ? 'heavy' : 'rapid';
+              floatMoneyText(cyborgMode === 'rapid' ? '⚡ RAPID' : '💥 HEAVY');
+              for(let i=0;i<20;i++) particles.push(new Particle(player.x,player.y,cyborgMode==='rapid'?'#38bdf8':'#c084fc'));
+              updateHUD();
+          }}
+    ],
+    // Builder: E (move mode toggle), Shift+tap handled via long-press on canvas
+    builder: [
+        { id:'mobE', label:'🏗️', color:'rgba(210,105,30,0.6)', border:'#d2691e',
+          onpress: () => {
+              if(!gameRunning) return;
+              builderMoveMode = !builderMoveMode; builderSelectedWall = null;
+              floatMoneyText(builderMoveMode ? '🏗️ MOVE ON' : '🏗️ MOVE OFF');
+              for(let i=0;i<15;i++) particles.push(new Particle(player.x,player.y,'#d2691e'));
+          }},
+        { id:'mobBuild', label:'🧱', color:'rgba(161,88,20,0.6)', border:'#92400e',
+          onpress: () => {
+              if(!gameRunning || builderWalls.length >= 8) { floatMoneyText('🏗️ Max 8 walls!'); return; }
+              builderWalls.push({ x:player.x-20, y:player.y-20, w:40, h:40, hp:50, maxHp:50, reinforced:false });
+              floatMoneyText('🏗️ Wall built!'); builderWallsBuilt++;
+              for(let i=0;i<20;i++) particles.push(new Particle(player.x,player.y,'#d2691e'));
+              savePersistentData(); updateMasteryCardButtons();
+          }}
+    ],
+    // Last Architect: toggle robot/turret mode
+    last_architect: [
+        { id:'mobMode', label:'🔄', color:'rgba(167,139,250,0.6)', border:'#a78bfa',
+          onpress: () => {
+              if(!gameRunning) return;
+              lastArchitectMode = lastArchitectMode === 'robot' ? 'turret' : 'robot';
+              floatMoneyText(lastArchitectMode === 'robot' ? '🤖 Robot Mode' : '🏛️ Turret Mode');
+          }}
+    ]
+};
+
+/* ── Build/refresh the extra character buttons ─────────────── */
+function updateCharacterButtons() {
+    const container = document.getElementById('mobCharButtons');
+    if (!container) return;
+    container.innerHTML = '';
+    const btns = CHAR_MOBILE_BUTTONS[currentCharacter] || [];
+    btns.forEach(def => {
+        const btn = document.createElement('button');
+        btn.className = 'mob-btn';
+        btn.id = def.id + '_mob';
+        btn.textContent = def.label;
+        btn.style.background = def.color;
+        btn.style.borderColor = def.border;
+        btn.addEventListener('touchstart', e => { e.preventDefault(); if(gameRunning && !gamePaused) def.onpress(); }, { passive: false });
+        btn.addEventListener('touchend',   e => { e.preventDefault(); if(def.onrelease) def.onrelease(); }, { passive: false });
+        container.appendChild(btn);
+    });
+}
+
+/* ── Patch startGame / restartGame / backToMainMenu ─────── */
+const _origStartGame = startGame;
+startGame = function() { _origStartGame(); showMobileControls(true); };
+const _origRestartGame = restartGame;
+restartGame = function() { _origRestartGame(); showMobileControls(true); };
+const _origBackToMainMenu = backToMainMenu;
+backToMainMenu = function() { _origBackToMainMenu(); showMobileControls(false); handleOrientation(); };
+const _origPauseToMainMenu = pauseToMainMenu;
+pauseToMainMenu = function() { _origPauseToMainMenu(); showMobileControls(false); handleOrientation(); };
+
+/* ── Virtual Joystick ────────────────────────────────────── */
+let _joy = { active: false, id: null, baseX: 0, baseY: 0, dx: 0, dy: 0 };
+const JOY_RADIUS = 55;
+const joyZone = document.getElementById('joystickZone');
+const joyBase = document.getElementById('joystickBase');
+const joyKnob = document.getElementById('joystickKnob');
+
+function joyStart(e) {
+    e.preventDefault();
+    const t = e.changedTouches[0];
+    const rect = joyZone.getBoundingClientRect();
+    _joy.active = true; _joy.id = t.identifier;
+    _joy.baseX = t.clientX - rect.left;
+    _joy.baseY = t.clientY - rect.top;
+    _joy.dx = 0; _joy.dy = 0;
+    joyBase.style.left  = _joy.baseX + 'px';
+    joyBase.style.top   = _joy.baseY + 'px';
+    joyBase.style.display = 'block';
+    joyKnob.style.left = '50%';
+    joyKnob.style.top  = '50%';
+}
+function joyMove(e) {
+    e.preventDefault();
+    for (const t of e.changedTouches) {
+        if (t.identifier !== _joy.id) continue;
+        const rect = joyZone.getBoundingClientRect();
+        let dx = (t.clientX - rect.left) - _joy.baseX;
+        let dy = (t.clientY - rect.top)  - _joy.baseY;
+        const dist = Math.sqrt(dx*dx + dy*dy);
+        if (dist > JOY_RADIUS) { dx = dx/dist*JOY_RADIUS; dy = dy/dist*JOY_RADIUS; }
+        _joy.dx = dx / JOY_RADIUS;
+        _joy.dy = dy / JOY_RADIUS;
+        joyKnob.style.left = (50 + _joy.dx * 50) + '%';
+        joyKnob.style.top  = (50 + _joy.dy * 50) + '%';
+    }
+}
+function joyEnd(e) {
+    e.preventDefault();
+    for (const t of e.changedTouches) {
+        if (t.identifier === _joy.id) {
+            _joy.active = false; _joy.dx = 0; _joy.dy = 0;
+            joyBase.style.display = 'none';
+        }
+    }
+}
+joyZone.addEventListener('touchstart', joyStart, { passive: false });
+joyZone.addEventListener('touchmove',  joyMove,  { passive: false });
+joyZone.addEventListener('touchend',   joyEnd,   { passive: false });
+joyZone.addEventListener('touchcancel',joyEnd,   { passive: false });
+
+/* Inject joystick movement into game loop */
+const _origGameLoop = gameLoop;
+gameLoop = function(ts) {
+    if (_usingTouch && _joy.active) {
+        const D = 0.15;
+        keys['w'] = _joy.dy < -D;
+        keys['s'] = _joy.dy >  D;
+        keys['a'] = _joy.dx < -D;
+        keys['d'] = _joy.dx >  D;
+    } else if (_usingTouch && !_joy.active) {
+        keys['w'] = keys['s'] = keys['a'] = keys['d'] = false;
+    }
+    _origGameLoop(ts);
+};
+
+/* ── Aim zone (right thumb = aim + auto-fire) ────────────── */
+let _aim = { active: false, id: null };
+let _mobileAutoFire = null;
+const aimZone = document.getElementById('aimZone');
+
+function aimStart(e) {
+    e.preventDefault();
+    const t = e.changedTouches[0];
+    if (_aim.active) return;
+    _aim.active = true; _aim.id = t.identifier;
+    updateAim(t);
+    if (!_mobileAutoFire) {
+        _mobileAutoFire = setInterval(() => {
+            if (gameRunning && !gamePaused && _aim.active) {
+                if (currentCharacter !== 'boxer' && currentCharacter !== 'tank') shootProjectile();
+            }
+        }, 180);
+    }
+}
+function aimMove(e) {
+    e.preventDefault();
+    for (const t of e.changedTouches) { if (t.identifier === _aim.id) updateAim(t); }
+}
+function aimEnd(e) {
+    e.preventDefault();
+    for (const t of e.changedTouches) {
+        if (t.identifier === _aim.id) {
+            _aim.active = false;
+            clearInterval(_mobileAutoFire); _mobileAutoFire = null;
+        }
+    }
+}
+function updateAim(touch) {
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width  / rect.width;
+    const scaleY = canvas.height / rect.height;
+    mousePos.x = (touch.clientX - rect.left)  * scaleX;
+    mousePos.y = (touch.clientY - rect.top)   * scaleY;
+}
+aimZone.addEventListener('touchstart', aimStart, { passive: false });
+aimZone.addEventListener('touchmove',  aimMove,  { passive: false });
+aimZone.addEventListener('touchend',   aimEnd,   { passive: false });
+aimZone.addEventListener('touchcancel',aimEnd,   { passive: false });
+
+/* ── Standard action buttons ─────────────────────────────── */
+function mobileAbility() {
+    if (!gameRunning || gamePaused) return;
+    specialAttack();
+}
+function mobileDash() {
+    if (!gameRunning || gamePaused) return;
+    dash();
+}
+
+/* ── Auto-set low graphics on first mobile load ──────────── */
+document.addEventListener('DOMContentLoaded', () => {
+    if (isMobile() && settings && !localStorage.getItem('ballSurvivalSettings')) {
+        settings.graphics = 'low';
+        saveSettings();
+    }
+});
+
+/* Refresh char buttons whenever character changes */
+const _origSelectChar = selectCharacter;
+if (typeof selectCharacter === 'function') {
+    selectCharacter = function(name) {
+        _origSelectChar(name);
+        updateCharacterButtons();
+    };
+}
+</script>
 </body>
 </html>
