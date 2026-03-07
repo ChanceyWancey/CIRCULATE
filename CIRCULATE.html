@@ -1008,9 +1008,28 @@
             background: rgba(255,255,255,0.35); border: 2px solid rgba(255,255,255,0.6);
             transform: translate(-50%,-50%); left: 50%; top: 50%;
         }
-        #aimZone { position: absolute; right: 0; top: 0; bottom: 80px; width: 50%; pointer-events: auto; touch-action: none; }
-        #mobileButtons { position: absolute; bottom: 16px; right: 16px; display: flex; flex-direction: column; gap: 10px; align-items: flex-end; pointer-events: auto; }
-        #mobileButtons .mb-row { display: flex; gap: 10px; }
+        /* Aim joystick — fixed bottom-right */
+        #aimJoyZone {
+            position: fixed; right: 20px; bottom: 110px;
+            width: 130px; height: 130px;
+            pointer-events: auto; touch-action: none; z-index: 810;
+        }
+        #aimJoyBase {
+            position: absolute; inset: 0; border-radius: 50%;
+            background: rgba(239,68,68,0.08); border: 2px solid rgba(239,68,68,0.3);
+        }
+        #aimJoyKnob {
+            position: absolute; width: 50px; height: 50px; border-radius: 50%;
+            background: rgba(239,68,68,0.45); border: 2px solid rgba(239,68,68,0.8);
+            transform: translate(-50%,-50%); left: 50%; top: 50%;
+        }
+        #aimJoyLabel {
+            position: absolute; bottom: -18px; left: 50%; transform: translateX(-50%);
+            font-size: 9px; color: rgba(255,255,255,0.3); white-space: nowrap; pointer-events: none;
+            letter-spacing: 1px;
+        }
+        #mobileButtons { position: fixed; bottom: 16px; right: 168px; display: flex; flex-direction: column; gap: 8px; align-items: flex-end; pointer-events: auto; z-index: 810; }
+        #mobileButtons .mb-row { display: flex; gap: 8px; }
         .mob-btn {
             width: 60px; height: 60px; border-radius: 50%;
             border: 2px solid rgba(255,255,255,0.3); background: rgba(0,0,0,0.55);
@@ -1034,9 +1053,9 @@
             .menu-btn { min-width: 160px; padding: 13px 18px; font-size: 12px; margin: 5px 4px; }
             .currency-display { font-size: 16px; }
 
-            #gameContainer { padding: 0; width: 100vw; height: 100vh; display: flex; flex-direction: column; }
-            #gameWrapper { flex: 1; position: relative; overflow: hidden; }
-            canvas { width: 100% !important; height: 100% !important; border-radius: 0; border: none; border-bottom: 2px solid rgba(100,200,255,0.15); }
+            #gameContainer { padding: 0; width: 100vw; height: 100vh; display: flex; flex-direction: column; position: fixed; top: 0; left: 0; margin: 0; }
+            #gameWrapper { flex: 1; position: relative; overflow: hidden; width: 100%; }
+            canvas { width: 100% !important; height: 100% !important; border-radius: 0; border: none; border-bottom: 2px solid rgba(100,200,255,0.15); display: block; margin: 0; }
             #hud { flex-wrap: nowrap; gap: 3px; padding: 4px 4px 2px; margin: 0; height: 56px; overflow: hidden; }
             .stat-box { padding: 3px 5px; min-width: 0; flex: 1; }
             .stat-label { font-size: 7px; }
@@ -1097,7 +1116,11 @@
     <div id="joystickZone">
         <div id="joystickBase"><div id="joystickKnob"></div></div>
     </div>
-    <div id="aimZone"></div>
+    <div id="aimJoyZone">
+        <div id="aimJoyBase"></div>
+        <div id="aimJoyKnob"></div>
+        <div id="aimJoyLabel">AIM</div>
+    </div>
     <div id="mobileButtons">
         <div class="mb-row" id="mobCharButtons"></div>
         <div class="mb-row">
@@ -11416,7 +11439,7 @@ function closeBestiary() {
 
         <div style="display:flex;flex-direction:column;gap:20px;margin-bottom:36px;">
             <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(124,58,237,0.35);border-radius:10px;padding:18px 24px;">
-                <div style="font-size:10px;color:#a78bfa;text-transform:uppercase;letter-spacing:2px;margin-bottom:6px;font-family:monospace;">Owner/Dev</div>
+                <div style="font-size:10px;color:#a78bfa;text-transform:uppercase;letter-spacing:2px;margin-bottom:6px;font-family:monospace;">Owner</div>
                 <div style="font-size:20px;font-weight:bold;color:#e2e8f0;">Remorse</div>
             </div>
             <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(124,58,237,0.35);border-radius:10px;padding:18px 24px;">
@@ -11684,7 +11707,7 @@ joyZone.addEventListener('touchmove',  joyMove,  { passive: false });
 joyZone.addEventListener('touchend',   joyEnd,   { passive: false });
 joyZone.addEventListener('touchcancel',joyEnd,   { passive: false });
 
-/* Inject joystick movement into game loop */
+/* Inject joystick movement + aim projection into game loop */
 const _origGameLoop = gameLoop;
 gameLoop = function(ts) {
     if (_usingTouch && _joy.active) {
@@ -11696,52 +11719,78 @@ gameLoop = function(ts) {
     } else if (_usingTouch && !_joy.active) {
         keys['w'] = keys['s'] = keys['a'] = keys['d'] = false;
     }
+    // Keep aim joystick projection updated each frame
+    if (_usingTouch && _aimJoy.active && typeof player !== 'undefined') {
+        const AIM_DIST = 600;
+        mousePos.x = player.x + _aimJoy.dx * AIM_DIST;
+        mousePos.y = player.y + _aimJoy.dy * AIM_DIST;
+    }
     _origGameLoop(ts);
 };
 
-/* ── Aim zone (right thumb = aim + auto-fire) ────────────── */
-let _aim = { active: false, id: null };
+/* ── Aim Joystick (right side) ───────────────────────────── */
+let _aimJoy = { active: false, id: null, dx: 0, dy: 0 };
+const AIM_JOY_RADIUS = 40; // half the 130px base minus knob
 let _mobileAutoFire = null;
-const aimZone = document.getElementById('aimZone');
+const aimJoyZone = document.getElementById('aimJoyZone');
+const aimJoyKnob = document.getElementById('aimJoyKnob');
 
-function aimStart(e) {
+function aimJoyStart(e) {
     e.preventDefault();
     const t = e.changedTouches[0];
-    if (_aim.active) return;
-    _aim.active = true; _aim.id = t.identifier;
-    updateAim(t);
+    if (_aimJoy.active) return;
+    _aimJoy.active = true; _aimJoy.id = t.identifier;
+    _aimJoy.dx = 0; _aimJoy.dy = 0;
+    updateAimJoy(t);
     if (!_mobileAutoFire) {
         _mobileAutoFire = setInterval(() => {
-            if (gameRunning && !gamePaused && _aim.active) {
+            if (gameRunning && !gamePaused && _aimJoy.active && (_aimJoy.dx !== 0 || _aimJoy.dy !== 0)) {
                 if (currentCharacter !== 'boxer' && currentCharacter !== 'tank') shootProjectile();
             }
         }, 180);
     }
 }
-function aimMove(e) {
+function aimJoyMove(e) {
     e.preventDefault();
-    for (const t of e.changedTouches) { if (t.identifier === _aim.id) updateAim(t); }
+    for (const t of e.changedTouches) { if (t.identifier === _aimJoy.id) updateAimJoy(t); }
 }
-function aimEnd(e) {
+function aimJoyEnd(e) {
     e.preventDefault();
     for (const t of e.changedTouches) {
-        if (t.identifier === _aim.id) {
-            _aim.active = false;
+        if (t.identifier === _aimJoy.id) {
+            _aimJoy.active = false; _aimJoy.dx = 0; _aimJoy.dy = 0;
+            aimJoyKnob.style.left = '50%';
+            aimJoyKnob.style.top  = '50%';
             clearInterval(_mobileAutoFire); _mobileAutoFire = null;
         }
     }
 }
-function updateAim(touch) {
-    const rect = canvas.getBoundingClientRect();
-    const scaleX = canvas.width  / rect.width;
-    const scaleY = canvas.height / rect.height;
-    mousePos.x = (touch.clientX - rect.left)  * scaleX;
-    mousePos.y = (touch.clientY - rect.top)   * scaleY;
+function updateAimJoy(touch) {
+    const rect = aimJoyZone.getBoundingClientRect();
+    const cx = rect.left + rect.width  / 2;
+    const cy = rect.top  + rect.height / 2;
+    let dx = touch.clientX - cx;
+    let dy = touch.clientY - cy;
+    const dist = Math.sqrt(dx*dx + dy*dy);
+    if (dist > AIM_JOY_RADIUS) { dx = dx/dist*AIM_JOY_RADIUS; dy = dy/dist*AIM_JOY_RADIUS; }
+    _aimJoy.dx = dx / AIM_JOY_RADIUS;
+    _aimJoy.dy = dy / AIM_JOY_RADIUS;
+    // Move knob visually (knob is positioned relative to centre via translate -50%,-50%)
+    const pctX = 50 + (_aimJoy.dx * 50);
+    const pctY = 50 + (_aimJoy.dy * 50);
+    aimJoyKnob.style.left = pctX + '%';
+    aimJoyKnob.style.top  = pctY + '%';
+    // Project aim direction far ahead of player on the canvas
+    if (typeof player !== 'undefined' && dist > 5) {
+        const AIM_DIST = 600;
+        mousePos.x = player.x + _aimJoy.dx * AIM_DIST;
+        mousePos.y = player.y + _aimJoy.dy * AIM_DIST;
+    }
 }
-aimZone.addEventListener('touchstart', aimStart, { passive: false });
-aimZone.addEventListener('touchmove',  aimMove,  { passive: false });
-aimZone.addEventListener('touchend',   aimEnd,   { passive: false });
-aimZone.addEventListener('touchcancel',aimEnd,   { passive: false });
+aimJoyZone.addEventListener('touchstart', aimJoyStart, { passive: false });
+aimJoyZone.addEventListener('touchmove',  aimJoyMove,  { passive: false });
+aimJoyZone.addEventListener('touchend',   aimJoyEnd,   { passive: false });
+aimJoyZone.addEventListener('touchcancel',aimJoyEnd,   { passive: false });
 
 /* ── Standard action buttons ─────────────────────────────── */
 function mobileAbility() {
