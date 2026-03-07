@@ -1011,13 +1011,13 @@
     </div>
     <div style="margin-top: 8px; display: flex; gap: 8px; justify-content: center;">
         <button class="menu-btn" onclick="openBestiary()" style="background:#dc2626;border-bottom-color:#991b1b;min-width:120px;padding:10px 16px;font-size:12px;">📖 Learn About the Enemies</button>
+        <button class="menu-btn" onclick="openCredits()" style="background:#7c3aed;border-bottom-color:#4c1d95;min-width:120px;padding:10px 16px;font-size:12px;">🎖️ Credits</button>
     </div>
     <input type="file" id="importFileInput" accept=".bsave,.jackpot" style="display:none;" onchange="handleImportFile(event)">
     <div style="margin-top: 20px; display: flex; gap: 8px; justify-content: center;">
         <input type="text" id="codeInput" placeholder="Enter code..." style="padding: 8px 12px; border: 2px solid #fbbf24; background: #1a1a1a; color: #fbbf24; font-family: monospace; border-radius: 4px; width: 150px;">
         <button class="menu-btn" onclick="submitCode()" style="padding: 8px 16px; font-size: 14px; border-bottom: 3px solid #ca8a04; margin: 0;">Submit</button>
     </div>
-
 </div>
 
 <div id="tutorial" style="display:none;"></div>
@@ -1087,7 +1087,7 @@
         <div class="character-card" onclick="selectCharacter('goldhoarder')" id="goldhoarderCharacter">
             <div class="character-preview" style="background:linear-gradient(135deg,#ca8a04,#713f12);box-shadow:0 0 20px rgba(234,179,8,.9);"></div>
             <div class="character-name">Gold Hoarder</div>
-            <div class="character-ability">5x GOLD from everything!<br>R: Gold Rush — converts<br>enemies to coins<br>Terrible at combat</div>
+            <div class="character-ability">5x GOLD from everything!<br>R: Gold Rush converts<br>enemies to coins<br>Terrible at combat</div>
             <div class="character-price">FREE</div>
             <button class="info-btn" onclick="event.stopPropagation();showCharInfo('goldhoarder')">INFO</button>
             <button class="mastery-btn" onclick="event.stopPropagation();showMastery('goldhoarder')">🏅 MASTERY</button>
@@ -1103,7 +1103,7 @@
         <div class="character-card" onclick="selectCharacter('builder')" id="builderCharacter">
             <div class="character-preview" style="background:linear-gradient(135deg,#8b5a2b,#d2691e);box-shadow:0 0 20px rgba(160,82,45,.9);"></div>
             <div class="character-name">The Builder</div>
-            <div class="character-ability">E: Move nearby walls!<br>Shift+Click: Build new<br>walls for defense<br>R: Reinforce — strengthen walls</div>
+            <div class="character-ability">E: Move nearby walls!<br>Shift+Click: Build new<br>walls for defense<br>R: Reinforce strengthen walls</div>
             <div class="character-price">$100</div>
             <button class="info-btn" onclick="event.stopPropagation();showCharInfo('builder')">INFO</button>
             <button class="mastery-btn" onclick="event.stopPropagation();showMastery('builder')">🏅 MASTERY</button>
@@ -1112,7 +1112,7 @@
         <div class="character-card" onclick="selectCharacter('phantom')" id="phantomCharacter">
             <div class="character-preview" style="background:linear-gradient(135deg,#0ea5e9,#1e1b4b);box-shadow:0 0 22px rgba(125,211,252,.8);"></div>
             <div class="character-name">Phantom</div>
-            <div class="character-ability">PASSIVE: Ethereal shots<br>pierce through walls!<br>R: Ghost Walk — phase<br>through walls + speed</div>
+            <div class="character-ability">PASSIVE: Ethereal shots<br>pierce through walls!<br>R: Ghost Walk phase<br>through walls + speed</div>
             <div class="character-price">$250</div>
             <button class="info-btn" onclick="event.stopPropagation();showCharInfo('phantom')">INFO</button>
         </div>
@@ -1120,14 +1120,14 @@
         <div class="character-card" onclick="selectCharacter('boxer')" id="boxerCharacter">
             <div class="character-preview" style="background:linear-gradient(135deg,#dc2626,#7f1d1d);box-shadow:0 0 20px rgba(220,38,38,.9);"></div>
             <div class="character-name">Boxer</div>
-            <div class="character-ability">High damage up close!<br>R: Power Dash — dash<br>into enemies with damage</div>
+            <div class="character-ability">High damage up close!<br>R: Power Dash dash<br>into enemies with damage</div>
             <div class="character-price">$500</div>
             <button class="info-btn" onclick="event.stopPropagation();showCharInfo('boxer')">INFO</button>
         </div>
         <div class="character-card" onclick="selectCharacter('fire')" id="fireCharacter">
             <div class="character-preview" style="background:linear-gradient(135deg,#ff4500,#7f1d1d);box-shadow:0 0 20px rgba(255,69,0,.9);"></div>
             <div class="character-name">Fire Ball</div>
-            <div class="character-ability">Shots leave BURNING<br>ground! R: Inferno —<br>ignites all enemies</div>
+            <div class="character-ability">Shots leave BURNING<br>ground! R: Inferno<br>ignites all enemies</div>
             <div class="character-price">$500</div>
             <button class="info-btn" onclick="event.stopPropagation();showCharInfo('fire')">INFO</button>
         </div>
@@ -1135,7 +1135,7 @@
         <div class="character-card" onclick="selectCharacter('druid')" id="druidCharacter">
             <div class="character-preview" style="background:linear-gradient(135deg,#15803d,#052e16);box-shadow:0 0 22px rgba(74,222,128,.8);"></div>
             <div class="character-name">Druid</div>
-            <div class="character-ability">Shots ROOT enemies<br>in place for 1.5s!<br>R: Heal Mushrooms —<br>spawn HP recovery pods</div>
+            <div class="character-ability">Shots ROOT enemies<br>in place for 1.5s!<br>R: Heal Mushrooms<br>spawn HP recovery pods</div>
             <div class="character-price">$750</div>
             <button class="info-btn" onclick="event.stopPropagation();showCharInfo('druid')">INFO</button>
         </div>
@@ -1143,7 +1143,7 @@
         <div class="character-card" onclick="selectCharacter('ice')" id="iceCharacter">
             <div class="character-preview" style="background:linear-gradient(135deg,#e0f7ff,#06b6d4);box-shadow:0 0 20px rgba(103,232,249,.9);"></div>
             <div class="character-name">Ice Ball</div>
-            <div class="character-ability">Fast pierce shots!<br>SHATTER frozen enemies<br>R: Blizzard — freeze+slow</div>
+            <div class="character-ability">Fast pierce shots!<br>SHATTER frozen enemies<br>R: Blizzard freeze+slow</div>
             <div class="character-price">$1000</div>
             <button class="info-btn" onclick="event.stopPropagation();showCharInfo('ice')">INFO</button>
         </div>
@@ -1160,7 +1160,7 @@
             <span class="new-badge">NEW</span>
             <div class="character-preview" style="background:linear-gradient(135deg,#14532d,#4ade80);box-shadow:0 0 22px rgba(74,222,128,.8);"></div>
             <div class="character-name" style="color:#86efac;">Tank</div>
-            <div class="character-ability">500 HP! Can't shoot!<br>Touch enemies to deal<br>50 contact damage!<br>R: Ground Slam — AOE stun</div>
+            <div class="character-ability">500 HP! Can't shoot!<br>Touch enemies to deal<br>50 contact damage!<br>R: Ground Slam AOE stun</div>
             <div class="character-price">$2000</div>
             <button class="info-btn" onclick="event.stopPropagation();showCharInfo('tank')">INFO</button>
         </div>
@@ -1168,7 +1168,7 @@
         <div class="character-card" onclick="selectCharacter('electric')" id="electricCharacter">
             <div class="character-preview" style="background:linear-gradient(135deg,#facc15,#7c3aed);box-shadow:0 0 20px rgba(168,85,247,.9);"></div>
             <div class="character-name">Tesla</div>
-            <div class="character-ability">Shots auto-chain to<br>nearby enemies!<br>R: Overload — next 8<br>shots hit EVERYTHING</div>
+            <div class="character-ability">Shots auto-chain to<br>nearby enemies!<br>R: Overload next 8<br>shots hit EVERYTHING</div>
             <div class="character-price">$2500</div>
             <button class="info-btn" onclick="event.stopPropagation();showCharInfo('electric')">INFO</button>
         </div>
@@ -1176,7 +1176,7 @@
             <span class="new-badge">NEW</span>
             <div class="character-preview" style="background:linear-gradient(135deg,#713f12,#facc15);box-shadow:0 0 22px rgba(250,204,21,.9);"></div>
             <div class="character-name" style="color:#fde047;">Speedrunner</div>
-            <div class="character-ability">Damage scales with<br>how fast you move!<br>Stand still = 1 dmg<br>R: Sprint Burst — 3s turbo</div>
+            <div class="character-ability">Damage scales with<br>how fast you move!<br>Stand still = 1 dmg<br>R: Sprint Burst 3s turbo</div>
             <div class="character-price">$2500</div>
             <button class="info-btn" onclick="event.stopPropagation();showCharInfo('speedrunner')">INFO</button>
         </div>
@@ -1193,7 +1193,7 @@
             <span class="new-badge">NEW</span>
             <div class="character-preview" style="background:linear-gradient(135deg,#164e63,#22d3ee);box-shadow:0 0 22px rgba(34,211,238,.9);"></div>
             <div class="character-name" style="color:#67e8f9;">Glass Cannon</div>
-            <div class="character-ability">1 HP — dies to anything!<br>150 DAMAGE per shot!<br>Kills stack Adrenaline<br>R: None</div>
+            <div class="character-ability">1 HP dies to anything!<br>150 DAMAGE per shot!<br>Kills stack Adrenaline<br>R: None</div>
             <div class="character-price">$3500</div>
             <button class="info-btn" onclick="event.stopPropagation();showCharInfo('glass_cannon')">INFO</button>
         </div>
@@ -1202,7 +1202,7 @@
             <span class="new-badge">NEW</span>
             <div class="character-preview" style="background:linear-gradient(135deg,#2e1065,#7c3aed);box-shadow:0 0 22px rgba(139,92,246,.9);"></div>
             <div class="character-name" style="color:#c4b5fd;">Necromancer</div>
-            <div class="character-ability">30% chance to raise<br>killed enemies as allies!<br>R: Soul Burst — minions<br>explode dealing 3x dmg</div>
+            <div class="character-ability">30% chance to raise<br>killed enemies as allies!<br>R: Soul Burst minions<br>explode dealing 3x dmg</div>
             <div class="character-price">$4000</div>
             <button class="info-btn" onclick="event.stopPropagation();showCharInfo('necromancer')">INFO</button>
         </div>
@@ -1210,7 +1210,7 @@
         <div class="character-card" onclick="selectCharacter('timewizard')" id="timewizardCharacter">
             <div class="character-preview" style="background:linear-gradient(135deg,#7c3aed,#1e1b4b);box-shadow:0 0 22px rgba(167,139,250,.9);"></div>
             <div class="character-name">Time Wizard</div>
-            <div class="character-ability">Shots echo TWICE after<br>hitting! R: Rewind —<br>restore your HP to<br>a saved snapshot</div>
+            <div class="character-ability">Shots echo TWICE after<br>hitting! R: Rewind<br>restore your HP to<br>a saved snapshot</div>
             <div class="character-price">$4500</div>
             <button class="info-btn" onclick="event.stopPropagation();showCharInfo('timewizard')">INFO</button>
         </div>
@@ -1258,7 +1258,7 @@
         <div class="character-card" onclick="selectCharacter('coin_king')" id="coinKingCharacter" style="display:none;border-color:rgba(251,191,36,0.5);">
             <div class="character-preview" style="background:linear-gradient(135deg,#92400e,#fbbf24);box-shadow:0 0 22px rgba(251,191,36,.9);"></div>
             <div class="character-name" style="color:#fbbf24;">The Coin King</div>
-            <div class="character-ability">12 DMG • Speed 4.5 • No Dash<br>10x Gold Multiplier!<br>Kills heal 3 HP<br>R: Gold Shower — coin blitz</div>
+            <div class="character-ability">12 DMG • Speed 4.5 • No Dash<br>10x Gold Multiplier!<br>Kills heal 3 HP<br>R: Gold Shower coin blitz</div>
             <div class="character-price" style="color:#fbbf24;">💰 Gold Hoarder Mastery</div>
             <button class="info-btn" onclick="event.stopPropagation();showCharInfo('coin_king')">INFO</button>
         </div>
@@ -1273,7 +1273,7 @@
         <div class="character-card limited-card" onclick="selectCharacter('dice')" id="diceCharacter">
             <div class="character-preview" style="background:linear-gradient(135deg,#f97316,#ea580c);box-shadow:0 0 20px rgba(249,115,22,.9);"></div>
             <div class="character-name">Dice</div>
-            <div class="character-ability">EVERYTHING is random!<br>Speed, HP, dmg —<br>all randomized each run<br>R: Random ability</div>
+            <div class="character-ability">EVERYTHING is random!<br>Speed, HP, dmg<br>all randomized each run<br>R: Random ability</div>
             <div class="character-price">$2345</div>
             <div class="limited-timer" id="diceTimer"></div>
             <button class="info-btn" onclick="event.stopPropagation();showCharInfo('dice')">INFO</button>
@@ -1297,7 +1297,7 @@
         <div class="character-card limited-card" onclick="selectCharacter('character10b')" id="character10bCharacter">
             <div class="character-preview" style="background:linear-gradient(135deg,#0284c7,#00aa00);box-shadow:0 0 22px rgba(2,132,199,.9);"></div>
             <div class="character-name" style="color:#7dd3fc;">Character</div>
-            <div class="character-ability">11 HP — ultra fragile<br>10 BILLION damage!<br>R: Omnipotent — instant<br>kill EVERYTHING</div>
+            <div class="character-ability">11 HP ultra fragile<br>10 BILLION damage!<br>R: Omnipotent instant<br>kill EVERYTHING</div>
             <div class="character-price">$50000</div>
             <div class="limited-timer" id="character10bTimer"></div>
             <button class="info-btn" onclick="event.stopPropagation();showCharInfo('character10b')">INFO</button>
@@ -1305,7 +1305,7 @@
         <div class="character-card limited-card" onclick="selectCharacter('rouge_square')" id="rougeSquareCharacter">
             <div class="character-preview" style="background:linear-gradient(135deg,#1e1b4b,#4444ff);box-shadow:0 0 22px rgba(68,68,255,.9);"></div>
             <div class="character-name" style="color:#8888ff;">Rouge Square</div>
-            <div class="character-ability">From the Roguelike Dungeon!<br>Moves on a grid. Square body.<br>Saw Blades orbit you & deal damage.<br>R: Dungeon Shop — freeze enemies & buy upgrades</div>
+            <div class="character-ability">From the Roguelike Dungeon!<br>Moves on a grid. Square body.<br>Saw Blades orbit you & deal damage.<br>R: Dungeon Shop freeze enemies & buy upgrades</div>
             <div class="character-price">$250000</div>
             <div class="limited-timer" id="rougeSquareTimer"></div>
             <button class="info-btn" onclick="event.stopPropagation();showCharInfo('rouge_square')">INFO</button>
@@ -1322,7 +1322,7 @@
                 <div class="character-card" onclick="selectCharacter('gojo')" id="gojoCharacter" style="display:none;border-color:rgba(99,102,241,0.6);background:linear-gradient(135deg,rgba(49,46,129,0.3),rgba(99,102,241,0.15));">
             <div class="character-preview" style="background:linear-gradient(135deg,#312e81,#6366f1);box-shadow:0 0 22px rgba(99,102,241,.9);border-radius:50%;"></div>
             <div class="character-name" style="color:#a5b4fc;">Gojo Satoru</div>
-            <div class="character-ability">28 DMG • Pierce shots<br>35% Infinity block<br>R: Unlimited Void — freeze all<br>The Honored One</div>
+            <div class="character-ability">28 DMG • Pierce shots<br>35% Infinity block<br>R: Unlimited Void freeze all<br>The Honored One</div>
             <div class="character-price" style="color:#a5b4fc;">♾️ Secret Code</div>
             <button class="info-btn" onclick="event.stopPropagation();showCharInfo('gojo')">INFO</button>
             <button class="mastery-btn" onclick="event.stopPropagation();showMastery('gojo')">🏅 MASTERY</button>
@@ -1412,7 +1412,7 @@
         <div class="slot-stat">TIME <span id="slotTimeLeft">60</span>s</div>
         <div class="slot-stat">CHANCE <span>10%</span></div>
     </div>
-    <div class="slot-odds">— 10% JACKPOT EACH ROLL —</div>
+    <div class="slot-odds">- 10% JACKPOT EACH ROLL -</div>
 </div>
 
 <div id="theEnemyDarkness" style="display:none;position:fixed;inset:0;background:#000;opacity:0;pointer-events:none;z-index:8000;transition:opacity 0.8s;"></div>
@@ -1493,6 +1493,9 @@
     <button class="upgrade-btn" id="damageUpgradeBtn" onclick="upgrade('damage')">⚔️ +5 Damage</button>
     <button class="upgrade-btn" onclick="upgrade('speed')">💨 +1 Speed</button>
     <button class="upgrade-btn" onclick="upgrade('mana')">💧 +20 Max Mana</button>
+    <div style="margin-top:14px;">
+        <button onclick="fixButtons()" style="background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.35);border:1px dashed rgba(255,255,255,0.2);padding:6px 14px;border-radius:5px;cursor:pointer;font-size:11px;font-family:inherit;">🔧 Click this if buttons are not clickable</button>
+    </div>
 </div>
 
 <div id="gameOver">
@@ -1503,6 +1506,9 @@
     <p style="color:#fbbf24;margin-top:10px;">💰 Earned: $<span id="moneyEarned">0</span></p>
     <button class="restart-btn" onclick="restartGame()">Play Again</button>
     <button class="restart-btn" onclick="backToMainMenu()" style="background:#6b7280;border-bottom:4px solid #374151;">Main Menu</button>
+    <div style="margin-top:14px;">
+        <button onclick="fixButtons()" style="background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.35);border:1px dashed rgba(255,255,255,0.2);padding:6px 14px;border-radius:5px;cursor:pointer;font-size:11px;font-family:inherit;">🔧 Click this if buttons are not clickable</button>
+    </div>
 </div>
 
 <div id="moneyPopup">
@@ -1525,6 +1531,9 @@
     <div style="margin-top:6px;">
         <button class="shop-reroll-btn" id="shopRerollBtn" onclick="rerollShop()">🎲 Reroll ($<span id="rerollCost">30</span>)</button>
         <button class="shop-skip-btn" onclick="this.style.opacity='0.5';this.style.pointerEvents='none';setTimeout(closeWaveShop,160)">Skip →</button>
+    </div>
+    <div style="margin-top:14px;text-align:center;">
+        <button onclick="fixButtons()" style="background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.35);border:1px dashed rgba(255,255,255,0.2);padding:6px 14px;border-radius:5px;cursor:pointer;font-size:11px;font-family:inherit;">🔧 Click this if buttons are not clickable</button>
     </div>
 </div>
 
@@ -1598,12 +1607,21 @@
                 oninput="settings.soundVolume=parseFloat(this.value);document.getElementById('volumeVal').textContent=Math.round(this.value*100)+'%';saveSettings()">
             <span id="volumeVal">50%</span>
         </div>
+        <div class="slider-row">
+            <label>Music Volume</label>
+            <input type="range" id="sliderMusicVolume" min="0" max="1" step="0.05" value="0.55"
+                oninput="settings.musicVolume=parseFloat(this.value);document.getElementById('musicVolVal').textContent=Math.round(this.value*100)+'%';saveSettings();applyMusicVolume()">
+            <span id="musicVolVal">55%</span>
+        </div>
     </div>
 
     <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;">
         <button class="settings-reset-btn" onclick="resetKeybinds()">↺ Reset Keybinds</button>
         <button class="settings-reset-btn" onclick="resetAllProgress()">🔄 Reset Progress</button>
         <button class="menu-btn" id="settingsBackBtn" onclick="closeSettings()" style="min-width:120px;padding:10px 20px;font-size:13px;">Back</button>
+    </div>
+    <div style="margin-top:14px;">
+        <button onclick="fixButtons()" style="background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.35);border:1px dashed rgba(255,255,255,0.2);padding:6px 14px;border-radius:5px;cursor:pointer;font-size:11px;font-family:inherit;">🔧 Click this if buttons are not clickable</button>
     </div>
 </div>
 
@@ -1987,16 +2005,16 @@ const HONORED_QUESTS = [
     {
         id: 'hornet_silver_soul',
         character: 'Hornet',
-        label: 'Silver Soul',
-        desc: 'Reach wave 100 without taking any damage',
+        label:'Silver Soul',
+        desc:'Reach wave 100 without taking any damage',
         check: () => !runTookDamage && currentRound >= 100,
         progress: () => runTookDamage ? 'DAMAGED - restart' : `${Math.min(currentRound,100)}/100`,
     },
     {
         id: 'hornet_silk_slaughter',
         character: 'Hornet',
-        label: 'Silk Slaughter',
-        desc: 'Kill 25 of every enemy type',
+        label:'Silk Slaughter',
+        desc:'Kill 25 of every enemy type',
         check: () => (enemyKillCounts['normal']||0)>=25 && (enemyKillCounts['triangle']||0)>=25 && (enemyKillCounts['shielder']||0)>=25 && (enemyKillCounts['splitter']||0)>=25 && (enemyKillCounts['healer']||0)>=25 && (enemyKillCounts['bomber']||0)>=25 && (enemyKillCounts['charger']||0)>=25 && (enemyKillCounts['regen_e']||0)>=25 && (enemyKillCounts['berserker_e']||0)>=25 && (enemyKillCounts['phantom_e']||0)>=25 && (enemyKillCounts['leech']||0)>=25 && (enemyKillCounts['sniper_e']||0)>=25 && (enemyKillCounts['puller']||0)>=25 && (enemyKillCounts['mirror_e']||0)>=25 && (enemyKillCounts['timebomb']||0)>=25 && (enemyKillCounts['guardian']||0)>=25 && (enemyKillCounts['golem']||0)>=25 && (enemyKillCounts['dasher']||0)>=25 && (enemyKillCounts['boomerang']||0)>=25 && (enemyKillCounts['swarm']||0)>=25 && (enemyKillCounts['magnet']||0)>=25 && (enemyKillCounts['webber']||0)>=25 && (enemyKillCounts['silencer']||0)>=25 && (enemyKillCounts['mimic']||0)>=25 && (enemyKillCounts['echo']||0)>=25 && (enemyKillCounts['void_rift']||0)>=25,
         progress: () => {
             const types = ['normal', 'triangle', 'shielder', 'splitter', 'healer', 'bomber', 'charger', 'regen_e', 'berserker_e', 'phantom_e', 'leech', 'sniper_e', 'puller', 'mirror_e', 'timebomb', 'guardian', 'golem', 'dasher', 'boomerang', 'swarm', 'magnet', 'webber', 'silencer', 'mimic', 'echo', 'void_rift'];
@@ -2007,136 +2025,136 @@ const HONORED_QUESTS = [
     {
         id: 'hornet_perseverance',
         character: 'Hornet',
-        label: 'Perseverance',
-        desc: 'Finish a run (wave 5+) without buying any shop upgrades',
+        label:'Perseverance',
+        desc:'Finish a run (wave 5+) without buying any shop upgrades',
         check: () => runShopPurchases === 0 && currentRound >= 5,
         progress: () => runShopPurchases===0 ? `${Math.min(currentRound,5)}/5 waves (no shop)` : `BOUGHT ${runShopPurchases} items - restart`,
     },
     {
         id: 'hq_wave100',
         character: 'Satoru Gojo',
-        label: 'Reach Wave 100',
-        desc: 'Survive to wave 100 (no limited chars)',
+        label:'Reach Wave 100',
+        desc:'Survive to wave 100 (no limited chars)',
         check: () => currentRound >= 100,
         progress: () => `${Math.min(currentRound,100)}/100`,
     },
     {
         id: 'hq_kills500',
         character: 'Satoru Gojo',
-        label: 'Kill 500 in one run',
-        desc: 'Eliminate 500 enemies in a single run',
+        label:'Kill 500 in one run',
+        desc:'Eliminate 500 enemies in a single run',
         check: () => runKills >= 500,
         progress: () => `${Math.min(runKills,500)}/500`,
     },
     {
         id: 'hq_playtime',
         character: 'Satoru Gojo',
-        label: 'Survive 10 minutes',
-        desc: 'Accumulate 10 minutes of total playtime',
+        label:'Survive 10 minutes',
+        desc:'Accumulate 10 minutes of total playtime',
         check: () => totalPlayTimeSaved >= 600,
         progress: () => `${Math.floor(Math.min(totalPlayTimeSaved,600)/60)}m ${Math.floor(Math.min(totalPlayTimeSaved,600)%60)}s / 10m`,
     },
     {
         id: 'hq_wave200',
         character: 'Satoru Gojo',
-        label: 'Reach Wave 200 alive',
-        desc: 'Survive to wave 200 without dying',
+        label:'Reach Wave 200 alive',
+        desc:'Survive to wave 200 without dying',
         check: () => currentRound >= 200,
         progress: () => `${Math.min(currentRound,200)}/200`,
     },
     {
         id: 'hq_damage',
         character: 'Satoru Gojo',
-        label: 'Deal 10,000 damage',
-        desc: 'Deal 10,000 total damage in one run',
+        label:'Deal 10,000 damage',
+        desc:'Deal 10,000 total damage in one run',
         check: () => runDamage >= 10000,
         progress: () => `${Math.min(Math.floor(runDamage),10000)}/10000`,
     },
     {
         id: 'hq_specials',
         character: 'Satoru Gojo',
-        label: 'Use R 50 times',
-        desc: 'Activate your special ability 50 times in one run',
+        label:'Use R 50 times',
+        desc:'Activate your special ability 50 times in one run',
         check: () => runSpecialUses >= 50,
         progress: () => `${Math.min(runSpecialUses,50)}/50`,
     },
     {
         id: 'jf_survive10',
         character: 'Jeremiah Quinzy Fowler II',
-        label: 'Don\'t Die Immediately',
-        desc: 'Survive 10 seconds in any run.',
+        label:'Don\'t Die Immediately',
+        desc:'Survive 10 seconds in any run.',
         check: () => runPlayTime >= 10,
         progress: () => `${Math.min(Math.floor(runPlayTime),10)}/10s`,
     },
     {
         id: 'jf_kill1',
         character: 'Jeremiah Quinzy Fowler II',
-        label: 'Actually Kill Something',
-        desc: 'Get 1 kill in a run. Just one.',
+        label:'Actually Kill Something',
+        desc:'Get 1 kill in a run. Just one.',
         check: () => runKills >= 1,
         progress: () => `${Math.min(runKills,1)}/1`,
     },
     {
         id: 'jf_wave3',
         character: 'Jeremiah Quinzy Fowler II',
-        label: 'Reach Wave 3',
-        desc: 'Survive to wave 3 in any run.',
+        label:'Reach Wave 3',
+        desc:'Survive to wave 3 in any run.',
         check: () => currentRound >= 3,
         progress: () => `${Math.min(currentRound,3)}/3`,
     },
     {
         id: 'jf_survive30',
         character: 'Jeremiah Quinzy Fowler II',
-        label: 'Barely Breathing',
-        desc: 'Survive 30 seconds in any run.',
+        label:'Barely Breathing',
+        desc:'Survive 30 seconds in any run.',
         check: () => runPlayTime >= 30,
         progress: () => `${Math.min(Math.floor(runPlayTime),30)}/30s`,
     },
     {
         id: 'jf_kill5',
         character: 'Jeremiah Quinzy Fowler II',
-        label: 'Participation Trophy',
-        desc: 'Get 5 kills in a single run.',
+        label:'Participation Trophy',
+        desc:'Get 5 kills in a single run.',
         check: () => runKills >= 5,
         progress: () => `${Math.min(runKills,5)}/5`,
     },
     {
         id: 'jf_wave5',
         character: 'Jeremiah Quinzy Fowler II',
-        label: 'Mediocrity Peak',
-        desc: 'Reach wave 5 in any run.',
+        label:'Mediocrity Peak',
+        desc:'Reach wave 5 in any run.',
         check: () => currentRound >= 5,
         progress: () => `${Math.min(currentRound,5)}/5`,
     },
     {
         id: 'jf_kill10',
         character: 'Jeremiah Quinzy Fowler II',
-        label: 'Against All Odds',
-        desc: 'Get 10 kills in a single run.',
+        label:'Against All Odds',
+        desc:'Get 10 kills in a single run.',
         check: () => runKills >= 10,
         progress: () => `${Math.min(runKills,10)}/10`,
     },
     {
         id: 'jf_survive60',
         character: 'Jeremiah Quinzy Fowler II',
-        label: 'Grasping at Straws',
-        desc: 'Survive 1 full minute in any run.',
+        label:'Grasping at Straws',
+        desc:'Survive 1 full minute in any run.',
         check: () => runPlayTime >= 60,
         progress: () => `${Math.min(Math.floor(runPlayTime),60)}/60s`,
     },
     {
         id: 'jf_wave10',
         character: 'Jeremiah Quinzy Fowler II',
-        label: 'The Miracle',
-        desc: 'Reach wave 10 in any run.',
+        label:'The Miracle',
+        desc:'Reach wave 10 in any run.',
         check: () => currentRound >= 10,
         progress: () => `${Math.min(currentRound,10)}/10`,
     },
     {
         id: 'jf_kill25',
         character: 'Jeremiah Quinzy Fowler II',
-        label: 'Cursed Persistence',
-        desc: 'Get 25 kills in a single run.',
+        label:'Cursed Persistence',
+        desc:'Get 25 kills in a single run.',
         check: () => runKills >= 25,
         progress: () => `${Math.min(runKills,25)}/25`,
     },
@@ -2261,49 +2279,49 @@ let passiveState = {
 };
 
 const BIOMES = [
-    { name: '🌲 Forest', effect: 'none', damageBonus: 0, speedBonus: 0, description: 'Normal conditions', gridColor: 'rgba(59,130,246,0.07)', playerGlow: '#3b82f6', uiColor: '#3b82f6', bgOverlay: 'rgba(0,0,0,0)' },
-    { name: '❄️ Blizzard', effect: 'freeze', damageBonus: 0, speedBonus: -0.5, description: '-50% movement speed', gridColor: 'rgba(96,165,250,0.1)', playerGlow: '#06b6d4', uiColor: '#0891b2', bgOverlay: 'rgba(135, 206, 250, 0.08)' },
-    { name: '🔥 Lava Fields', effect: 'burn', damageBonus: 0.3, speedBonus: 0, description: '+30% damage, enemies burn', gridColor: 'rgba(255,100,0,0.12)', playerGlow: '#ff4500', uiColor: '#ea580c', bgOverlay: 'rgba(255, 100, 0, 0.06)' },
-    { name: '⚡ Storm', effect: 'electric', damageBonus: 0.2, speedBonus: 0.2, description: '+20% damage & speed', gridColor: 'rgba(250,204,21,0.12)', playerGlow: '#facc15', uiColor: '#a855f7', bgOverlay: 'rgba(255, 255, 0, 0.04)' },
-    { name: '🌙 Twilight', effect: 'dark', damageBonus: 0, speedBonus: 0.3, description: '+30% attack speed', gridColor: 'rgba(168,85,247,0.08)', playerGlow: '#7c3aed', uiColor: '#d8b4fe', bgOverlay: 'rgba(100, 100, 150, 0.12)' },
-    { name: '🌊 Flooded', effect: 'water', damageBonus: -0.15, speedBonus: -0.3, description: '-15% damage, -30% speed', gridColor: 'rgba(96,165,250,0.12)', playerGlow: '#0ea5e9', uiColor: '#0284c7', bgOverlay: 'rgba(100, 150, 200, 0.08)' },
-    { name: '💧 Mystical Spring', effect: 'mana_regen', damageBonus: 0, speedBonus: 0, description: '+100% mana regeneration', gridColor: 'rgba(34,197,94,0.1)', playerGlow: '#10b981', uiColor: '#059669', bgOverlay: 'rgba(16, 185, 129, 0.05)' },
-    { name: '❤️ Healing Grove', effect: 'healing', damageBonus: 0, speedBonus: 0, description: '+3 HP/sec passive healing', gridColor: 'rgba(236,72,153,0.1)', playerGlow: '#f43f5e', uiColor: '#e11d48', bgOverlay: 'rgba(244, 63, 94, 0.04)' },
-    { name: '🕷️ Spider Nest', effect: 'spiderweb', damageBonus: 0.15, speedBonus: -0.4, description: '+15% damage, -40% speed (webs)', gridColor: 'rgba(156,163,175,0.12)', playerGlow: '#6b7280', uiColor: '#4b5563', bgOverlay: 'rgba(100, 100, 100, 0.08)' },
-    { name: '✨ Starlight', effect: 'starlight', damageBonus: 0.25, speedBonus: 0.15, description: '+25% damage, +15% speed, -10% damage taken', gridColor: 'rgba(250,204,21,0.08)', playerGlow: '#fbbf24', uiColor: '#f59e0b', bgOverlay: 'rgba(255, 215, 0, 0.03)' },
-    { name: '🌑 Void', effect: 'void', damageBonus: -0.2, speedBonus: -0.25, description: '-20% damage, -25% speed, enemies deal 50% less', gridColor: 'rgba(67,56,202,0.12)', playerGlow: '#4f46e5', uiColor: '#4338ca', bgOverlay: 'rgba(50, 40, 150, 0.06)' },
-    { name: '🏔️ Mountain Peak', effect: 'mountain', damageBonus: 0.15, speedBonus: 0.15, description: '+15% damage, +15% speed, thin air', gridColor: 'rgba(156,163,175,0.1)', playerGlow: '#e5e7eb', uiColor: '#9ca3af', bgOverlay: 'rgba(200, 200, 210, 0.05)' },
-    { name: '🌋 Volcanic Crater', effect: 'volcanic', damageBonus: 0.4, speedBonus: -0.2, description: '+40% damage, -20% speed, extreme heat', gridColor: 'rgba(220,38,38,0.12)', playerGlow: '#dc2626', uiColor: '#991b1b', bgOverlay: 'rgba(220, 38, 38, 0.08)' },
-    { name: '💚 Nature\'s Embrace', effect: 'nature_embrace', damageBonus: 0.1, speedBonus: 0.1, description: '+1.5 HP/sec healing, +10% everything', gridColor: 'rgba(74,222,128,0.1)', playerGlow: '#22c55e', uiColor: '#16a34a', bgOverlay: 'rgba(34, 197, 94, 0.06)' },
-    { name: '🌀 Mana Vortex', effect: 'mana_vortex', damageBonus: 0.2, speedBonus: 0, description: '+75% mana regen, spells cost 50% less', gridColor: 'rgba(139,92,246,0.12)', playerGlow: '#8b5cf6', uiColor: '#7c3aed', bgOverlay: 'rgba(139, 92, 246, 0.05)' },
-    { name: '⚔️ Warrior\'s Arena', effect: 'warrior_arena', damageBonus: 0.35, speedBonus: 0, description: '+35% damage, enemies deal 20% less', gridColor: 'rgba(239,68,68,0.1)', playerGlow: '#ef4444', uiColor: '#dc2626', bgOverlay: 'rgba(239, 68, 68, 0.06)' },
-    { name: '🌬️ Windy Platwo :D', effect: 'windy', damageBonus: -0.1, speedBonus: 0.5, description: '-10% damage, +50% speed, strong winds', gridColor: 'rgba(148,163,184,0.12)', playerGlow: '#cbd5e1', uiColor: '#94a3b8', bgOverlay: 'rgba(148, 163, 184, 0.06)' },
-    { name: '💎 Crystal Cavern', effect: 'crystal', damageBonus: 0.2, speedBonus: 0.1, description: '+20% damage, +10% speed, projectiles pierce harder', gridColor: 'rgba(34,211,238,0.12)', playerGlow: '#06b6d4', uiColor: '#0891b2', bgOverlay: 'rgba(34, 211, 238, 0.06)' },
-    { name: '🌙 Moon\'s Glow', effect: 'moonlight', damageBonus: 0.05, speedBonus: 0.25, description: '+5% damage, +25% speed, +2 HP/sec healing', gridColor: 'rgba(226,232,240,0.1)', playerGlow: '#f1f5f9', uiColor: '#cbd5e1', bgOverlay: 'rgba(226, 232, 240, 0.08)' },
-    { name: '🔮 Arcane Nexus', effect: 'arcane', damageBonus: 0.25, speedBonus: 0, description: '+25% damage, +100% mana regen, spells free', gridColor: 'rgba(168,85,247,0.12)', playerGlow: '#a855f7', uiColor: '#9333ea', bgOverlay: 'rgba(168, 85, 247, 0.06)' },
-    { name: '💥 Chaos Realm', effect: 'chaos', damageBonus: 0.3, speedBonus: 0.3, description: '+30% damage, +30% speed, 50% enemy damage', gridColor: 'rgba(244,63,94,0.12)', playerGlow: '#f43f5e', uiColor: '#e11d48', bgOverlay: 'rgba(244, 63, 94, 0.07)' },
-    { name: '🏖️ Peaceful Shore', effect: 'peaceful', damageBonus: -0.05, speedBonus: 0, description: '+4 HP/sec healing, +50% mana regen, serene', gridColor: 'rgba(34,197,94,0.08)', playerGlow: '#10b981', uiColor: '#059669', bgOverlay: 'rgba(16, 185, 129, 0.08)' },
-    { name: '⭐ Starfall Night', effect: 'starfall', damageBonus: 0.4, speedBonus: 0.2, description: '+40% damage, +20% speed, meteors falling', gridColor: 'rgba(250,204,21,0.12)', playerGlow: '#fde047', uiColor: '#facc15', bgOverlay: 'rgba(253, 224, 71, 0.07)' },
-    { name: '🌺 Bloom Garden', effect: 'bloom', damageBonus: 0.05, speedBonus: 0.05, description: '+2 HP/sec & +50% mana regen, flowers grow', gridColor: 'rgba(236,72,153,0.08)', playerGlow: '#ec4899', uiColor: '#db2777', bgOverlay: 'rgba(236, 72, 153, 0.05)' },
-    { name: '⚙️ Clockwork Factory', effect: 'clockwork', damageBonus: 0.15, speedBonus: 0.15, description: '+15% everything, +25% mana regen, mechanical', gridColor: 'rgba(156,163,175,0.12)', playerGlow: '#9ca3af', uiColor: '#6b7280', bgOverlay: 'rgba(156, 163, 175, 0.06)' },
-    { name: '🎆 Festival Grounds', effect: 'festival', damageBonus: 0.2, speedBonus: 0.1, description: '+20% damage, +1.5 HP/sec, +30% mana regen', gridColor: 'rgba(236,72,153,0.1)', playerGlow: '#f472b6', uiColor: '#ec4899', bgOverlay: 'rgba(236, 72, 153, 0.06)' },
-    { name: '🧊 Ice Palace', effect: 'icepalace', damageBonus: 0.1, speedBonus: -0.15, description: '+10% damage, -15% speed, +4 HP/sec healing in palace', gridColor: 'rgba(96,165,250,0.12)', playerGlow: '#93c5fd', uiColor: '#3b82f6', bgOverlay: 'rgba(96, 165, 250, 0.08)' },
-    { name: '🌳 Ancient Forest', effect: 'ancientforest', damageBonus: 0.1, speedBonus: 0.15, description: '+10% damage, +15% speed, +2 HP/sec healing', gridColor: 'rgba(34,197,94,0.12)', playerGlow: '#4ade80', uiColor: '#22c55e', bgOverlay: 'rgba(34, 197, 94, 0.07)' },
-    { name: '💫 Celestial Realm', effect: 'celestial', damageBonus: 0.2, speedBonus: 0.2, description: '+20% damage & speed, +60% mana regen, heavenly', gridColor: 'rgba(250,204,21,0.13)', playerGlow: '#fde047', uiColor: '#fbbf24', bgOverlay: 'rgba(250, 204, 21, 0.05)' },
-    { name: '🌪️ Whirlwind Canyon', effect: 'whirlwind', damageBonus: 0.25, speedBonus: 0.35, description: '+25% damage, +35% speed, extreme winds', gridColor: 'rgba(148,163,184,0.13)', playerGlow: '#cbd5e1', uiColor: '#94a3b8', bgOverlay: 'rgba(148, 163, 184, 0.07)' },
-    { name: '🎋 Bamboo Grove', effect: 'bamboo', damageBonus: 0.08, speedBonus: 0.12, description: '+3 HP/sec healing, +40% mana regen, +8% everything', gridColor: 'rgba(132,204,22,0.1)', playerGlow: '#84cc16', uiColor: '#65a30d', bgOverlay: 'rgba(132, 204, 22, 0.06)' },
-    { name: '🪨 Rocky Badlands', effect: 'badlands', damageBonus: 0.22, speedBonus: -0.1, description: '+22% damage, -10% speed, +1 HP/sec healing', gridColor: 'rgba(217,119,6,0.12)', playerGlow: '#d97706', uiColor: '#b45309', bgOverlay: 'rgba(217, 119, 6, 0.07)' },
-    { name: '⚡ Lightning Field', effect: 'lightning_field', damageBonus: 0.28, speedBonus: 0.22, description: '+28% damage, +22% speed, +80% mana regen', gridColor: 'rgba(34,197,94,0.12)', playerGlow: '#fbbf24', uiColor: '#eab308', bgOverlay: 'rgba(251, 191, 36, 0.06)' },
-    { name: '🌀 Mist Valley', effect: 'mist', damageBonus: -0.05, speedBonus: 0.08, description: '-5% damage, +8% speed, +2.5 HP/sec healing', gridColor: 'rgba(209,213,219,0.1)', playerGlow: '#d1d5db', uiColor: '#9ca3af', bgOverlay: 'rgba(209, 213, 219, 0.08)' },
-    { name: '🏜️ Desert Oasis', effect: 'oasis', damageBonus: 0.12, speedBonus: 0.18, description: '+12% damage, +18% speed, +3.5 HP/sec healing, +60% mana regen', gridColor: 'rgba(217,119,6,0.1)', playerGlow: '#f59e0b', uiColor: '#d97706', bgOverlay: 'rgba(245, 158, 11, 0.05)' },
-    { name: '💠 Diamond Plains', effect: 'diamond', damageBonus: 0.32, speedBonus: 0.18, description: '+32% damage, +18% speed, enemies armor reduced 25%', gridColor: 'rgba(34,211,238,0.12)', playerGlow: '#22d3ee', uiColor: '#06b6d4', bgOverlay: 'rgba(34, 211, 238, 0.07)' },
-    { name: '🦇 Darkwood', effect: 'darkwood', damageBonus: 0.18, speedBonus: 0.08, description: '+18% damage, +8% speed, +4 HP/sec healing, darkness — see only near you', gridColor: 'rgba(78,35,11,0.12)', playerGlow: '#92400e', uiColor: '#78350f', bgOverlay: 'rgba(78, 35, 11, 0.08)' },
-    { name: '🔱 Aquatic Depths', effect: 'aquatic', damageBonus: 0.15, speedBonus: 0.22, description: '+15% damage, +22% speed, +1.8 HP/sec, +90% mana regen', gridColor: 'rgba(14,165,233,0.12)', playerGlow: '#0ea5e9', uiColor: '#0284c7', bgOverlay: 'rgba(14, 165, 233, 0.07)' },
-    { name: '🌸 Sakura Falls', effect: 'sakura', damageBonus: 0.1, speedBonus: 0.12, description: '+10% damage, +12% speed, +3.2 HP/sec, +55% mana regen', gridColor: 'rgba(236,72,153,0.1)', playerGlow: '#f472b6', uiColor: '#ec4899', bgOverlay: 'rgba(236, 72, 153, 0.06)' },
-    { name: '⚔️ Blood Arena', effect: 'blood_arena', damageBonus: 0.38, speedBonus: 0.08, description: '+38% damage, +8% speed, +2 HP/sec on kill', gridColor: 'rgba(239,68,68,0.12)', playerGlow: '#ef4444', uiColor: '#dc2626', bgOverlay: 'rgba(239, 68, 68, 0.08)' },
-    { name: '🌊 Tide Pools', effect: 'tide_pools', damageBonus: 0.12, speedBonus: 0.16, description: '+12% damage, +16% speed, +4.5 HP/sec, mana regen +70%', gridColor: 'rgba(6,182,212,0.12)', playerGlow: '#06b6d4', uiColor: '#0891b2', bgOverlay: 'rgba(6, 182, 212, 0.07)' },
-    { name: '✨ Enchanted Castle', effect: 'enchanted', damageBonus: 0.2, speedBonus: 0.14, description: '+20% damage, +14% speed, +2.8 HP/sec, +85% mana regen', gridColor: 'rgba(168,85,247,0.12)', playerGlow: '#d8b4fe', uiColor: '#a855f7', bgOverlay: 'rgba(168, 85, 247, 0.07)' },
-    { name: '☁️ Heaven', effect: 'heaven', damageBonus: 1.0, speedBonus: 0, description: '+100% damage, +100% HP regen, +100% mana regen', gridColor: 'rgba(255,215,0,0.15)', playerGlow: '#ffd700', uiColor: '#ffed4e', bgOverlay: 'rgba(255, 215, 0, 0.08)' },
+    { name:'🌲 Forest', effect: 'none', damageBonus: 0, speedBonus: 0, description:'Normal conditions', gridColor: 'rgba(59,130,246,0.07)', playerGlow: '#3b82f6', uiColor: '#3b82f6', bgOverlay: 'rgba(0,0,0,0)' },
+    { name:'❄️ Blizzard', effect: 'freeze', damageBonus: 0, speedBonus: -0.5, description:'-50% movement speed', gridColor: 'rgba(96,165,250,0.1)', playerGlow: '#06b6d4', uiColor: '#0891b2', bgOverlay: 'rgba(135, 206, 250, 0.08)' },
+    { name:'🔥 Lava Fields', effect: 'burn', damageBonus: 0.3, speedBonus: 0, description:'+30% damage, enemies burn', gridColor: 'rgba(255,100,0,0.12)', playerGlow: '#ff4500', uiColor: '#ea580c', bgOverlay: 'rgba(255, 100, 0, 0.06)' },
+    { name:'⚡ Storm', effect: 'electric', damageBonus: 0.2, speedBonus: 0.2, description:'+20% damage & speed', gridColor: 'rgba(250,204,21,0.12)', playerGlow: '#facc15', uiColor: '#a855f7', bgOverlay: 'rgba(255, 255, 0, 0.04)' },
+    { name:'🌙 Twilight', effect: 'dark', damageBonus: 0, speedBonus: 0.3, description:'+30% attack speed', gridColor: 'rgba(168,85,247,0.08)', playerGlow: '#7c3aed', uiColor: '#d8b4fe', bgOverlay: 'rgba(100, 100, 150, 0.12)' },
+    { name:'🌊 Flooded', effect: 'water', damageBonus: -0.15, speedBonus: -0.3, description:'-15% damage, -30% speed', gridColor: 'rgba(96,165,250,0.12)', playerGlow: '#0ea5e9', uiColor: '#0284c7', bgOverlay: 'rgba(100, 150, 200, 0.08)' },
+    { name:'💧 Mystical Spring', effect: 'mana_regen', damageBonus: 0, speedBonus: 0, description:'+100% mana regeneration', gridColor: 'rgba(34,197,94,0.1)', playerGlow: '#10b981', uiColor: '#059669', bgOverlay: 'rgba(16, 185, 129, 0.05)' },
+    { name:'❤️ Healing Grove', effect: 'healing', damageBonus: 0, speedBonus: 0, description:'+3 HP/sec passive healing', gridColor: 'rgba(236,72,153,0.1)', playerGlow: '#f43f5e', uiColor: '#e11d48', bgOverlay: 'rgba(244, 63, 94, 0.04)' },
+    { name:'🕷️ Spider Nest', effect: 'spiderweb', damageBonus: 0.15, speedBonus: -0.4, description:'+15% damage, -40% speed (webs)', gridColor: 'rgba(156,163,175,0.12)', playerGlow: '#6b7280', uiColor: '#4b5563', bgOverlay: 'rgba(100, 100, 100, 0.08)' },
+    { name:'✨ Starlight', effect: 'starlight', damageBonus: 0.25, speedBonus: 0.15, description:'+25% damage, +15% speed, -10% damage taken', gridColor: 'rgba(250,204,21,0.08)', playerGlow: '#fbbf24', uiColor: '#f59e0b', bgOverlay: 'rgba(255, 215, 0, 0.03)' },
+    { name:'🌑 Void', effect: 'void', damageBonus: -0.2, speedBonus: -0.25, description:'-20% damage, -25% speed, enemies deal 50% less', gridColor: 'rgba(67,56,202,0.12)', playerGlow: '#4f46e5', uiColor: '#4338ca', bgOverlay: 'rgba(50, 40, 150, 0.06)' },
+    { name:'🏔️ Mountain Peak', effect: 'mountain', damageBonus: 0.15, speedBonus: 0.15, description:'+15% damage, +15% speed, thin air', gridColor: 'rgba(156,163,175,0.1)', playerGlow: '#e5e7eb', uiColor: '#9ca3af', bgOverlay: 'rgba(200, 200, 210, 0.05)' },
+    { name:'🌋 Volcanic Crater', effect: 'volcanic', damageBonus: 0.4, speedBonus: -0.2, description:'+40% damage, -20% speed, extreme heat', gridColor: 'rgba(220,38,38,0.12)', playerGlow: '#dc2626', uiColor: '#991b1b', bgOverlay: 'rgba(220, 38, 38, 0.08)' },
+    { name:'💚 Nature\'s Embrace', effect: 'nature_embrace', damageBonus: 0.1, speedBonus: 0.1, description:'+1.5 HP/sec healing, +10% everything', gridColor: 'rgba(74,222,128,0.1)', playerGlow: '#22c55e', uiColor: '#16a34a', bgOverlay: 'rgba(34, 197, 94, 0.06)' },
+    { name:'🌀 Mana Vortex', effect: 'mana_vortex', damageBonus: 0.2, speedBonus: 0, description:'+75% mana regen, spells cost 50% less', gridColor: 'rgba(139,92,246,0.12)', playerGlow: '#8b5cf6', uiColor: '#7c3aed', bgOverlay: 'rgba(139, 92, 246, 0.05)' },
+    { name:'⚔️ Warrior\'s Arena', effect: 'warrior_arena', damageBonus: 0.35, speedBonus: 0, description:'+35% damage, enemies deal 20% less', gridColor: 'rgba(239,68,68,0.1)', playerGlow: '#ef4444', uiColor: '#dc2626', bgOverlay: 'rgba(239, 68, 68, 0.06)' },
+    { name:'🌬️ Windy Platwo :D', effect: 'windy', damageBonus: -0.1, speedBonus: 0.5, description:'-10% damage, +50% speed, strong winds', gridColor: 'rgba(148,163,184,0.12)', playerGlow: '#cbd5e1', uiColor: '#94a3b8', bgOverlay: 'rgba(148, 163, 184, 0.06)' },
+    { name:'💎 Crystal Cavern', effect: 'crystal', damageBonus: 0.2, speedBonus: 0.1, description:'+20% damage, +10% speed, projectiles pierce harder', gridColor: 'rgba(34,211,238,0.12)', playerGlow: '#06b6d4', uiColor: '#0891b2', bgOverlay: 'rgba(34, 211, 238, 0.06)' },
+    { name:'🌙 Moon\'s Glow', effect: 'moonlight', damageBonus: 0.05, speedBonus: 0.25, description:'+5% damage, +25% speed, +2 HP/sec healing', gridColor: 'rgba(226,232,240,0.1)', playerGlow: '#f1f5f9', uiColor: '#cbd5e1', bgOverlay: 'rgba(226, 232, 240, 0.08)' },
+    { name:'🔮 Arcane Nexus', effect: 'arcane', damageBonus: 0.25, speedBonus: 0, description:'+25% damage, +100% mana regen, spells free', gridColor: 'rgba(168,85,247,0.12)', playerGlow: '#a855f7', uiColor: '#9333ea', bgOverlay: 'rgba(168, 85, 247, 0.06)' },
+    { name:'💥 Chaos Realm', effect: 'chaos', damageBonus: 0.3, speedBonus: 0.3, description:'+30% damage, +30% speed, 50% enemy damage', gridColor: 'rgba(244,63,94,0.12)', playerGlow: '#f43f5e', uiColor: '#e11d48', bgOverlay: 'rgba(244, 63, 94, 0.07)' },
+    { name:'🏖️ Peaceful Shore', effect: 'peaceful', damageBonus: -0.05, speedBonus: 0, description:'+4 HP/sec healing, +50% mana regen, serene', gridColor: 'rgba(34,197,94,0.08)', playerGlow: '#10b981', uiColor: '#059669', bgOverlay: 'rgba(16, 185, 129, 0.08)' },
+    { name:'⭐ Starfall Night', effect: 'starfall', damageBonus: 0.4, speedBonus: 0.2, description:'+40% damage, +20% speed, meteors falling', gridColor: 'rgba(250,204,21,0.12)', playerGlow: '#fde047', uiColor: '#facc15', bgOverlay: 'rgba(253, 224, 71, 0.07)' },
+    { name:'🌺 Bloom Garden', effect: 'bloom', damageBonus: 0.05, speedBonus: 0.05, description:'+2 HP/sec & +50% mana regen, flowers grow', gridColor: 'rgba(236,72,153,0.08)', playerGlow: '#ec4899', uiColor: '#db2777', bgOverlay: 'rgba(236, 72, 153, 0.05)' },
+    { name:'⚙️ Clockwork Factory', effect: 'clockwork', damageBonus: 0.15, speedBonus: 0.15, description:'+15% everything, +25% mana regen, mechanical', gridColor: 'rgba(156,163,175,0.12)', playerGlow: '#9ca3af', uiColor: '#6b7280', bgOverlay: 'rgba(156, 163, 175, 0.06)' },
+    { name:'🎆 Festival Grounds', effect: 'festival', damageBonus: 0.2, speedBonus: 0.1, description:'+20% damage, +1.5 HP/sec, +30% mana regen', gridColor: 'rgba(236,72,153,0.1)', playerGlow: '#f472b6', uiColor: '#ec4899', bgOverlay: 'rgba(236, 72, 153, 0.06)' },
+    { name:'🧊 Ice Palace', effect: 'icepalace', damageBonus: 0.1, speedBonus: -0.15, description:'+10% damage, -15% speed, +4 HP/sec healing in palace', gridColor: 'rgba(96,165,250,0.12)', playerGlow: '#93c5fd', uiColor: '#3b82f6', bgOverlay: 'rgba(96, 165, 250, 0.08)' },
+    { name:'🌳 Ancient Forest', effect: 'ancientforest', damageBonus: 0.1, speedBonus: 0.15, description:'+10% damage, +15% speed, +2 HP/sec healing', gridColor: 'rgba(34,197,94,0.12)', playerGlow: '#4ade80', uiColor: '#22c55e', bgOverlay: 'rgba(34, 197, 94, 0.07)' },
+    { name:'💫 Celestial Realm', effect: 'celestial', damageBonus: 0.2, speedBonus: 0.2, description:'+20% damage & speed, +60% mana regen, heavenly', gridColor: 'rgba(250,204,21,0.13)', playerGlow: '#fde047', uiColor: '#fbbf24', bgOverlay: 'rgba(250, 204, 21, 0.05)' },
+    { name:'🌪️ Whirlwind Canyon', effect: 'whirlwind', damageBonus: 0.25, speedBonus: 0.35, description:'+25% damage, +35% speed, extreme winds', gridColor: 'rgba(148,163,184,0.13)', playerGlow: '#cbd5e1', uiColor: '#94a3b8', bgOverlay: 'rgba(148, 163, 184, 0.07)' },
+    { name:'🎋 Bamboo Grove', effect: 'bamboo', damageBonus: 0.08, speedBonus: 0.12, description:'+3 HP/sec healing, +40% mana regen, +8% everything', gridColor: 'rgba(132,204,22,0.1)', playerGlow: '#84cc16', uiColor: '#65a30d', bgOverlay: 'rgba(132, 204, 22, 0.06)' },
+    { name:'🪨 Rocky Badlands', effect: 'badlands', damageBonus: 0.22, speedBonus: -0.1, description:'+22% damage, -10% speed, +1 HP/sec healing', gridColor: 'rgba(217,119,6,0.12)', playerGlow: '#d97706', uiColor: '#b45309', bgOverlay: 'rgba(217, 119, 6, 0.07)' },
+    { name:'⚡ Lightning Field', effect: 'lightning_field', damageBonus: 0.28, speedBonus: 0.22, description:'+28% damage, +22% speed, +80% mana regen', gridColor: 'rgba(34,197,94,0.12)', playerGlow: '#fbbf24', uiColor: '#eab308', bgOverlay: 'rgba(251, 191, 36, 0.06)' },
+    { name:'🌀 Mist Valley', effect: 'mist', damageBonus: -0.05, speedBonus: 0.08, description:'-5% damage, +8% speed, +2.5 HP/sec healing', gridColor: 'rgba(209,213,219,0.1)', playerGlow: '#d1d5db', uiColor: '#9ca3af', bgOverlay: 'rgba(209, 213, 219, 0.08)' },
+    { name:'🏜️ Desert Oasis', effect: 'oasis', damageBonus: 0.12, speedBonus: 0.18, description:'+12% damage, +18% speed, +3.5 HP/sec healing, +60% mana regen', gridColor: 'rgba(217,119,6,0.1)', playerGlow: '#f59e0b', uiColor: '#d97706', bgOverlay: 'rgba(245, 158, 11, 0.05)' },
+    { name:'💠 Diamond Plains', effect: 'diamond', damageBonus: 0.32, speedBonus: 0.18, description:'+32% damage, +18% speed, enemies armor reduced 25%', gridColor: 'rgba(34,211,238,0.12)', playerGlow: '#22d3ee', uiColor: '#06b6d4', bgOverlay: 'rgba(34, 211, 238, 0.07)' },
+    { name:'🦇 Darkwood', effect: 'darkwood', damageBonus: 0.18, speedBonus: 0.08, description:'+18% damage, +8% speed, +4 HP/sec healing, darkness see only near you', gridColor: 'rgba(78,35,11,0.12)', playerGlow: '#92400e', uiColor: '#78350f', bgOverlay: 'rgba(78, 35, 11, 0.08)' },
+    { name:'🔱 Aquatic Depths', effect: 'aquatic', damageBonus: 0.15, speedBonus: 0.22, description:'+15% damage, +22% speed, +1.8 HP/sec, +90% mana regen', gridColor: 'rgba(14,165,233,0.12)', playerGlow: '#0ea5e9', uiColor: '#0284c7', bgOverlay: 'rgba(14, 165, 233, 0.07)' },
+    { name:'🌸 Sakura Falls', effect: 'sakura', damageBonus: 0.1, speedBonus: 0.12, description:'+10% damage, +12% speed, +3.2 HP/sec, +55% mana regen', gridColor: 'rgba(236,72,153,0.1)', playerGlow: '#f472b6', uiColor: '#ec4899', bgOverlay: 'rgba(236, 72, 153, 0.06)' },
+    { name:'⚔️ Blood Arena', effect: 'blood_arena', damageBonus: 0.38, speedBonus: 0.08, description:'+38% damage, +8% speed, +2 HP/sec on kill', gridColor: 'rgba(239,68,68,0.12)', playerGlow: '#ef4444', uiColor: '#dc2626', bgOverlay: 'rgba(239, 68, 68, 0.08)' },
+    { name:'🌊 Tide Pools', effect: 'tide_pools', damageBonus: 0.12, speedBonus: 0.16, description:'+12% damage, +16% speed, +4.5 HP/sec, mana regen +70%', gridColor: 'rgba(6,182,212,0.12)', playerGlow: '#06b6d4', uiColor: '#0891b2', bgOverlay: 'rgba(6, 182, 212, 0.07)' },
+    { name:'✨ Enchanted Castle', effect: 'enchanted', damageBonus: 0.2, speedBonus: 0.14, description:'+20% damage, +14% speed, +2.8 HP/sec, +85% mana regen', gridColor: 'rgba(168,85,247,0.12)', playerGlow: '#d8b4fe', uiColor: '#a855f7', bgOverlay: 'rgba(168, 85, 247, 0.07)' },
+    { name:'☁️ Heaven', effect: 'heaven', damageBonus: 1.0, speedBonus: 0, description:'+100% damage, +100% HP regen, +100% mana regen', gridColor: 'rgba(255,215,0,0.15)', playerGlow: '#ffd700', uiColor: '#ffed4e', bgOverlay: 'rgba(255, 215, 0, 0.08)' },
 ];
 
 function getBiomeColors() {
@@ -2369,7 +2387,7 @@ const RS_SHOP_ABILITIES = [
         floatMoneyText('🧱 Tile barrier deployed!');
       }
     },
-    { id:'rs_saw_burst', name:'Saw Blade Burst', icon:'⚙️', desc:'Saw blades surge — deal 3x damage for 5 seconds.', cost:55, tier:'mid', maxStack:99,
+    { id:'rs_saw_burst', name:'Saw Blade Burst', icon:'⚙️', desc:'Saw blades surge deal 3x damage for 5 seconds.', cost:55, tier:'mid', maxStack:99,
       onBuy: () => {
         rougeSquareSawBlades.forEach(b => { b.surgeDmg = player.damage * 3; b.surgeTimer = 300; });
         floatMoneyText('⚙️ Saw Blade Burst!');
@@ -2414,7 +2432,7 @@ const RS_SHOP_PASSIVES = [
     { id:'rs_tile_regen', name:'Tile Regen', icon:'💚', desc:'+2 HP regen per second. Old-dungeon passive healing.', cost:50, tier:'mid', maxStack:3, stackDesc:'+2 HP/s per stack.',
       onBuy: () => { passiveState.regen += 2; }
     },
-    { id:'rs_dungeon_crit', name:'Dungeon Crit', icon:'💥', desc:'15% crit chance — deal 3x damage on crit.', cost:85, tier:'pricey', maxStack:3, stackDesc:'+15% crit per stack.',
+    { id:'rs_dungeon_crit', name:'Dungeon Crit', icon:'💥', desc:'15% crit chance deal 3x damage on crit.', cost:85, tier:'pricey', maxStack:3, stackDesc:'+15% crit per stack.',
       onBuy: () => { passiveState.crit += 0.15; }
     },
 ];
@@ -2466,7 +2484,7 @@ function renderShop() {
 
 function openWaveShop(wave) {
     if (CHARACTERS[currentCharacter] && CHARACTERS[currentCharacter].lockWaveShop) {
-        floatMoneyText('🔒 The Strongest Today needs no shop — already at full power!');
+        floatMoneyText('🔒 The Strongest Today needs no shop already at full power!');
         gameRunning = true;
         requestAnimationFrame(gameLoop);
         return;
@@ -2474,6 +2492,7 @@ function openWaveShop(wave) {
     shopOpen = true;
     gameRunning = false;
     pauseJackpotMusic();
+    fadeOutMainTheme(600, false);
     shopRerollCost = 30;
     buildShopOffer();
     document.getElementById('shopWaveLabel').textContent = `Wave ${wave} survived! Spend your run gold wisely.`;
@@ -2489,6 +2508,7 @@ function closeWaveShop() {
     setTimeout(()=>{ el.style.display='none'; shopOpen=false;
     walls=[]; generateWalls();
     resumeJackpotMusic();
+    if (!hakariJackpotActive) { fadeInMainTheme(800); }
     gameRunning=true;
     requestAnimationFrame(gameLoop); }, 200);
 }
@@ -2701,10 +2721,12 @@ function playJackpotMusic() {
     clearInterval(jackpotAudio._fadeIn);
     clearInterval(jackpotAudio._fadeOut);
     jackpotAudio._fadeOut = null;
+    // Fade out main theme when Hakari's theme takes over
+    fadeOutMainTheme(800, false);
     jackpotAudio._fadeIn = setInterval(() => {
-        vol = Math.min(vol + 0.02, 0.6);
+        vol = Math.min(vol + 0.02, getMusicVol());
         jackpotAudio.volume = vol;
-        if (vol >= 0.6) clearInterval(jackpotAudio._fadeIn);
+        if (vol >= getMusicVol()) clearInterval(jackpotAudio._fadeIn);
     }, 60);
 }
 function stopJackpotMusic() {
@@ -2720,11 +2742,76 @@ function stopJackpotMusic() {
             jackpotAudio._fadeOut = null;
             jackpotAudio.pause();
             jackpotAudio.currentTime = 0;
+            // Fade main theme back in once Hakari's theme fully ends (only if in-game)
+            if (gameRunning && !gamePaused) { fadeInMainTheme(1200); }
         }
     }, 60);
 }
 function pauseJackpotMusic() { if (!jackpotAudio.paused) jackpotAudio.pause(); }
 function resumeJackpotMusic() { if (hakariJackpotActive && jackpotAudio.paused) jackpotAudio.play().catch(()=>{}); }
+
+// ── MAIN THEME ────────────────────────────────────────────────────────────────
+const mainTheme = new Audio('https://res.cloudinary.com/dz1dungk5/video/upload/v1772861276/circulate_ifgxxj.wav');
+mainTheme.loop = true;
+mainTheme.volume = 0;
+const MAIN_THEME_MAX_VOL = 0.55; // fallback; overridden by settings.musicVolume
+mainTheme._fadeIn  = null;
+mainTheme._fadeOut = null;
+
+function getMusicVol() {
+    return (settings && settings.musicVolume !== undefined) ? settings.musicVolume : 0.55;
+}
+
+function applyMusicVolume() {
+    const mv = getMusicVol();
+    // If theme is actively playing (not mid-fade), snap it to the new ceiling
+    if (!mainTheme._fadeIn && !mainTheme._fadeOut && !mainTheme.paused) {
+        mainTheme.volume = mv;
+    }
+    // Hakari theme respects music volume too
+    if (!jackpotAudio._fadeIn && !jackpotAudio._fadeOut && !jackpotAudio.paused) {
+        jackpotAudio.volume = mv;
+    }
+}
+
+function fadeInMainTheme(ms) {
+    ms = ms || 1200;
+    clearInterval(mainTheme._fadeIn);
+    clearInterval(mainTheme._fadeOut);
+    mainTheme._fadeOut = null;
+    if (mainTheme.paused) { mainTheme.play().catch(()=>{}); }
+    const target = getMusicVol();
+    const step = target / (ms / 50);
+    mainTheme._fadeIn = setInterval(function() {
+        var v = Math.min(mainTheme.volume + step, target);
+        mainTheme.volume = v;
+        if (v >= target) { clearInterval(mainTheme._fadeIn); mainTheme._fadeIn = null; }
+    }, 50);
+}
+
+function fadeOutMainTheme(ms, andPause) {
+    ms = (ms === undefined) ? 1000 : ms;
+    andPause = (andPause === undefined) ? true : andPause;
+    clearInterval(mainTheme._fadeIn);
+    clearInterval(mainTheme._fadeOut);
+    mainTheme._fadeIn  = null;
+    mainTheme._fadeOut = null;
+    if (mainTheme.paused && mainTheme.volume === 0) return;
+    var startVol = mainTheme.volume || MAIN_THEME_MAX_VOL;
+    var step = startVol / (ms / 50);
+    mainTheme._fadeOut = setInterval(function() {
+        var v = Math.max(mainTheme.volume - step, 0);
+        mainTheme.volume = v;
+        if (v <= 0) {
+            clearInterval(mainTheme._fadeOut);
+            mainTheme._fadeOut = null;
+            if (andPause) { mainTheme.pause(); }
+        }
+    }, 50);
+}
+
+function stopMainTheme() { fadeOutMainTheme(800, true); }
+// ─────────────────────────────────────────────────────────────────────────────
 
 const SLOT_SYMBOLS = ['7️⃣','🍒','⭐','🎱','💎','🌸'];
 const SLOT_LOSE_SETS = [
@@ -2771,7 +2858,7 @@ function triggerSlotRoll(jackpot) {
             }
         }, i * 120);
     });
-    document.getElementById('slotResult').textContent = jackpot ? '🎰 JACKPOT!! 🎰' : '— No match —';
+    document.getElementById('slotResult').textContent = jackpot ? '🎰 JACKPOT!! 🎰' : '- No match -';
     if (jackpot) document.getElementById('slotResult').style.color = '#fbbf24';
     else document.getElementById('slotResult').style.color = '#f472b6';
 }
@@ -2850,11 +2937,11 @@ function tickNewCharacters(ts, dt) {
         if (necroMinions.length > 0) {
             ctx.save(); ctx.font='bold 10px Arial'; ctx.fillStyle='rgba(192,132,252,0.85)'; ctx.textAlign='left';
             ctx.shadowBlur=6; ctx.shadowColor='#a855f7';
-            ctx.fillText(`💀 NECROMANCER — ${necroMinions.length} minion${necroMinions.length!==1?'s':''} | R: Soul Burst (40 mana)`,12,22);
+            ctx.fillText(`💀 NECROMANCER ${necroMinions.length} minion${necroMinions.length!==1?'s':''} | R: Soul Burst (40 mana)`,12,22);
             ctx.restore();
         } else {
             ctx.save(); ctx.font='bold 10px Arial'; ctx.fillStyle='rgba(192,132,252,0.5)'; ctx.textAlign='left';
-            ctx.fillText(`💀 NECROMANCER — no minions | 30% raise on kill | R: Soul Burst (40 mana)`,12,22);
+            ctx.fillText(`💀 NECROMANCER no minions | 30% raise on kill | R: Soul Burst (40 mana)`,12,22);
             ctx.restore();
         }
     }
@@ -2863,11 +2950,11 @@ function tickNewCharacters(ts, dt) {
         if (glassCannAdrenaline > 0) {
             ctx.save(); ctx.font='bold 10px Arial'; ctx.fillStyle='rgba(34,211,238,0.9)'; ctx.textAlign='left';
             ctx.shadowBlur=6; ctx.shadowColor='#22d3ee';
-            ctx.fillText(`💥 GLASS CANNON — +${glassCannAdrenaline} ADRENALINE dmg | 1 HP — don't get hit!`,12,22);
+            ctx.fillText(`💥 GLASS CANNON +${glassCannAdrenaline} ADRENALINE dmg | 1 HP don't get hit!`,12,22);
             ctx.restore();
         } else {
             ctx.save(); ctx.font='bold 10px Arial'; ctx.fillStyle='rgba(34,211,238,0.4)'; ctx.textAlign='left';
-            ctx.fillText(`💥 GLASS CANNON — 150 base dmg | Adrenaline: 0 | 1 HP — don't get hit!`,12,22);
+            ctx.fillText(`💥 GLASS CANNON 150 base dmg | Adrenaline: 0 | 1 HP don't get hit!`,12,22);
             ctx.restore();
         }
     }
@@ -2884,7 +2971,7 @@ function tickNewCharacters(ts, dt) {
         });
         ctx.save(); ctx.font='bold 10px Arial'; ctx.fillStyle='rgba(74,222,128,0.8)'; ctx.textAlign='left';
         ctx.shadowBlur=6; ctx.shadowColor='#4ade80';
-        ctx.fillText(`🛡️ TANK — 500 HP • Contact dmg • No shooting | R: Ground Slam (AOE)`,12,22);
+        ctx.fillText(`🛡️ TANK 500 HP • Contact dmg • No shooting | R: Ground Slam (AOE)`,12,22);
         ctx.restore();
     }
 
@@ -2902,7 +2989,7 @@ function tickNewCharacters(ts, dt) {
         ctx.save(); ctx.font='bold 10px Arial';
         ctx.fillStyle = vel > 2 ? 'rgba(253,224,71,0.9)' : 'rgba(253,224,71,0.4)'; ctx.textAlign='left';
         ctx.shadowBlur=6; ctx.shadowColor='#facc15';
-        ctx.fillText(`⚡ SPEEDRUNNER — base 8 +${bonusDmg} speed dmg${speedrunnerSprintActive?' [SPRINT '+Math.ceil(speedrunnerSprintTimer/60)+'s]':' | R: Sprint Burst'}`,12,22);
+        ctx.fillText(`⚡ SPEEDRUNNER base 8 +${bonusDmg} speed dmg${speedrunnerSprintActive?' [SPRINT '+Math.ceil(speedrunnerSprintTimer/60)+'s]':' | R: Sprint Burst'}`,12,22);
         ctx.restore();
     }
 
@@ -4228,7 +4315,7 @@ function tickSpecialEnemies(dt) {
             let diff = targetAngle - e.shieldFacing;
             while (diff > Math.PI)  diff -= Math.PI * 2;
             while (diff < -Math.PI) diff += Math.PI * 2;
-            const turnRate = 0.03; // radians per tick — slow, deliberate turn
+            const turnRate = 0.03; // radians per tick - slow, deliberate turn
             e.shieldFacing += diff * turnRate;
         }
 
@@ -4406,7 +4493,7 @@ function spawnWave(){
         bountyGold = 150 + currentRound * 3;
         bountyIdx = 0;
         bountyActive = true;
-        floatMoneyText(`🎯 BOUNTY: ${bountyLabel} — $${bountyGold}!`);
+        floatMoneyText(`🎯 BOUNTY: ${bountyLabel} $${bountyGold}!`);
     }
 
     for(let i=0;i<count;i++){
@@ -4533,7 +4620,7 @@ function updateTheEnemy(dt) {
     enemies.forEach(e => { e.alive = false; });
     enemies = [];
 
-    // Move directly toward player — no wall collision, pure pursuit
+    // Move directly toward player - no wall collision, pure pursuit
     const dx = player.x - te.x, dy = player.y - te.y;
     const dist = Math.hypot(dx, dy);
     if (dist > 0) {
@@ -4640,7 +4727,7 @@ function spawnSukunaBoss() {
         attackCooldown: 90,
         isSukuna: true,
     };
-    floatMoneyText('👹 RYOMEN SUKUNA AWAKENS — THE KING OF CURSES!');
+    floatMoneyText('👹 RYOMEN SUKUNA AWAKENS THE KING OF CURSES!');
     floatMoneyText('💰 Kill Sukuna to keep your earned gold!');
     for(let i=0;i<200;i++) particles.push(new Particle(canvas.width/2+(Math.random()-0.5)*300, canvas.height/2+(Math.random()-0.5)*300, '#8b0000'));
 
@@ -5379,7 +5466,7 @@ function specialAttack(){
             break;
         }
         case 'silk_storm': {
-            // R — Silk Storm: thread slam around player, costs 4 silk
+            // R - Silk Storm: thread slam around player, costs 4 silk
             if (hornetSilk < 4) { floatMoneyText('🕸️ Not enough silk! (4 needed)'); return; }
             hornetSilk -= 4;
             const stormR = 260;
@@ -5626,7 +5713,7 @@ function specialAttack(){
                 e.frozen = Math.max(e.frozen, gPhase.voidFreeze);
                 for(let i=0;i<8;i++) particles.push(new Particle(e.x+(Math.random()-0.5)*40, e.y+(Math.random()-0.5)*40, '#6366f1'));
             });
-            floatMoneyText('♾️ UNLIMITED VOID — Domain Expanded!');
+            floatMoneyText('♾️ UNLIMITED VOID Domain Expanded!');
             for(let i=0;i<200;i++) particles.push(new Particle(Math.random()*canvas.width, Math.random()*canvas.height, '#6366f1'));
             break;
         }
@@ -5843,8 +5930,8 @@ const ROUGE_SQUARE_LEVEL_UPS = [
     {
         id: 'tile_armor',
         icon: '🟦',
-        label: '+20 Max HP + Tile Shield',
-        desc: 'Dungeon tile armor absorbs the next hit you take',
+        label:'+20 Max HP + Tile Shield',
+        desc:'Dungeon tile armor absorbs the next hit you take',
         apply: () => {
             player.maxHealth += 20;
             player.health = Math.min(player.health + 20, player.maxHealth);
@@ -5855,8 +5942,8 @@ const ROUGE_SQUARE_LEVEL_UPS = [
     {
         id: 'saw_upgrade',
         icon: '⚙️',
-        label: 'Upgrade Saw Blades',
-        desc: 'Add 1 more blade + blades deal +8 more damage',
+        label:'Upgrade Saw Blades',
+        desc:'Add 1 more blade + blades deal +8 more damage',
         apply: () => {
             player.damage += 8;
             if (rougeSquareSawBlades.length < 6) {
@@ -5869,8 +5956,8 @@ const ROUGE_SQUARE_LEVEL_UPS = [
     {
         id: 'dungeon_step',
         icon: '👟',
-        label: '+2 Speed + Shorter Cooldown',
-        desc: 'Move faster on the tile grid. R cooldown -1s',
+        label:'+2 Speed + Shorter Cooldown',
+        desc:'Move faster on the tile grid. R cooldown -1s',
         apply: () => {
             player.speed += 2;
             if (CHARACTERS[currentCharacter]) {
@@ -5882,8 +5969,8 @@ const ROUGE_SQUARE_LEVEL_UPS = [
     {
         id: 'dungeon_power',
         icon: '💥',
-        label: '+10 Damage + 15 Max Mana',
-        desc: 'Raw dungeon power — more damage and mana',
+        label:'+10 Damage + 15 Max Mana',
+        desc:'Raw dungeon power more damage and mana',
         apply: () => {
             player.damage += 10;
             player.maxMana += 15;
@@ -5894,8 +5981,8 @@ const ROUGE_SQUARE_LEVEL_UPS = [
     {
         id: 'gold_find',
         icon: '🪙',
-        label: '+25 Max HP + Gold Boost',
-        desc: '+25 max HP and earn 20% more gold this run',
+        label:'+25 Max HP + Gold Boost',
+        desc:'+25 max HP and earn 20% more gold this run',
         apply: () => {
             player.maxHealth += 25;
             player.health = Math.min(player.health + 25, player.maxHealth);
@@ -5906,8 +5993,8 @@ const ROUGE_SQUARE_LEVEL_UPS = [
     {
         id: 'blade_aura',
         icon: '🌀',
-        label: 'Blade Aura',
-        desc: 'Saw blades orbit faster and deal +50% dmg for this run',
+        label:'Blade Aura',
+        desc:'Saw blades orbit faster and deal +50% dmg for this run',
         apply: () => {
             rougeSquareSawBlades.forEach(b => { b.rotSpeed = Math.min(b.rotSpeed + 0.02, 0.14); });
             rougeSquareSawDmgMult = (rougeSquareSawDmgMult || 1) + 0.5;
@@ -5971,36 +6058,36 @@ function getGojoPhase(wave) {
 
 const GOJO_PHASES = [
     {
-        name: '👶 Baby Gojo',
+        name:'👶 Baby Gojo',
         color: '#c7d2fe', shadow: '#6366f1',
         damage: 18, speed: 4.5, maxHealth: 80, fireRate: 350,
         infinityChance: 0.15, healRate: 0.2,
         voidFreeze: 240, voidCooldown: 720,
-        msg: '👶 Baby Gojo — still learning the ropes...'
+        msg:'👶 Baby Gojo still learning the ropes...'
     },
     {
-        name: '🧑 Teen Gojo',
+        name:'🧑 Teen Gojo',
         color: '#a5b4fc', shadow: '#4f46e5',
         damage: 28, speed: 5.5, maxHealth: 110, fireRate: 280,
         infinityChance: 0.30, healRate: 0.5,
         voidFreeze: 300, voidCooldown: 600,
-        msg: '🧑 Teen Gojo — the power is growing!'
+        msg:'🧑 Teen Gojo the power is growing!'
     },
     {
-        name: '💪 Adult Gojo',
+        name:'💪 Adult Gojo',
         color: '#818cf8', shadow: '#3730a3',
         damage: 42, speed: 6.5, maxHealth: 140, fireRate: 200,
         infinityChance: 0.50, healRate: 1.0,
         voidFreeze: 420, voidCooldown: 480,
-        msg: '💪 Adult Gojo — near unstoppable!'
+        msg:'💪 Adult Gojo near unstoppable!'
     },
     {
-        name: '⭐ THE STRONGEST',
+        name:'⭐ THE STRONGEST',
         color: '#e0e7ff', shadow: '#1e1b4b',
         damage: 65, speed: 8, maxHealth: 200, fireRate: 130,
         infinityChance: 0.70, healRate: 2.0,
         voidFreeze: 600, voidCooldown: 300,
-        msg: '⭐ THE STRONGEST — Gojo Satoru at full power!'
+        msg:'⭐ THE STRONGEST Gojo Satoru at full power!'
     }
 ];
 
@@ -6041,7 +6128,7 @@ function tst_maximumBlue() {
             if(sukunaBoss.health <= 0) {
                 sukunaBoss.alive=false; sukunaBossActive=false; sukunaDomainActive=false; sukunaShrineActive=false;
                 gojoRunGoldEarned=0;
-                floatMoneyText('⭐ SUKUNA DEFEATED — GOLD SECURED!');
+                floatMoneyText('⭐ SUKUNA DEFEATED GOLD SECURED!');
                 for(let i=0;i<300;i++) particles.push(new Particle(sukunaBoss.x+(Math.random()-0.5)*200, sukunaBoss.y+(Math.random()-0.5)*200,'#fbbf24'));
                 document.getElementById('bossHealthBar').style.display='none';
                 endGame(true);
@@ -6053,7 +6140,7 @@ function tst_maximumBlue() {
     const grad = ctx.createConicalGradient ? null : ctx.createRadialGradient(player.x,player.y,0,player.x,player.y,pullRange);
     if(grad){grad.addColorStop(0,'rgba(96,165,250,0.5)');grad.addColorStop(1,'rgba(96,165,250,0)');ctx.fillStyle=grad;ctx.beginPath();ctx.arc(player.x,player.y,pullRange,0,Math.PI*2);ctx.fill();}
     ctx.restore();
-    floatMoneyText(`💙 MAXIMUM OUTPUT: BLUE — Pull! (${hitCount} hit)`);
+    floatMoneyText(`💙 MAXIMUM OUTPUT: BLUE Pull! (${hitCount} hit)`);
     playSound(300, 0.3, 'sine'); playSound(200, 0.2, 'sine');
     for(let i=0;i<60;i++) {const a=angle+(Math.random()-0.5)*0.8;const r=20+Math.random()*pullRange;const p=new Particle(player.x+Math.cos(a)*r,player.y+Math.sin(a)*r,'#60a5fa');p.vx=-Math.cos(a)*4;p.vy=-Math.sin(a)*4;particles.push(p);}
 }
@@ -6096,14 +6183,14 @@ function tst_maximumRed() {
             if(sukunaBoss.health <= 0) {
                 sukunaBoss.alive=false; sukunaBossActive=false; sukunaDomainActive=false; sukunaShrineActive=false;
                 gojoRunGoldEarned=0;
-                floatMoneyText('⭐ SUKUNA DEFEATED — GOLD SECURED!');
+                floatMoneyText('⭐ SUKUNA DEFEATED GOLD SECURED!');
                 for(let i=0;i<300;i++) particles.push(new Particle(sukunaBoss.x+(Math.random()-0.5)*200, sukunaBoss.y+(Math.random()-0.5)*200,'#fbbf24'));
                 document.getElementById('bossHealthBar').style.display='none';
                 endGame(true);
             }
         }
     }
-    floatMoneyText(`❤️ MAXIMUM OUTPUT: RED — Blast! (${hitCount} hit)`);
+    floatMoneyText(`❤️ MAXIMUM OUTPUT: RED Blast! (${hitCount} hit)`);
     playSound(150, 0.4, 'sawtooth'); playSound(100, 0.2, 'square');
     for(let i=0;i<60;i++) {const a=Math.random()*Math.PI*2;const p=new Particle(player.x,player.y,'#ef4444');p.vx=Math.cos(a)*8;p.vy=Math.sin(a)*8;particles.push(p);}
 }
@@ -6237,6 +6324,9 @@ function restoreLevelUpHTML() {
         <button class="upgrade-btn" id="damageUpgradeBtn" onclick="upgrade('damage')">⚔️ +5 Damage</button>
         <button class="upgrade-btn" onclick="upgrade('speed')">💨 +1 Speed</button>
         <button class="upgrade-btn" onclick="upgrade('mana')">💧 +20 Max Mana</button>
+        <div style="margin-top:14px;">
+            <button onclick="fixButtons()" style="background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.35);border:1px dashed rgba(255,255,255,0.2);padding:6px 14px;border-radius:5px;cursor:pointer;font-size:11px;font-family:inherit;">🔧 Click this if buttons are not clickable</button>
+        </div>
     `;
 }
 
@@ -6249,6 +6339,7 @@ function upgrade(type){
         else if(type==='speed')player.speed+=1;
         else if(type==='mana'){player.maxMana+=20;player.mana=player.maxMana;}
         document.getElementById('levelUpNotice').classList.remove('show');
+        restoreLevelUpHTML();
         resumeJackpotMusic();
         gameRunning=true;updateHUD();requestAnimationFrame(gameLoop);
     }, 180);
@@ -6412,7 +6503,7 @@ function endGame(sukunaKilled=false){
     if(currentCharacter === 'gojo' && sukunaBossActive && !sukunaKilled) {
         totalMoney = Math.max(0, totalMoney - gojoRunGoldEarned);
         sessionMoney = Math.max(0, sessionMoney - gojoRunGoldEarned);
-        floatMoneyText('💸 You died to Sukuna — gold lost!');
+        floatMoneyText('💸 You died to Sukuna gold lost!');
         savePersistentData();
         updateMoneyDisplay();
         gojoRunGoldEarned = 0;
@@ -6440,7 +6531,7 @@ function endGame(sukunaKilled=false){
     document.getElementById('finalWave').textContent=currentRound;
     document.getElementById('moneyEarned').textContent=sessionMoney;
 }
-function restartGame(){document.getElementById('gameOver').style.display='none';resetGame();gameRunning=true;requestAnimationFrame(gameLoop);}
+function restartGame(){document.getElementById('gameOver').style.display='none';resetGame();gameRunning=true;mainTheme.pause();mainTheme.currentTime=0;fadeInMainTheme(1200);requestAnimationFrame(gameLoop);}
 
 const NAV_CELL = 20;
 let navGrid = null;
@@ -7582,7 +7673,7 @@ function gameLoop(ts){
             enemies = [];
             currentBoss = null; bossBullets = []; miniTriangles = [];
             bossSpawned = false;
-            floatMoneyText('⚠️ WAVE 900 — SOMETHING IS COMING...');
+            floatMoneyText('⚠️ WAVE 900 SOMETHING IS COMING...');
             playSound(40, 0.3, 'sawtooth');
             setTimeout(() => playSound(35, 0.2, 'sawtooth'), 600);
         }
@@ -7813,25 +7904,25 @@ function gameLoop(ts){
     if (bountyActive && currentBountyEnemy && currentBountyEnemy.alive) {
         ctx.fillStyle='rgba(251,191,36,0.9)';ctx.font='bold 10px Arial';
         ctx.shadowColor='#fbbf24';ctx.shadowBlur=8;
-        ctx.fillText(`🎯 BOUNTY: ${bountyLabel} — $${bountyGold}`,canvas.width-12,78);
+        ctx.fillText(`🎯 BOUNTY: ${bountyLabel} $${bountyGold}`,canvas.width-12,78);
     }
     ctx.textAlign='left';ctx.restore();
 
     if(currentCharacter==='phantom'){
         ctx.save();ctx.font='bold 10px Arial';ctx.fillStyle='rgba(125,211,252,0.8)';ctx.textAlign='left';
         ctx.shadowBlur=6;ctx.shadowColor='#38bdf8';
-        ctx.fillText(`👻 PHANTOM — shots pierce walls! | R: Ghost Walk${phantomPhasing?' [PHASING]':' (3s CD)'}`,12,22);ctx.restore();
+        ctx.fillText(`👻 PHANTOM shots pierce walls! | R: Ghost Walk${phantomPhasing?' [PHASING]':' (3s CD)'}`,12,22);ctx.restore();
     }
     if(currentCharacter==='druid'){
         ctx.save();ctx.font='bold 10px Arial';ctx.fillStyle='rgba(74,222,128,0.8)';ctx.textAlign='left';
         ctx.shadowBlur=6;ctx.shadowColor='#16a34a';
-        ctx.fillText(`🌿 DRUID — shots ROOT enemies 1.5s! | R: Mushroom ring (heal zone) | Shrooms: ${druidShrooms.length}`,12,22);ctx.restore();
+        ctx.fillText(`🌿 DRUID shots ROOT enemies 1.5s! | R: Mushroom ring (heal zone) | Shrooms: ${druidShrooms.length}`,12,22);ctx.restore();
     }
     if(currentCharacter==='pyromancer'){
         ctx.save();ctx.font='bold 10px Arial';ctx.fillStyle='rgba(251,146,60,0.9)';ctx.textAlign='left';
         ctx.shadowBlur=6;ctx.shadowColor='#c2410c';
         const pct2=pyroCharging?Math.round(Math.min(pyroChargeTimer/180,1)*100):0;
-        ctx.fillText('🔮 PYROMANCER — hold click to charge shots' + (pyroCharging?' ['+pct2+'%]':'') + ' | R: Meteor Strike',12,22);ctx.restore();
+        ctx.fillText('🔮 PYROMANCER - hold click to charge shots' + (pyroCharging?' ['+pct2+'%]':'') + ' | R: Meteor Strike',12,22);ctx.restore();
     }
     if(currentCharacter==='cyborg'){
         ctx.save();ctx.font='bold 10px Arial';ctx.fillStyle=cyborgMode==='rapid'?'rgba(56,189,248,0.9)':'rgba(192,132,252,0.9)';ctx.textAlign='left';
@@ -7841,17 +7932,17 @@ function gameLoop(ts){
     if(currentCharacter==='timewizard'){
         ctx.save();ctx.font='bold 10px Arial';ctx.fillStyle='rgba(216,180,254,0.9)';ctx.textAlign='left';
         ctx.shadowBlur=6;ctx.shadowColor='#7c3aed';
-        const snapHp=timeWizardSnapshot?Math.round(timeWizardSnapshot.health):'--';
-        ctx.fillText(`⏳ TIME WIZARD — shots echo twice! | R: Rewind HP | Snapshot: ${snapHp} HP`,12,22);ctx.restore();
+        const snapHp=timeWizardSnapshot?Math.round(timeWizardSnapshot.health):'N/A';
+        ctx.fillText(`⏳ TIME WIZARD shots echo twice! | R: Rewind HP | Snapshot: ${snapHp} HP`,12,22);ctx.restore();
     }
     if(CHARACTERS[currentCharacter].isMachineGun){
         ctx.save();ctx.font='bold 10px Arial';ctx.fillStyle='rgba(200,200,200,0.4)';ctx.textAlign='left';
-        ctx.fillText('🔫 MACHINE GUN — 1 dmg | no special',12,22);ctx.restore();
+        ctx.fillText('🔫 MACHINE GUN - 1 dmg | no special',12,22);ctx.restore();
     }
     if(currentCharacter==='goldhoarder'){
         ctx.save();ctx.font='bold 10px Arial';ctx.fillStyle='rgba(234,179,8,0.7)';ctx.textAlign='left';
         ctx.shadowBlur=6;ctx.shadowColor='#fbbf24';
-        ctx.fillText('🪙 GOLD HOARDER — 5x gold | slow & weak | R: Gold Rush',12,22);ctx.restore();
+        ctx.fillText('🪙 GOLD HOARDER - 5x gold | slow & weak | R: Gold Rush',12,22);ctx.restore();
     }
     if(currentCharacter==='default'){
         if (currentCharacter === 'war_veteran') {
@@ -7859,29 +7950,29 @@ function gameLoop(ts){
             const secLeft = warVeteranTier < WAR_VETERAN_TIERS.length-1 ? Math.ceil((2700-warVeteranTimer)/60) : 'MAX';
             ctx.save();ctx.font='bold 10px Arial';ctx.fillStyle=wt.color;ctx.textAlign='left';
             ctx.shadowBlur=8;ctx.shadowColor=wt.shadow;
-            ctx.fillText(`🎖️ ${wt.name} — R: Ranked Bombardment | promotes in: ${secLeft}s`,12,22);ctx.restore();
+            ctx.fillText(`🎖️ ${wt.name} R: Ranked Bombardment | promotes in: ${secLeft}s`,12,22);ctx.restore();
         } else {
             const vt=VETERAN_TIERS[veteranTier];
             const secLeft=veteranTier<VETERAN_TIERS.length-1?Math.ceil((1800-veteranTimer)/60):'MAX';
             ctx.save();ctx.font='bold 10px Arial';ctx.fillStyle=vt.color;ctx.textAlign='left';
             ctx.shadowBlur=8;ctx.shadowColor=vt.shadow;
-            ctx.fillText(`⭐ ${vt.name} — R: ${vt.label} | evolves in: ${secLeft}s`,12,22);ctx.restore();
+            ctx.fillText(`⭐ ${vt.name} R: ${vt.label} | evolves in: ${secLeft}s`,12,22);ctx.restore();
         }
     }
     if(currentCharacter==='fire'){
         ctx.save();ctx.font='bold 10px Arial';ctx.fillStyle='rgba(255,100,0,0.8)';ctx.textAlign='left';
         ctx.shadowBlur=6;ctx.shadowColor='#ff4500';
-        ctx.fillText('🔥 FIRE BALL — shots leave burn patches | R: Inferno (ignites all)',12,22);ctx.restore();
+        ctx.fillText('🔥 FIRE BALL - shots leave burn patches | R: Inferno (ignites all)',12,22);ctx.restore();
     }
     if(currentCharacter==='ice'){
         ctx.save();ctx.font='bold 10px Arial';ctx.fillStyle='rgba(103,232,249,0.8)';ctx.textAlign='left';
         ctx.shadowBlur=6;ctx.shadowColor='#06b6d4';
-        ctx.fillText('❄️ ICE BALL — pierce shots | shatter frozen for 3x dmg | R: Blizzard',12,22);ctx.restore();
+        ctx.fillText('❄️ ICE BALL - pierce shots | shatter frozen for 3x dmg | R: Blizzard',12,22);ctx.restore();
     }
     if(currentCharacter==='electric'){
         ctx.save();ctx.font='bold 10px Arial';ctx.fillStyle='rgba(250,204,21,0.8)';ctx.textAlign='left';
         ctx.shadowBlur=6;ctx.shadowColor='#a855f7';
-        ctx.fillText(`⚡ TESLA — shots auto-chain | R: Overload${overloadCharges>0?' ACTIVE x'+overloadCharges:''}`,12,22);ctx.restore();
+        ctx.fillText(`⚡ TESLA shots auto-chain | R: Overload${overloadCharges>0?' ACTIVE x'+overloadCharges:''}`,12,22);ctx.restore();
     }
     let buffY = canvas.height - 14;
     const buffFont = 'bold 11px Arial';
@@ -8040,7 +8131,7 @@ function gameLoop(ts){
                     sukunaDomainActive = false;
                     sukunaShrineActive = false;
                     gojoRunGoldEarned = 0;
-                    floatMoneyText('⭐ SUKUNA DEFEATED — GOLD SECURED!');
+                    floatMoneyText('⭐ SUKUNA DEFEATED GOLD SECURED!');
                     for(let i=0;i<300;i++) particles.push(new Particle(sukunaBoss.x+(Math.random()-0.5)*200, sukunaBoss.y+(Math.random()-0.5)*200, '#fbbf24'));
                     document.getElementById('bossHealthBar').style.display='none';
                     endGame(true);
@@ -8557,7 +8648,7 @@ function gameLoop(ts){
             sukunaShrineActive = true;
             sukunaShrineTimer = 480;
             sukunaShrineTick = 0;
-            floatMoneyText('👹 MALEVOLENT SHRINE — DOMAIN EXPANSION!');
+            floatMoneyText('👹 MALEVOLENT SHRINE DOMAIN EXPANSION!');
             for(let i=0;i<150;i++) particles.push(new Particle(sb.x+(Math.random()-0.5)*300, sb.y+(Math.random()-0.5)*300, '#8b0000'));
 
             for(let i=0;i<60;i++) {
@@ -8814,6 +8905,7 @@ const DEFAULT_SETTINGS = {
     gameSpeed: 1,
     graphics: 'high',
     soundVolume: 0.5,
+    musicVolume: 0.55,
 };
 
 let binds = { ...DEFAULT_BINDS };
@@ -8846,14 +8938,18 @@ function applySettings() {
     document.getElementById('speedVal').textContent   = settings.gameSpeed + 'x';
     document.getElementById('sliderVolume').value     = settings.soundVolume !== undefined ? settings.soundVolume : 0.5;
     document.getElementById('volumeVal').textContent  = Math.round((settings.soundVolume !== undefined ? settings.soundVolume : 0.5) * 100) + '%';
+    const mv = settings.musicVolume !== undefined ? settings.musicVolume : 0.55;
+    document.getElementById('sliderMusicVolume').value = mv;
+    document.getElementById('musicVolVal').textContent = Math.round(mv * 100) + '%';
     document.getElementById('deathFeed').style.display = settings.deathFeed ? 'flex' : 'none';
     applyGraphicsButtons(settings.graphics || 'high');
+    applyMusicVolume();
 }
 
 const GFX_PRESETS = {
-    high:   { particleCap: 999, shadows: true,  grid: true,  bgAlpha: 0.72, desc: 'Full effects — best visuals, needs a decent PC.' },
-    medium: { particleCap: 150, shadows: true,  grid: false, bgAlpha: 0.80, desc: 'Balanced — fewer particles, no grid. Good for mid-range PCs.' },
-    low:    { particleCap: 0,  shadows: false, grid: false, bgAlpha: 0.90, desc: 'Performance mode — no particles, no shadows. Best for waves 500+.' },
+    high:   { particleCap: 999, shadows: true,  grid: true,  bgAlpha: 0.72, desc:'Full effects best visuals, needs a decent PC.' },
+    medium: { particleCap: 150, shadows: true,  grid: false, bgAlpha: 0.80, desc:'Balanced fewer particles, no grid. Good for mid-range PCs.' },
+    low:    { particleCap: 0,  shadows: false, grid: false, bgAlpha: 0.90, desc:'Performance mode no particles, no shadows. Best for waves 500+.' },
 };
 
 function getGfx() { return GFX_PRESETS[settings.graphics] || GFX_PRESETS.high; }
@@ -8873,7 +8969,7 @@ function applyGraphicsButtons(level) {
         btn.style.background  = active ? 'rgba(59,130,246,0.25)' : 'rgba(255,255,255,0.05)';
     });
     const desc = document.getElementById('gfxDesc');
-    if(desc) desc.textContent = GFX_PRESETS[level] ? GFX_PRESETS[level].desc : '';
+    if(desc) desc.textContent = GFX_PRESETS[level] ? GFX_PRESETS[level].desc:'';
 }
 
 function resetKeybinds() {
@@ -8958,6 +9054,8 @@ function pauseGame() {
     if (!gameRunning && !gamePaused) return;
     gamePaused = true;
     gameRunning = false;
+    fadeOutMainTheme(600, false);
+    pauseJackpotMusic();
     document.getElementById('pauseOverlay').style.display = 'block';
     document.getElementById('pauseMenu').style.display = 'block';
 }
@@ -8967,6 +9065,11 @@ function resumeGame() {
     gameRunning = true;
     document.getElementById('pauseOverlay').style.display = 'none';
     document.getElementById('pauseMenu').style.display = 'none';
+    if (hakariJackpotActive) {
+        resumeJackpotMusic();
+    } else {
+        fadeInMainTheme(800);
+    }
     lastTs = 0;
     requestAnimationFrame(gameLoop);
 }
@@ -8975,6 +9078,7 @@ function pauseToMainMenu() {
     gamePaused = false;
     gameRunning = false;
     stopJackpotMusic();
+    stopMainTheme();
     hideSlotMachine();
     document.getElementById('pauseOverlay').style.display = 'none';
     document.getElementById('pauseMenu').style.display = 'none';
@@ -9545,352 +9649,352 @@ function closeCharInfo() {
 
 const CHAR_INFO = {
     phantom: {
-        name: 'Phantom', tag: '$250 · Wall Phaser', icon: '👻',
+        name:'Phantom', tag: '$250 · Wall Phaser', icon: '👻',
         iconBg: 'linear-gradient(135deg,#0ea5e9,#1e1b4b)', iconGlow: '#7dd3fc',
-        stats: [{ label: 'Damage', value: '22 (1.1x base)' },{ label: 'Projectiles', value: 'Pierce through walls' },{ label: 'Phase Bonus', value: '+50% damage while phasing' },{ label: 'Mana Cost', value: '20 mana' },{ label: 'Cooldown', value: '3 seconds' }],
-        abilities: `<b>Passive — Ethereal Shots:</b> All projectiles pass directly through walls and terrain, opening unique attack angles.<br><br><b>R — Ghost Walk (20 mana, 180 frame CD):</b> Phase through walls for 4 seconds (240 frames), gain massive speed boost (1.8x), become temporarily invulnerable, and deal +50% bonus damage on all hits while phasing.`,
-        playstyle: 'Excels at hitting enemies through walls before they can reach you. Position behind cover and fire freely, then Ghost Walk to reposition and burst.',
-        tip: '💡 Tip: Fire from inside or behind walls — enemies must navigate around while you shoot through. Ghost Walk lets you escape surrounded situations instantly.',
+        stats: [{ label:'Damage', value:'22 (1.1x base)' },{ label:'Projectiles', value:'Pierce through walls' },{ label:'Phase Bonus', value:'+50% damage while phasing' },{ label:'Mana Cost', value:'20 mana' },{ label:'Cooldown', value:'3 seconds' }],
+        abilities:`<b>Passive Ethereal Shots:</b> All projectiles pass directly through walls and terrain, opening unique attack angles.<br><br><b>R Ghost Walk (20 mana, 180 frame CD):</b> Phase through walls for 4 seconds (240 frames), gain massive speed boost (1.8x), become temporarily invulnerable, and deal +50% bonus damage on all hits while phasing.`,
+        playstyle:'Excels at hitting enemies through walls before they can reach you. Position behind cover and fire freely, then Ghost Walk to reposition and burst.',
+        tip:'💡 Tip: Fire from inside or behind walls enemies must navigate around while you shoot through. Ghost Walk lets you escape surrounded situations instantly.',
     },
     druid: {
-        name: 'Druid', tag: '$750 · Root & Heal', icon: '🌿',
+        name:'Druid', tag: '$750 · Root & Heal', icon: '🌿',
         iconBg: 'linear-gradient(135deg,#15803d,#052e16)', iconGlow: '#4ade80',
-        stats: [{ label: 'Damage', value: '20 (standard)' },{ label: 'Root Duration', value: '1.5 seconds (90 frames)' },{ label: 'Mushroom Heal', value: '~3 HP/sec in zone' },{ label: 'Mushroom Zone', value: '55px radius, 8 seconds' },{ label: 'Mana Cost', value: '35 mana' }],
-        abilities: `<b>Passive — Vine Shots:</b> Every projectile roots hit enemies in place for 1.5 seconds, making them stationary targets.<br><br><b>R — Heal Mushrooms (35 mana):</b> Spawns 5 healing mushrooms in a ring around you. Stand inside any mushroom's radius to slowly regenerate HP (~3 HP per second). Each lasts 8 seconds.`,
-        playstyle: 'Control + sustain. Root groups of enemies to create stationary targets, position mushrooms as a safe healing zone in a corner.',
-        tip: '💡 Tip: Drop mushrooms in a corner before a big wave hits, then root enemies as they approach and retreat to heal between engagements.',
+        stats: [{ label:'Damage', value:'20 (standard)' },{ label:'Root Duration', value:'1.5 seconds (90 frames)' },{ label:'Mushroom Heal', value:'~3 HP/sec in zone' },{ label:'Mushroom Zone', value:'55px radius, 8 seconds' },{ label:'Mana Cost', value:'35 mana' }],
+        abilities:`<b>Passive Vine Shots:</b> Every projectile roots hit enemies in place for 1.5 seconds, making them stationary targets.<br><br><b>R Heal Mushrooms (35 mana):</b> Spawns 5 healing mushrooms in a ring around you. Stand inside any mushroom's radius to slowly regenerate HP (~3 HP per second). Each lasts 8 seconds.`,
+        playstyle:'Control + sustain. Root groups of enemies to create stationary targets, position mushrooms as a safe healing zone in a corner.',
+        tip:'💡 Tip: Drop mushrooms in a corner before a big wave hits, then root enemies as they approach and retreat to heal between engagements.',
     },
     pyromancer: {
-        name: 'Pyromancer', tag: '$1500 · Charge Blaster', icon: '🔮',
+        name:'Pyromancer', tag: '$1500 · Charge Blaster', icon: '🔮',
         iconBg: 'linear-gradient(135deg,#c2410c,#431407)', iconGlow: '#fb923c',
-        stats: [{ label: 'Damage', value: '10–50 (1x–5x based on charge)' },{ label: 'Charge Time', value: 'Up to 3 seconds max' },{ label: 'Shot Size', value: 'Grows with charge level' },{ label: 'Meteor DMG', value: '160 (8x base), 120px AoE' },{ label: 'Mana Cost', value: '45 mana' }],
-        abilities: `<b>Active — Charge Shot:</b> Hold the mouse button to charge (max 3s = 100%). Release to fire. Fully charged: 5x damage, massive radius, fire patches.<br><br><b>R — Meteor Strike (45 mana):</b> After 0.8s telegraph, a meteor crashes at cursor dealing 8x damage in 120px radius AoE.`,
-        playstyle: 'Sniper/burst damage. Charge shots against clusters, drop Meteor on bosses and elite groups.',
-        tip: '💡 Tip: Meteor shows a warning ring before impact — aim at rooted or slow enemies. Combine with root passives from the wave shop for guaranteed hits.',
+        stats: [{ label:'Damage', value:'10-50 (1x-5x based on charge)' },{ label:'Charge Time', value:'Up to 3 seconds max' },{ label:'Shot Size', value:'Grows with charge level' },{ label:'Meteor DMG', value:'160 (8x base), 120px AoE' },{ label:'Mana Cost', value:'45 mana' }],
+        abilities:`<b>Active Charge Shot:</b> Hold the mouse button to charge (max 3s = 100%). Release to fire. Fully charged: 5x damage, massive radius, fire patches.<br><br><b>R Meteor Strike (45 mana):</b> After 0.8s telegraph, a meteor crashes at cursor dealing 8x damage in 120px radius AoE.`,
+        playstyle:'Sniper/burst damage. Charge shots against clusters, drop Meteor on bosses and elite groups.',
+        tip:'💡 Tip: Meteor shows a warning ring before impact aim at rooted or slow enemies. Combine with root passives from the wave shop for guaranteed hits.',
     },
     cyborg: {
-        name: 'Cyborg', tag: '$3000 · Dual Mode', icon: '🤖',
+        name:'Cyborg', tag: '$3000 · Dual Mode', icon: '🤖',
         iconBg: 'linear-gradient(135deg,#0ea5e9,#4c1d95)', iconGlow: '#38bdf8',
-        stats: [{ label: 'Rapid Mode DMG', value: '13 (65%) · 110ms fire rate' },{ label: 'Heavy Mode DMG', value: '56 (2.8x) · 550ms fire rate' },{ label: 'Mode Toggle', value: 'E key — instant switch' },{ label: 'Laser Sweep DMG', value: '3.5x total over 360°' },{ label: 'Price', value: '$3000' }],
-        abilities: `<b>Passive — Dual Mode (E key toggle):</b><br>• <span style="color:#38bdf8">RAPID:</span> Ultra-fast weak shots (110ms), slight spread.<br>• <span style="color:#c084fc">HEAVY:</span> Slow massive shots (550ms), 2.8x damage, large hitbox.<br><br><b>R — Laser Sweep (30 mana):</b> Spins a 360° laser over 1.4s, hitting every enemy in its path.`,
-        playstyle: 'Adaptive. Rapid for clearing small enemies, Heavy for elites and bosses. Laser Sweep when surrounded.',
-        tip: '💡 Tip: Heavy mode single shots outdamage Rapid against bosses. Learn to swap mid-fight.',
+        stats: [{ label:'Rapid Mode DMG', value:'13 (65%) · 110ms fire rate' },{ label:'Heavy Mode DMG', value:'56 (2.8x) · 550ms fire rate' },{ label:'Mode Toggle', value:'E key instant switch' },{ label:'Laser Sweep DMG', value:'3.5x total over 360°' },{ label:'Price', value:'$3000' }],
+        abilities:`<b>Passive Dual Mode (E key toggle):</b><br>• <span style="color:#38bdf8">RAPID:</span> Ultra-fast weak shots (110ms), slight spread.<br>• <span style="color:#c084fc">HEAVY:</span> Slow massive shots (550ms), 2.8x damage, large hitbox.<br><br><b>R Laser Sweep (30 mana):</b> Spins a 360° laser over 1.4s, hitting every enemy in its path.`,
+        playstyle:'Adaptive. Rapid for clearing small enemies, Heavy for elites and bosses. Laser Sweep when surrounded.',
+        tip:'💡 Tip: Heavy mode single shots outdamage Rapid against bosses. Learn to swap mid-fight.',
     },
     timewizard: {
-        name: 'Time Wizard', tag: '$4500 · Echo & Rewind', icon: '⏳',
+        name:'Time Wizard', tag: '$4500 · Echo & Rewind', icon: '⏳',
         iconBg: 'linear-gradient(135deg,#7c3aed,#1e1b4b)', iconGlow: '#d8b4fe',
-        stats: [{ label: 'Main Shot DMG', value: '20 (standard)' },{ label: 'Echo Shot DMG', value: '12 (60%) after 0.3s delay' },{ label: 'Rewind Snapshot', value: 'Saved every 5 seconds' },{ label: 'Cooldown', value: '5 seconds' },{ label: 'Price', value: '$4500' }],
-        abilities: `<b>Passive — Time Echo:</b> Every shot fires a ghost echo 0.3s later at the same angle — effectively 1.6x DPS output.<br><br><b>R — Rewind (60 mana, 5s CD):</b> Restores HP to value from 5 seconds ago. Best used immediately after taking burst damage.`,
-        playstyle: 'Sustained pressure — every shot is two shots. Save Rewind for emergencies right after big damage spikes.',
-        tip: '💡 Tip: Use Rewind proactively right after taking big damage, not when already near death. Snapshot updates every 5 seconds.',
+        stats: [{ label:'Main Shot DMG', value:'20 (standard)' },{ label:'Echo Shot DMG', value:'12 (60%) after 0.3s delay' },{ label:'Rewind Snapshot', value:'Saved every 5 seconds' },{ label:'Cooldown', value:'5 seconds' },{ label:'Price', value:'$4500' }],
+        abilities:`<b>Passive Time Echo:</b> Every shot fires a ghost echo 0.3s later at the same angle effectively 1.6x DPS output.<br><br><b>R Rewind (60 mana, 5s CD):</b> Restores HP to value from 5 seconds ago. Best used immediately after taking burst damage.`,
+        playstyle:'Sustained pressure every shot is two shots. Save Rewind for emergencies right after big damage spikes.',
+        tip:'💡 Tip: Use Rewind proactively right after taking big damage, not when already near death. Snapshot updates every 5 seconds.',
     },
     default: {
-        name: 'The Veteran', tag: 'Free · Evolving Fighter', icon: '⭐',
+        name:'The Veteran', tag: 'Free · Evolving Fighter', icon: '⭐',
         iconBg: 'linear-gradient(135deg,#3b82f6,#1e3a8a)', iconGlow: '#3b82f6',
-        stats: [{ label: 'Damage', value: '20 (scales with tier)' },{ label: 'Speed', value: '5 (+0.5–2.5 per evolution)' },{ label: 'Mana Cost', value: '20' },{ label: 'Evolution Rate', value: 'Every 30 seconds' },{ label: 'Price', value: 'FREE' }],
-        abilities: `<b>Passive — Evolution:</b> Every 30 seconds you automatically evolve to the next tier, gaining bonus damage, speed, and a more powerful R ability. There are 5 tiers: Rookie → Soldier → Elite → Commander → Legend.<br><br><b>R — Adaptive Strike:</b> Changes with each tier.<br>• <span style="color:#3b82f6">Rookie:</span> 8-shot burst ring (1.0x dmg)<br>• <span style="color:#22c55e">Soldier:</span> 12-shot volley (1.4x dmg)<br>• <span style="color:#f97316">Elite:</span> 16-shot nova + area damage (2.0x dmg)<br>• <span style="color:#a855f7">Commander:</span> 20-shot shockwave + freezes enemies (2.8x dmg)<br>• <span style="color:#fbbf24">Legend:</span> 32-shot annihilation + kills everything in 350px (4.0x dmg)`,
-        playstyle: 'Starts weak but becomes one of the most powerful characters over time. Focus on surviving the early waves, then snowball hard once you hit Elite and Commander.',
-        tip: '💡 Tip: Tier 3+ shots auto-freeze enemies on hit. Tier 4+ also ignites them. Stack speed upgrades on level-up to make the most of the speed bonuses each evolution gives you.',
+        stats: [{ label:'Damage', value:'20 (scales with tier)' },{ label:'Speed', value:'5 (+0.5-2.5 per evolution)' },{ label:'Mana Cost', value:'20' },{ label:'Evolution Rate', value:'Every 30 seconds' },{ label:'Price', value:'FREE' }],
+        abilities:`<b>Passive Evolution:</b> Every 30 seconds you automatically evolve to the next tier, gaining bonus damage, speed, and a more powerful R ability. There are 5 tiers: Rookie → Soldier → Elite → Commander → Legend.<br><br><b>R Adaptive Strike:</b> Changes with each tier.<br>• <span style="color:#3b82f6">Rookie:</span> 8-shot burst ring (1.0x dmg)<br>• <span style="color:#22c55e">Soldier:</span> 12-shot volley (1.4x dmg)<br>• <span style="color:#f97316">Elite:</span> 16-shot nova + area damage (2.0x dmg)<br>• <span style="color:#a855f7">Commander:</span> 20-shot shockwave + freezes enemies (2.8x dmg)<br>• <span style="color:#fbbf24">Legend:</span> 32-shot annihilation + kills everything in 350px (4.0x dmg)`,
+        playstyle:'Starts weak but becomes one of the most powerful characters over time. Focus on surviving the early waves, then snowball hard once you hit Elite and Commander.',
+        tip:'💡 Tip: Tier 3+ shots auto-freeze enemies on hit. Tier 4+ also ignites them. Stack speed upgrades on level-up to make the most of the speed bonuses each evolution gives you.',
     },
     goldhoarder: {
-        name: 'Gold Hoarder', tag: 'Free · Money Specialist', icon: '🪙',
+        name:'Gold Hoarder', tag: 'Free · Money Specialist', icon: '🪙',
         iconBg: 'linear-gradient(135deg,#ca8a04,#713f12)', iconGlow: '#fbbf24',
-        stats: [{ label: 'Damage', value: '15 (strong!)' },{ label: 'Fire Rate', value: 'Slow (700ms)' },{ label: 'Speed', value: '68.75% of normal' },{ label: 'Accuracy', value: '⚠️ Heavy spread' },{ label: 'Gold Mult', value: '6.25x ALL gold' }],
-        abilities: `<b>Passive — Gold Multiplier:</b> Every source of gold is multiplied by 6.25x (kills, bosses, wave milestones). Increased from original 5x via 25% buff.<br><br><b>R — Gold Rush (40 mana):</b> Converts all enemies within 180px into gold coins instantly, giving you coins for free.`,
-        playstyle: 'Weak at combat but more viable after the 25% buff. Focus on kiting, surviving, and using Gold Rush when enemies cluster. Extra speed and damage make dodging easier.',
-        tip: '💡 Tip: With the buff, use Gold Rush more aggressively early on. The higher damage helps survive longer between uses. Stack gold bonuses from wave shops to snowball your advantage.',
+        stats: [{ label:'Damage', value:'15 (strong!)' },{ label:'Fire Rate', value:'Slow (700ms)' },{ label:'Speed', value:'68.75% of normal' },{ label:'Accuracy', value:'⚠️ Heavy spread' },{ label:'Gold Mult', value:'6.25x ALL gold' }],
+        abilities:`<b>Passive Gold Multiplier:</b> Every source of gold is multiplied by 6.25x (kills, bosses, wave milestones). Increased from original 5x via 25% buff.<br><br><b>R Gold Rush (40 mana):</b> Converts all enemies within 180px into gold coins instantly, giving you coins for free.`,
+        playstyle:'Weak at combat but more viable after the 25% buff. Focus on kiting, surviving, and using Gold Rush when enemies cluster. Extra speed and damage make dodging easier.',
+        tip:'💡 Tip: With the buff, use Gold Rush more aggressively early on. The higher damage helps survive longer between uses. Stack gold bonuses from wave shops to snowball your advantage.',
     },
     vampire: {
-        name: 'Vampire', tag: '100 · Lifesteal Tank', icon: '🧛',
+        name:'Vampire', tag: '100 · Lifesteal Tank', icon: '🧛',
         iconBg: 'linear-gradient(135deg,#7f1d1d,#450a0a)', iconGlow: '#ef4444',
-        stats: [{ label: 'Damage', value: '20 (standard)' },{ label: 'Speed', value: '5 (standard)' },{ label: 'Heal on Kill', value: '+8 HP per kill' },{ label: 'Dash Type', value: 'Teleport (instant blink)' },{ label: 'Dash Cooldown', value: '60 frames (1 second)' },{ label: 'Price', value: '$100' }],
-        abilities: `<b>Passive — Bloodsucker:</b> Every enemy you kill instantly heals you for 8 HP. No resource cost — the more you kill, the more you sustain.<br><br><b>Dash — Vampire Blink (SPACE, 60 frame CD):</b> Instantly teleports directly to your mouse cursor location. No dash distance limit — appears exactly where you aimed. Grants 15 frames of invulnerability on arrival, perfect for repositioning or escaping surrounded situations.<br><br><b>No R ability — Focus on raw killing power to maximize heal output.</b>`,
-        playstyle: 'Beginner-friendly sustain character. The core loop: kill enemy → heal 8 HP → stay alive longer → kill more → spiral into dominance. The teleport dash is your primary mobility and escape tool. Stack Lifesteal passives from the wave shop for insane healing (up to +5 HP per stack).',
-        tip: '💡 Tip: Teleport dash is on a 1-second cooldown, so you can chain them for rapid repositioning. Combine with Lifesteal passives: at 3 stacks you heal 23 HP per kill, essentially negating all small enemy damage.',
+        stats: [{ label:'Damage', value:'20 (standard)' },{ label:'Speed', value:'5 (standard)' },{ label:'Heal on Kill', value:'+8 HP per kill' },{ label:'Dash Type', value:'Teleport (instant blink)' },{ label:'Dash Cooldown', value:'60 frames (1 second)' },{ label:'Price', value:'$100' }],
+        abilities:`<b>Passive Bloodsucker:</b> Every enemy you kill instantly heals you for 8 HP. No resource cost the more you kill, the more you sustain.<br><br><b>Dash Vampire Blink (SPACE, 60 frame CD):</b> Instantly teleports directly to your mouse cursor location. No dash distance limit appears exactly where you aimed. Grants 15 frames of invulnerability on arrival, perfect for repositioning or escaping surrounded situations.<br><br><b>No R ability Focus on raw killing power to maximize heal output.</b>`,
+        playstyle:'Beginner-friendly sustain character. The core loop: kill enemy → heal 8 HP → stay alive longer → kill more → spiral into dominance. The teleport dash is your primary mobility and escape tool. Stack Lifesteal passives from the wave shop for insane healing (up to +5 HP per stack).',
+        tip:'💡 Tip: Teleport dash is on a 1-second cooldown, so you can chain them for rapid repositioning. Combine with Lifesteal passives: at 3 stacks you heal 23 HP per kill, essentially negating all small enemy damage.',
     },
     builder: {
-        name: 'The Builder', tag: 'Free · Wall Master', icon: '🧱',
+        name:'The Builder', tag: 'Free · Wall Master', icon: '🧱',
         iconBg: 'linear-gradient(135deg,#a0522d,#d2691e)', iconGlow: '#d2691e',
-        stats: [{ label: 'Damage', value: '20 (standard)' },{ label: 'Speed', value: '5 (standard)' },{ label: 'Wall HP', value: '50 per wall' },{ label: 'Max Walls', value: '8 active' },{ label: 'Price', value: 'FREE' }],
-        abilities: `<b>Passive — Construction:</b> Walls are permanent obstacles that enemies must navigate around. You can have up to 8 walls active at once.<br><br><b>E — Move Walls:</b> Hold E and click on a wall to pick it up and relocate it. Perfect for repositioning your defenses mid-fight.<br><br><b>Shift+Click — Build New Walls:</b> Hold Shift and click on the ground to build a new wall at that location (costs no resources).<br><br><b>R — Reinforce (30 mana, 2s CD):</b> Strengthens the nearest wall, doubling its durability and making it glow with power.`,
-        playstyle: 'Strategic defense. Build walls to funnel enemies into kill zones. Move walls mid-fight to adapt to new threats. Use Reinforce to protect critical walls.',
-        tip: '💡 Tip: Build walls to create corridors, then position yourself to fire down the hallway. Reinforce walls that enemies are attacking repeatedly.',
+        stats: [{ label:'Damage', value:'20 (standard)' },{ label:'Speed', value:'5 (standard)' },{ label:'Wall HP', value:'50 per wall' },{ label:'Max Walls', value:'8 active' },{ label:'Price', value:'FREE' }],
+        abilities:`<b>Passive Construction:</b> Walls are permanent obstacles that enemies must navigate around. You can have up to 8 walls active at once.<br><br><b>E Move Walls:</b> Hold E and click on a wall to pick it up and relocate it. Perfect for repositioning your defenses mid-fight.<br><br><b>Shift+Click Build New Walls:</b> Hold Shift and click on the ground to build a new wall at that location (costs no resources).<br><br><b>R Reinforce (30 mana, 2s CD):</b> Strengthens the nearest wall, doubling its durability and making it glow with power.`,
+        playstyle:'Strategic defense. Build walls to funnel enemies into kill zones. Move walls mid-fight to adapt to new threats. Use Reinforce to protect critical walls.',
+        tip:'💡 Tip: Build walls to create corridors, then position yourself to fire down the hallway. Reinforce walls that enemies are attacking repeatedly.',
     },
     boxer: {
-        name: 'Boxer', tag: '$500 · Melee Rushdown', icon: '👊',
+        name:'Boxer', tag: '$500 · Melee Rushdown', icon: '👊',
         iconBg: 'linear-gradient(135deg,#dc2626,#991b1b)', iconGlow: '#ef4444',
-        stats: [{ label: 'Damage', value: '40 (2x)' },{ label: 'Speed', value: '5 (standard)' },{ label: 'Dash Damage', value: 'Hits all enemies in path' },{ label: 'Cooldown', value: '2 seconds per dash' },{ label: 'Price', value: '$500' }],
-        abilities: `<b>Passive — Close-Range Fighter:</b> Deal 2x normal damage. All projectiles are short-range but devastating at close quarters.<br><br><b>R — Power Dash (25 mana, 2s CD):</b> Dash forward in a straight line, damaging every enemy you pass through. The dash itself carries your full damage output.`,
-        playstyle: 'Aggressive melee character. Get close, spam shots, and use Power Dash to burst through clusters. You trade defense for raw output.',
-        tip: '💡 Tip: Master the dash range — it hits harder than shots but puts you in danger. Dash to escape when surrounded and deal damage simultaneously.',
+        stats: [{ label:'Damage', value:'40 (2x)' },{ label:'Speed', value:'5 (standard)' },{ label:'Dash Damage', value:'Hits all enemies in path' },{ label:'Cooldown', value:'2 seconds per dash' },{ label:'Price', value:'$500' }],
+        abilities:`<b>Passive Close-Range Fighter:</b> Deal 2x normal damage. All projectiles are short-range but devastating at close quarters.<br><br><b>R Power Dash (25 mana, 2s CD):</b> Dash forward in a straight line, damaging every enemy you pass through. The dash itself carries your full damage output.`,
+        playstyle:'Aggressive melee character. Get close, spam shots, and use Power Dash to burst through clusters. You trade defense for raw output.',
+        tip:'💡 Tip: Master the dash range it hits harder than shots but puts you in danger. Dash to escape when surrounded and deal damage simultaneously.',
     },
     fire: {
-        name: 'Fire Ball', tag: '$500 · Area Control', icon: '🔥',
+        name:'Fire Ball', tag: '$500 · Area Control', icon: '🔥',
         iconBg: 'linear-gradient(135deg,#ff4500,#7f1d1d)', iconGlow: '#ff4500',
-        stats: [{ label: 'Damage', value: '10 + burn DoT (40% dmg/tick)' },{ label: 'Mana Cost', value: '25 (Inferno)' },{ label: 'Price', value: '$500' }],
-        abilities: `<b>Passive — Burning Ground:</b> Every shot leaves a burning patch (50px radius, 3s).<br><br><b>R — Inferno (25 mana):</b> Ignites every enemy on screen. Also fires a 16-shot ring of fire projectiles.`,
-        playstyle: 'Zone-control. Lay down burn patches on enemy approach paths and force them to walk through fire.',
-        tip: '💡 Tip: Shoot corridors between walls to create fire lanes that enemies must walk through.',
+        stats: [{ label:'Damage', value:'10 + burn DoT (40% dmg/tick)' },{ label:'Mana Cost', value:'25 (Inferno)' },{ label:'Price', value:'$500' }],
+        abilities:`<b>Passive Burning Ground:</b> Every shot leaves a burning patch (50px radius, 3s).<br><br><b>R Inferno (25 mana):</b> Ignites every enemy on screen. Also fires a 16-shot ring of fire projectiles.`,
+        playstyle:'Zone-control. Lay down burn patches on enemy approach paths and force them to walk through fire.',
+        tip:'💡 Tip: Shoot corridors between walls to create fire lanes that enemies must walk through.',
     },
     ice: {
-        name: 'Ice Ball', tag: '$1000 · Cryo Sniper', icon: '❄️',
+        name:'Ice Ball', tag: '$1000 · Cryo Sniper', icon: '❄️',
         iconBg: 'linear-gradient(135deg,#e0f7ff,#06b6d4)', iconGlow: '#67e8f9',
-        stats: [{ label: 'Damage', value: '10 base / 30 on shatter (3x)' },{ label: 'Shot Type', value: 'Piercing' },{ label: 'Freeze Duration', value: '1.5 seconds per hit' },{ label: 'Shatter Bonus', value: '3x damage on frozen enemies' },{ label: 'Mana Cost', value: '30 mana' }],
-        abilities: `<b>Passive — Piercing Cryo Shots:</b> Projectiles pass through enemies and freeze each hit for 1.5s.<br><br><b>Passive — Shatter:</b> Shooting a frozen enemy deals 3x damage and is the key to burst potential.<br><br><b>R — Blizzard (30 mana):</b> Freezes all enemies within 350px and drops a blizzard zone that reapplies freeze.`,
-        playstyle: 'High skill ceiling. Managing freeze→shatter combos is key to maximizing damage.',
-        tip: '💡 Tip: Use Blizzard to freeze a group, then walk through them triggering shatter combos. Pair with root/slow shop passives.',
+        stats: [{ label:'Damage', value:'10 base / 30 on shatter (3x)' },{ label:'Shot Type', value:'Piercing' },{ label:'Freeze Duration', value:'1.5 seconds per hit' },{ label:'Shatter Bonus', value:'3x damage on frozen enemies' },{ label:'Mana Cost', value:'30 mana' }],
+        abilities:`<b>Passive Piercing Cryo Shots:</b> Projectiles pass through enemies and freeze each hit for 1.5s.<br><br><b>Passive Shatter:</b> Shooting a frozen enemy deals 3x damage and is the key to burst potential.<br><br><b>R Blizzard (30 mana):</b> Freezes all enemies within 350px and drops a blizzard zone that reapplies freeze.`,
+        playstyle:'High skill ceiling. Managing freeze→shatter combos is key to maximizing damage.',
+        tip:'💡 Tip: Use Blizzard to freeze a group, then walk through them triggering shatter combos. Pair with root/slow shop passives.',
     },
     electric: {
-        name: 'Tesla', tag: '$2500 · Chain Lightning', icon: '⚡',
+        name:'Tesla', tag: '$2500 · Chain Lightning', icon: '⚡',
         iconBg: 'linear-gradient(135deg,#facc15,#7c3aed)', iconGlow: '#a855f7',
-        stats: [{ label: 'Damage', value: '10 base / 7 per chain target (70%)' },{ label: 'Chains', value: '3 nearby enemies per shot' },{ label: 'Price', value: '$2500' }],
-        abilities: `<b>Passive — Auto-Chain:</b> Every shot chains lightning to up to 3 nearby enemies.<br><br><b>R — Overload (35 mana):</b> 8 charges — next 8 shots chain to EVERY enemy on screen.`,
-        playstyle: 'Scales with enemy density. Save Overload for the peak of a wave when the screen is full.',
-        tip: '💡 Tip: Position yourself to hit the enemy closest to the largest cluster.',
+        stats: [{ label:'Damage', value:'10 base / 7 per chain target (70%)' },{ label:'Chains', value:'3 nearby enemies per shot' },{ label:'Price', value:'$2500' }],
+        abilities:`<b>Passive Auto-Chain:</b> Every shot chains lightning to up to 3 nearby enemies.<br><br><b>R Overload (35 mana):</b> 8 charges next 8 shots chain to EVERY enemy on screen.`,
+        playstyle:'Scales with enemy density. Save Overload for the peak of a wave when the screen is full.',
+        tip:'💡 Tip: Position yourself to hit the enemy closest to the largest cluster.',
     },
     wemmbu: {
-        name: 'Wemmbu', tag: '$5000 · Berserker', icon: '💢',
+        name:'Wemmbu', tag: '$5000 · Berserker', icon: '💢',
         iconBg: 'linear-gradient(135deg,#a855f7,#4c1d95)', iconGlow: '#a855f7',
-        stats: [{ label: 'Slam Range', value: '280px — instant kill' },{ label: 'Cooldown', value: '3 seconds' },{ label: 'Price', value: '$5000' }],
-        abilities: `<b>R — Ground Slam (35 mana, 3s CD):</b> Instantly kills every enemy within 280px. Each kill triggers full kill effects.`,
-        playstyle: 'Bursty mob-clearer. Normal shooting between slams, then slam to erase full waves.',
-        tip: '💡 Tip: The slam range (280px) is larger than it looks. Stack mana upgrades.',
+        stats: [{ label:'Slam Range', value:'280px instant kill' },{ label:'Cooldown', value:'3 seconds' },{ label:'Price', value:'$5000' }],
+        abilities:`<b>R Ground Slam (35 mana, 3s CD):</b> Instantly kills every enemy within 280px. Each kill triggers full kill effects.`,
+        playstyle:'Bursty mob-clearer. Normal shooting between slams, then slam to erase full waves.',
+        tip:'💡 Tip: The slam range (280px) is larger than it looks. Stack mana upgrades.',
     },
     eggchan: {
-        name: 'Eggchan', tag: '$5000 · Spam Archer', icon: '🏹',
+        name:'Eggchan', tag: '$5000 · Spam Archer', icon: '🏹',
         iconBg: 'linear-gradient(135deg,#f9a8d4,#db2777)', iconGlow: '#ec4899',
-        stats: [{ label: 'Damage', value: '10 base / 20 on bow shots (2x)' },{ label: 'Mana Cost', value: '1 per arrow (spammable!)' },{ label: 'Arrow Speed', value: 'Fast (18px/frame)' },{ label: 'Fire Rate', value: 'Auto-fire + R spam' },{ label: 'Price', value: '$5000' }],
-        abilities: `<b>R — Bow Shot (1 mana):</b> Fires a fast arrow dealing 2x damage. Spammable at only 1 mana cost — at 100 max mana you can fire 100 arrows.`,
-        playstyle: 'Spam-focused character. Press R constantly while normal shots auto-fire. The goal is constant output.',
-        tip: '💡 Tip: With 100 mana you can fire 100 arrows. Grab Mana Flow and Max Mana upgrades to maximize your spam potential.',
+        stats: [{ label:'Damage', value:'10 base / 20 on bow shots (2x)' },{ label:'Mana Cost', value:'1 per arrow (spammable!)' },{ label:'Arrow Speed', value:'Fast (18px/frame)' },{ label:'Fire Rate', value:'Auto-fire + R spam' },{ label:'Price', value:'$5000' }],
+        abilities:`<b>R Bow Shot (1 mana):</b> Fires a fast arrow dealing 2x damage. Spammable at only 1 mana cost at 100 max mana you can fire 100 arrows.`,
+        playstyle:'Spam-focused character. Press R constantly while normal shots auto-fire. The goal is constant output.',
+        tip:'💡 Tip: With 100 mana you can fire 100 arrows. Grab Mana Flow and Max Mana upgrades to maximize your spam potential.',
     },
     dice: {
-        name: 'Dice', tag: '$2345 · Gambler\'s Paradise', icon: '🎲',
+        name:'Dice', tag: '$2345 · Gambler\'s Paradise', icon: '🎲',
         iconBg: 'linear-gradient(135deg,#f97316,#ea580c)', iconGlow: '#fbbf24',
-        stats: [{ label: 'Damage', value: '10–150 (randomized per shot)' },{ label: 'Speed', value: '3–8 (randomized at start)' },{ label: 'Health', value: '80–175 (randomized at start)' },{ label: 'Mana Cost', value: '1–max mana (random)' },{ label: 'Cooldown', value: '1–120 frames (random)' },{ label: 'Price', value: '$2345' }],
-        abilities: `<b>Passive — Chaos Shots:</b> Every projectile deals random damage between 10–150. Your speed and max HP are randomized at the start of each run (3–8 speed, 80–175 max health).<br><br><b>R — Random Special (Random mana/CD):</b> Activates a random ability guaranteed to work standalone. Each use costs random mana (1 to max) with random cooldown (1–120 frames). Possible abilities: Mushrooms, Meteor, Laser Sweep, Inferno, Dash Punch, Blizzard, Overload, Ground Slam, Blood God, or Veteran Burst. Never rolls abilities that need special character setups.`,
-        playstyle: 'Pure randomness. Every run is completely different — even your stats start random. Every R press is a mystery: different mana cost, different cooldown, different ability. Adapt or die trying.',
-        tip: '🎲 Tip: The ability pool is carefully balanced — you\'ll never get stuck with a useless ability. But mana/cooldown? That\'s the real gamble.',
+        stats: [{ label:'Damage', value:'10-150 (randomized per shot)' },{ label:'Speed', value:'3-8 (randomized at start)' },{ label:'Health', value:'80-175 (randomized at start)' },{ label:'Mana Cost', value:'1-max mana (random)' },{ label:'Cooldown', value:'1-120 frames (random)' },{ label:'Price', value:'$2345' }],
+        abilities:`<b>Passive Chaos Shots:</b> Every projectile deals random damage between 10-150. Your speed and max HP are randomized at the start of each run (3-8 speed, 80-175 max health).<br><br><b>R Random Special (Random mana/CD):</b> Activates a random ability guaranteed to work standalone. Each use costs random mana (1 to max) with random cooldown (1-120 frames). Possible abilities: Mushrooms, Meteor, Laser Sweep, Inferno, Dash Punch, Blizzard, Overload, Ground Slam, Blood God, or Veteran Burst. Never rolls abilities that need special character setups.`,
+        playstyle:'Pure randomness. Every run is completely different even your stats start random. Every R press is a mystery: different mana cost, different cooldown, different ability. Adapt or die trying.',
+        tip:'🎲 Tip: The ability pool is carefully balanced you\'ll never get stuck with a useless ability. But mana/cooldown? That\'s the real gamble.',
     },
     hakari_v2: {
-        name: 'Hakari', tag: 'LIMITED · Domain Master', icon: '🎰',
+        name:'Hakari', tag: 'LIMITED · Domain Master', icon: '🎰',
         iconBg: 'linear-gradient(135deg,#ec4899,#7c3aed)', iconGlow: '#ec4899',
-        stats: [{ label: 'Damage', value: '20 (standard)' },{ label: 'Domain Duration', value: '60 seconds' },{ label: 'Domain Size', value: '200px safe zone (enemies can\'t enter)' },{ label: 'Jackpot Immortality', value: '4 min 11 sec (one-shot everything)' },{ label: 'Jackpot Chance', value: '10% per roll (FIXED)' },{ label: 'Jackpot Cooldown', value: '20 seconds after jackpot' }],
-        abilities: `<b>R — Domain Expansion (0 mana, no cooldown):</b> Creates a sacred domain around you for 60 seconds. Within the domain, you are completely safe — no enemies can enter. Waves automatically pause while in the domain. Cannot be activated during jackpot.<br><br><b>Automatic Rolling:</b> Once in the domain, you begin rolling every second. Each roll has a FIXED 10% chance of landing a JACKPOT (no pity system — pure luck every time).<br><br><b>Jackpot Effect:</b> Hit a jackpot within the 60-second window to unlock 4 minutes and 11 seconds of ULTRA REGEN. During this time, you heal 1 HP every 0.1 seconds and all your projectiles deal 50x damage. After jackpot ends, Domain Expansion has a 20-second cooldown before you can pop it again.`,
-        playstyle: 'High-risk gambling with no pity safety net. Use Domain Expansion strategically when surrounded or at low health. Each roll is a 10/100 lottery — some runs you hit immediately, others you never hit. If you don\'t hit jackpot within 60 seconds, you exit and must survive normally.',
-        tip: '🎰 Tip: The ultra regen heals you steadily during the jackpot window — you\'re not invincible so stay aggressive but smart. After hitting jackpot, you\'ll have a 20-second vulnerability window before you can pop domain again.',
+        stats: [{ label:'Damage', value:'20 (standard)' },{ label:'Domain Duration', value:'60 seconds' },{ label:'Domain Size', value:'200px safe zone (enemies can\'t enter)' },{ label:'Jackpot Immortality', value:'4 min 11 sec (one-shot everything)' },{ label:'Jackpot Chance', value:'10% per roll (FIXED)' },{ label:'Jackpot Cooldown', value:'20 seconds after jackpot' }],
+        abilities:`<b>R Domain Expansion (0 mana, no cooldown):</b> Creates a sacred domain around you for 60 seconds. Within the domain, you are completely safe no enemies can enter. Waves automatically pause while in the domain. Cannot be activated during jackpot.<br><br><b>Automatic Rolling:</b> Once in the domain, you begin rolling every second. Each roll has a FIXED 10% chance of landing a JACKPOT (no pity system pure luck every time).<br><br><b>Jackpot Effect:</b> Hit a jackpot within the 60-second window to unlock 4 minutes and 11 seconds of ULTRA REGEN. During this time, you heal 1 HP every 0.1 seconds and all your projectiles deal 50x damage. After jackpot ends, Domain Expansion has a 20-second cooldown before you can pop it again.`,
+        playstyle:'High-risk gambling with no pity safety net. Use Domain Expansion strategically when surrounded or at low health. Each roll is a 10/100 lottery some runs you hit immediately, others you never hit. If you don\'t hit jackpot within 60 seconds, you exit and must survive normally.',
+        tip:'🎰 Tip: The ultra regen heals you steadily during the jackpot window you\'re not invincible so stay aggressive but smart. After hitting jackpot, you\'ll have a 20-second vulnerability window before you can pop domain again.',
     },
     yuji_itadori: {
-        name: 'Yuji Itadori', tag: 'LIMITED · Cursed Spirit Host', icon: '🩸',
+        name:'Yuji Itadori', tag: 'LIMITED · Cursed Spirit Host', icon: '🩸',
         iconBg: 'linear-gradient(135deg,#e84d4d,#7f1d1d)', iconGlow: '#e84d4d',
-        stats: [{ label: 'Damage', value: '20 (standard)' },{ label: 'Sukuna Fingers', value: 'Collect from enemies (5% drop)' },{ label: 'Transformation', value: 'At 20 fingers → Becomes Sukuna' },{ label: 'Shrine Cooldown', value: '5 seconds' },{ label: 'Price', value: 'LIMITED ($28,000)' }],
-        abilities: `<b>Passive — Sukuna Finger Collection:</b> Enemies have a 5% chance to drop Sukuna Fingers when killed. Collect 20 fingers to transform into Sukuna permanently.<br><br><b>R — Cursed Slash (Yuji Form, 0 mana):</b> Fires an 8-shot projectile ring of cursed slashes.<br><br><b>R — Malevolent Shrine (Sukuna Form, 0 mana, 5s CD):</b> Activate a continuous damage aura that deals 30% of each enemy's max health per second for 3 seconds — including bosses. Can only be activated once every 5 seconds.`,
-        playstyle: 'Scaling character with a transformation mechanic. Early game: focus on collecting fingers while surviving. At 20 fingers: transform into Sukuna and gain a powerful sustained damage ability. Malevolent Shrine melts both regular enemies and bosses.',
-        tip: 'Tip: With a 5% drop rate, expect to farm for ~400 kills to collect 20 fingers. Once you transform, use Malevolent Shrine on high-health enemy groups and bosses — 30% max HP per second is devastating at any stage of the run.',
+        stats: [{ label:'Damage', value:'20 (standard)' },{ label:'Sukuna Fingers', value:'Collect from enemies (5% drop)' },{ label:'Transformation', value:'At 20 fingers → Becomes Sukuna' },{ label:'Shrine Cooldown', value:'5 seconds' },{ label:'Price', value:'LIMITED ($28,000)' }],
+        abilities:`<b>Passive Sukuna Finger Collection:</b> Enemies have a 5% chance to drop Sukuna Fingers when killed. Collect 20 fingers to transform into Sukuna permanently.<br><br><b>R Cursed Slash (Yuji Form, 0 mana):</b> Fires an 8-shot projectile ring of cursed slashes.<br><br><b>R Malevolent Shrine (Sukuna Form, 0 mana, 5s CD):</b> Activate a continuous damage aura that deals 30% of each enemy's max health per second for 3 seconds including bosses. Can only be activated once every 5 seconds.`,
+        playstyle:'Scaling character with a transformation mechanic. Early game: focus on collecting fingers while surviving. At 20 fingers: transform into Sukuna and gain a powerful sustained damage ability. Malevolent Shrine melts both regular enemies and bosses.',
+        tip:'Tip: With a 5% drop rate, expect to farm for ~400 kills to collect 20 fingers. Once you transform, use Malevolent Shrine on high-health enemy groups and bosses 30% max HP per second is devastating at any stage of the run.',
     },
     character10b: {
-        name: 'Character', tag: 'LIMITED · Omnipotent', icon: '∞',
+        name:'Character', tag: 'LIMITED · Omnipotent', icon: '∞',
         iconBg: 'linear-gradient(135deg,#0284c7,#00aa00)', iconGlow: '#00ff00',
-        stats: [{ label: 'Max HP', value: '11 (ultra-fragile!)' },{ label: 'Damage', value: '10 billion (10,000,000,000!)' },{ label: 'Mana Cost', value: '1 mana' },{ label: 'Cooldown', value: 'None' },{ label: 'Price', value: 'LIMITED ($50,000)' }],
-        abilities: `<b>Passive — Godlike Power:</b> Deal 10 billion damage per projectile. One shot, one kill on any enemy in existence. You are a literal god of destruction.<br><br><b>R — Omnipotent (1 mana, No CD):</b> Instantly heal to full HP (11 HP) and kill EVERY SINGLE ENEMY on the entire map. No exceptions. Works on bosses, mini-bosses, triangles, everything.`,
-        playstyle: 'gg ez no re',
-        tip: 'ptttfff do i really need a tip on how to play me?? just run in and say "ggs no heal"',
+        stats: [{ label:'Max HP', value:'11 (ultra-fragile!)' },{ label:'Damage', value:'10 billion (10,000,000,000!)' },{ label:'Mana Cost', value:'1 mana' },{ label:'Cooldown', value:'None' },{ label:'Price', value:'LIMITED ($50,000)' }],
+        abilities:`<b>Passive Godlike Power:</b> Deal 10 billion damage per projectile. One shot, one kill on any enemy in existence. You are a literal god of destruction.<br><br><b>R Omnipotent (1 mana, No CD):</b> Instantly heal to full HP (11 HP) and kill EVERY SINGLE ENEMY on the entire map. No exceptions. Works on bosses, mini-bosses, triangles, everything.`,
+        playstyle:'gg ez no re',
+        tip:'ptttfff do i really need a tip on how to play me?? just run in and say "ggs no heal"',
     },
     rouge_square: {
-        name: 'Rouge Square', tag: 'LIMITED ($250,000) · From the Roguelike Dungeon', icon: '🟦',
+        name:'Rouge Square', tag: 'LIMITED ($250,000) · From the Roguelike Dungeon', icon: '🟦',
         iconBg: 'linear-gradient(135deg,#2222aa,#4444ff)', iconGlow: '#6666ff',
         stats: [
-            { label: 'Max HP', value: '120' },
-            { label: 'Damage', value: '25' },
-            { label: 'Speed', value: '5 (tile-grid steps)' },
-            { label: 'Saw Blade Damage', value: '50% of your damage each tick' },
-            { label: 'Mana Cost (R)', value: '35 mana' },
-            { label: 'Cooldown (R)', value: '6 seconds' },
-            { label: 'Price', value: 'LIMITED ($250,000)' },
+            { label:'Max HP', value:'120' },
+            { label:'Damage', value:'25' },
+            { label:'Speed', value:'5 (tile-grid steps)' },
+            { label:'Saw Blade Damage', value:'50% of your damage each tick' },
+            { label:'Mana Cost (R)', value:'35 mana' },
+            { label:'Cooldown (R)', value:'6 seconds' },
+            { label:'Price', value:'LIMITED ($250,000)' },
         ],
-        abilities: `<b>Passive — Grid Movement:</b> You move in snappy 32-pixel tile steps — exactly like the Blue Square from the Roguelike Dungeon game. Map walls also snap to a 32px tile grid, giving the arena a proper dungeon-floor layout.\n\n<b>Passive — Orbiting Saw Blades:</b> Three metallic saw blades orbit you constantly at a fixed radius, dealing 50% of your damage to any enemy they touch every 6 frames. They spin faster as you level up damage.<br><br><b>R — Dungeon Shop (35 mana, 6s CD):</b> Ripped straight from the actual Roguelike Dungeon game. Freezes ALL enemies in place and opens the DUNGEON SHOP — spend your gold on a Health Potion (restore 30% HP), Attack Upgrade (+3 damage), Saw Blade Upgrade (add a blade), or take the free Dungeon Surge (3× blade damage for 8 seconds). Enemies stay frozen until you leave the shop.`,
-        playstyle: 'A tribute character — plays and looks exactly like the old Roguelike Dungeon Blue Square, but now fighting in CIRCULATE. Reliable, methodical, tile-precise movement. The saw blades mean you always deal passive damage just by existing near enemies. Use Dungeon Lock as a get-out-of-jail card when swarmed.',
-        tip: '🟦 Tip: Your saw blades do a LOT of work — stack Saw Blade upgrades from the Dungeon Shop for massive passive DPS. Use R when overwhelmed to freeze enemies AND instantly power up. The Dungeon Surge (free every R) triples blade damage for 8 seconds — always take it.',
+        abilities:`<b>Passive Grid Movement:</b> You move in snappy 32-pixel tile steps exactly like the Blue Square from the Roguelike Dungeon game. Map walls also snap to a 32px tile grid, giving the arena a proper dungeon-floor layout.\n\n<b>Passive Orbiting Saw Blades:</b> Three metallic saw blades orbit you constantly at a fixed radius, dealing 50% of your damage to any enemy they touch every 6 frames. They spin faster as you level up damage.<br><br><b>R Dungeon Shop (35 mana, 6s CD):</b> Ripped straight from the actual Roguelike Dungeon game. Freezes ALL enemies in place and opens the DUNGEON SHOP spend your gold on a Health Potion (restore 30% HP), Attack Upgrade (+3 damage), Saw Blade Upgrade (add a blade), or take the free Dungeon Surge (3× blade damage for 8 seconds). Enemies stay frozen until you leave the shop.`,
+        playstyle:'A tribute character plays and looks exactly like the old Roguelike Dungeon Blue Square, but now fighting in CIRCULATE. Reliable, methodical, tile-precise movement. The saw blades mean you always deal passive damage just by existing near enemies. Use Dungeon Lock as a get-out-of-jail card when swarmed.',
+        tip:'🟦 Tip: Your saw blades do a LOT of work stack Saw Blade upgrades from the Dungeon Shop for massive passive DPS. Use R when overwhelmed to freeze enemies AND instantly power up. The Dungeon Surge (free every R) triples blade damage for 8 seconds always take it.',
     },
     war_veteran: {
-        name: 'War Veteran', tag: 'Mastery · Evolving All-Rounder', icon: '🎖️',
+        name:'War Veteran', tag: 'Mastery · Evolving All-Rounder', icon: '🎖️',
         iconBg: 'linear-gradient(135deg,#1e3a8a,#3b82f6)', iconGlow: '#60a5fa',
         stats: [
-            { label: 'Starting Damage', value: '20 (+7.5 per promotion)' },
-            { label: 'Starting Speed', value: '6 (+0.5 per promotion)' },
-            { label: 'Dash', value: 'Teleport (instant TP to cursor)' },
-            { label: 'Passive', value: 'Promotes every 45 seconds' },
-            { label: 'Unlock', value: 'Win 5 games as The Veteran' },
+            { label:'Starting Damage', value:'20 (+7.5 per promotion)' },
+            { label:'Starting Speed', value:'6 (+0.5 per promotion)' },
+            { label:'Dash', value:'Teleport (instant TP to cursor)' },
+            { label:'Passive', value:'Promotes every 45 seconds' },
+            { label:'Unlock', value:'Win 5 games as The Veteran' },
         ],
-        abilities: `<b>Passive — Ranked Promotions:</b> Every 45 seconds you automatically advance to the next rank, gaining +7.5 damage and +0.5 speed. Five ranks total.<br><br>
-<b>R — Ranked Bombardment (changes per rank):</b><br>
+        abilities:`<b>Passive Ranked Promotions:</b> Every 45 seconds you automatically advance to the next rank, gaining +7.5 damage and +0.5 speed. Five ranks total.<br><br>
+<b>R Ranked Bombardment (changes per rank):</b><br>
 🔵 <b>Lieutenant (Rank 1):</b> Fires 12 explosive bullets in a wide wave in front of you. Each deals 1.5× your current damage and explodes on impact.<br>
 🟢 <b>Captain (Rank 2):</b> Fires 18 bullets in a full circle at 2.5× damage.<br>
-🟡 <b>Major (Rank 3):</b> Fires 32 bullets in a full circle — instakills all non-boss enemies. Slows every enemy on screen for 15 seconds.<br>
-🟠 <b>Sergeant (Rank 4):</b> Fires 50 explosive bullets in a circle — instakills, area explosions, slows all enemies 15s, and deploys a turret.<br>
+🟡 <b>Major (Rank 3):</b> Fires 32 bullets in a full circle instakills all non-boss enemies. Slows every enemy on screen for 15 seconds.<br>
+🟠 <b>Sergeant (Rank 4):</b> Fires 50 explosive bullets in a circle instakills, area explosions, slows all enemies 15s, and deploys a turret.<br>
 🟣 <b>True Commander (Rank 5):</b> Fires 50 homing instakill bullets and deploys 4 turrets around you with infinite lifespan.`,
-        playstyle: 'A powerful all-rounder that gradually snowballs throughout the run. Strong from the start and terrifying at Rank 5. Manages well in both early waves and late-game chaos.',
-        tip: 'Focus on Damage and Mana upgrades in the wave shop. Save your R for waves with many enemies — at Rank 3+ it clears entire screens. The TP dash is your best escape tool.',
+        playstyle:'A powerful all-rounder that gradually snowballs throughout the run. Strong from the start and terrifying at Rank 5. Manages well in both early waves and late-game chaos.',
+        tip:'Focus on Damage and Mana upgrades in the wave shop. Save your R for waves with many enemies at Rank 3+ it clears entire screens. The TP dash is your best escape tool.',
     },
     prime_veteran: {
-        name: 'Prime Veteran', tag: '🔒 Secret · The Original', icon: '⚔️',
+        name:'Prime Veteran', tag: '🔒 Secret · The Original', icon: '⚔️',
         iconBg: 'linear-gradient(135deg,#1e3a8a,#3b82f6)', iconGlow: '#60a5fa',
         stats: [
-            { label: 'Origin', value: 'CIRCULATE OG — the very first character' },
-            { label: 'Damage', value: '10 (scales with tier)' },
-            { label: 'Evolution', value: 'Rookie → Soldier → Elite → Commander → Legend' },
-            { label: 'R Ability', value: 'Veteran Burst — radial shot burst' },
-            { label: 'Unlock', value: 'Complete all 10 OG quests & import save' },
+            { label:'Origin', value:'CIRCULATE OG the very first character' },
+            { label:'Damage', value:'10 (scales with tier)' },
+            { label:'Evolution', value:'Rookie → Soldier → Elite → Commander → Legend' },
+            { label:'R Ability', value:'Veteran Burst radial shot burst' },
+            { label:'Unlock', value:'Complete all 10 OG quests & import save' },
         ],
-        abilities: `<b>Passive — Evolution:</b> Every 30 seconds you evolve to the next tier (Rookie → Soldier → Elite → Commander → Legend), gaining a damage multiplier and speed bonus each time.<br><br>
-<b>R — Veteran Burst (20 mana):</b> Fires a massive radial burst of shots scaled to your current tier. This is the exact same ability the original CIRCULATE OG Veteran uses.`,
-        playstyle: 'This is the original Veteran character from CIRCULATE OG, preserved exactly as he was. For players who miss the classic feel — same evolution, same burst, same everything.',
-        tip: '🕹️ This is a hidden character for players who found their way from the original game. If you\'re seeing this — welcome back.',
+        abilities:`<b>Passive Evolution:</b> Every 30 seconds you evolve to the next tier (Rookie → Soldier → Elite → Commander → Legend), gaining a damage multiplier and speed bonus each time.<br><br>
+<b>R Veteran Burst (20 mana):</b> Fires a massive radial burst of shots scaled to your current tier. This is the exact same ability the original CIRCULATE OG Veteran uses.`,
+        playstyle:'This is the original Veteran character from CIRCULATE OG, preserved exactly as he was. For players who miss the classic feel same evolution, same burst, same everything.',
+        tip:'🕹️ This is a hidden character for players who found their way from the original game. If you\'re seeing this - welcome back.',
     },
     last_architect: {
-        name: 'The Last Architect', tag: 'Mastery · Siege Commander', icon: '🏛️',
+        name:'The Last Architect', tag: 'Mastery · Siege Commander', icon: '🏛️',
         iconBg: 'linear-gradient(135deg,#4c1d95,#a78bfa)', iconGlow: '#c4b5fd',
         stats: [
-            { label: 'HP', value: '115' },
-            { label: 'Damage', value: '15' },
-            { label: 'Speed', value: '6' },
-            { label: 'Dash', value: 'None' },
-            { label: 'Mana Cost (R)', value: '35 mana' },
-            { label: 'Unlock', value: 'Build/Reinforce 250 walls as The Builder' },
+            { label:'HP', value:'115' },
+            { label:'Damage', value:'15' },
+            { label:'Speed', value:'6' },
+            { label:'Dash', value:'None' },
+            { label:'Mana Cost (R)', value:'35 mana' },
+            { label:'Unlock', value:'Build/Reinforce 250 walls as The Builder' },
         ],
-        abilities: `<b>Passive — Grand Design:</b> Sentries purchased from the wave shop deal double damage and last triple as long.<br><br><b>Shift+Click — Toggle Mode:</b> Switch between Turret Mode and Robot Mode.<br><br><b>R — Ancient Construction (35 mana):</b><br>🏛️ <b>Turret Mode:</b> Summons a stationary turret at your location. High fire rate, targets the lowest HP enemy in range. Lasts 60 seconds.<br><br>🤖 <b>Robot Mode:</b> Deploys a roaming robot that stays near you but wanders freely. Fires 50-damage laser shots at the highest HP enemy in range. Slow fire rate. Lasts 45 seconds.`,
-        playstyle: 'A summoner/commander build entirely dependent on your summons. Spam R to place a mix of robots and turrets. Your own attacks are weak — you are merely the general, not the soldier.',
-        tip: '💡 Tip: Stack Mana upgrades above all else. The ideal field is 3–4 robots on heavy targets + several turrets finishing off weakened enemies. Your passive makes shop sentries incredibly powerful too — buy them every chance you get.',
+        abilities:`<b>Passive Grand Design:</b> Sentries purchased from the wave shop deal double damage and last triple as long.<br><br><b>Shift+Click Toggle Mode:</b> Switch between Turret Mode and Robot Mode.<br><br><b>R Ancient Construction (35 mana):</b><br>🏛️ <b>Turret Mode:</b> Summons a stationary turret at your location. High fire rate, targets the lowest HP enemy in range. Lasts 60 seconds.<br><br>🤖 <b>Robot Mode:</b> Deploys a roaming robot that stays near you but wanders freely. Fires 50-damage laser shots at the highest HP enemy in range. Slow fire rate. Lasts 45 seconds.`,
+        playstyle:'A summoner/commander build entirely dependent on your summons. Spam R to place a mix of robots and turrets. Your own attacks are weak you are merely the general, not the soldier.',
+        tip:'💡 Tip: Stack Mana upgrades above all else. The ideal field is 3-4 robots on heavy targets + several turrets finishing off weakened enemies. Your passive makes shop sentries incredibly powerful too buy them every chance you get.',
     },
     gojo: {
-        name: 'Gojo Satoru', tag: 'Secret · The Honored One', icon: '♾️',
+        name:'Gojo Satoru', tag: 'Secret · The Honored One', icon: '♾️',
         iconBg: 'linear-gradient(135deg,#312e81,#6366f1)', iconGlow: '#a5b4fc',
         stats: [
-            { label: '👶 Baby (0–50)',          value: '18 DMG · 80 HP · 4.5 SPD · 350ms fire · 15% Infinity' },
-            { label: '🧑 Teen (50–200)',         value: '28 DMG · 110 HP · 5.5 SPD · 280ms fire · 30% Infinity' },
-            { label: '💪 Adult (200–400)',       value: '42 DMG · 140 HP · 6.5 SPD · 200ms fire · 50% Infinity' },
-            { label: '⭐ The Strongest (400+)',  value: '65 DMG · 200 HP · 8.0 SPD · 130ms fire · 70% Infinity' },
-            { label: 'Projectiles',              value: 'Pierce all enemies (each bullet hits each enemy once)' },
-            { label: 'Passive Regen',            value: 'Scales per phase — 0.2 → 0.5 → 1.0 → 2.0 HP/s' },
-            { label: 'Gold Multiplier',          value: '8x all gold income' },
-            { label: '[F] Hold — Mana → HP',     value: 'Drain Cursed Energy to restore HP in real time' },
-            { label: 'R — Unlimited Void',       value: '60 CE · Freeze all enemies · improves each phase' },
-            { label: 'Wave 600 — Sukuna',        value: '1,000,000 HP final boss · kill him to keep your gold' },
-            { label: 'Cursed Energy',            value: 'MANA renamed to Cursed Energy for Gojo, Yuji & Hakari' },
-            { label: 'Unlock',                   value: 'Quest secret code' },
+            { label:'👶 Baby (0-50)',          value:'18 DMG · 80 HP · 4.5 SPD · 350ms fire · 15% Infinity' },
+            { label:'🧑 Teen (50-200)',         value:'28 DMG · 110 HP · 5.5 SPD · 280ms fire · 30% Infinity' },
+            { label:'💪 Adult (200-400)',       value:'42 DMG · 140 HP · 6.5 SPD · 200ms fire · 50% Infinity' },
+            { label:'⭐ The Strongest (400+)',  value:'65 DMG · 200 HP · 8.0 SPD · 130ms fire · 70% Infinity' },
+            { label:'Projectiles',              value:'Pierce all enemies (each bullet hits each enemy once)' },
+            { label:'Passive Regen',            value:'Scales per phase 0.2 → 0.5 → 1.0 → 2.0 HP/s' },
+            { label:'Gold Multiplier',          value:'8x all gold income' },
+            { label:'[F] Hold Mana → HP',     value:'Drain Cursed Energy to restore HP in real time' },
+            { label:'R Unlimited Void',       value:'60 CE · Freeze all enemies · improves each phase' },
+            { label:'Wave 600 Sukuna',        value:'1,000,000 HP final boss · kill him to keep your gold' },
+            { label:'Cursed Energy',            value:'MANA renamed to Cursed Energy for Gojo, Yuji & Hakari' },
+            { label:'Unlock',                   value:'Quest secret code' },
         ],
-        abilities: `<b>Passive — Growth Phases:</b> Gojo grows stronger every wave. Each phase boosts every stat.<br>👶 Baby (0–49) → 🧑 Teen (50–199) → 💪 Adult (200–399) → ⭐ The Strongest (400+).<br><br><b>Passive — Six Eyes:</b> Shots pierce through all enemies in a line. Passive HP regen scales with phase. All gold earned is multiplied 8x.<br><br><b>Passive — Infinity:</b> Each hit has a chance (15%→70%) to be completely negated. A white glow flashes when blocked. Chance grows every phase.<br><br><b>[F] Held — Mana to HP:</b> Hold F to slowly drain your Cursed Energy and convert it into HP. Great for emergency sustain between waves.<br><br><b>R — Unlimited Void (60 CE):</b> Expands your Domain, freezing all enemies on screen. Duration, freeze time, and cooldown all improve with phase.<br><br><b>Wave 600 — Ryomen Sukuna:</b> At wave 600, all enemies clear and Sukuna spawns with 1,000,000 HP. He uses Malevolent Shrine, dealing 3 dmg every 0.2s during his Domain. Kill him to secure your 8x gold run. Die and you lose all run gold.`,
-        playstyle: 'A scaling powerhouse built around surviving into the late game. Baby Gojo is intentionally weak — your goal is to stay alive long enough to reach The Strongest phase. Once there, 65 damage, 70% Infinity, and 130ms fire rate make you nearly unstoppable. Use Unlimited Void on packed waves, hold F when low on HP, and go for the Sukuna kill at wave 600 for the full payout.',
-        tip: '⭐ Tip: Your gold multiplier is 8x — avoid dying to Sukuna or you lose it all. Hold F smartly between waves to top off HP without wasting Cursed Energy mid-fight. Unlimited Void cooldown halves by max phase, so spam it freely at The Strongest.',
+        abilities:`<b>Passive Growth Phases:</b> Gojo grows stronger every wave. Each phase boosts every stat.<br>👶 Baby (0-49) → 🧑 Teen (50-199) → 💪 Adult (200-399) → ⭐ The Strongest (400+).<br><br><b>Passive Six Eyes:</b> Shots pierce through all enemies in a line. Passive HP regen scales with phase. All gold earned is multiplied 8x.<br><br><b>Passive Infinity:</b> Each hit has a chance (15%→70%) to be completely negated. A white glow flashes when blocked. Chance grows every phase.<br><br><b>[F] Held Mana to HP:</b> Hold F to slowly drain your Cursed Energy and convert it into HP. Great for emergency sustain between waves.<br><br><b>R Unlimited Void (60 CE):</b> Expands your Domain, freezing all enemies on screen. Duration, freeze time, and cooldown all improve with phase.<br><br><b>Wave 600 Ryomen Sukuna:</b> At wave 600, all enemies clear and Sukuna spawns with 1,000,000 HP. He uses Malevolent Shrine, dealing 3 dmg every 0.2s during his Domain. Kill him to secure your 8x gold run. Die and you lose all run gold.`,
+        playstyle:'A scaling powerhouse built around surviving into the late game. Baby Gojo is intentionally weak your goal is to stay alive long enough to reach The Strongest phase. Once there, 65 damage, 70% Infinity, and 130ms fire rate make you nearly unstoppable. Use Unlimited Void on packed waves, hold F when low on HP, and go for the Sukuna kill at wave 600 for the full payout.',
+        tip:'⭐ Tip: Your gold multiplier is 8x avoid dying to Sukuna or you lose it all. Hold F smartly between waves to top off HP without wasting Cursed Energy mid-fight. Unlimited Void cooldown halves by max phase, so spam it freely at The Strongest.',
     },
     coin_king: {
-        name: 'The Coin King', tag: 'Mastery · Gold Rush Tyrant', icon: '👑',
+        name:'The Coin King', tag: 'Mastery · Gold Rush Tyrant', icon: '👑',
         iconBg: 'linear-gradient(135deg,#92400e,#fbbf24)', iconGlow: '#fbbf24',
         stats: [
-            { label: 'HP', value: '40 (ultra-fragile!)' },
-            { label: 'Damage', value: '12' },
-            { label: 'Speed', value: '4.5 (slow)' },
-            { label: 'Gold Multiplier', value: '10x ALL gold income' },
-            { label: 'Kill Heal', value: '+3 HP per kill' },
-            { label: 'Dash', value: 'None' },
-            { label: 'Mana Cost (R)', value: '50 mana' },
-            { label: 'Unlock', value: 'Earn $100,000 in a single run as Gold Hoarder' },
+            { label:'HP', value:'40 (ultra-fragile!)' },
+            { label:'Damage', value:'12' },
+            { label:'Speed', value:'4.5 (slow)' },
+            { label:'Gold Multiplier', value:'10x ALL gold income' },
+            { label:'Kill Heal', value:'+3 HP per kill' },
+            { label:'Dash', value:'None' },
+            { label:'Mana Cost (R)', value:'50 mana' },
+            { label:'Unlock', value:'Earn $100,000 in a single run as Gold Hoarder' },
         ],
-        abilities: `<b>Passive — Golden Blood:</b> Every kill heals you for 3 HP and drops a sprinkle of bonus gold. Gold multiplier is doubled to 10x on all income sources.<br><br><b>R — Gold Shower (50 mana):</b> Unleashes 20 gold coin projectiles in a 360° ring. Each coin deals 30 damage to any enemy it hits. Each coin also earns you ~$3 bonus gold on top of the standard multiplier. Total income from one cast: ~$600 before multipliers.`,
-        playstyle: 'High-risk, high-reward gold machine. Extremely fragile but with an insane income. Kill everything fast to stay healed. Spam Gold Shower for both offense and income. The longer you survive, the richer you get.',
-        tip: '💡 Tip: You are painfully slow and weak — treat every engagement like a glass cannon. Use Gold Shower offensively against clusters, not just for money. Your kill-heal passive is your only real survivability, so never stop shooting.',
+        abilities:`<b>Passive Golden Blood:</b> Every kill heals you for 3 HP and drops a sprinkle of bonus gold. Gold multiplier is doubled to 10x on all income sources.<br><br><b>R Gold Shower (50 mana):</b> Unleashes 20 gold coin projectiles in a 360° ring. Each coin deals 30 damage to any enemy it hits. Each coin also earns you ~$3 bonus gold on top of the standard multiplier. Total income from one cast: ~$600 before multipliers.`,
+        playstyle:'High-risk, high-reward gold machine. Extremely fragile but with an insane income. Kill everything fast to stay healed. Spam Gold Shower for both offense and income. The longer you survive, the richer you get.',
+        tip:'💡 Tip: You are painfully slow and weak treat every engagement like a glass cannon. Use Gold Shower offensively against clusters, not just for money. Your kill-heal passive is your only real survivability, so never stop shooting.',
     },
     necromancer: {
-        name: 'Necromancer', tag: '$4000 · Death Summoner', icon: '💀',
+        name:'Necromancer', tag: '$4000 · Death Summoner', icon: '💀',
         iconBg: 'linear-gradient(135deg,#2e1065,#7c3aed)', iconGlow: '#c084fc',
         stats: [
-            { label: 'HP', value: '90' },
-            { label: 'Damage', value: '15 (minions deal 9)' },
-            { label: 'Speed', value: '5' },
-            { label: 'Raise Chance', value: '30% on every kill' },
-            { label: 'Minion Lifespan', value: '15 seconds' },
-            { label: 'Mana Cost (R)', value: '40 mana' },
+            { label:'HP', value:'90' },
+            { label:'Damage', value:'15 (minions deal 9)' },
+            { label:'Speed', value:'5' },
+            { label:'Raise Chance', value:'30% on every kill' },
+            { label:'Minion Lifespan', value:'15 seconds' },
+            { label:'Mana Cost (R)', value:'40 mana' },
         ],
-        abilities: `<b>Passive — Dark Resurrection:</b> Every kill has a 30% chance to raise the enemy as your undead minion. Minions chase enemies, deal 60% of your damage, and last 15 seconds before collapsing.<br><br><b>R — Soul Burst (40 mana, 5s CD):</b> All active minions explode simultaneously, each dealing 3x your damage in a 70px radius. Minions are consumed. More minions = bigger devastation.`,
-        playstyle: 'A snowball summoner. Struggle early, dominate late. Soul Burst is your panic button and finisher.',
-        tip: '💀 Tip: Save Soul Burst for packed waves where your minions are clustered near enemies. A full army burst can wipe an entire wave.',
+        abilities:`<b>Passive Dark Resurrection:</b> Every kill has a 30% chance to raise the enemy as your undead minion. Minions chase enemies, deal 60% of your damage, and last 15 seconds before collapsing.<br><br><b>R Soul Burst (40 mana, 5s CD):</b> All active minions explode simultaneously, each dealing 3x your damage in a 70px radius. Minions are consumed. More minions = bigger devastation.`,
+        playstyle:'A snowball summoner. Struggle early, dominate late. Soul Burst is your panic button and finisher.',
+        tip:'💀 Tip: Save Soul Burst for packed waves where your minions are clustered near enemies. A full army burst can wipe an entire wave.',
     },
     glass_cannon: {
-        name: 'Glass Cannon', tag: '$3500 · One-Hit Wonder', icon: '💥',
+        name:'Glass Cannon', tag: '$3500 · One-Hit Wonder', icon: '💥',
         iconBg: 'linear-gradient(135deg,#164e63,#22d3ee)', iconGlow: '#67e8f9',
         stats: [
-            { label: 'HP', value: '1 (dies to ONE hit)' },
-            { label: 'Damage', value: '150 base + Adrenaline stacks' },
-            { label: 'Speed', value: '6.5' },
-            { label: 'Adrenaline', value: '+5 damage per kill, resets on hit' },
-            { label: 'Special', value: 'None — you don\'t need one' },
+            { label:'HP', value:'1 (dies to ONE hit)' },
+            { label:'Damage', value:'150 base + Adrenaline stacks' },
+            { label:'Speed', value:'6.5' },
+            { label:'Adrenaline', value:'+5 damage per kill, resets on hit' },
+            { label:'Special', value:'None you don\'t need one' },
         ],
-        abilities: `<b>Passive — Fragile:</b> You have 1 HP. Any enemy contact kills you instantly. No healing. No second chances.<br><br><b>Passive — Adrenaline:</b> Every kill stacks +5 bonus damage. Getting hit resets it all to zero.<br><br><b>Special — None.</b>`,
-        playstyle: 'Pure offense, zero defense. Never stop moving. Never let anything touch you. Reward: damage climbing into the thousands on a perfect run.',
-        tip: '💥 Tip: Speed is your armor. Keep moving in circles — most enemies can\'t catch you if you keep rotating. Prioritize fast enemies first.',
+        abilities:`<b>Passive Fragile:</b> You have 1 HP. Any enemy contact kills you instantly. No healing. No second chances.<br><br><b>Passive Adrenaline:</b> Every kill stacks +5 bonus damage. Getting hit resets it all to zero.<br><br><b>Special None.</b>`,
+        playstyle:'Pure offense, zero defense. Never stop moving. Never let anything touch you. Reward: damage climbing into the thousands on a perfect run.',
+        tip:'💥 Tip: Speed is your armor. Keep moving in circles most enemies can\'t catch you if you keep rotating. Prioritize fast enemies first.',
     },
     tank: {
-        name: 'Tank', tag: '$2000 · Unstoppable Force', icon: '🛡️',
+        name:'Tank', tag: '$2000 · Unstoppable Force', icon: '🛡️',
         iconBg: 'linear-gradient(135deg,#14532d,#4ade80)', iconGlow: '#86efac',
         stats: [
-            { label: 'HP', value: '500' },
-            { label: 'Contact Damage', value: '50 continuous (on touch)' },
-            { label: 'Speed', value: '2 (very slow)' },
-            { label: 'Shooting', value: 'NONE' },
-            { label: 'R Cooldown', value: '3 seconds' },
+            { label:'HP', value:'500' },
+            { label:'Contact Damage', value:'50 continuous (on touch)' },
+            { label:'Speed', value:'2 (very slow)' },
+            { label:'Shooting', value:'NONE' },
+            { label:'R Cooldown', value:'3 seconds' },
         ],
-        abilities: `<b>Passive — Body Slam:</b> You cannot shoot. Walking into enemies deals continuous contact damage. Stay overlapped for maximum carnage.<br><br><b>R — Ground Slam (0 mana, 3s CD):</b> 180px AOE shockwave dealing 4x damage and stunning all enemies for 2 seconds.`,
-        playstyle: 'Get in their face and stay there. Your only weapon is your body. Ground Slam gives you breathing room when overwhelmed.',
-        tip: '🛡️ Tip: Walk directly into groups — don\'t run. Wave shop Damage upgrades buff your contact damage too.',
+        abilities:`<b>Passive Body Slam:</b> You cannot shoot. Walking into enemies deals continuous contact damage. Stay overlapped for maximum carnage.<br><br><b>R Ground Slam (0 mana, 3s CD):</b> 180px AOE shockwave dealing 4x damage and stunning all enemies for 2 seconds.`,
+        playstyle:'Get in their face and stay there. Your only weapon is your body. Ground Slam gives you breathing room when overwhelmed.',
+        tip:'🛡️ Tip: Walk directly into groups don\'t run. Wave shop Damage upgrades buff your contact damage too.',
     },
     speedrunner: {
-        name: 'Speedrunner', tag: '$2500 · Faster = Deadlier', icon: '⚡',
+        name:'Speedrunner', tag: '$2500 · Faster = Deadlier', icon: '⚡',
         iconBg: 'linear-gradient(135deg,#713f12,#facc15)', iconGlow: '#fde047',
         stats: [
-            { label: 'HP', value: '70' },
-            { label: 'Base Damage', value: '8 (standing still)' },
-            { label: 'Max Damage', value: '~50+ at full sprint' },
-            { label: 'Speed', value: '7' },
-            { label: 'Damage Formula', value: '8 + (velocity × 3.5)' },
+            { label:'HP', value:'70' },
+            { label:'Base Damage', value:'8 (standing still)' },
+            { label:'Max Damage', value:'~50+ at full sprint' },
+            { label:'Speed', value:'7' },
+            { label:'Damage Formula', value:'8 + (velocity × 3.5)' },
         ],
-        abilities: `<b>Passive — Velocity Damage:</b> Your damage scales with movement speed. Standing: 8 dmg. Walking: ~20. Full sprint: ~50+.<br><br><b>R — Sprint Burst (0 mana, 4s CD):</b> 2.5x movement speed for 3 seconds. Maximum damage window.`,
-        playstyle: 'Never stop moving. Constant velocity = constant high damage. Circle enemies while shooting.',
-        tip: '⚡ Tip: Sprint into a crowd diagonally while shooting to stay at max damage. Circular kiting is your bread and butter.',
+        abilities:`<b>Passive Velocity Damage:</b> Your damage scales with movement speed. Standing: 8 dmg. Walking: ~20. Full sprint: ~50+.<br><br><b>R Sprint Burst (0 mana, 4s CD):</b> 2.5x movement speed for 3 seconds. Maximum damage window.`,
+        playstyle:'Never stop moving. Constant velocity = constant high damage. Circle enemies while shooting.',
+        tip:'⚡ Tip: Sprint into a crowd diagonally while shooting to stay at max damage. Circular kiting is your bread and butter.',
     },
 
     jeremiah: {
-        name: 'Jeremiah Quinzy Fowler II', tag: 'Quest Unlock · Please Don\'t', icon: '💀',
+        name:'Jeremiah Quinzy Fowler II', tag: 'Quest Unlock · Please Don\'t', icon: '💀',
         iconBg: 'linear-gradient(135deg,#1f2937,#374151)', iconGlow: '#6b7280',
         stats: [
-            { label: 'Damage', value: '1. One (1). A single damage.' },
-            { label: 'HP', value: '80 (gone in 40 seconds without doing anything)' },
-            { label: 'Speed', value: '4.5 (slow, as he deserves)' },
-            { label: 'Passive', value: '-1 HP every 0.5 seconds. Always. Forever.' },
-            { label: 'Special Ability', value: 'None. He has nothing.' },
-            { label: 'Gold Multiplier', value: '1x (standard, somehow his worst stat)' },
-            { label: 'Dash', value: 'Normal dash. Not that it helps.' },
-            { label: 'Unlock', value: 'Complete all Jeremiah Quinzy Fowler II quests' },
+            { label:'Damage', value:'1. One (1). A single damage.' },
+            { label:'HP', value:'80 (gone in 40 seconds without doing anything)' },
+            { label:'Speed', value:'4.5 (slow, as he deserves)' },
+            { label:'Passive', value:'-1 HP every 0.5 seconds. Always. Forever.' },
+            { label:'Special Ability', value:'None. He has nothing.' },
+            { label:'Gold Multiplier', value:'1x (standard, somehow his worst stat)' },
+            { label:'Dash', value:'Normal dash. Not that it helps.' },
+            { label:'Unlock', value:'Complete all Jeremiah Quinzy Fowler II quests' },
         ],
-        abilities: `<b>Passive — Cursed Existence:</b> Jeremiah Quinzy Fowler II takes 1 damage every 0.5 seconds regardless of what he does or doesn't do. Standing still? Dying. Moving? Also dying. Shooting? Still dying. There is no way to stop this. It is simply who he is.<br><br><b>Special Ability — None:</b> He doesn't have one. We considered giving him one, but felt it would be misleading.`,
-        playstyle: 'There is no playstyle. You will die. The only question is how many enemies you can take down before your own body gives out. One tester cried. We don\'t recommend him.',
-        tip: '🚮 Tip: Don\'t. Seriously. Play literally anyone else. The Veteran is free. Gold Hoarder is free. Even Jeremiah\'s stat screen hurts to look at. If you\'re playing him, you either completed the quests or made a horrible mistake. Either way, we\'re sorry.',
+        abilities:`<b>Passive Cursed Existence:</b> Jeremiah Quinzy Fowler II takes 1 damage every 0.5 seconds regardless of what he does or doesn't do. Standing still? Dying. Moving? Also dying. Shooting? Still dying. There is no way to stop this. It is simply who he is.<br><br><b>Special Ability None:</b> He doesn't have one. We considered giving him one, but felt it would be misleading.`,
+        playstyle:'There is no playstyle. You will die. The only question is how many enemies you can take down before your own body gives out. One tester cried. We don\'t recommend him.',
+        tip:'🚮 Tip: Don\'t. Seriously. Play literally anyone else. The Veteran is free. Gold Hoarder is free. Even Jeremiah\'s stat screen hurts to look at. If you\'re playing him, you either completed the quests or made a horrible mistake. Either way, we\'re sorry.',
     },
     hornet: {
-        name: 'Hornet', tag: 'Code: Shaw! · Masked Hunter', icon: 'https://res.cloudinary.com/dz1dungk5/image/upload/v1772727788/f0e95622d20a747e93f5403e5193b155_vhmhmy.ico',
+        name:'Hornet', tag: 'Code: Shaw! · Masked Hunter', icon: 'https://res.cloudinary.com/dz1dungk5/image/upload/v1772727788/f0e95622d20a747e93f5403e5193b155_vhmhmy.ico',
         iconBg: 'linear-gradient(135deg,#92400e,#f59e0b)', iconGlow: '#fde68a',
         stats: [
-            { label: 'HP', value: '10 Masks (each hit = 1 mask lost)' },
-            { label: 'Damage', value: '27.5' },
-            { label: 'Speed', value: '6' },
-            { label: 'Resource', value: 'Silk Spool (max 18 — kill enemies to gain)' },
-            { label: 'Q — Bind', value: 'Heal 4 masks after 1s windup · Costs 9 Silk' },
-            { label: 'R — Silk Storm', value: 'AoE thread storm around you · Costs 4 Silk' },
-            { label: 'E — Shard Trap', value: 'Place a spike trap · No silk cost · Long cooldown' },
-            { label: 'Dash', value: 'Damages enemies in path · +1 speed for 5s' },
+            { label:'HP', value:'10 Masks (each hit = 1 mask lost)' },
+            { label:'Damage', value:'27.5' },
+            { label:'Speed', value:'6' },
+            { label:'Resource', value:'Silk Spool (max 18 kill enemies to gain)' },
+            { label:'Q Bind', value:'Heal 4 masks after 1s windup · Costs 9 Silk' },
+            { label:'R Silk Storm', value:'AoE thread storm around you · Costs 4 Silk' },
+            { label:'E Shard Trap', value:'Place a spike trap · No silk cost · Long cooldown' },
+            { label:'Dash', value:'Damages enemies in path · +1 speed for 5s' },
         ],
-        abilities: `<b>Passive — Masked Health:</b> Instead of an HP bar you have 10 Masks. Each hit removes 1 mask. Reach 0 and you die — no gradual bleeding out.<br><br><b>Passive — Silk and Soul:</b> Mana is replaced by a Silk Spool (max 18). Killing any enemy grants 1 silk. Manage your silk carefully — it\u2019s your only resource for healing and abilities.<br><br><b>Dash — Reckless Charge:</b> Dash through enemies to deal 1.5x damage to everything in your path, and gain +1 movement speed for 5 seconds after.<br><br><b>Q — Bind (9 Silk):</b> Wind up for 1 second, then heal 4 masks. High cost — only use when safe.<br><br><b>R — Silk Storm (4 Silk):</b> Unleash a storm of silk threads in a 260px radius, dealing 2.5x damage to all enemies hit.<br><br><b>E — Shard Trap (No silk cost):</b> Place a spiked trap on the ground. The first enemy to walk over it takes 4x damage. Long cooldown — place smartly.`,
-        playstyle: 'An aggressive skirmisher that lives or dies by silk economy. You have no HP recovery except Bind — so avoid getting hit. Use Shard Traps to cover your flanks, dash through crowds for damage and speed boosts, and save silk for Bind when things get hairy. Silk Storm is your panic button for surrounded moments.',
-        tip: '🗡️ Tip: Think of silk as your lifeline. Killing enemies fills it, Bind and Silk Storm drain it. Never drop below 9 silk unless you are confident you won\'t need emergency healing. Shard Traps are free — always have one deployed.',
+        abilities:`<b>Passive Masked Health:</b> Instead of an HP bar you have 10 Masks. Each hit removes 1 mask. Reach 0 and you die no gradual bleeding out.<br><br><b>Passive Silk and Soul:</b> Mana is replaced by a Silk Spool (max 18). Killing any enemy grants 1 silk. Manage your silk carefully it\u2019s your only resource for healing and abilities.<br><br><b>Dash Reckless Charge:</b> Dash through enemies to deal 1.5x damage to everything in your path, and gain +1 movement speed for 5 seconds after.<br><br><b>Q Bind (9 Silk):</b> Wind up for 1 second, then heal 4 masks. High cost only use when safe.<br><br><b>R Silk Storm (4 Silk):</b> Unleash a storm of silk threads in a 260px radius, dealing 2.5x damage to all enemies hit.<br><br><b>E Shard Trap (No silk cost):</b> Place a spiked trap on the ground. The first enemy to walk over it takes 4x damage. Long cooldown place smartly.`,
+        playstyle:'An aggressive skirmisher that lives or dies by silk economy. You have no HP recovery except Bind so avoid getting hit. Use Shard Traps to cover your flanks, dash through crowds for damage and speed boosts, and save silk for Bind when things get hairy. Silk Storm is your panic button for surrounded moments.',
+        tip:'🗡️ Tip: Think of silk as your lifeline. Killing enemies fills it, Bind and Silk Storm drain it. Never drop below 9 silk unless you are confident you won\'t need emergency healing. Shard Traps are free - always have one deployed.',
     },
 };
 
@@ -9929,7 +10033,7 @@ function showQuestsPage(){
     renderHQPanel();
 }
 
-function showCharacterShop(){document.getElementById('mainMenu').style.display='none';document.getElementById('gameContainer').style.display='none';document.getElementById('characterShop').style.display='block';updateShopDisplay();updateMasteryCardButtons();
+function showCharacterShop(){stopMainTheme();document.getElementById('mainMenu').style.display='none';document.getElementById('gameContainer').style.display='none';document.getElementById('characterShop').style.display='block';updateShopDisplay();updateMasteryCardButtons();
     const wvCard = document.getElementById('warVeteranCharacter');
     if (wvCard) wvCard.style.display = (unlockedMasteries.includes('default') && equippedMasteries.includes('default')) ? '' : 'none';
     const laCard = document.getElementById('lastArchitectCharacter');
@@ -9942,6 +10046,7 @@ function showCharacterShop(){document.getElementById('mainMenu').style.display='
 }
 function backToMenu(){
     stopJackpotMusic();
+    stopMainTheme();
     hideSlotMachine();
     renderHQPanel();document.getElementById('tutorial').style.display='none';document.getElementById('characterShop').style.display='none';document.getElementById('questsPage').style.display='none';document.getElementById('moneyPopup').classList.remove('show');document.getElementById('mainMenu').style.display='block';updateMoneyDisplay();}
 function startGame(){
@@ -9952,9 +10057,12 @@ function startGame(){
     updateBiome();
     updateBiomeColors();
     showBiomeIndicator();
+    mainTheme.pause();
+    mainTheme.currentTime = 0;
+    fadeInMainTheme(1200);
     requestAnimationFrame(gameLoop);
 }
-function backToMainMenu(){stopJackpotMusic();hideSlotMachine();document.getElementById('gameOver').style.display='none';document.getElementById('gameContainer').style.display='none';skinOverlay.style.display='none';document.getElementById('mainMenu').style.display='block';updateMoneyDisplay();const darkBM=document.getElementById('theEnemyDarkness');if(darkBM){darkBM.style.opacity='0';darkBM.style.display='none';}const cBM=document.getElementById('gameCanvas');if(cBM){cBM.style.transform='';}}
+function backToMainMenu(){stopJackpotMusic();stopMainTheme();hideSlotMachine();document.getElementById('gameOver').style.display='none';document.getElementById('gameContainer').style.display='none';skinOverlay.style.display='none';document.getElementById('mainMenu').style.display='block';updateMoneyDisplay();const darkBM=document.getElementById('theEnemyDarkness');if(darkBM){darkBM.style.opacity='0';darkBM.style.display='none';}const cBM=document.getElementById('gameCanvas');if(cBM){cBM.style.transform='';}}
 function updateMoneyDisplay(){document.getElementById('totalMoney').textContent=totalMoney;document.getElementById('shopMoney').textContent=totalMoney;}
 function updateShopDisplay(){
     updateMoneyDisplay();
@@ -10235,14 +10343,14 @@ function handleImportFile(event) {
             try {
                 data = JSON.parse(raw);
             } catch(parseErr) {
-                nukeSave('💥 Save file is corrupted or edited — save wiped.');
+                nukeSave('💥 Save file is corrupted or edited - save wiped.');
                 return;
             }
 
             if (data.type === 'jackpot_reward' && data.id === 'JACKPOTTTTT') {
                 const expectedSig = (data.hits * 7777 + 31337).toString(16);
                 if (data.codeUsed === true) {
-                    alert('❌ This reward file is invalid — codes were used on that save.\n\nPlay the slot machine without using codes to earn a legitimate reward.');
+                    alert('❌ This reward file is invalid - codes were used on that save.\n\nPlay the slot machine without using codes to earn a legitimate reward.');
                 } else if (data.sig === expectedSig && data.hits >= 3) {
                     unlockAchievement('JACKPOTTTTT');
                     if (!unlockedCharacters.includes('hakari_v2')) {
@@ -10262,32 +10370,32 @@ function handleImportFile(event) {
             const required = ['v','money','characters','current','codes','ts','hash'];
             for (const key of required) {
                 if (!(key in data)) {
-                    nukeSave('💥 Save file is missing data — save wiped.');
+                    nukeSave('💥 Save file is missing data - save wiped.');
                     return;
                 }
             }
 
             const expectedHash = computeSaveHash({ v: data.v, money: data.money, characters: data.characters, current: data.current, codes: data.codes, ts: data.ts });
             if (data.hash !== expectedHash) {
-                nukeSave('💥 Save file was tampered with — save wiped.');
+                nukeSave('💥 Save file was tampered with - save wiped.');
                 return;
             }
 
             if (typeof data.money !== 'number' || data.money < 0 || data.money > 2_000_000_000) {
-                nukeSave('💥 Invalid money value detected — save wiped.');
+                nukeSave('💥 Invalid money value detected - save wiped.');
                 return;
             }
             if (!Array.isArray(data.characters) || data.characters.length > Object.keys(CHARACTERS).length) {
-                nukeSave('💥 Invalid character list — save wiped.');
+                nukeSave('💥 Invalid character list - save wiped.');
                 return;
             }
             const validChars = Object.keys(CHARACTERS);
             if (!data.characters.every(c => validChars.includes(c))) {
-                nukeSave('💥 Unknown character in save — save wiped.');
+                nukeSave('💥 Unknown character in save - save wiped.');
                 return;
             }
             if (!validChars.includes(data.current)) {
-                nukeSave('💥 Invalid selected character — save wiped.');
+                nukeSave('💥 Invalid selected character - save wiped.');
                 return;
             }
 
@@ -10302,7 +10410,7 @@ function handleImportFile(event) {
             floatMoneyText('📂 Save imported successfully!');
 
         } catch(err) {
-            nukeSave('💥 Something went wrong reading save — save wiped.');
+            nukeSave('💥 Something went wrong reading save - save wiped.');
         }
     };
     reader.readAsText(file);
@@ -10590,7 +10698,7 @@ function openApologyPicker() {
         box.innerHTML = `
             <div style="text-align:center;margin-bottom:6px;">
                 <div style="font-size:28px;font-weight:900;color:#fbbf24;text-shadow:0 0 20px rgba(251,191,36,0.7);letter-spacing:1px;">🎁 SORRY FOR THE CHANGE</div>
-                <div style="font-size:12px;color:rgba(255,255,255,0.45);margin-top:6px;font-style:italic;">Pick any 2 characters as an apology gift — limiteds, quest-locked, masteries, anything.</div>
+                <div style="font-size:12px;color:rgba(255,255,255,0.45);margin-top:6px;font-style:italic;">Pick any 2 characters as an apology gift - limiteds, quest-locked, masteries, anything.</div>
             </div>
 
             <div style="display:flex;justify-content:center;gap:16px;margin:18px 0 22px;">
@@ -10618,7 +10726,7 @@ function openApologyPicker() {
             </div>
 
             <div style="font-size:10px;text-transform:uppercase;letter-spacing:2px;color:rgba(255,255,255,0.35);margin-bottom:14px;border-bottom:1px solid rgba(255,255,255,0.08);padding-bottom:8px;">
-                ${selected.length < 2 ? `Choose ${2 - selected.length} more` : '✅ Both chosen — claim below'}
+                ${selected.length < 2 ? `Choose ${2 - selected.length} more` : '✅ Both chosen - claim below'}
             </div>
 
             <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;margin-bottom:22px;">
@@ -10737,94 +10845,94 @@ function openApologyPicker() {
 
 const MASTERY_DATA = {
     default: {
-        name: 'War Veteran',
+        name:'War Veteran',
         tag: 'Win 5 games as The Veteran',
         icon: '🎖️',
         iconBg: 'linear-gradient(135deg,#b45309,#1e3a8a)',
         iconGlow: '#fbbf24',
         stats: [
-            { label: 'Name', value: 'War Veteran' },
-            { label: 'Damage Output', value: '20 (+7.5 per evolution)' },
-            { label: 'Speed', value: '6 (+0.5 per evolution)' },
-            { label: 'Unlock', value: 'Win 5 games as The Veteran' },
-            { label: 'Equip Effect', value: 'Unlocks War Veteran in character menu' },
-            { label: 'Dash', value: 'Teleport (TP)' },
+            { label:'Name', value:'War Veteran' },
+            { label:'Damage Output', value:'20 (+7.5 per evolution)' },
+            { label:'Speed', value:'6 (+0.5 per evolution)' },
+            { label:'Unlock', value:'Win 5 games as The Veteran' },
+            { label:'Equip Effect', value:'Unlocks War Veteran in character menu' },
+            { label:'Dash', value:'Teleport (TP)' },
         ],
         passive: 'Every 45 seconds you upgrade to the next tier, becoming more powerful than you were previously.',
         tiers: [
-            { label: 'Tier 1 — Lieutenant', color: '#60a5fa', desc: 'Shoots 12 bullets in a wave in front of the player that explode on impact. Deals 1.5× damage of a normal shot.' },
-            { label: 'Tier 2 — Captain', color: '#34d399', desc: 'Shoots 18 bullets that deal 2.5× damage of a normal shot in a circle area.' },
-            { label: 'Tier 3 — Major', color: '#fbbf24', desc: 'Shoots 32 bullets in a circle around the player that instakill (except bosses) and slow enemies on screen for 15s.' },
-            { label: 'Tier 4 — Sergeant', color: '#f97316', desc: 'Shoots 50 bullets in a circle that deal 25% of each enemy\'s max HP, slow enemies on screen for 15s, explode in an area, and spawn a singular turret where the player is.' },
-            { label: 'Tier 5 — True Commander', color: '#e879f9', desc: 'Shoots 50 bullets that deal 50% of each enemy\'s max HP and home in on enemies. Spawns 4 turrets around the player with an infinite lifespan.' },
+            { label:'Tier 1 Lieutenant', color: '#60a5fa', desc:'Shoots 12 bullets in a wave in front of the player that explode on impact. Deals 1.5× damage of a normal shot.' },
+            { label:'Tier 2 Captain', color: '#34d399', desc:'Shoots 18 bullets that deal 2.5× damage of a normal shot in a circle area.' },
+            { label:'Tier 3 Major', color: '#fbbf24', desc:'Shoots 32 bullets in a circle around the player that instakill (except bosses) and slow enemies on screen for 15s.' },
+            { label:'Tier 4 Sergeant', color: '#f97316', desc:'Shoots 50 bullets in a circle that deal 25% of each enemy\'s max HP, slow enemies on screen for 15s, explode in an area, and spawn a singular turret where the player is.' },
+            { label:'Tier 5 True Commander', color: '#e879f9', desc:'Shoots 50 bullets that deal 50% of each enemy\'s max HP and home in on enemies. Spawns 4 turrets around the player with an infinite lifespan.' },
         ],
-        tip: '💡 Tip: This character is an All-Rounder but it is highly recommended to focus on Damage and Mana upgrades.',
+        tip:'💡 Tip: This character is an All-Rounder but it is highly recommended to focus on Damage and Mana upgrades.',
     },
     builder: {
-        name: 'The Last Architect',
+        name:'The Last Architect',
         tag: 'Reinforce/Build 250 walls as The Builder',
         icon: '🏛️',
         iconBg: 'linear-gradient(135deg,#4c1d95,#a78bfa)',
         iconGlow: '#c4b5fd',
         stats: [
-            { label: 'Name', value: 'The Last Architect' },
-            { label: 'HP', value: '115' },
-            { label: 'Damage Output', value: '15' },
-            { label: 'Speed', value: '6' },
-            { label: 'Unlock', value: 'Reinforce/Build 250 walls as The Builder' },
-            { label: 'Equip Effect', value: 'Unlocks The Last Architect in character menu' },
-            { label: 'Dash', value: 'None' },
-            { label: 'R', value: 'Ancient Construction (35 Mana)' },
+            { label:'Name', value:'The Last Architect' },
+            { label:'HP', value:'115' },
+            { label:'Damage Output', value:'15' },
+            { label:'Speed', value:'6' },
+            { label:'Unlock', value:'Reinforce/Build 250 walls as The Builder' },
+            { label:'Equip Effect', value:'Unlocks The Last Architect in character menu' },
+            { label:'Dash', value:'None' },
+            { label:'R', value:'Ancient Construction (35 Mana)' },
         ],
         passive: 'Sentries bought from the shop deal double damage and last triple as long. Shift+Click in-game toggles between Turret Mode and Robot Mode for your R ability.',
-        tip: '💡 Tip: This character is mostly dependent on their special as their attacks are weak. Focus on Mana upgrades. Having a combination of robots and turrets out simultaneously is your key to domination.',
+        tip:'💡 Tip: This character is mostly dependent on their special as their attacks are weak. Focus on Mana upgrades. Having a combination of robots and turrets out simultaneously is your key to domination.',
     },
     goldhoarder: {
-        name: 'The Coin King',
+        name:'The Coin King',
         tag: 'Earn $100,000 in a single run as Gold Hoarder',
         icon: '👑',
         iconBg: 'linear-gradient(135deg,#92400e,#fbbf24)',
         iconGlow: '#fbbf24',
         stats: [
-            { label: 'Name', value: 'The Coin King' },
-            { label: 'HP', value: '40 (ultra-fragile!)' },
-            { label: 'Damage Output', value: '12' },
-            { label: 'Speed', value: '4.5 (slow)' },
-            { label: 'Gold Multiplier', value: '10x all gold income' },
-            { label: 'Unlock', value: 'Earn $100,000 in a single run as Gold Hoarder' },
-            { label: 'Equip Effect', value: 'Unlocks The Coin King in character menu' },
-            { label: 'Dash', value: 'None' },
-            { label: 'R', value: 'Gold Shower (50 Mana)' },
+            { label:'Name', value:'The Coin King' },
+            { label:'HP', value:'40 (ultra-fragile!)' },
+            { label:'Damage Output', value:'12' },
+            { label:'Speed', value:'4.5 (slow)' },
+            { label:'Gold Multiplier', value:'10x all gold income' },
+            { label:'Unlock', value:'Earn $100,000 in a single run as Gold Hoarder' },
+            { label:'Equip Effect', value:'Unlocks The Coin King in character menu' },
+            { label:'Dash', value:'None' },
+            { label:'R', value:'Gold Shower (50 Mana)' },
         ],
         passive: 'Every kill instantly heals you for 3 HP and drops a sprinkle of bonus gold. The more you slay, the richer and healthier you become. Your gold multiplier is doubled to 10x.',
-        tip: '💡 Tip: You are extremely weak — your damage and HP are both terrible. Play it like a cockroach: dodge everything, kill constantly to heal, and spam Gold Shower to both deal damage and rack up insane income. Stack Mana upgrades above everything else.',
+        tip:'💡 Tip: You are extremely weak your damage and HP are both terrible. Play it like a cockroach: dodge everything, kill constantly to heal, and spam Gold Shower to both deal damage and rack up insane income. Stack Mana upgrades above everything else.',
     },
 };
 
 MASTERY_DATA['gojo'] = {
-    name: 'The Strongest Of Today',
+    name:'The Strongest Of Today',
     tag: 'Kill Sukuna 20 times as Gojo Satoru',
     icon: '⭐',
     iconBg: 'linear-gradient(135deg,#1e1b4b,#ffffff)',
     iconGlow: '#ffffff',
     stats: [
-        { label: 'Starting Phase',        value: '⭐ The Strongest (max phase from spawn)' },
-        { label: 'Damage',                value: '65 · Pierce all enemies' },
-        { label: 'Speed',                 value: '8.0' },
-        { label: 'HP / Regen',            value: '200 HP · 2.0 HP/s passive regen' },
-        { label: 'Fire Rate',             value: '130ms (fastest)' },
-        { label: 'Infinity',              value: '70% hit block chance' },
-        { label: 'Gold Multiplier',       value: '8x all gold income' },
-        { label: 'R — Unlimited Void',    value: '60 CE · Freeze all enemies (Phase 3 stats)' },
-        { label: '[F] Hold — Mana→HP',    value: 'Drain Cursed Energy to restore HP' },
-        { label: 'Z — Max Output Blue',   value: '50 CE · Pull enemies in front · 50% DMG' },
-        { label: 'X — Max Output Red',    value: '50 CE · Propel enemies away · 25% DMG' },
-        { label: 'C — Hollow Purple',     value: '100 CE · Straight-line beam · 100% DMG (hits bosses)' },
-        { label: 'Sukuna dmg cap (Z/X/C)', value: 'Capped at 50,000–100,000 per use' },
-        { label: 'Unlock',                value: 'Kill Sukuna 20 times as Gojo Satoru' },
+        { label:'Starting Phase',        value:'⭐ The Strongest (max phase from spawn)' },
+        { label:'Damage',                value:'65 · Pierce all enemies' },
+        { label:'Speed',                 value:'8.0' },
+        { label:'HP / Regen',            value:'200 HP · 2.0 HP/s passive regen' },
+        { label:'Fire Rate',             value:'130ms (fastest)' },
+        { label:'Infinity',              value:'70% hit block chance' },
+        { label:'Gold Multiplier',       value:'8x all gold income' },
+        { label:'R Unlimited Void',    value:'60 CE · Freeze all enemies (Phase 3 stats)' },
+        { label:'[F] Hold Mana→HP',    value:'Drain Cursed Energy to restore HP' },
+        { label:'Z Max Output Blue',   value:'50 CE · Pull enemies in front · 50% DMG' },
+        { label:'X Max Output Red',    value:'50 CE · Propel enemies away · 25% DMG' },
+        { label:'C Hollow Purple',     value:'100 CE · Straight-line beam · 100% DMG (hits bosses)' },
+        { label:'Sukuna dmg cap (Z/X/C)', value:'Capped at 50,000-100,000 per use' },
+        { label:'Unlock',                value:'Kill Sukuna 20 times as Gojo Satoru' },
     ],
     passive: 'Unlocks "The Strongest Today" character who spawns already at The Strongest phase with all Gojo passives (Six Eyes pierce, 70% Infinity, passive regen, 8x gold, F key mana-to-HP, R Unlimited Void) AND three new devastating specials.',
-    tip: '⭐ Tip: C (Hollow Purple) uses ALL your Cursed Energy but deals massive damage in a straight line — save it for Sukuna. Z and X each use 50% CE. Make sure to keep CE topped off between uses. Your power level is maxed from wave 1 — use it ruthlessly.',
+    tip:'⭐ Tip: C (Hollow Purple) uses ALL your Cursed Energy but deals massive damage in a straight line save it for Sukuna. Z and X each use 50% CE. Make sure to keep CE topped off between uses. Your power level is maxed from wave 1 use it ruthlessly.',
 };
 
 const LIMITED_IDS = ['dice','hakari_v2','yuji_itadori','character10b','rouge_square'];
@@ -10863,19 +10971,19 @@ function showMastery(skin) {
         html += `<div class="mastery-desc">${data.passive}</div>`;
         html += `</div>`;
         if (data.tiers) {
-            html += `<div class="mastery-section"><div class="mastery-section-title">R — Ranked Bombardment (changes per tier)</div>`;
+            html += `<div class="mastery-section"><div class="mastery-section-title">R - Ranked Bombardment (changes per tier)</div>`;
             data.tiers.forEach(t => {
                 html += `<div class="mastery-tier"><span style="color:${t.color};font-weight:bold;">${t.label}:</span> ${t.desc}</div>`;
             });
             html += `</div>`;
         }
         if (!data.tiers && skin === 'builder') {
-            html += `<div class="mastery-section"><div class="mastery-section-title">R — Ancient Construction (35 Mana)</div>`;
+            html += `<div class="mastery-section"><div class="mastery-section-title">R - Ancient Construction (35 Mana)</div>`;
             html += `<div class="mastery-desc"><b style="color:#a78bfa">Turret Mode:</b> Summons a turret at your location with a high fire rate that targets the lowest HP enemy in range. Lasts 60 seconds (tripled to 3 min by passive).<br><br><b style="color:#c4b5fd">Robot Mode:</b> Deploys a roaming robot that stays near you but roams freely. Fires high-damage (50 DMG) lasers at the highest HP enemy in range. Slow fire rate. Lasts 45 seconds (tripled by passive).<br><br>Shift+Click during a game to switch between Turret and Robot Mode.</div>`;
             html += `</div>`;
         }
         if (!data.tiers && skin === 'goldhoarder') {
-            html += `<div class="mastery-section"><div class="mastery-section-title">R — Gold Shower (50 Mana)</div>`;
+            html += `<div class="mastery-section"><div class="mastery-section-title">R - Gold Shower (50 Mana)</div>`;
             html += `<div class="mastery-desc"><b style="color:#fbbf24">Gold Shower:</b> Fires 20 gold coin projectiles in a full 360° ring, each dealing 30 damage. Each coin also instantly earns you bonus gold on top of your 10x multiplier. Unleash it into a crowd for massive damage AND income simultaneously.</div>`;
             html += `</div>`;
         }
@@ -11013,16 +11121,23 @@ function closeMastery() {
     _currentMasterySkin = null;
 }
 
-const _btnCooldownMap = new WeakMap();
 document.addEventListener('click', (e) => {
     const button = e.target.closest('button, [onclick], .menu-btn, .upgrade-btn, .pause-btn, .restart-btn, .info-btn, .mastery-btn, .keybind-btn, .settings-reset-btn, .tutorial-btn, .character-card, .shop-item, .shop-skip-btn, .shop-reroll-btn, #charShopBackBtn, #shopBackBtn, #waveShopBackBtn');
     if (button) {
-        if (_btnCooldownMap.get(button)) { e.stopImmediatePropagation(); e.preventDefault(); return; }
-        _btnCooldownMap.set(button, true);
-        setTimeout(() => _btnCooldownMap.delete(button), 500);
         playSound(700, 0.05, 'square');
     }
-}, true);
+});
+
+function fixButtons() {
+    document.querySelectorAll('[data-btnCd]').forEach(el => delete el.dataset.btnCd);
+    document.querySelectorAll('button[disabled]:not([id="shopRerollBtn"])').forEach(el => { el.disabled = false; });
+    document.querySelectorAll('.upgrade-btn, .pause-btn, .menu-btn, .restart-btn, .shop-skip-btn').forEach(el => {
+        el.style.pointerEvents = '';
+        el.style.opacity = '';
+    });
+    restoreLevelUpHTML && restoreLevelUpHTML();
+    floatMoneyText && floatMoneyText('✅ Buttons unlocked!');
+}
 
 let _pendingPurchaseName = null;
 function openPurchaseModal(skinName, charName, price) {
@@ -11068,7 +11183,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 const BESTIARY = [
-    { icon:'⬛', name:'Normal',      bType:'normal',      color:'#ef4444', round:1,  desc:'Basic enemy. Walks straight at you. No tricks — just pressure in numbers.' },
+    { icon:'⬛', name:'Normal',      bType:'normal',      color:'#ef4444', round:1,  desc:'Basic enemy. Walks straight at you. No tricks just pressure in numbers.' },
     { icon:'▲',  name:'Triangle',   bType:'triangle',    color:'#7c3aed', round:3,  desc:'Fast and agile. Slightly harder to hit due to its small size and speed.' },
     { icon:'🛡', name:'Shielder',   bType:'shielder',   color:'#3b82f6', round:8,  desc:'Carries a shield that faces you and blocks shots. Strafe around it to hit from the side while the shield slowly turns.' },
     { icon:'💥', name:'Splitter',   bType:'splitter',   color:'#f97316', round:10, desc:'Splits into two Mini Splitters when killed. Kill the minis fast before they overwhelm you.' },
@@ -11077,27 +11192,27 @@ const BESTIARY = [
     { icon:'⚡', name:'Charger',    bType:'charger',    color:'#f59e0b', round:18, desc:'Winds up then charges at high speed in a straight line. Sidestep the charge to avoid it.' },
     { icon:'♻️', name:'Regen',     bType:'regen_e',      color:'#059669', round:20, desc:'Slowly regenerates health. Burst it down quickly or it will keep recovering.' },
     { icon:'😤', name:'Berserker',  bType:'berserker_e',  color:'#dc2626', round:22, desc:'Gets faster and deals more damage the lower its health. Be careful finishing it off.' },
-    { icon:'👻', name:'Phantom',    bType:'phantom_e',    color:'#a78bfa', round:25, desc:'Phases in and out of visibility. Only visible for short windows — time your shots.' },
+    { icon:'👻', name:'Phantom',    bType:'phantom_e',    color:'#a78bfa', round:25, desc:'Phases in and out of visibility. Only visible for short windows time your shots.' },
     { icon:'🩸', name:'Leech',      bType:'leech',      color:'#be123c', round:28, desc:'Drains your HP and heals itself when in close range. Keep your distance.' },
     { icon:'🎯', name:'Sniper',     bType:'sniper_e',     color:'#94a3b8', round:30, desc:'Stays at range and shoots high-damage projectiles. A laser line telegraphs incoming shots.' },
     { icon:'🌀', name:'Puller',     bType:'puller',     color:'#7c3aed', round:40, desc:'Pulls you toward it from a distance. Pair that with other enemies and it\'s very dangerous.' },
-    { icon:'💣', name:'Time Bomb',  bType:'timebomb',  color:'#dc2626', round:55, desc:'Nearly unkillable — just a walking timer. When it detonates it deals massive AoE damage to everything nearby. Run away!' },
+    { icon:'💣', name:'Time Bomb',  bType:'timebomb',  color:'#dc2626', round:55, desc:'Nearly unkillable just a walking timer. When it detonates it deals massive AoE damage to everything nearby. Run away!' },
     { icon:'🛡', name:'Guardian',   bType:'guardian',   color:'#b45309', round:45, desc:'Orbits the highest-HP enemy and protects it. Kill the guardian first to expose its target.' },
     { icon:'🪨', name:'Golem',      bType:'golem',      color:'#78716c', round:16, desc:'Heavily armoured from the front (0.3x damage). Hit the glowing orange weak spot on its BACK for 3x damage.' },
-    { icon:'💨', name:'Dasher',     bType:'dasher',     color:'#a78bfa', round:20, desc:'Randomly teleport-dashes toward you. Hard to predict — keep moving.' },
-    { icon:'🪃', name:'Boomerang',  bType:'boomerang',  color:'#f59e0b', round:22, desc:'Flies past you and comes back around. Watch both directions — you can get hit on the return trip.' },
+    { icon:'💨', name:'Dasher',     bType:'dasher',     color:'#a78bfa', round:20, desc:'Randomly teleport-dashes toward you. Hard to predict keep moving.' },
+    { icon:'🪃', name:'Boomerang',  bType:'boomerang',  color:'#f59e0b', round:22, desc:'Flies past you and comes back around. Watch both directions you can get hit on the return trip.' },
     { icon:'🐝', name:'Swarm',      bType:'swarm',      color:'#fbbf24', round:18, desc:'Spawns as a cluster of 6 tiny fast enemies. Individually weak but they overwhelm fast. Use AoE.' },
     { icon:'🧲', name:'Magnet',     bType:'magnet',     color:'#3b82f6', round:24, desc:'Deflects your bullets away from enemies nearby it. Kill the Magnet before targeting its neighbours.' },
     { icon:'🕸️', name:'Webber',    bType:'webber',    color:'#94a3b8', round:26, desc:'Shoots a web that slows you to 40% movement speed for ~1.5 seconds. Stay out of range.' },
     { icon:'🔇', name:'Silencer',   bType:'silencer',   color:'#475569', round:28, desc:'Disables all your abilities for 3 seconds if it gets close. Kill it before it reaches you.' },
-    { icon:'⚠️', name:'Mimic',     bType:'mimic',     color:'#22c55e', round:30, desc:'Disguises itself as a health pickup. Don\'t walk into it blindly — it reveals and attacks when you get close.' },
+    { icon:'⚠️', name:'Mimic',     bType:'mimic',     color:'#22c55e', round:30, desc:'Disguises itself as a health pickup. Don\'t walk into it blindly - it reveals and attacks when you get close.' },
     { icon:'🪞', name:'Echo',       bType:'echo',       color:'#e879f9', round:32, desc:'Copies your last used ability and fires it back at you. Avoid using big abilities near it.' },
     { icon:'🌀', name:'Void Rift',  bType:'void_rift',  color:'#7c3aed', round:38, desc:'A stationary portal that continuously spawns weak enemies. Destroy it immediately or it will flood the arena.' },
 ];
 
 function openBestiary() {
     const grid = document.getElementById('bestiaryGrid');
-    // Track seen on spawn — also mark enemies as seen when viewing bestiary if already killed
+    // Track seen on spawn - also mark enemies as seen when viewing bestiary if already killed
     grid.innerHTML = BESTIARY.map(e => {
         return `
         <div style="
@@ -11156,6 +11271,35 @@ function closeBestiary() {
         </div>
     </div>
 </div>
+
+<!-- CREDITS MODAL -->
+<div id="creditsModal" style="display:none;position:fixed;inset:0;z-index:9000;background:rgba(0,0,0,0.85);justify-content:center;align-items:center;">
+    <div style="background:#0f172a;border:3px solid #7c3aed;border-radius:12px;padding:48px 56px;max-width:480px;width:90%;text-align:center;position:relative;box-shadow:0 0 60px rgba(124,58,237,0.4);">
+        <h2 style="font-size:24px;color:#a78bfa;margin-bottom:6px;font-weight:bold;">🎖️ Credits</h2>
+        <p style="font-size:10px;color:rgba(255,255,255,0.25);margin-bottom:36px;font-family:monospace;letter-spacing:1px;">THE PEOPLE BEHIND CIRCULATE</p>
+
+        <div style="display:flex;flex-direction:column;gap:20px;margin-bottom:36px;">
+            <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(124,58,237,0.35);border-radius:10px;padding:18px 24px;">
+                <div style="font-size:10px;color:#a78bfa;text-transform:uppercase;letter-spacing:2px;margin-bottom:6px;font-family:monospace;">Owner</div>
+                <div style="font-size:20px;font-weight:bold;color:#e2e8f0;">Remorse</div>
+            </div>
+            <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(124,58,237,0.35);border-radius:10px;padding:18px 24px;">
+                <div style="font-size:10px;color:#a78bfa;text-transform:uppercase;letter-spacing:2px;margin-bottom:6px;font-family:monospace;">Music Producer</div>
+                <div style="font-size:20px;font-weight:bold;color:#e2e8f0;">4n1t</div>
+            </div>
+            <div style="background:rgba(255,255,255,0.03);border:1px dashed rgba(255,255,255,0.12);border-radius:10px;padding:14px 24px;">
+                <div style="font-size:13px;color:rgba(255,255,255,0.3);font-style:italic;">more to come?</div>
+            </div>
+        </div>
+
+        <button onclick="closeCredits()" style="background:#7c3aed;border:none;border-bottom:4px solid #4c1d95;color:white;font-size:14px;font-weight:bold;padding:12px 36px;border-radius:6px;cursor:pointer;">Close</button>
+    </div>
+</div>
+
+<script>
+function openCredits() { document.getElementById('creditsModal').style.display = 'flex'; }
+function closeCredits() { document.getElementById('creditsModal').style.display = 'none'; }
+</script>
 
 </body>
 </html>
