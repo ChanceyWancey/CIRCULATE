@@ -1010,7 +1010,7 @@
            MOBILE VIRTUAL CONTROLS
         ══════════════════════════════════════ */
         #mobileControls { display: none; position: fixed; inset: 0; pointer-events: none; z-index: 800; }
-        #joystickZone { position: absolute; left: 0; top: 0; bottom: 0; width: 50%; pointer-events: auto; touch-action: none; }
+        #joystickZone { position: absolute; left: 0; top: 56px; bottom: 0; width: 50%; pointer-events: auto; touch-action: none; }
         #joystickBase {
             position: absolute; width: 110px; height: 110px; border-radius: 50%;
             background: rgba(255,255,255,0.08); border: 2px solid rgba(255,255,255,0.2);
@@ -1054,8 +1054,15 @@
         .mob-btn:active { background: rgba(255,255,255,0.22); transform: scale(0.9); }
         #mobBtnR    { background: rgba(124,58,237,0.6);  border-color: #7c3aed; }
         #mobBtnDash { background: rgba(59,130,246,0.6);  border-color: #3b82f6; }
-        #mobBtnPause { width: 36px; height: 36px; font-size: 13px; position: fixed; top: 10px; left: 10px; z-index: 850; border-radius: 7px; background: rgba(0,0,0,0.6); border: 2px solid rgba(255,255,255,0.25); }
-        #mobBtnFullscreen { width: 36px; height: 36px; font-size: 16px; position: fixed; bottom: 10px; left: 10px; z-index: 850; border-radius: 7px; background: rgba(0,0,0,0.6); border: 2px solid rgba(255,255,255,0.25); color: white; cursor: pointer; display: none; pointer-events: auto; line-height: 1; }
+        /* Pause + Fullscreen sit side by side, above joystick zone */
+        #mobTopBtns { position: fixed; top: 10px; left: 10px; z-index: 900; display: none; flex-direction: row; gap: 8px; pointer-events: auto; }
+        #mobBtnPause, #mobBtnFullscreen {
+            width: 38px; height: 38px; font-size: 15px; border-radius: 8px;
+            background: rgba(0,0,0,0.7); border: 2px solid rgba(255,255,255,0.3);
+            color: white; cursor: pointer; touch-action: manipulation;
+            display: flex; align-items: center; justify-content: center;
+            -webkit-tap-highlight-color: transparent;
+        }
 
         /* Aim joystick smaller too */
         #aimJoyZone { right: 12px; bottom: 90px; width: 110px; height: 110px; }
@@ -1188,8 +1195,10 @@
             <button class="mob-btn" id="mobBtnDash" ontouchstart="mobileDash()"    ontouchend="">💨</button>
         </div>
     </div>
-    <button class="mob-btn" id="mobBtnPause">⏸</button>
-    <button id="mobBtnFullscreen" ontouchstart="toggleFullscreen()" onclick="toggleFullscreen()">⛶</button>
+    <div id="mobTopBtns">
+        <button id="mobBtnPause">⏸</button>
+        <button id="mobBtnFullscreen" ontouchstart="toggleFullscreen()" onclick="toggleFullscreen()">⛶</button>
+    </div>
 </div>
 
 <div id="purchaseModal">
@@ -11579,8 +11588,8 @@ function setInputMode(touch) {
     _usingTouch = touch;
     const mc = document.getElementById('mobileControls');
     if (mc) mc.style.display = (touch && document.getElementById('gameContainer').style.display === 'block') ? 'block' : 'none';
-    const fsb = document.getElementById('mobBtnFullscreen');
-    if (fsb) fsb.style.display = touch ? 'block' : 'none';
+    const tb = document.getElementById('mobTopBtns');
+    if (tb) tb.style.display = touch ? 'flex' : 'none';
     handleOrientation();
 }
 
@@ -11621,8 +11630,8 @@ function showMobileControls(show) {
     const mc = document.getElementById('mobileControls');
     if (!mc) return;
     mc.style.display = (show && _usingTouch) ? 'block' : 'none';
-    const fsb = document.getElementById('mobBtnFullscreen');
-    if (fsb) fsb.style.display = (_usingTouch) ? 'block' : 'none';
+    const tb = document.getElementById('mobTopBtns');
+    if (tb) tb.style.display = _usingTouch ? 'flex' : 'none';
     if (show) { updateCharacterButtons(); handleOrientation(); }
 }
 
