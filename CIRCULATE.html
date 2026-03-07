@@ -1096,18 +1096,18 @@
                 height: 100vh !important; margin: 0;
                 overflow: hidden;
             }
-            #gameContainer[style*="display: block"],
-            #gameContainer[style*="display:block"] {
+            /* body.game-active set by JS when game starts */
+            body.game-active #gameContainer {
                 display: flex !important;
             }
             /* Override the inline-block on gameWrapper */
-            #gameWrapper {
+            body.game-active #gameWrapper {
                 display: block !important;
                 flex: 1; position: relative;
                 overflow: hidden;
                 width: 100% !important; max-width: 100vw !important;
             }
-            canvas {
+            body.game-active canvas {
                 display: block !important;
                 width: 100% !important; max-width: 100vw !important;
                 height: 100% !important;
@@ -1187,7 +1187,7 @@
             <button class="mob-btn" id="mobBtnDash" ontouchstart="mobileDash()"    ontouchend="">💨</button>
         </div>
     </div>
-    <button class="mob-btn" id="mobBtnPause" ontouchstart="pauseGame()">⏸</button>
+    <button class="mob-btn" id="mobBtnPause">⏸</button>
 </div>
 
 <div id="purchaseModal">
@@ -6737,7 +6737,7 @@ function endGame(sukunaKilled=false){
     document.getElementById('finalWave').textContent=currentRound;
     document.getElementById('moneyEarned').textContent=sessionMoney;
 }
-function restartGame(){document.getElementById('gameOver').style.display='none';resetGame();gameRunning=true;mainTheme.pause();mainTheme.currentTime=0;fadeInMainTheme(1200);requestAnimationFrame(gameLoop);}
+function restartGame(){document.getElementById('gameOver').style.display='none';document.body.classList.add('game-active');resetGame();gameRunning=true;mainTheme.pause();mainTheme.currentTime=0;fadeInMainTheme(1200);requestAnimationFrame(gameLoop);}
 
 const NAV_CELL = 20;
 let navGrid = null;
@@ -9289,6 +9289,7 @@ function pauseToMainMenu() {
     document.getElementById('pauseOverlay').style.display = 'none';
     document.getElementById('pauseMenu').style.display = 'none';
     document.getElementById('gameContainer').style.display = 'none';
+    document.body.classList.remove('game-active');
     document.getElementById('playerSkinOverlay').style.display = 'none';
     document.getElementById('mainMenu').style.display = 'block';
     updateMoneyDisplay();
@@ -10258,6 +10259,7 @@ function backToMenu(){
 function startGame(){
     document.getElementById('mainMenu').style.display='none';
     document.getElementById('gameContainer').style.display='block';
+    document.body.classList.add('game-active');
     gameRunning=true;
     resetGame();
     updateBiome();
@@ -10268,7 +10270,7 @@ function startGame(){
     fadeInMainTheme(1200);
     requestAnimationFrame(gameLoop);
 }
-function backToMainMenu(){stopJackpotMusic();stopMainTheme();hideSlotMachine();document.getElementById('gameOver').style.display='none';document.getElementById('gameContainer').style.display='none';skinOverlay.style.display='none';document.getElementById('mainMenu').style.display='block';updateMoneyDisplay();const darkBM=document.getElementById('theEnemyDarkness');if(darkBM){darkBM.style.opacity='0';darkBM.style.display='none';}const cBM=document.getElementById('gameCanvas');if(cBM){cBM.style.transform='';}}
+function backToMainMenu(){stopJackpotMusic();stopMainTheme();hideSlotMachine();document.getElementById('gameOver').style.display='none';document.getElementById('gameContainer').style.display='none';document.body.classList.remove('game-active');skinOverlay.style.display='none';document.getElementById('mainMenu').style.display='block';updateMoneyDisplay();const darkBM=document.getElementById('theEnemyDarkness');if(darkBM){darkBM.style.opacity='0';darkBM.style.display='none';}const cBM=document.getElementById('gameCanvas');if(cBM){cBM.style.transform='';}}
 function updateMoneyDisplay(){document.getElementById('totalMoney').textContent=totalMoney;document.getElementById('shopMoney').textContent=totalMoney;}
 function updateShopDisplay(){
     updateMoneyDisplay();
@@ -11594,6 +11596,17 @@ function handleOrientation() {
 window.addEventListener('resize',           handleOrientation);
 window.addEventListener('orientationchange',() => setTimeout(handleOrientation, 200));
 document.addEventListener('DOMContentLoaded', handleOrientation);
+
+/* ── Pause button — reliable touch + click handler ───────── */
+const _pauseBtn = document.getElementById('mobBtnPause');
+function _mobilePauseTap(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!gameRunning && !gamePaused) return;
+    if (gamePaused) resumeGame(); else pauseGame();
+}
+_pauseBtn.addEventListener('touchstart', _mobilePauseTap, { passive: false });
+_pauseBtn.addEventListener('click',      _mobilePauseTap);
 
 /* ── Show/hide mobile controls ───────────────────────────── */
 function showMobileControls(show) {
