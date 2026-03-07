@@ -1044,9 +1044,9 @@
         #mobileButtons { position: fixed; bottom: 16px; right: 168px; display: flex; flex-direction: column; gap: 8px; align-items: flex-end; pointer-events: auto; z-index: 810; }
         #mobileButtons .mb-row { display: flex; gap: 8px; }
         .mob-btn {
-            width: 60px; height: 60px; border-radius: 50%;
+            width: 46px; height: 46px; border-radius: 50%;
             border: 2px solid rgba(255,255,255,0.3); background: rgba(0,0,0,0.55);
-            color: white; font-size: 20px; font-weight: bold; font-family: inherit;
+            color: white; font-size: 16px; font-weight: bold; font-family: inherit;
             display: flex; align-items: center; justify-content: center;
             cursor: pointer; touch-action: manipulation; user-select: none;
             -webkit-tap-highlight-color: transparent; transition: background 0.1s, transform 0.1s;
@@ -1054,18 +1054,24 @@
         .mob-btn:active { background: rgba(255,255,255,0.22); transform: scale(0.9); }
         #mobBtnR    { background: rgba(124,58,237,0.6);  border-color: #7c3aed; }
         #mobBtnDash { background: rgba(59,130,246,0.6);  border-color: #3b82f6; }
-        #mobBtnPause { width: 44px; height: 44px; font-size: 14px; position: fixed; top: 12px; left: 12px; z-index: 850; border-radius: 8px; background: rgba(0,0,0,0.6); border: 2px solid rgba(255,255,255,0.25); }
+        #mobBtnPause { width: 36px; height: 36px; font-size: 13px; position: fixed; top: 10px; left: 10px; z-index: 850; border-radius: 7px; background: rgba(0,0,0,0.6); border: 2px solid rgba(255,255,255,0.25); }
+
+        /* Aim joystick smaller too */
+        #aimJoyZone { right: 12px; bottom: 90px; width: 110px; height: 110px; }
+        #aimJoyKnob { width: 40px; height: 40px; }
+        #mobileButtons { right: 136px; bottom: 12px; gap: 6px; }
+        #mobileButtons .mb-row { gap: 6px; }
 
         /* ══════════════════════════════════════
            RESPONSIVE — MOBILE (max 900px)
         ══════════════════════════════════════ */
         @media (max-width: 900px) {
-            html, body {
-                width: 100%; max-width: 100vw;
-                overflow-x: hidden; overflow-y: hidden;
-                touch-action: none;
+            html {
+                width: 100%; max-width: 100vw; overflow: hidden;
             }
             body {
+                width: 100%; max-width: 100vw; overflow: hidden;
+                touch-action: none;
                 display: flex; justify-content: center; align-items: center;
                 min-height: 100dvh; min-height: 100vh;
                 padding: 0; margin: 0;
@@ -1081,25 +1087,38 @@
             .menu-btn { min-width: 140px; padding: 12px 16px; font-size: 12px; margin: 4px 3px; }
             .currency-display { font-size: 15px; margin: 12px 0; }
 
-            /* Game container — only apply layout when JS shows it (display:block) */
-            /* DO NOT set display here — let JS control it */
+            /* Game container */
             #gameContainer {
                 padding: 0; box-sizing: border-box;
                 flex-direction: column;
-                position: fixed; top: 0; left: 0;
-                width: 100vw; height: 100vh; margin: 0;
+                position: fixed !important; top: 0 !important; left: 0 !important;
+                width: 100vw !important; max-width: 100vw !important;
+                height: 100vh !important; margin: 0;
+                overflow: hidden;
             }
-            /* When JS sets display:block, upgrade to flex for column layout */
             #gameContainer[style*="display: block"],
             #gameContainer[style*="display:block"] {
                 display: flex !important;
             }
-            #gameWrapper { flex: 1; position: relative; overflow: hidden; width: 100%; }
-            canvas { width: 100% !important; height: 100% !important; border-radius: 0; border: none; border-bottom: 2px solid rgba(100,200,255,0.15); display: block; margin: 0; }
-            #hud { flex-wrap: nowrap; gap: 3px; padding: 4px 4px 2px; margin: 0; height: 56px; overflow: hidden; }
+            /* Override the inline-block on gameWrapper */
+            #gameWrapper {
+                display: block !important;
+                flex: 1; position: relative;
+                overflow: hidden;
+                width: 100% !important; max-width: 100vw !important;
+            }
+            canvas {
+                display: block !important;
+                width: 100% !important; max-width: 100vw !important;
+                height: 100% !important;
+                border-radius: 0; border: none;
+                border-bottom: 2px solid rgba(100,200,255,0.15);
+                margin: 0;
+            }
+            #hud { flex-wrap: nowrap; gap: 3px; padding: 4px 4px 2px; margin: 0; height: 52px; overflow: hidden; max-width: 100vw; }
             .stat-box { padding: 3px 5px; min-width: 0; flex: 1; }
-            .stat-label { font-size: 7px; }
-            .stat-value { font-size: 10px; }
+            .stat-label { font-size: 6px; }
+            .stat-value { font-size: 9px; }
             #controls { display: none; }
             #statsPanel { display: none; }
             #fsBtn { display: none; }
