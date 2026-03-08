@@ -1110,25 +1110,26 @@
             body.game-active #gameContainer {
                 display: flex !important;
             }
-            /* Canvas wrapper — full screen fit */
+            /* Canvas wrapper — proportional full screen fit */
             body.game-active #gameWrapper {
-                display: block !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
                 position: absolute !important;
-                top: 50% !important;
-                left: 50% !important;
-                transform: translate(-50%, -50%) !important;
-                transform-origin: center center !important;
+                top: 0 !important;
+                left: 0 !important;
                 width: 100vw !important;
                 height: 100vh !important;
                 overflow: hidden;
                 flex: unset !important;
+                transform: none !important;
             }
             body.game-active canvas {
                 display: block !important;
-                width: 100vw !important;
-                height: 100vh !important;
+                width: min(100vw, calc(100vh * 1100 / 700)) !important;
+                height: min(100vh, calc(100vw * 700 / 1100)) !important;
                 border-radius: 0;
-                margin: 0;
+                margin: 0 auto;
             }
             /* HUD pinned above canvas */
             #hud {
@@ -1168,7 +1169,7 @@
            LANDSCAPE on mobile — game fills screen
         ══════════════════════════════════════ */
         @media (max-width: 900px) and (orientation: landscape) {
-            canvas { height: calc(100vh - 50px) !important; }
+            body.game-active canvas { height: min(100vh, calc(100vw * 700 / 1100)) !important; }
             #hud { height: 48px; }
             .stat-label { font-size: 6px; }
             .stat-value { font-size: 9px; }
