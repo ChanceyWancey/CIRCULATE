@@ -1010,7 +1010,7 @@
            MOBILE VIRTUAL CONTROLS
         ══════════════════════════════════════ */
         #mobileControls { display: none; position: fixed; inset: 0; pointer-events: none; z-index: 800; }
-        #joystickZone { position: absolute; left: 0; top: 56px; bottom: 0; width: 50%; pointer-events: auto; touch-action: none; }
+        #joystickZone { position: absolute; left: 0; top: 60px; bottom: 0; width: 50%; pointer-events: auto; touch-action: none; }
         #joystickBase {
             position: absolute; width: 110px; height: 110px; border-radius: 50%;
             background: rgba(255,255,255,0.08); border: 2px solid rgba(255,255,255,0.2);
@@ -1054,15 +1054,20 @@
         .mob-btn:active { background: rgba(255,255,255,0.22); transform: scale(0.9); }
         #mobBtnR    { background: rgba(124,58,237,0.6);  border-color: #7c3aed; }
         #mobBtnDash { background: rgba(59,130,246,0.6);  border-color: #3b82f6; }
-        /* Pause + Fullscreen sit side by side, above joystick zone */
-        #mobTopBtns { position: fixed; top: 10px; left: 10px; z-index: 900; display: none; flex-direction: row; gap: 8px; pointer-events: auto; }
-        #mobBtnPause, #mobBtnFullscreen {
-            width: 38px; height: 38px; font-size: 15px; border-radius: 8px;
-            background: rgba(0,0,0,0.7); border: 2px solid rgba(255,255,255,0.3);
-            color: white; cursor: pointer; touch-action: manipulation;
-            display: flex; align-items: center; justify-content: center;
-            -webkit-tap-highlight-color: transparent;
+        /* Pause + Fullscreen — always on top, outside joystick zone */
+        #mobTopBtns {
+            display: none; position: fixed; top: 10px; left: 10px;
+            z-index: 1000; flex-direction: row; gap: 8px; pointer-events: auto;
         }
+        #mobBtnPause, #mobBtnFullscreen {
+            width: 40px; height: 40px; font-size: 16px; border-radius: 8px;
+            background: rgba(0,0,0,0.75); border: 2px solid rgba(255,255,255,0.35);
+            color: white; cursor: pointer; touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+            display: flex; align-items: center; justify-content: center;
+            pointer-events: auto; user-select: none;
+        }
+        #mobBtnPause:active, #mobBtnFullscreen:active { background: rgba(255,255,255,0.2); }
 
         /* Aim joystick smaller too */
         #aimJoyZone { right: 12px; bottom: 90px; width: 110px; height: 110px; }
@@ -1195,10 +1200,12 @@
             <button class="mob-btn" id="mobBtnDash" ontouchstart="mobileDash()"    ontouchend="">💨</button>
         </div>
     </div>
-    <div id="mobTopBtns">
-        <button id="mobBtnPause">⏸</button>
-        <button id="mobBtnFullscreen" ontouchstart="toggleFullscreen()" onclick="toggleFullscreen()">⛶</button>
-    </div>
+</div>
+
+<!-- Pause + Fullscreen live OUTSIDE mobileControls so they're never hidden with it -->
+<div id="mobTopBtns">
+    <button id="mobBtnPause">⏸</button>
+    <button id="mobBtnFullscreen">⛶</button>
 </div>
 
 <div id="purchaseModal">
@@ -3797,10 +3804,6 @@ function toggleFullscreen() {
         document.exitFullscreen();
     }
 }
-document.addEventListener('fullscreenchange', () => {
-    const fsb = document.getElementById('mobBtnFullscreen');
-    if (fsb) fsb.textContent = document.fullscreenElement ? '✕' : '⛶';
-});
 document.addEventListener('keydown', e => {
     if (e.key === 'F11') { e.preventDefault(); toggleFullscreen(); }
 });
@@ -11593,9 +11596,8 @@ function setInputMode(touch) {
     handleOrientation();
 }
 
-// Switch to touch mode on any touch, back to mouse on any mouse move
+// Switch to touch mode on first touch — never switch back automatically
 document.addEventListener('touchstart', () => setInputMode(true),  { passive: true });
-document.addEventListener('mousemove',  () => setInputMode(false), { passive: true });
 
 const isMobile = () => navigator.maxTouchPoints > 0 || 'ontouchstart' in window;
 
@@ -11625,13 +11627,24 @@ function _mobilePauseTap(e) {
 _pauseBtn.addEventListener('touchstart', _mobilePauseTap, { passive: false });
 _pauseBtn.addEventListener('click',      _mobilePauseTap);
 
+/* ── Fullscreen button handler ───────────────────────────── */
+const _fsBtn = document.getElementById('mobBtnFullscreen');
+if (_fsBtn) {
+    _fsBtn.addEventListener('touchstart', e => { e.preventDefault(); e.stopPropagation(); toggleFullscreen(); }, { passive: false });
+    _fsBtn.addEventListener('click', () => toggleFullscreen());
+}
+document.addEventListener('fullscreenchange', () => {
+    if (_fsBtn) _fsBtn.textContent = document.fullscreenElement ? '✕' : '⛶';
+});
+
 /* ── Show/hide mobile controls ───────────────────────────── */
 function showMobileControls(show) {
     const mc = document.getElementById('mobileControls');
     if (!mc) return;
     mc.style.display = (show && _usingTouch) ? 'block' : 'none';
+    // mobTopBtns always visible on touch devices — never hide it
     const tb = document.getElementById('mobTopBtns');
-    if (tb) tb.style.display = _usingTouch ? 'flex' : 'none';
+    if (tb && _usingTouch) tb.style.display = 'flex';
     if (show) { updateCharacterButtons(); handleOrientation(); }
 }
 
