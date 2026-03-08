@@ -1054,13 +1054,12 @@
         .mob-btn:active { background: rgba(255,255,255,0.22); transform: scale(0.9); }
         #mobBtnR    { background: rgba(124,58,237,0.6);  border-color: #7c3aed; }
         #mobBtnDash { background: rgba(59,130,246,0.6);  border-color: #3b82f6; }
-        /* Pause + Fullscreen — always on top, outside joystick zone */
         #mobTopBtns {
             display: none; position: fixed; top: 10px; left: 10px;
             z-index: 1000; flex-direction: row; gap: 8px; pointer-events: auto;
         }
         #mobBtnPause, #mobBtnFullscreen {
-            width: 40px; height: 40px; font-size: 16px; border-radius: 8px;
+            width: 42px; height: 42px; font-size: 17px; border-radius: 8px;
             background: rgba(0,0,0,0.75); border: 2px solid rgba(255,255,255,0.35);
             color: white; cursor: pointer; touch-action: manipulation;
             -webkit-tap-highlight-color: transparent;
@@ -1202,7 +1201,7 @@
     </div>
 </div>
 
-<!-- Pause + Fullscreen live OUTSIDE mobileControls so they're never hidden with it -->
+<!-- Always-visible top buttons — outside mobileControls so they never hide -->
 <div id="mobTopBtns">
     <button id="mobBtnPause">⏸</button>
     <button id="mobBtnFullscreen">⛶</button>
@@ -3797,13 +3796,57 @@ function closeMoneyPopup() {
     document.getElementById('moneyPopup').classList.remove('show');
 }
 
+/* ── Mobile-compatible fullscreen ────────────────────────── */
+let _cssFullscreen = false;
+
 function toggleFullscreen() {
-    if (!document.fullscreenElement) {
-        document.documentElement.requestFullscreen().catch(()=>{});
+    const el = document.documentElement;
+
+    // Try real Fullscreen API first (Android Chrome, desktop)
+    const requestFS = el.requestFullscreen || el.webkitRequestFullscreen || el.mozRequestFullScreen || el.msRequestFullscreen;
+    const exitFS    = document.exitFullscreen || document.webkitExitFullscreen || document.mozCancelFullScreen || document.msExitFullscreen;
+    const fsEl      = document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement;
+
+    if (requestFS) {
+        if (!fsEl) {
+            requestFS.call(el).catch(() => _applyCssFullscreen(true));
+        } else {
+            exitFS.call(document).catch(() => _applyCssFullscreen(false));
+        }
     } else {
-        document.exitFullscreen();
+        // iOS Safari fallback — CSS fullscreen simulation
+        _applyCssFullscreen(!_cssFullscreen);
     }
 }
+
+function _applyCssFullscreen(on) {
+    _cssFullscreen = on;
+    if (on) {
+        document.body.style.cssText += ';position:fixed!important;top:0!important;left:0!important;width:100vw!important;height:100vh!important;z-index:99998!important;';
+        window.scrollTo(0, 1); // nudge to hide browser chrome on iOS
+    } else {
+        document.body.style.position = '';
+        document.body.style.top = '';
+        document.body.style.left = '';
+        document.body.style.width = '';
+        document.body.style.height = '';
+        document.body.style.zIndex = '';
+    }
+    _updateFsIcon(on);
+}
+
+function _updateFsIcon(on) {
+    const btn = document.getElementById('mobBtnFullscreen');
+    if (btn) btn.textContent = on ? '✕' : '⛶';
+}
+
+['fullscreenchange','webkitfullscreenchange','mozfullscreenchange'].forEach(ev => {
+    document.addEventListener(ev, () => {
+        const fsEl = document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement;
+        _updateFsIcon(!!fsEl || _cssFullscreen);
+    });
+});
+
 document.addEventListener('keydown', e => {
     if (e.key === 'F11') { e.preventDefault(); toggleFullscreen(); }
 });
@@ -11596,8 +11639,8 @@ function setInputMode(touch) {
     handleOrientation();
 }
 
-// Switch to touch mode on first touch — never switch back automatically
-document.addEventListener('touchstart', () => setInputMode(true),  { passive: true });
+// Switch to touch mode on first touch — never revert automatically
+document.addEventListener('touchstart', () => setInputMode(true), { passive: true });
 
 const isMobile = () => navigator.maxTouchPoints > 0 || 'ontouchstart' in window;
 
@@ -11627,22 +11670,18 @@ function _mobilePauseTap(e) {
 _pauseBtn.addEventListener('touchstart', _mobilePauseTap, { passive: false });
 _pauseBtn.addEventListener('click',      _mobilePauseTap);
 
-/* ── Fullscreen button handler ───────────────────────────── */
+/* ── Fullscreen button ───────────────────────────────────── */
 const _fsBtn = document.getElementById('mobBtnFullscreen');
 if (_fsBtn) {
     _fsBtn.addEventListener('touchstart', e => { e.preventDefault(); e.stopPropagation(); toggleFullscreen(); }, { passive: false });
     _fsBtn.addEventListener('click', () => toggleFullscreen());
 }
-document.addEventListener('fullscreenchange', () => {
-    if (_fsBtn) _fsBtn.textContent = document.fullscreenElement ? '✕' : '⛶';
-});
 
 /* ── Show/hide mobile controls ───────────────────────────── */
 function showMobileControls(show) {
     const mc = document.getElementById('mobileControls');
     if (!mc) return;
     mc.style.display = (show && _usingTouch) ? 'block' : 'none';
-    // mobTopBtns always visible on touch devices — never hide it
     const tb = document.getElementById('mobTopBtns');
     if (tb && _usingTouch) tb.style.display = 'flex';
     if (show) { updateCharacterButtons(); handleOrientation(); }
