@@ -438,7 +438,7 @@
         #deathFeed {
             position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%);
             pointer-events: none; z-index: 500;
-            display: flex; flex-direction: column; align-items: center; gap: 3px; width: min(1060px, 100vw);
+            display: flex; flex-direction: column; align-items: center; gap: 3px; width: 1060px;
         }
         .death-msg {
             background: rgba(0,0,0,0.78); font-family: 'Press Start 2P', monospace;
@@ -1010,7 +1010,7 @@
            MOBILE VIRTUAL CONTROLS
         ══════════════════════════════════════ */
         #mobileControls { display: none; position: fixed; inset: 0; pointer-events: none; z-index: 800; }
-        #joystickZone { position: absolute; left: 0; top: 0; bottom: 0; width: 50%; pointer-events: auto; touch-action: none; }
+        #joystickZone { position: absolute; left: 0; top: 64px; bottom: 0; width: 50%; pointer-events: auto; touch-action: none; }
         #joystickBase {
             position: absolute; width: 110px; height: 110px; border-radius: 50%;
             background: rgba(255,255,255,0.08); border: 2px solid rgba(255,255,255,0.2);
@@ -1054,7 +1054,17 @@
         .mob-btn:active { background: rgba(255,255,255,0.22); transform: scale(0.9); }
         #mobBtnR    { background: rgba(124,58,237,0.6);  border-color: #7c3aed; }
         #mobBtnDash { background: rgba(59,130,246,0.6);  border-color: #3b82f6; }
-        #mobBtnPause { width: 36px; height: 36px; font-size: 13px; position: fixed; top: 10px; left: 10px; z-index: 850; border-radius: 7px; background: rgba(0,0,0,0.6); border: 2px solid rgba(255,255,255,0.25); }
+        #mobBtnPause {
+            display: none;
+            position: fixed; top: 10px; left: 10px; z-index: 9999;
+            width: 44px; height: 44px; font-size: 18px;
+            border-radius: 8px; background: rgba(0,0,0,0.8);
+            border: 2px solid rgba(255,255,255,0.4); color: white;
+            align-items: center; justify-content: center;
+            cursor: pointer; pointer-events: auto;
+            touch-action: manipulation; user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
 
         /* Aim joystick smaller too */
         #aimJoyZone { right: 12px; bottom: 90px; width: 110px; height: 110px; }
@@ -1087,34 +1097,34 @@
             .menu-btn { min-width: 140px; padding: 12px 16px; font-size: 12px; margin: 4px 3px; }
             .currency-display { font-size: 15px; margin: 12px 0; }
 
-            /* Game container — shrunk to 50% on mobile */
+            /* Game container fills screen as usual */
             #gameContainer {
                 padding: 0; box-sizing: border-box;
                 flex-direction: column;
                 position: fixed !important; top: 0 !important; left: 0 !important;
-                width: 200vw !important; max-width: 200vw !important;
-                height: 200vh !important; margin: 0;
+                width: 100vw !important; max-width: 100vw !important;
+                height: 100vh !important; margin: 0;
                 overflow: hidden;
-                transform: scale(0.5);
-                transform-origin: top left;
+                background: #0f0f1e;
             }
-            /* body.game-active set by JS when game starts */
             body.game-active #gameContainer {
                 display: flex !important;
             }
-            /* Override the inline-block on gameWrapper */
+            /* Scale the game wrapper — this shrinks the actual game to 50% */
             body.game-active #gameWrapper {
                 display: block !important;
-                flex: 1; position: relative;
+                position: relative;
+                width: 200vw !important;
+                height: calc(200vh - 104px) !important;
+                transform: scale(0.5);
+                transform-origin: top left;
                 overflow: hidden;
-                width: 100% !important; max-width: 200vw !important;
             }
             body.game-active canvas {
                 display: block !important;
-                width: 100% !important; max-width: 200vw !important;
+                width: 100% !important;
                 height: 100% !important;
                 border-radius: 0; border: none;
-                border-bottom: 2px solid rgba(100,200,255,0.15);
                 margin: 0;
             }
             #hud { flex-wrap: nowrap; gap: 3px; padding: 4px 4px 2px; margin: 0; height: 52px; overflow: hidden; max-width: 100vw; }
@@ -1189,8 +1199,9 @@
             <button class="mob-btn" id="mobBtnDash" ontouchstart="mobileDash()"    ontouchend="">💨</button>
         </div>
     </div>
-    <button class="mob-btn" id="mobBtnPause">⏸</button>
 </div>
+<!-- Pause button is OUTSIDE mobileControls — never hidden by the joystick overlay -->
+<button id="mobBtnPause">⏸</button>
 
 <div id="purchaseModal">
     <div id="purchaseBox">
@@ -11574,10 +11585,14 @@ function setInputMode(touch) {
     if (_usingTouch === touch) return;
     _usingTouch = touch;
     const mc = document.getElementById('mobileControls');
-    if (mc) mc.style.display = (touch && document.getElementById('gameContainer').style.display === 'block') ? 'block' : 'none';
+    const pb = document.getElementById('mobBtnPause');
+    const inGame = document.getElementById('gameContainer').style.display === 'block';
+    if (mc) mc.style.display = (touch && inGame) ? 'block' : 'none';
+    if (pb) pb.style.display = (touch && inGame) ? 'flex' : 'none';
     handleOrientation();
 }
 
+// Once touch is detected, stay in touch mode permanently
 document.addEventListener('touchstart', () => setInputMode(true), { passive: true });
 
 const isMobile = () => navigator.maxTouchPoints > 0 || 'ontouchstart' in window;
@@ -11611,8 +11626,10 @@ _pauseBtn.addEventListener('click',      _mobilePauseTap);
 /* ── Show/hide mobile controls ───────────────────────────── */
 function showMobileControls(show) {
     const mc = document.getElementById('mobileControls');
+    const pb = document.getElementById('mobBtnPause');
     if (!mc) return;
     mc.style.display = (show && _usingTouch) ? 'block' : 'none';
+    if (pb) pb.style.display = (show && _usingTouch) ? 'flex' : 'none';
     if (show) { updateCharacterButtons(); handleOrientation(); }
 }
 
