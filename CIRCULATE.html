@@ -1014,12 +1014,13 @@
         #joystickZone { position: absolute; left: 0; top: 58px; bottom: 0; width: 50%; pointer-events: auto; touch-action: none; }
         #joystickBase {
             position: absolute; width: 110px; height: 110px; border-radius: 50%;
-            background: rgba(255,255,255,0.08); border: 2px solid rgba(255,255,255,0.2);
+            background: rgba(255,255,255,0.10); border: 2px solid rgba(255,255,255,0.3);
             transform: translate(-50%,-50%); display: none;
+            backdrop-filter: blur(2px);
         }
         #joystickKnob {
             position: absolute; width: 46px; height: 46px; border-radius: 50%;
-            background: rgba(255,255,255,0.35); border: 2px solid rgba(255,255,255,0.6);
+            background: rgba(255,255,255,0.45); border: 2px solid rgba(255,255,255,0.75);
             transform: translate(-50%,-50%); left: 50%; top: 50%;
         }
         /* Aim joystick — fixed bottom-right */
@@ -1030,7 +1031,8 @@
         }
         #aimJoyBase {
             position: absolute; inset: 0; border-radius: 50%;
-            background: rgba(239,68,68,0.08); border: 2px solid rgba(239,68,68,0.3);
+            background: rgba(239,68,68,0.12); border: 2px solid rgba(239,68,68,0.45);
+            backdrop-filter: blur(2px);
         }
         #aimJoyKnob {
             position: absolute; width: 50px; height: 50px; border-radius: 50%;
@@ -1111,7 +1113,7 @@
             body.game-active #gameContainer {
                 display: flex !important;
             }
-            /* Canvas wrapper — sits below HUD, above bottom controls */
+            /* Canvas wrapper — fills full screen below HUD; controls overlay on top */
             body.game-active #gameWrapper {
                 display: flex !important;
                 align-items: center !important;
@@ -1120,19 +1122,19 @@
                 top: 52px !important;
                 left: 0 !important;
                 width: 100vw !important;
-                /* 52px HUD top, 210px reserved for bottom mobile controls */
-                height: calc(100dvh - 52px - 210px) !important;
-                height: calc(100vh - 52px - 210px) !important;
+                /* Controls now overlay the canvas — no bottom reservation needed */
+                height: calc(100dvh - 52px) !important;
+                height: calc(100vh - 52px) !important;
                 overflow: hidden !important;
                 flex: unset !important;
                 transform: none !important;
             }
             body.game-active canvas {
                 display: block !important;
-                width: min(100vw, calc((100dvh - 52px - 210px) * 1100 / 700)) !important;
-                height: min(calc(100dvh - 52px - 210px), calc(100vw * 700 / 1100)) !important;
+                width: min(100vw, calc((100dvh - 52px) * 1100 / 700)) !important;
+                height: min(calc(100dvh - 52px), calc(100vw * 700 / 1100)) !important;
                 max-width: 100vw !important;
-                max-height: calc(100dvh - 52px - 210px) !important;
+                max-height: calc(100dvh - 52px) !important;
                 border-radius: 0 !important;
                 margin: 0 auto !important;
             }
@@ -1177,13 +1179,13 @@
             #hud { height: 48px; }
             body.game-active #gameWrapper {
                 top: 48px !important;
-                height: calc(100dvh - 48px - 160px) !important;
-                height: calc(100vh - 48px - 160px) !important;
+                height: calc(100dvh - 48px) !important;
+                height: calc(100vh - 48px) !important;
             }
             body.game-active canvas {
-                width: min(100vw, calc((100dvh - 48px - 160px) * 1100 / 700)) !important;
-                height: min(calc(100dvh - 48px - 160px), calc(100vw * 700 / 1100)) !important;
-                max-height: calc(100dvh - 48px - 160px) !important;
+                width: min(100vw, calc((100dvh - 48px) * 1100 / 700)) !important;
+                height: min(calc(100dvh - 48px), calc(100vw * 700 / 1100)) !important;
+                max-height: calc(100dvh - 48px) !important;
             }
             .stat-label { font-size: 6px; }
             .stat-value { font-size: 9px; }
