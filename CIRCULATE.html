@@ -1116,7 +1116,7 @@
             /* Canvas wrapper — fills full screen below HUD; controls overlay on top */
             body.game-active #gameWrapper {
                 display: flex !important;
-                align-items: center !important;
+                align-items: flex-start !important;
                 justify-content: center !important;
                 position: fixed !important;
                 top: 52px !important;
@@ -1224,8 +1224,8 @@
     <div id="mobileButtons">
         <div class="mb-row" id="mobCharButtons"></div>
         <div class="mb-row">
-            <button class="mob-btn" id="mobBtnR"    ontouchstart="mobileAbility()" ontouchend="">R</button>
-            <button class="mob-btn" id="mobBtnDash" ontouchstart="mobileDash()"    ontouchend="">💨</button>
+            <button class="mob-btn" id="mobBtnR"    ontouchstart="event.preventDefault();mobileAbility()" ontouchend="">R</button>
+            <button class="mob-btn" id="mobBtnDash" ontouchstart="event.preventDefault();mobileDash()"    ontouchend="">💨</button>
         </div>
     </div>
 </div>
@@ -2108,7 +2108,7 @@ function updateLimitedTimers() {
 updateLimitedTimers();
 setInterval(updateLimitedTimers, 1000);
 
-let gameRunning = false, keys = {}, mousePos = { x: 0, y: 0 };
+let gameRunning = false, keys = {}, mousePos = { x: 550, y: 350 };
 
 const CHARACTERS = {
     default:     { name:'Veteran',      color:'#3b82f6', shadow:'#1e3a8a', projColor:'#60a5fa', ability:'veteran',        manaCost:20, cdMax:0, messageNormal:'was eliminated', msgSpecial:'was obliterated',   isVeteran:true,  useImg:false },
@@ -3277,7 +3277,7 @@ function tickNewCharacters(ts, dt) {
         // Speed timer
         if (hornetSpeedTimer > 0) {
             hornetSpeedTimer -= dt;
-            if (hornetSpeedTimer <= 0) { player.speed = Math.max(player.speed - 1, 6); floatMoneyText('Speed bonus ended'); }
+            if (hornetSpeedTimer <= 0) { player.speed = Math.max(player.speed - hornetSpeedBonus, 6); hornetSpeedBonus = 0; floatMoneyText('Speed bonus ended'); }
         }
         // Shard cooldown
         if (hornetShardCooldown > 0) hornetShardCooldown -= dt;
@@ -5350,6 +5350,7 @@ let hornetMasks = 10;
 let hornetSilk  = 0;
 let hornetShardTraps = [];
 let hornetSpeedTimer = 0;
+let hornetSpeedBonus = 0;
 let hornetShardCooldown = 0;
 let hornetBindWindup = 0;
 let hornetBindActive = false;
@@ -6145,6 +6146,7 @@ function dash(){
         player.dashCooldown=60; player.invulnerable=10;
         hornetSpeedTimer=300; // 5s at 60fps
         player.speed+=1;
+        hornetSpeedBonus+=1;
         for(let i=0;i<20;i++)particles.push(new Particle(player.x,player.y,'#f59e0b'));
         floatMoneyText('+1 Speed for 5s!');
         return;
@@ -6881,7 +6883,7 @@ function endGame(sukunaKilled=false){
     document.getElementById('finalWave').textContent=currentRound;
     document.getElementById('moneyEarned').textContent=sessionMoney;
 }
-function restartGame(){document.getElementById('gameOver').style.display='none';document.body.classList.add('game-active');resetGame();gameRunning=true;mainTheme.pause();mainTheme.currentTime=0;fadeInMainTheme(1200);requestAnimationFrame(gameLoop);}
+function restartGame(){document.getElementById('gameOver').style.display='none';document.body.classList.add('game-active');mousePos={x:canvas.width/2,y:canvas.height/2};resetGame();gameRunning=true;mainTheme.pause();mainTheme.currentTime=0;fadeInMainTheme(1200);requestAnimationFrame(gameLoop);}
 
 const NAV_CELL = 20;
 let navGrid = null;
@@ -7267,7 +7269,7 @@ function resetGame(){
         player.health=player.maxHealth;
         player.damage=Math.round(10+Math.random()*140);
     }
-    expToNextLevel=100;projectiles=[];enemies=[];particles=[];items=[];floatingTexts=[];
+    expToNextLevel=100;projectiles=[];enemies=[];particles=[];items=[];floatingTexts=[];orbs.length=0;shopOpen=false;statsDisplayOpen=false;document.getElementById('statsPanel').classList.remove('show');
     walls=[];generateWalls();
     if(currentCharacter==='builder'){
         builderWalls=[];
@@ -7381,7 +7383,7 @@ function resetGame(){
     speedrunnerSprintActive = false; speedrunnerSprintTimer = 0; speedrunnerVelX = 0; speedrunnerVelY = 0;
     cursedWaveActive = false;
     bountyActive = false; currentBountyEnemy = null; bountyGold = 0; bountyLabel = '';
-    if (currentCharacter === 'hornet') { player.maxHealth = 999; player.health = 999; player.speed = 6; player.damage = 27.5; hornetMasks=HORNET_MAX_MASKS; hornetSilk=0; hornetShardTraps=[]; hornetSpeedTimer=0; hornetShardCooldown=0; hornetBindWindup=0; }
+    if (currentCharacter === 'hornet') { player.maxHealth = 999; player.health = 999; player.speed = 6; player.damage = 27.5; hornetMasks=HORNET_MAX_MASKS; hornetSilk=0; hornetShardTraps=[]; hornetSpeedTimer=0; hornetSpeedBonus=0; hornetShardCooldown=0; hornetBindWindup=0; }
     if (currentCharacter === 'necromancer') { player.maxHealth = 90; player.health = 90; player.speed = 5; player.damage = 15; }
     if (currentCharacter === 'glass_cannon') { player.maxHealth = 1; player.health = 1; player.speed = 6.5; player.damage = 150; }
     if (currentCharacter === 'tank') { player.maxHealth = 500; player.health = 500; player.speed = 2; player.damage = 50; }
@@ -9816,8 +9818,10 @@ document.addEventListener('keyup',e=>{
 });
 canvas.addEventListener('mousemove',e=>{
     const r=canvas.getBoundingClientRect();
-    mousePos.x=e.clientX-r.left;
-    mousePos.y=e.clientY-r.top;
+    const scaleX=canvas.width/r.width;
+    const scaleY=canvas.height/r.height;
+    mousePos.x=(e.clientX-r.left)*scaleX;
+    mousePos.y=(e.clientY-r.top)*scaleY;
     if(currentCharacter==='builder' && gameRunning && builderMoveMode && builderSelectedWall) {
         builderSelectedWall.x = mousePos.x - builderSelectedWall.w/2;
         builderSelectedWall.y = mousePos.y - builderSelectedWall.h/2;
@@ -9832,8 +9836,10 @@ canvas.addEventListener('mousedown',e=>{
     }
     if(currentCharacter==='builder' && gameRunning && builderMoveMode) {
         const r = canvas.getBoundingClientRect();
-        const mx = e.clientX - r.left;
-        const my = e.clientY - r.top;
+        const scaleX = canvas.width / r.width;
+        const scaleY = canvas.height / r.height;
+        const mx = (e.clientX - r.left) * scaleX;
+        const my = (e.clientY - r.top) * scaleY;
         for(let w of builderWalls) {
             if(mx >= w.x && mx <= w.x + w.w && my >= w.y && my <= w.y + w.h) {
                 builderSelectedWall = w;
@@ -9848,8 +9854,10 @@ canvas.addEventListener('mousedown',e=>{
             return;
         }
         const r = canvas.getBoundingClientRect();
-        const mx = e.clientX - r.left;
-        const my = e.clientY - r.top;
+        const scaleX = canvas.width / r.width;
+        const scaleY = canvas.height / r.height;
+        const mx = (e.clientX - r.left) * scaleX;
+        const my = (e.clientY - r.top) * scaleY;
         builderWalls.push({ x: mx-20, y: my-20, w: 40, h: 40, hp: 50, maxHp: 50, reinforced: false });
         floatMoneyText('🏗️ Wall built!');
         builderWallsBuilt++;
@@ -10421,6 +10429,7 @@ function startGame(){
     document.getElementById('gameContainer').style.display='block';
     document.body.classList.add('game-active');
     gameRunning=true;
+    mousePos = { x: canvas.width / 2, y: canvas.height / 2 };
     resetGame();
     updateBiome();
     updateBiomeColors();
