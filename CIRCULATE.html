@@ -2929,20 +2929,37 @@ jackpotAudio.volume = 0.6;
 function playJackpotMusic() {
     jackpotAudio.currentTime = 0;
     jackpotAudio.volume = 0;
-    jackpotAudio.play().catch(()=>{});
-    let vol = 0;
     clearInterval(jackpotAudio._fadeIn);
     clearInterval(jackpotAudio._fadeOut);
     jackpotAudio._fadeOut = null;
-    // Fade out main theme when Hakari's theme takes over
-    fadeOutMainTheme(800, false);
-    jackpotAudio._fadeIn = setInterval(() => {
-        vol = Math.min(vol + 0.02, getMusicVol());
-        jackpotAudio.volume = vol;
-        if (vol >= getMusicVol()) clearInterval(jackpotAudio._fadeIn);
-    }, 60);
+    const playPromise = jackpotAudio.play();
+    if (playPromise !== undefined) {
+        playPromise.then(() => {
+            // Audio started — now fade out main theme and fade in jackpot
+            fadeOutMainTheme(800, false);
+            let vol = 0;
+            jackpotAudio._fadeIn = setInterval(() => {
+                vol = Math.min(vol + 0.02, getMusicVol());
+                jackpotAudio.volume = vol;
+                if (vol >= getMusicVol()) clearInterval(jackpotAudio._fadeIn);
+            }, 60);
+        }).catch(() => {
+            // Mobile blocked autoplay — jackpot audio can't play, keep main theme running
+            jackpotAudio._audioBlocked = true;
+        });
+    } else {
+        // Old browser fallback
+        fadeOutMainTheme(800, false);
+        let vol = 0;
+        jackpotAudio._fadeIn = setInterval(() => {
+            vol = Math.min(vol + 0.02, getMusicVol());
+            jackpotAudio.volume = vol;
+            if (vol >= getMusicVol()) clearInterval(jackpotAudio._fadeIn);
+        }, 60);
+    }
 }
 function stopJackpotMusic() {
+    jackpotAudio._audioBlocked = false;
     clearInterval(jackpotAudio._fadeIn);
     clearInterval(jackpotAudio._fadeOut);
     jackpotAudio._fadeOut = null;
@@ -2962,6 +2979,32 @@ function stopJackpotMusic() {
 }
 function pauseJackpotMusic() { if (!jackpotAudio.paused) jackpotAudio.pause(); }
 function resumeJackpotMusic() { if (hakariJackpotActive && jackpotAudio.paused) jackpotAudio.play().catch(()=>{}); }
+
+// ── MOBILE AUDIO UNLOCK ───────────────────────────────────────────────────────
+// Mobile browsers block audio until a direct user gesture. On the first
+// touch or click we silently play-then-pause every audio element so they
+// are "unlocked" and can be started programmatically later (e.g. jackpot).
+(function() {
+    let _audioUnlocked = false;
+    function _unlockAudio() {
+        if (_audioUnlocked) return;
+        _audioUnlocked = true;
+        [jackpotAudio, mainTheme].forEach(function(a) {
+            if (a.paused) {
+                const v = a.volume;
+                a.volume = 0;
+                const p = a.play();
+                if (p !== undefined) {
+                    p.then(function() { a.pause(); a.currentTime = 0; a.volume = v; }).catch(function(){});
+                } else {
+                    a.pause(); a.currentTime = 0; a.volume = v;
+                }
+            }
+        });
+    }
+    document.addEventListener('touchstart', _unlockAudio, { once: true, passive: true });
+    document.addEventListener('click',      _unlockAudio, { once: true });
+})();
 
 // ── MAIN THEME ────────────────────────────────────────────────────────────────
 const mainTheme = new Audio('https://res.cloudinary.com/dz1dungk5/video/upload/v1772861276/circulate_ifgxxj.wav');
