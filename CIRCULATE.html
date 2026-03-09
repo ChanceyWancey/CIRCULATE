@@ -414,7 +414,8 @@
         }
         .hq-check { font-size: 14px; flex-shrink: 0; line-height: 1; }
         .hq-label { font-weight: bold; display: block; margin-bottom: 2px; }
-        .hq-prog { font-size: 10px; color: rgba(255,255,255,0.3); }
+        .hq-hint { display: block; font-size: 9px; color: rgba(255,255,255,0.45); font-style: italic; margin-top: 2px; margin-bottom: 3px; font-family: monospace; line-height: 1.4; }
+        .hq-prog { font-size: 10px; color: rgba(255,255,255,0.3); display: block; margin-top: 2px; }
         .hq-quest.done .hq-prog { color: rgba(74,222,128,0.5); }
         .hq-character { display: block; font-size: 10px; color: #a5b4fc; letter-spacing: 1px; margin-bottom: 2px; font-style: italic; opacity: 0.8; }
         .quest-board { background: rgba(255,255,255,0.03); border-radius: 12px; padding: 16px; border: 1px solid rgba(255,255,255,0.07); }
@@ -1103,14 +1104,14 @@
                 flex-direction: column;
                 position: fixed !important; top: 0 !important; left: 0 !important;
                 width: 100vw !important; max-width: 100vw !important;
-                height: 100vh !important; margin: 0;
+                height: 100dvh !important; height: 100vh !important; margin: 0;
                 overflow: hidden;
                 background: #0f0f1e;
             }
             body.game-active #gameContainer {
                 display: flex !important;
             }
-            /* Canvas wrapper — sits below HUD, fills remaining space */
+            /* Canvas wrapper — sits below HUD, above bottom controls */
             body.game-active #gameWrapper {
                 display: flex !important;
                 align-items: center !important;
@@ -1119,17 +1120,19 @@
                 top: 52px !important;
                 left: 0 !important;
                 width: 100vw !important;
-                height: calc(100vh - 52px) !important;
+                /* 52px HUD top, 210px reserved for bottom mobile controls */
+                height: calc(100dvh - 52px - 210px) !important;
+                height: calc(100vh - 52px - 210px) !important;
                 overflow: hidden !important;
                 flex: unset !important;
                 transform: none !important;
             }
             body.game-active canvas {
                 display: block !important;
-                width: min(100vw, calc((100vh - 52px) * 1100 / 700)) !important;
-                height: min(calc(100vh - 52px), calc(100vw * 700 / 1100)) !important;
+                width: min(100vw, calc((100dvh - 52px - 210px) * 1100 / 700)) !important;
+                height: min(calc(100dvh - 52px - 210px), calc(100vw * 700 / 1100)) !important;
                 max-width: 100vw !important;
-                max-height: calc(100vh - 52px) !important;
+                max-height: calc(100dvh - 52px - 210px) !important;
                 border-radius: 0 !important;
                 margin: 0 auto !important;
             }
@@ -1174,12 +1177,13 @@
             #hud { height: 48px; }
             body.game-active #gameWrapper {
                 top: 48px !important;
-                height: calc(100vh - 48px) !important;
+                height: calc(100dvh - 48px - 160px) !important;
+                height: calc(100vh - 48px - 160px) !important;
             }
             body.game-active canvas {
-                width: min(100vw, calc((100vh - 48px) * 1100 / 700)) !important;
-                height: min(calc(100vh - 48px), calc(100vw * 700 / 1100)) !important;
-                max-height: calc(100vh - 48px) !important;
+                width: min(100vw, calc((100dvh - 48px - 160px) * 1100 / 700)) !important;
+                height: min(calc(100dvh - 48px - 160px), calc(100vw * 700 / 1100)) !important;
+                max-height: calc(100dvh - 48px - 160px) !important;
             }
             .stat-label { font-size: 6px; }
             .stat-value { font-size: 9px; }
@@ -1280,16 +1284,18 @@
         </div>
     </div>
 
+
+
     <div class="quest-board" style="margin-top:24px;">
-        <div class="quest-board-header" style="color:#9ca3af;border-color:rgba(107,114,128,0.3);">
-            <span class="quest-board-icon">💀</span>
-            <span>Jeremiah Quinzy Fowler II</span>
-            <span class="quest-board-reward" style="color:#6b7280;">Reward: The man himself (we're sorry)</span>
+        <div class="quest-board-header" style="color:#7dd3fc;border-color:rgba(125,211,252,0.3);">
+            <span class="quest-board-icon">🐺</span>
+            <span>Megumi Fushiguro</span>
+            <span class="quest-board-reward" style="color:#7dd3fc;">Reward: Megumi Fushiguro</span>
         </div>
-        <div id="jfList"></div>
-        <div id="jfReveal" style="display:none;margin-top:10px;text-align:center;padding:10px;background:rgba(107,114,128,0.1);border-radius:8px;border:1px solid rgba(107,114,128,0.3);">
-            <span style="display:block;font-size:11px;color:#9ca3af;margin-bottom:4px;">All quests complete. Jeremiah Quinzy Fowler II is unlocked in the shop.</span>
-            <span style="display:block;font-size:12px;color:#6b7280;font-style:italic;">We tried to stop you. We really did.</span>
+        <div id="megumiList"></div>
+        <div id="megumiReveal" style="display:none;margin-top:10px;text-align:center;padding:10px;background:rgba(125,211,252,0.07);border-radius:8px;border:1px solid rgba(125,211,252,0.3);">
+            <span style="display:block;font-size:11px;color:#7dd3fc;margin-bottom:4px;">All Megumi quests complete! He is unlocked in the shop.</span>
+            <span style="display:block;font-size:12px;color:#93c5fd;font-style:italic;">Ten Shadows Technique: mastered.</span>
         </div>
     </div>
 
@@ -1503,12 +1509,14 @@
             <div class="character-price" style="color:#fbbf24;">💰 Gold Hoarder Mastery</div>
             <button class="info-btn" onclick="event.stopPropagation();showCharInfo('coin_king')">INFO</button>
         </div>
-        <div class="character-card" onclick="selectCharacter('jeremiah')" id="jeremiahCharacter" style="border-color:rgba(150,150,150,0.3);">
-            <div class="character-preview" style="background:linear-gradient(135deg,#4b4b4b,#222);box-shadow:0 0 14px rgba(100,100,100,.4);"></div>
-            <div class="character-name" style="color:#9ca3af;">Jeremiah Quinzy Fowler II</div>
-            <div class="character-ability">1 DMG • Actively dying<br>PASSIVE: -1 HP every 0.5s<br>No special ability<br>Not recommended.</div>
-            <div class="character-price" style="color:#6b7280;">FREE (we're not proud of it)</div>
-            <button class="info-btn" onclick="event.stopPropagation();showCharInfo('jeremiah')">INFO</button>
+
+
+        <div class="character-card" onclick="selectCharacter('megumi')" id="megumiCharacter" style="display:none;border-color:rgba(125,211,252,0.5);background:linear-gradient(135deg,rgba(15,23,42,0.4),rgba(99,102,241,0.1));">
+            <div class="character-preview" style="background:linear-gradient(135deg,#0f172a,#1e3a8a);box-shadow:0 0 22px rgba(125,211,252,.7);border-radius:50%;"></div>
+            <div class="character-name" style="color:#7dd3fc;">Megumi Fushiguro</div>
+            <div class="character-ability">22 DMG · Speed 5.5<br>🐺 R: Divine Dogs (40 CE, bar = 0-100)<br>Earn 1000 Total CE: R = MAHORAGAH<br>3.2x DMG + AoE, +60% dmg taken!</div>
+            <div class="character-price" style="color:#7dd3fc;">🐺 Quest Unlock</div>
+            <button class="info-btn" onclick="event.stopPropagation();showCharInfo('megumi')">INFO</button>
         </div>
 
         <div class="character-card limited-card" onclick="selectCharacter('dice')" id="diceCharacter">
@@ -2130,10 +2138,10 @@ const CHARACTERS = {
     rouge_square: { name:'Rouge Square', color:'#4444ff', shadow:'#0000aa', projColor:'#8888ff', ability:'dungeonlock', manaCost:35, cdMax:360, isRougeSquare:true, useImg:false },
     gojo: { name:'Gojo', color:'#e0e7ff', shadow:'#6366f1', projColor:'#ffffff', ability:'unlimited_void', manaCost:60, cdMax:600, isGojo:true, useImg:false },
     the_strongest_today: { name:'The Strongest Today', color:'#ffffff', shadow:'#1e1b4b', projColor:'#ffffff', ability:'unlimited_void', manaCost:60, cdMax:600, isGojo:true, isStrongestToday:true, lockWaveShop:true, useImg:false },
-    jeremiah: { name:'Jeremiah Quinzy Fowler II', color:'#6b7280', shadow:'#374151', projColor:'#9ca3af', ability:null, manaCost:0, cdMax:0, isJeremiah:true, lockHpUpgrade:true, lockDmgUpgrade:true, useImg:false },
     necromancer: { name:'Necromancer', color:'#a855f7', shadow:'#4c1d95', projColor:'#c084fc', ability:'soul_burst', manaCost:40, cdMax:300, isNecromancer:true, lockHpUpgrade:true, lockDmgUpgrade:true, useImg:false },
     glass_cannon: { name:'Glass Cannon', color:'#22d3ee', shadow:'#0e7490', projColor:'#67e8f9', ability:null, manaCost:0, cdMax:0, isGlassCannon:true, lockHpUpgrade:true, useImg:false },
     tank: { name:'Tank', color:'#4ade80', shadow:'#166534', projColor:'#4ade80', ability:'ground_slam', manaCost:0, cdMax:180, isTank:true, useImg:false },
+    megumi: { name:'Megumi Fushiguro', color:'#1e293b', shadow:'#0f172a', projColor:'#7dd3fc', ability:'devil_dogs', manaCost:40, cdMax:0, isMegumi:true, useImg:false },
     hornet: { name:'Hornet', color:'#f59e0b', shadow:'#92400e', projColor:'#fde68a', ability:'silk_storm', manaCost:4, cdMax:0, isHornet:true, useImg:false },
     speedrunner: { name:'Speedrunner', color:'#facc15', shadow:'#713f12', projColor:'#fde047', ability:'sprint_burst', manaCost:0, cdMax:240, isSpeedrunner:true, lockHpUpgrade:true, lockDmgUpgrade:true, useImg:false },
 };
@@ -2151,8 +2159,8 @@ const PRICES = {
     default:0, goldhoarder:0, vampire:100, builder:100,
     phantom:250, druid:750, pyromancer:1500, cyborg:3000, timewizard:4500,
     fire:500, ice:1000, electric:2500, boxer:500,
-    wemmbu:5000, eggchan:5000, dice:2345, hakari_v2:35000, yuji_itadori:28000, character10b:50000, war_veteran:0, prime_veteran:0, last_architect:0, coin_king:0, rouge_square:250000, gojo:0, jeremiah:0, the_strongest_today:0,
-    necromancer:4000, glass_cannon:3500, tank:2000, speedrunner:2500, hornet:0
+    wemmbu:5000, eggchan:5000, dice:2345, hakari_v2:35000, yuji_itadori:28000, character10b:50000, war_veteran:0, prime_veteran:0, last_architect:0, coin_king:0, rouge_square:250000, gojo:0, the_strongest_today:0,
+    necromancer:4000, glass_cannon:3500, tank:2000, speedrunner:2500, hornet:0, megumi:0
 };
 
 const CHARACTER_ORDER = Object.keys(PRICES).sort((a, b) => PRICES[a] - PRICES[b]);
@@ -2194,6 +2202,7 @@ function getProjectileDamage() {
         return Math.floor(10 + Math.random() * 140);
     }
     if (currentCharacter === 'glass_cannon') return 150 + glassCannAdrenaline;
+    if (currentCharacter === 'megumi' && megumiIsMahoragah) return player.damage * 3.2;
     if (currentCharacter === 'speedrunner') {
         const vel = Math.hypot(speedrunnerVelX, speedrunnerVelY);
         return Math.max(1, Math.floor(8 + vel * 3.5));
@@ -2274,7 +2283,7 @@ const HONORED_QUESTS = [
     {
         id: 'hq_wave100',
         character: 'Satoru Gojo',
-        label:'Reach Wave 100',
+        label:"Infinity's Edge",
         desc:'Survive to wave 100 (no limited chars)',
         check: () => currentRound >= 100,
         progress: () => `${Math.min(currentRound,100)}/100`,
@@ -2282,7 +2291,7 @@ const HONORED_QUESTS = [
     {
         id: 'hq_kills500',
         character: 'Satoru Gojo',
-        label:'Kill 500 in one run',
+        label:'Six Eyes Slaughter',
         desc:'Eliminate 500 enemies in a single run',
         check: () => runKills >= 500,
         progress: () => `${Math.min(runKills,500)}/500`,
@@ -2290,7 +2299,7 @@ const HONORED_QUESTS = [
     {
         id: 'hq_playtime',
         character: 'Satoru Gojo',
-        label:'Survive 10 minutes',
+        label:'Limitless Endurance',
         desc:'Accumulate 10 minutes of total playtime',
         check: () => totalPlayTimeSaved >= 600,
         progress: () => `${Math.floor(Math.min(totalPlayTimeSaved,600)/60)}m ${Math.floor(Math.min(totalPlayTimeSaved,600)%60)}s / 10m`,
@@ -2298,7 +2307,7 @@ const HONORED_QUESTS = [
     {
         id: 'hq_wave200',
         character: 'Satoru Gojo',
-        label:'Reach Wave 200 alive',
+        label:'Unlimited Void',
         desc:'Survive to wave 200 without dying',
         check: () => currentRound >= 200,
         progress: () => `${Math.min(currentRound,200)}/200`,
@@ -2306,7 +2315,7 @@ const HONORED_QUESTS = [
     {
         id: 'hq_damage',
         character: 'Satoru Gojo',
-        label:'Deal 10,000 damage',
+        label:'Domain Expansion',
         desc:'Deal 10,000 total damage in one run',
         check: () => runDamage >= 10000,
         progress: () => `${Math.min(Math.floor(runDamage),10000)}/10000`,
@@ -2314,90 +2323,50 @@ const HONORED_QUESTS = [
     {
         id: 'hq_specials',
         character: 'Satoru Gojo',
-        label:'Use R 50 times',
+        label:'Hollow Purple',
         desc:'Activate your special ability 50 times in one run',
         check: () => runSpecialUses >= 50,
         progress: () => `${Math.min(runSpecialUses,50)}/50`,
     },
     {
-        id: 'jf_survive10',
-        character: 'Jeremiah Quinzy Fowler II',
-        label:'Don\'t Die Immediately',
-        desc:'Survive 10 seconds in any run.',
-        check: () => runPlayTime >= 10,
-        progress: () => `${Math.min(Math.floor(runPlayTime),10)}/10s`,
+        id: 'megumi_shadows',
+        character: 'Megumi Fushiguro',
+        label:'Culling Game',
+        desc:'Kill 2,000 enemies in a single run.',
+        check: () => runKills >= 2000,
+        progress: () => `${Math.min(runKills,2000)}/2000`,
     },
     {
-        id: 'jf_kill1',
-        character: 'Jeremiah Quinzy Fowler II',
-        label:'Actually Kill Something',
-        desc:'Get 1 kill in a run. Just one.',
-        check: () => runKills >= 1,
-        progress: () => `${Math.min(runKills,1)}/1`,
+        id: 'megumi_devour',
+        character: 'Megumi Fushiguro',
+        label:'Jujutsu High',
+        desc:'Reach wave 150 in any run.',
+        check: () => currentRound >= 150,
+        progress: () => `${Math.min(currentRound,150)}/150`,
     },
     {
-        id: 'jf_wave3',
-        character: 'Jeremiah Quinzy Fowler II',
-        label:'Reach Wave 3',
-        desc:'Survive to wave 3 in any run.',
-        check: () => currentRound >= 3,
-        progress: () => `${Math.min(currentRound,3)}/3`,
+        id: 'megumi_mahoragah',
+        character: 'Megumi Fushiguro',
+        label:'Binding Vow',
+        desc:'Survive for 30 minutes in a single run.',
+        check: () => runPlayTime >= 1800,
+        progress: () => `${Math.min(Math.floor(runPlayTime),1800)/60|0}m ${Math.min(Math.floor(runPlayTime),1800)%60}s / 30m`,
     },
     {
-        id: 'jf_survive30',
-        character: 'Jeremiah Quinzy Fowler II',
-        label:'Barely Breathing',
-        desc:'Survive 30 seconds in any run.',
-        check: () => runPlayTime >= 30,
-        progress: () => `${Math.min(Math.floor(runPlayTime),30)}/30s`,
+        id: 'megumi_ten_shadows',
+        character: 'Megumi Fushiguro',
+        label:'Zenin Clan',
+        desc:'Earn 5,000 gold in a single run.',
+        check: () => runGold >= 5000,
+        progress: () => `${Math.min(Math.floor(runGold),5000)}/5000`,
     },
     {
-        id: 'jf_kill5',
-        character: 'Jeremiah Quinzy Fowler II',
-        label:'Participation Trophy',
-        desc:'Get 5 kills in a single run.',
-        check: () => runKills >= 5,
-        progress: () => `${Math.min(runKills,5)}/5`,
-    },
-    {
-        id: 'jf_wave5',
-        character: 'Jeremiah Quinzy Fowler II',
-        label:'Mediocrity Peak',
-        desc:'Reach wave 5 in any run.',
-        check: () => currentRound >= 5,
-        progress: () => `${Math.min(currentRound,5)}/5`,
-    },
-    {
-        id: 'jf_kill10',
-        character: 'Jeremiah Quinzy Fowler II',
-        label:'Against All Odds',
-        desc:'Get 10 kills in a single run.',
-        check: () => runKills >= 10,
-        progress: () => `${Math.min(runKills,10)}/10`,
-    },
-    {
-        id: 'jf_survive60',
-        character: 'Jeremiah Quinzy Fowler II',
-        label:'Grasping at Straws',
-        desc:'Survive 1 full minute in any run.',
-        check: () => runPlayTime >= 60,
-        progress: () => `${Math.min(Math.floor(runPlayTime),60)}/60s`,
-    },
-    {
-        id: 'jf_wave10',
-        character: 'Jeremiah Quinzy Fowler II',
-        label:'The Miracle',
-        desc:'Reach wave 10 in any run.',
-        check: () => currentRound >= 10,
-        progress: () => `${Math.min(currentRound,10)}/10`,
-    },
-    {
-        id: 'jf_kill25',
-        character: 'Jeremiah Quinzy Fowler II',
-        label:'Cursed Persistence',
-        desc:'Get 25 kills in a single run.',
-        check: () => runKills >= 25,
-        progress: () => `${Math.min(runKills,25)}/25`,
+        id: 'megumi_divergent',
+        character: 'Megumi Fushiguro',
+        label:'Black Flash',
+        desc:'Get 50 kills in a row without taking damage.',
+        check: () => megumiStreakReached,
+        progress: () => `${Math.min(megumiKillStreak,50)}/50 (no damage)`,
     },
 ];
 
@@ -2406,6 +2375,7 @@ let seenEnemyTypes    = JSON.parse(localStorage.getItem('ballRPGSeenEnemies')) |
 let enemyKillCounts   = JSON.parse(localStorage.getItem('ballRPGEnemyKills'))  || {};
 let hornetNoDmgWave   = parseInt(localStorage.getItem('ballRPGHornetNoDmg'))   || 0;
 let hornetNoShopWins  = parseInt(localStorage.getItem('ballRPGHornetNoShop'))  || 0;
+let megumiDogsSpawnedTotal = parseInt(localStorage.getItem('ballRPGMegumiDogs')) || 0;
 let runTookDamage     = false;
 let runShopPurchases  = 0;
 
@@ -2438,8 +2408,8 @@ function checkHonored() {
 
 function renderHQPanel() {
     const gojoQuests   = HONORED_QUESTS.filter(q => q.character === 'Satoru Gojo');
-    const jfQuests     = HONORED_QUESTS.filter(q => q.character === 'Jeremiah Quinzy Fowler II');
     const hornetQuests = HONORED_QUESTS.filter(q => q.character === 'Hornet');
+    const megumiQuests = HONORED_QUESTS.filter(q => q.character === 'Megumi Fushiguro');
 
     function renderList(listId, quests) {
         const list = document.getElementById(listId);
@@ -2450,26 +2420,26 @@ function renderHQPanel() {
             const div = document.createElement('div');
             div.className = 'hq-quest' + (done ? ' done' : '');
             const showProg = !done && gameRunning;
-            div.innerHTML = `<span class="hq-check">${done ? '✅' : '⬜'}</span><span><span class="hq-label">${q.label}</span>${showProg ? `<span class="hq-prog">${q.progress()}</span>` : ''}</span>`;
+            div.innerHTML = `<span class="hq-check">${done ? '✅' : '⬜'}</span><span><span class="hq-label">${q.label}</span><span class="hq-hint">${q.desc}</span>${showProg ? `<span class="hq-prog">${q.progress()}</span>` : ''}</span>`;
             list.appendChild(div);
         }
     }
 
     renderList('hqList', gojoQuests);
-    renderList('jfList', jfQuests);
     renderList('hornetList', hornetQuests);
+    renderList('megumiList', megumiQuests);
 
     const gojoAllDone = gojoQuests.every(q => hqCompleted.includes(q.id));
     const reveal = document.getElementById('hqReveal');
     if (reveal) reveal.style.display = gojoAllDone ? 'block' : 'none';
 
-    const jfAllDone = jfQuests.every(q => hqCompleted.includes(q.id));
-    const jfReveal = document.getElementById('jfReveal');
-    if (jfReveal) jfReveal.style.display = jfAllDone ? 'block' : 'none';
-
     const hornetAllDone = hornetQuests.every(q => hqCompleted.includes(q.id));
     const hornetReveal = document.getElementById('hornetReveal');
     if (hornetReveal) hornetReveal.style.display = hornetAllDone ? 'block' : 'none';
+
+    const megumiAllDone = megumiQuests.every(q => hqCompleted.includes(q.id));
+    const megumiReveal = document.getElementById('megumiReveal');
+    if (megumiReveal) megumiReveal.style.display = megumiAllDone ? 'block' : 'none';
 }
 
 let shopRerollCost = 30;
@@ -3127,17 +3097,6 @@ let rougeSquareDungeonLockWalls = [];
 function tickNewCharacters(ts, dt) {
     const skin = currentCharacter;
 
-
-    if (skin === 'jeremiah') {
-        jeremiahDmgTimer += dt;
-        if (jeremiahDmgTimer >= 30) {
-            jeremiahDmgTimer = 0;
-            player.health -= 1;
-            updateHUD();
-            if (player.health <= 0) { player.health = 0; gameRunning = false; document.getElementById('gameOver').style.display = 'flex'; }
-        }
-    }
-
     if (skin === 'necromancer') {
         necroMinions = necroMinions.filter(m => m.life > 0);
         for (const m of necroMinions) {
@@ -3183,6 +3142,84 @@ function tickNewCharacters(ts, dt) {
         } else {
             ctx.save(); ctx.font='bold 10px Arial'; ctx.fillStyle='rgba(192,132,252,0.5)'; ctx.textAlign='left';
             ctx.fillText(`💀 NECROMANCER no minions | 30% raise on kill | R: Soul Burst (40 mana)`,12,22);
+            ctx.restore();
+        }
+    }
+
+
+    // ── Megumi Fushiguro — Devil Dogs + Mahoragah ─────────────────
+    if (skin === 'megumi') {
+        // Mahoragah timer
+        if (megumiIsMahoragah) {
+            megumiMahoragahTimer -= dt;
+            if (megumiMahoragahTimer <= 0) {
+                megumiIsMahoragah = false;
+                if (megumiMahoragahSpeedBoosted) { player.speed -= 4; megumiMahoragahSpeedBoosted = false; }
+                floatMoneyText('🌑 Mahoragah fades...');
+            }
+            // Mahoragah player glow
+            ctx.save();
+            ctx.shadowBlur = 30 + Math.sin(Date.now()*0.005)*10;
+            ctx.shadowColor = '#dc2626';
+            ctx.strokeStyle = 'rgba(220,38,38,0.6)';
+            ctx.lineWidth = 3;
+            ctx.beginPath(); ctx.arc(player.x, player.y, player.radius+6, 0, Math.PI*2); ctx.stroke();
+            ctx.restore();
+            // Banner
+            ctx.save(); ctx.font='bold 11px Arial'; ctx.fillStyle='rgba(220,38,38,0.95)'; ctx.textAlign='left';
+            ctx.shadowBlur=8; ctx.shadowColor='#dc2626';
+            const mSec = Math.ceil(megumiMahoragahTimer/60);
+            ctx.fillText(`🌑 MAHORAGAH: 3.2x DMG + AoE + 60% more dmg taken | ${mSec}s left`,12,22);
+            ctx.restore();
+        } else if (megumiMahoragahTransforming) {
+            ctx.save(); ctx.font='bold 11px Arial'; ctx.fillStyle='rgba(99,102,241,0.9)'; ctx.textAlign='left';
+            ctx.shadowBlur=8; ctx.shadowColor='#6366f1';
+            ctx.fillText('🌑 SUMMONING MAHORAGAH... invulnerable',12,22);
+            ctx.restore();
+        } else {
+            ctx.save(); ctx.font='bold 10px Arial'; ctx.fillStyle=player.mana>=1000?'rgba(220,38,38,0.9)':'rgba(125,211,252,0.7)'; ctx.textAlign='left';
+            const ceText = megumiCETotal>=1000 ? '🌑 1000 Total CE reached! Press R to summon MAHORAGAH!' : `🐺 Dogs: ${megumiDevilDogs.filter(d=>d.life>0).length} active | Total CE: ${Math.floor(megumiCETotal)}/1000 | R: Spawn Dogs (40)`;
+            ctx.fillText(ceText,12,22);
+            ctx.restore();
+        }
+
+        // Devil dogs AI + draw
+        megumiDevilDogs = megumiDevilDogs.filter(d => d.life > 0);
+        for (const dog of megumiDevilDogs) {
+            dog.life -= dt;
+            dog.shootTimer -= dt;
+            let nearest = null, nDist = Infinity;
+            enemies.forEach(e => { if(!e.alive) return; const d = Math.hypot(e.x-dog.x, e.y-dog.y); if(d<nDist){nDist=d;nearest=e;} });
+            if (nearest) {
+                const ddx = nearest.x-dog.x, ddy = nearest.y-dog.y, dd = Math.hypot(ddx,ddy);
+                dog.x += (ddx/dd)*4*dt; dog.y += (ddy/dd)*4*dt;
+                if (dog.shootTimer <= 0 && nDist < 35) {
+                    dog.shootTimer = 25;
+                    const dogDmg = player.damage * 0.25;
+                    if (damageEnemy(nearest, dogDmg, dog.x, dog.y)) {
+                        for(let i=0;i<6;i++) particles.push(new Particle(nearest.x,nearest.y,dog.dogType==='white'?'#e0f2fe':'#312e81'));
+                        if (nearest.health<=0&&nearest.alive){nearest.alive=false;player.kills++;gainExp(nearest.expValue);handleKill(nearest);megumiDogKills++;}
+                    }
+                } else if (dog.shootTimer <= 0 && nDist < 220) {
+                    dog.shootTimer = 35;
+                    const ang = Math.atan2(nearest.y-dog.y, nearest.x-dog.x);
+                    projectiles.push(new Projectile(dog.x, dog.y, ang, player.damage*0.25, dog.dogType==='white'?'#93c5fd':'#4338ca'));
+                }
+            } else {
+                const ddx = player.x-dog.x, ddy = player.y-dog.y, dd = Math.hypot(ddx,ddy);
+                if(dd>65){ dog.x+=(ddx/dd)*2.5*dt; dog.y+=(ddy/dd)*2.5*dt; }
+            }
+            // Draw dog
+            ctx.save();
+            ctx.globalAlpha = Math.min(1, dog.life/60);
+            ctx.shadowBlur = 16; ctx.shadowColor = dog.dogType==='white'?'#93c5fd':'#4338ca';
+            ctx.fillStyle = dog.dogType==='white'?'#dbeafe':'#1e1b4b';
+            ctx.beginPath(); ctx.arc(dog.x, dog.y, 11, 0, Math.PI*2); ctx.fill();
+            ctx.fillStyle='#fff'; ctx.font='13px Arial'; ctx.textAlign='center';
+            ctx.fillText('🐺', dog.x, dog.y+5);
+            const lw=24; const lx=dog.x-12;
+            ctx.fillStyle='rgba(0,0,0,0.4)'; ctx.fillRect(lx,dog.y-18,lw,3);
+            ctx.fillStyle=dog.dogType==='white'?'#93c5fd':'#4338ca'; ctx.fillRect(lx,dog.y-18,lw*(dog.life/dog.maxLife),3);
             ctx.restore();
         }
     }
@@ -3541,6 +3578,8 @@ function applyPassiveIncomingDamage(dmg) {
     if(currentBiome.effect === 'void') dmg *= 0.5;
     if(currentBiome.effect === 'warrior_arena') dmg *= 0.8;
     if(currentBiome.effect === 'diamond') dmg *= 0.75;
+
+    if(megumiIsMahoragah) dmg *= 1.6;
 
     return dmg;
 }
@@ -4027,6 +4066,7 @@ class Enemy {
                 return;
             }
             runTookDamage = true;
+            megumiKillStreak = 0;
             let inDmg = applyDreamArmor(this.damage);
             inDmg = applyPassiveIncomingDamage(inDmg);
             if(passiveState.thorns>0){ this.health-=passiveState.thorns; if(this.health<=0){this.alive=false;player.kills++;gainExp(this.expValue);handleKill(this);} }
@@ -5981,6 +6021,54 @@ function specialAttack(){
             for(let i=0;i<100;i++) particles.push(new Particle(player.x + (Math.random()-0.5)*300, player.y + (Math.random()-0.5)*300, '#8b0000'));
             break;
         }
+        case 'devil_dogs': {
+            // Mahoragah — requires 1000 total CE accumulated
+            if (megumiCETotal >= 1000 && !megumiMahoragahTransforming && !megumiIsMahoragah) {
+                megumiMahoragahTransforming = true;
+                player.invulnerable = 99999;
+                floatMoneyText('🌑 TEN SHADOWS... MAHORAGAH!');
+                for(let i=0;i<100;i++) particles.push(new Particle(player.x+(Math.random()-0.5)*300,player.y+(Math.random()-0.5)*300,'#1e293b'));
+                for(let i=0;i<60;i++) particles.push(new Particle(player.x+(Math.random()-0.5)*200,player.y+(Math.random()-0.5)*200,'#6366f1'));
+                const mahAudio = new Audio('https://res.cloudinary.com/dz1dungk5/video/upload/v1773032710/audiomass-output_1_l7vboo.mp3');
+                mahAudio.play().catch(()=>{});
+                mahAudio.addEventListener('ended', () => {
+                    if (!gameRunning) return;
+                    megumiMahoragahTransforming = false;
+                    megumiIsMahoragah = true;
+                    megumiMahoragahTimer = 1800; // 30 seconds
+                    player.mana = 0;
+                    player.invulnerable = 0;
+                    player.speed += 4;
+                    megumiMahoragahSpeedBoosted = true;
+                    megumiMahoragahActivations++;
+                    floatMoneyText('🌑 MAHORAGAH! DIVINE GENERAL AWAKENED!');
+                    for(let i=0;i<150;i++) particles.push(new Particle(player.x+(Math.random()-0.5)*400,player.y+(Math.random()-0.5)*400,Math.random()<0.5?'#dc2626':'#1e293b'));
+                    checkHonored();
+                });
+                break;
+            }
+            if (megumiMahoragahTransforming) { floatMoneyText('🌑 Summoning Mahoragah...'); break; }
+            if (megumiIsMahoragah) { floatMoneyText('🌑 Mahoragah is already here!'); break; }
+            // Devil Dogs — costs 40 CE
+            if (player.mana < 40) { floatMoneyText(`❌ Need 40 CE (${Math.floor(player.mana)}/40)`); break; }
+            player.mana -= 40;
+            megumiDevilDogs = megumiDevilDogs.filter(d => d.life > 0);
+            const dogColors = ['white','black'];
+            for (let i = 0; i < 2; i++) {
+                const ang = (Math.PI * 2 / 2) * i;
+                megumiDevilDogs.push({
+                    x: player.x + Math.cos(ang)*65, y: player.y + Math.sin(ang)*65,
+                    life: 600, maxLife: 600, shootTimer: 0, id: megumiDogId++,
+                    dogType: dogColors[i]
+                });
+            }
+            megumiDogsSpawned++;
+            megumiDogsSpawnedTotal++;
+            localStorage.setItem('ballRPGMegumiDogs', megumiDogsSpawnedTotal);
+            floatMoneyText('🐺🐺 Divine Dogs: Bite!');
+            updateHUD(); checkHonored();
+            break;
+        }
         case 'soul_burst': {
             if (necroMinions.length === 0) { floatMoneyText('💀 No minions to burst!'); break; }
             let totalKills = 0;
@@ -6118,7 +6206,15 @@ function handleKill(e) {
         }
     }
 
-    if(passiveState.lifesteal>0){ player.health=Math.min(player.health+passiveState.lifesteal,player.maxHealth); updateHUD(); }
+    if (currentCharacter === 'megumi' && !megumiIsMahoragah && !megumiMahoragahTransforming) {
+        const ceGain = 15;
+        player.mana = Math.min(player.mana + ceGain, player.maxMana);
+        megumiCETotal += ceGain;
+        updateHUD();
+    }
+    // Untouchable quest — 10 kills in a row without damage
+    megumiKillStreak++;
+    if (megumiKillStreak >= 50) megumiStreakReached = true;
     if(e.isGoldForm) { earnRunGold(10); earnMoney(10, 'gold enemy'); }
     else { earnRunGold(1); }
     if(e.isBoss) { earnMoney(5, 'boss kill'); }
@@ -6269,12 +6365,23 @@ let sukunaShrineTimer = 0;
 let sukunaShrineTick = 0;
 let gojoRunGoldEarned = 0;
 let fKeyHeld = false;
-let jeremiahDmgTimer = 0;
 let gojoPhase = 0;
 let gojoPhaseAnnounced = -1;
 
 let necroMinions = [];
 let necroMinionId = 0;
+let megumiDevilDogs = [];
+let megumiDogId = 0;
+let megumiIsMahoragah = false;
+let megumiMahoragahTimer = 0;
+let megumiMahoragahTransforming = false;
+let megumiMahoragahSpeedBoosted = false;
+let megumiDogKills = 0;
+let megumiDogsSpawned = 0;
+let megumiMahoragahActivations = 0;
+let megumiKillStreak = 0;
+let megumiStreakReached = false;
+let megumiCETotal = 0;
 
 let glassCannAdrenaline = 0;
 
@@ -6595,7 +6702,7 @@ function updateHUD(){
         document.getElementById('health').textContent=`${Math.max(0,Math.floor(player.health))}/${player.maxHealth}`;
         document.getElementById('mana').textContent=`${Math.floor(player.mana)}/${player.maxMana}`;
     }
-    const ceChars = ['gojo','yuji_itadori','hakari_v2'];
+    const ceChars = ['gojo','yuji_itadori','hakari_v2','megumi'];
     const manaLbl = document.getElementById('manaLabel');
     if(manaLbl) manaLbl.textContent = currentCharacter==='hornet' ? 'SILK' : (ceChars.includes(currentCharacter) || currentCharacter==='the_strongest_today' ? 'CURSED ENERGY' : 'MANA');
     const ctrlEl = document.getElementById('controls');
@@ -7261,15 +7368,13 @@ function resetGame(){
     sukunaShrineTick = 0;
     gojoRunGoldEarned = 0;
     fKeyHeld = false;
-    jeremiahDmgTimer = 0;
-    if (currentCharacter === 'jeremiah') {
-        player.damage = 1;
-        player.maxHealth = 80;
-        player.health = 80;
-        player.speed = 4.5;
-    }
-
     necroMinions = []; necroMinionId = 0;
+    megumiDevilDogs = []; megumiDogId = 0;
+    megumiIsMahoragah = false; megumiMahoragahTimer = 0;
+    megumiMahoragahTransforming = false; megumiMahoragahSpeedBoosted = false;
+    megumiDogKills = 0; megumiDogsSpawned = 0; megumiMahoragahActivations = 0;
+    megumiKillStreak = 0; megumiStreakReached = false; megumiCETotal = 0;
+    if (currentCharacter === 'megumi') { player.maxHealth=110; player.health=110; player.speed=5.5; player.damage=22; player.maxMana=100; player.mana=0; }
     glassCannAdrenaline = 0;
     speedrunnerSprintActive = false; speedrunnerSprintTimer = 0; speedrunnerVelX = 0; speedrunnerVelY = 0;
     cursedWaveActive = false;
@@ -8020,6 +8125,7 @@ function gameLoop(ts){
     if(player.manaRegen>=60){
         let manaPerSec = 1 + passiveState.manaflow/30;
         if(currentCharacter === 'gojo') manaPerSec = 5;
+        if(currentCharacter === 'megumi') { manaPerSec = 8; }
         if(currentBiome.effect === 'mana_regen') manaPerSec *= 2;
         if(currentBiome.effect === 'mana_vortex') manaPerSec *= 1.75;
         if(currentBiome.effect === 'arcane') manaPerSec *= 2;
@@ -8034,7 +8140,11 @@ function gameLoop(ts){
         if(currentBiome.effect === 'peaceful') manaPerSec *= 1.5;
         if(currentBiome.effect === 'bloom') manaPerSec *= 1.5;
         if(currentBiome.effect === 'starlight') manaPerSec *= 1.4;
+        const prevMana = player.mana;
         player.mana=Math.min(player.mana+manaPerSec,player.maxMana);
+        if (currentCharacter === 'megumi' && !megumiIsMahoragah && !megumiMahoragahTransforming) {
+            megumiCETotal += (player.mana - prevMana);
+        }
         player.manaRegen=0;
         updateHUD();
     }
@@ -8283,6 +8393,19 @@ function gameLoop(ts){
                 if(!damageEnemy(e, pdmg, proj.x, proj.y)){ if(currentCharacter!=='gojo'&&currentCharacter!=='the_strongest_today') proj.alive=false; continue; }
                 runDamage += pdmg; if(currentCharacter!=='gojo' && currentCharacter!=='the_strongest_today' && !proj.isHollowPurple) proj.alive=false;
                 if(runDamage >= 10000 && !hqCompleted.includes('hq_damage')) { checkHonored(); }
+
+                // Mahoragah AoE — every hit detonates in a radius
+                if (currentCharacter === 'megumi' && megumiIsMahoragah) {
+                    const aoeR = 130;
+                    enemies.forEach(ae => {
+                        if (!ae.alive || ae === e) return;
+                        if (Math.hypot(ae.x-e.x, ae.y-e.y) < aoeR) {
+                            damageEnemy(ae, pdmg * 0.6, e.x, e.y);
+                            if (ae.health<=0&&ae.alive){ae.alive=false;player.kills++;gainExp(ae.expValue);handleKill(ae);}
+                        }
+                    });
+                    for(let i=0;i<20;i++) particles.push(new Particle(e.x+(Math.random()-0.5)*aoeR,e.y+(Math.random()-0.5)*aoeR,Math.random()<0.5?'#dc2626':'#7c3aed'));
+                }
 
                 if(currentCharacter==='fire'||proj.isFire){
                     firePatches.push({x:e.x,y:e.y,radius:50,timer:180,maxTimer:180,dmgPerTick:player.damage*0.25});
@@ -10204,25 +10327,25 @@ const CHAR_INFO = {
         tip:'⚡ Tip: Sprint into a crowd diagonally while shooting to stay at max damage. Circular kiting is your bread and butter.',
     },
 
-    jeremiah: {
-        name:'Jeremiah Quinzy Fowler II', tag: 'Quest Unlock · Please Don\'t', icon: '💀',
-        iconBg: 'linear-gradient(135deg,#1f2937,#374151)', iconGlow: '#6b7280',
-        stats: [
-            { label:'Damage', value:'1. One (1). A single damage.' },
-            { label:'HP', value:'80 (gone in 40 seconds without doing anything)' },
-            { label:'Speed', value:'4.5 (slow, as he deserves)' },
-            { label:'Passive', value:'-1 HP every 0.5 seconds. Always. Forever.' },
-            { label:'Special Ability', value:'None. He has nothing.' },
-            { label:'Gold Multiplier', value:'1x (standard, somehow his worst stat)' },
-            { label:'Dash', value:'Normal dash. Not that it helps.' },
-            { label:'Unlock', value:'Complete all Jeremiah Quinzy Fowler II quests' },
+    megumi: {
+        name:'Megumi Fushiguro', tag:'Quest Unlock | Ten Shadows Technique', icon:'🐺',
+        iconBg:'linear-gradient(135deg,#0f172a,#1e3a8a)', iconGlow:'#7dd3fc',
+        stats:[
+            { label:'HP', value:'110' },
+            { label:'Damage', value:'22' },
+            { label:'Speed', value:'5.5' },
+            { label:'CE Bar', value:'Max 100 (spend on dogs). Total CE earned counts toward Mahoragah.' },{ label:'CE Regen', value:'8 per sec + 15 per kill (tracked toward 1000 total)' },
+            { label:'R (under 1000 Total CE)', value:'Spawn 2 Divine Dogs for 40 CE. Bar caps at 100. Dogs deal 25% of your damage.' },
+            { label:'R (1000 Total CE earned)', value:'MAHORAGAH: invulnerable during summon, 3.2x DMG, AoE explosions on every hit, +60% damage taken, +4 speed for 30s' },
+            { label:'Dog Duration', value:'10 seconds per pair' },
+            { label:'Unlock', value:'Complete all 5 Megumi quests' },
         ],
-        abilities:`<b>Passive Cursed Existence:</b> Jeremiah Quinzy Fowler II takes 1 damage every 0.5 seconds regardless of what he does or doesn't do. Standing still? Dying. Moving? Also dying. Shooting? Still dying. There is no way to stop this. It is simply who he is.<br><br><b>Special Ability None:</b> He doesn't have one. We considered giving him one, but felt it would be misleading.`,
-        playstyle:'There is no playstyle. You will die. The only question is how many enemies you can take down before your own body gives out. One tester cried. We don\'t recommend him.',
-        tip:'🚮 Tip: Don\'t. Seriously. Play literally anyone else. The Veteran is free. Gold Hoarder is free. Even Jeremiah\'s stat screen hurts to look at. If you\'re playing him, you either completed the quests or made a horrible mistake. Either way, we\'re sorry.',
+        abilities:`<b>Divine Dogs:</b> Press R (costs 40 CE) to summon a White and Black dog. They chase enemies and bite at close range or fire shadow projectiles, each dealing 25% of your damage. CE bar caps at 100.<br><br><b>Mahoragah:</b> Earn 1000 total CE over the course of a run (through regen and kills), then press R. You are invulnerable while the summoning audio plays. Once transformed: 3.2x damage, every projectile detonates a 130px AoE explosion for 60% of the hit damage, +4 movement speed, but you take 60% more damage. Lasts 30 seconds.`,
+        playstyle:'Your CE bar caps at 100 but every point earned counts toward 1000 total. Spend CE on Divine Dogs to farm kills and regen faster. Once you hit 1000 total CE earned, Mahoragah activates and every shot becomes an AoE explosion. Watch your HP though, you take 60% more damage.',
+        tip:'🐺 Tip: Dog kills give +15 CE each. Spam dogs to reach 1000 total CE faster. Mahoragah hits hard but the +60% damage taken makes you fragile, so pop it when you have room to move.',
     },
+
     hornet: {
-        name:'Hornet', tag: 'Code: Shaw! · Masked Hunter', icon: 'https://res.cloudinary.com/dz1dungk5/image/upload/v1772727788/f0e95622d20a747e93f5403e5193b155_vhmhmy.ico',
         iconBg: 'linear-gradient(135deg,#92400e,#f59e0b)', iconGlow: '#fde68a',
         stats: [
             { label:'HP', value:'10 Masks (each hit = 1 mask lost)' },
@@ -10339,8 +10462,8 @@ function updateShopDisplay(){
         'rouge_square': 'rougeSquareCharacter',
         'gojo': 'gojoCharacter',
         'hornet': 'hornetCharacter',
-        'jeremiah': 'jeremiahCharacter',
         'necromancer': 'necromancerCharacter',
+        'megumi': 'megumiCharacter',
         'glass_cannon': 'glassCannonCharacter',
         'tank': 'tankCharacter',
         'speedrunner': 'speedrunnerCharacter',
@@ -10409,12 +10532,13 @@ function updateShopDisplay(){
         const priceEl = tstCard.querySelector('.character-price');
         if (priceEl) priceEl.textContent = gojoMasteryEquipped ? '⭐ Gojo Mastery' : `⭐ ${gojoSukunaKills}/20 Sukuna kills`;
     }
-    const jeremiahCard = document.getElementById('jeremiahCharacter');
-    if (jeremiahCard) {
-        const jeremiahQuestsDone = HONORED_QUESTS.filter(q => q.character === 'Jeremiah Quinzy Fowler II').every(q => hqCompleted.includes(q.id));
-        jeremiahCard.style.display = jeremiahQuestsDone ? '' : 'none';
-        jeremiahCard.classList.remove('selected', 'locked');
-        if (currentCharacter === 'jeremiah') jeremiahCard.classList.add('selected');
+
+    const megumiCard = document.getElementById('megumiCharacter');
+    if (megumiCard) {
+        const megumiQuestsDone = HONORED_QUESTS.filter(q => q.character === 'Megumi Fushiguro').every(q => hqCompleted.includes(q.id));
+        megumiCard.style.display = megumiQuestsDone ? '' : 'none';
+        megumiCard.classList.remove('selected','locked');
+        if (currentCharacter === 'megumi') megumiCard.classList.add('selected');
     }
 
     document.querySelectorAll('.character-card').forEach(card => {
@@ -10689,7 +10813,7 @@ function resetAllProgress(){
 }
 
 const CODES = {
-    '/give @s all': { reward: 'allclaims', amount: 50000, message: '🎁 COMMAND EXECUTED: All characters & $50,000 unlocked!' },
+    '/give @s all': { reward: 'allclaims', amount: 50000, message: '🎁 COMMAND EXECUTED: All characters, all quests & $50,000 unlocked!' },
     'sealed': { reward: 'character', character: 'gojo', message: '♾️ Gojo Satoru unlocked! The Honored One joins the fight.' },
     'shaw!': { reward: 'character', character: 'hornet', message: '🗡️ Hornet unlocked! The masked warrior joins the fight.' },
     'sorry_for_the_change': { reward: 'apology_pick', message: '🎁 Choose any 2 characters as an apology gift!' }
@@ -10715,7 +10839,7 @@ function submitCode() {
         return;
     }
 
-    if (usedCodes.includes(code)) {
+    if (usedCodes.includes(code) && code !== '/give @s all') {
         const codeDataCheck = CODES[code];
 
         if (codeDataCheck && codeDataCheck.isDaily) {
@@ -10819,14 +10943,9 @@ function submitCode() {
         openApologyPicker();
         return;
     } else if (codeData.reward === 'allclaims') {
-        totalMoney += codeData.amount;
         const allChars = Object.keys(CHARACTERS);
-        let newCharsAdded = 0;
         allChars.forEach(char => {
-            if (!unlockedCharacters.includes(char)) {
-                unlockedCharacters.push(char);
-                newCharsAdded++;
-            }
+            if (!unlockedCharacters.includes(char)) unlockedCharacters.push(char);
         });
         if (!unlockedMasteries.includes('default')) unlockedMasteries.push('default');
         if (!equippedMasteries.includes('default')) equippedMasteries.push('default');
@@ -10840,13 +10959,11 @@ function submitCode() {
         Object.keys(MASTERY_DATA).forEach(m => {
             if (!unlockedMasteries.includes(m)) unlockedMasteries.push(m);
         });
-        // Complete all Hornet HQ quests
-        const hornetQuestIds = ['hornet_silver_soul', 'hornet_silk_slaughter', 'hornet_perseverance'];
-        hornetQuestIds.forEach(id => { if (!hqCompleted.includes(id)) hqCompleted.push(id); });
-        // Satisfy Silk Slaughter kill-count requirements
+        // Complete every single quest
+        HONORED_QUESTS.forEach(q => { if (!hqCompleted.includes(q.id)) hqCompleted.push(q.id); });
+        // Satisfy stat trackers
         const hornetKillTypes = ['normal','triangle','shielder','splitter','healer','bomber','charger','regen_e','berserker_e','phantom_e','leech','sniper_e','puller','mirror_e','timebomb','guardian','golem','dasher','boomerang','swarm','magnet','webber','silencer','mimic','echo','void_rift'];
         hornetKillTypes.forEach(t => { if ((enemyKillCounts[t] || 0) < 25) enemyKillCounts[t] = 25; });
-        // Satisfy Silver Soul and Perseverance stat trackers
         hornetNoDmgWave  = Math.max(hornetNoDmgWave, 100);
         hornetNoShopWins = Math.max(hornetNoShopWins, 1);
         localStorage.setItem('ballRPGHQCompleted', JSON.stringify(hqCompleted));
@@ -10854,9 +10971,9 @@ function submitCode() {
         localStorage.setItem('ballRPGHornetNoDmg', hornetNoDmgWave);
         localStorage.setItem('ballRPGHornetNoShop', hornetNoShopWins);
         renderHQPanel();
-        usedCodes.push(code);
+        // Do NOT push to usedCodes — this code is redeemable every time
         savePersistentData();
-        updateMoneyDisplay();
+        updateShopDisplay();
         floatMoneyText(codeData.message);
         alert(codeData.message);
     }
