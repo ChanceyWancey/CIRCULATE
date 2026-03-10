@@ -993,9 +993,7 @@
             color: #f472b6; text-shadow: 0 0 8px #ec4899;
         }
 
-        /* ══════════════════════════════════════
-           PORTRAIT WARNING OVERLAY
-        ══════════════════════════════════════ */
+        
         #portraitOverlay {
             display: none; position: fixed; inset: 0; z-index: 99999;
             background: #0f172a;
@@ -1007,9 +1005,7 @@
         #portraitOverlay p  { font-size: 14px; color: rgba(255,255,255,0.5); line-height: 1.8; }
         @keyframes rotateHint { 0%,100%{transform:rotate(0deg);}50%{transform:rotate(90deg);} }
 
-        /* ══════════════════════════════════════
-           MOBILE VIRTUAL CONTROLS
-        ══════════════════════════════════════ */
+        
         #mobileControls { display: none; position: fixed; inset: 0; pointer-events: none; z-index: 800; }
         #joystickZone { position: absolute; left: 0; top: 58px; bottom: 0; width: 50%; pointer-events: auto; touch-action: none; }
         #joystickBase {
@@ -1023,7 +1019,7 @@
             background: rgba(255,255,255,0.45); border: 2px solid rgba(255,255,255,0.75);
             transform: translate(-50%,-50%); left: 50%; top: 50%;
         }
-        /* Aim joystick — fixed bottom-right */
+        
         #aimJoyZone {
             position: fixed; right: 20px; bottom: 110px;
             width: 130px; height: 130px;
@@ -1069,15 +1065,13 @@
             -webkit-tap-highlight-color: transparent;
         }
 
-        /* Aim joystick smaller too */
+        
         #aimJoyZone { right: 12px; bottom: 90px; width: 110px; height: 110px; }
         #aimJoyKnob { width: 40px; height: 40px; }
         #mobileButtons { right: 136px; bottom: 12px; gap: 6px; }
         #mobileButtons .mb-row { gap: 6px; }
 
-        /* ══════════════════════════════════════
-           RESPONSIVE — MOBILE (max 900px)
-        ══════════════════════════════════════ */
+        
         @media (max-width: 900px) {
             html {
                 width: 100%; max-width: 100vw; overflow: hidden;
@@ -1090,7 +1084,7 @@
                 padding: 0; margin: 0;
             }
 
-            /* Main menu — centred, scrollable if tall */
+            
             #mainMenu {
                 padding: 24px 16px; width: 92vw; max-width: 420px;
                 max-height: 92dvh; max-height: 92vh;
@@ -1100,7 +1094,7 @@
             .menu-btn { min-width: 140px; padding: 12px 16px; font-size: 12px; margin: 4px 3px; }
             .currency-display { font-size: 15px; margin: 12px 0; }
 
-            /* Game container fills screen */
+            
             #gameContainer {
                 padding: 0; box-sizing: border-box;
                 flex-direction: column;
@@ -1113,7 +1107,7 @@
             body.game-active #gameContainer {
                 display: flex !important;
             }
-            /* Canvas wrapper — fills full screen below HUD; controls overlay on top */
+            
             body.game-active #gameWrapper {
                 display: flex !important;
                 align-items: flex-start !important;
@@ -1122,7 +1116,7 @@
                 top: 52px !important;
                 left: 0 !important;
                 width: 100vw !important;
-                /* Controls now overlay the canvas — no bottom reservation needed */
+                
                 height: calc(100dvh - 52px) !important;
                 height: calc(100vh - 52px) !important;
                 overflow: hidden !important;
@@ -1138,7 +1132,7 @@
                 border-radius: 0 !important;
                 margin: 0 auto !important;
             }
-            /* HUD pinned above canvas */
+            
             #hud {
                 position: fixed !important; top: 0 !important; left: 0 !important;
                 width: 100vw !important; z-index: 600 !important;
@@ -1172,9 +1166,7 @@
             #hakariSlotMachine { min-width: unset; width: 92vw; }
         }
 
-        /* ══════════════════════════════════════
-           LANDSCAPE on mobile — game fills screen
-        ══════════════════════════════════════ */
+        
         @media (max-width: 900px) and (orientation: landscape) {
             #hud { height: 48px; }
             body.game-active #gameWrapper {
@@ -1191,10 +1183,7 @@
             .stat-value { font-size: 9px; }
         }
 
-        /* ══════════════════════════════════════
-           PORTRAIT on mobile — show rotate prompt
-           (portrait + in-game = show overlay)
-        ══════════════════════════════════════ */
+        
         @media (max-width: 900px) and (orientation: portrait) {
             #portraitOverlay.game-active { display: flex; }
         }
@@ -1204,14 +1193,12 @@
 
 <button id="fsBtn" onclick="toggleFullscreen()" title="Fullscreen">⛶</button>
 
-<!-- Portrait rotation warning -->
 <div id="portraitOverlay">
     <div class="rotate-icon">📱</div>
     <h2>Rotate Your Device</h2>
     <p>CIRCULATE plays best in<br><strong>landscape mode</strong>.<br>Rotate your phone sideways!</p>
 </div>
 
-<!-- Mobile virtual controls (shown only on touch devices in-game) -->
 <div id="mobileControls">
     <div id="joystickZone">
         <div id="joystickBase"><div id="joystickKnob"></div></div>
@@ -1224,7 +1211,9 @@
     <div id="mobileButtons">
         <div class="mb-row" id="mobCharButtons"></div>
         <div class="mb-row">
-            <button class="mob-btn" id="mobBtnR"    ontouchstart="event.preventDefault();mobileAbility()" ontouchend="">R</button>
+            <button class="mob-btn" id="mobBtnR"
+                ontouchstart="event.preventDefault();if(gameRunning&&!gamePaused){if(currentCharacter==='megumi'&&!megumiIsMahoragah&&!megumiMahoragahTransforming){megumiHoldActive=true;}mobileAbility();}"
+                ontouchend="event.preventDefault();megumiHoldActive=false;megumiHoldTimer=0;">R</button>
             <button class="mob-btn" id="mobBtnDash" ontouchstart="event.preventDefault();mobileDash()"    ontouchend="">💨</button>
         </div>
     </div>
@@ -1285,8 +1274,6 @@
             <span class="hq-code-val">Sealed</span>
         </div>
     </div>
-
-
 
     <div class="quest-board" style="margin-top:24px;">
         <div class="quest-board-header" style="color:#7dd3fc;border-color:rgba(125,211,252,0.3);">
@@ -1512,11 +1499,10 @@
             <button class="info-btn" onclick="event.stopPropagation();showCharInfo('coin_king')">INFO</button>
         </div>
 
-
         <div class="character-card" onclick="selectCharacter('megumi')" id="megumiCharacter" style="display:none;border-color:rgba(125,211,252,0.5);background:linear-gradient(135deg,rgba(15,23,42,0.4),rgba(99,102,241,0.1));">
             <div class="character-preview" style="background:linear-gradient(135deg,#0f172a,#1e3a8a);box-shadow:0 0 22px rgba(125,211,252,.7);border-radius:50%;"></div>
             <div class="character-name" style="color:#7dd3fc;">Megumi Fushiguro</div>
-            <div class="character-ability">22 DMG · Speed 5.5<br>🐺 R: Divine Dogs (40 CE, bar = 0-100)<br>Earn 1000 Total CE: R = MAHORAGAH<br>3.2x DMG + AoE, +60% dmg taken!</div>
+            <div class="character-ability">30 DMG · Speed 6<br>🐺 R tap: 3 Divine Dogs (35 CE)<br>Hold R 7s: MAHORAGAH (Wave 100+)<br>White sphere · Speed 3 · 500 HP<br>4x DMG + AoE, +60% dmg taken!</div>
             <div class="character-price" style="color:#7dd3fc;">🐺 Quest Unlock</div>
             <button class="info-btn" onclick="event.stopPropagation();showCharInfo('megumi')">INFO</button>
         </div>
@@ -1982,9 +1968,6 @@ function injectHiddenCode() {
     }
 }
 
-// ── FORCED RESET VERSION ──────────────────────────────────
-// To wipe ALL players: increment SAVE_VERSION by 1, redeploy.
-// Every player who loads the new version will have their save cleared automatically.
 const SAVE_VERSION = 1;
 const storedVersion = parseInt(localStorage.getItem('ballRPGSaveVersion')) || 0;
 if (storedVersion < SAVE_VERSION) {
@@ -2001,7 +1984,6 @@ if (storedVersion < SAVE_VERSION) {
     keysToWipe.forEach(k => localStorage.removeItem(k));
     localStorage.setItem('ballRPGSaveVersion', SAVE_VERSION);
 }
-// ─────────────────────────────────────────────────────────
 
 let totalMoney = parseInt(localStorage.getItem('ballRPGMoney')) || 0;
 let unlockedCharacters = JSON.parse(localStorage.getItem('ballRPGCharacters')) || ['default', 'goldhoarder'];
@@ -2143,7 +2125,7 @@ const CHARACTERS = {
     necromancer: { name:'Necromancer', color:'#a855f7', shadow:'#4c1d95', projColor:'#c084fc', ability:'soul_burst', manaCost:40, cdMax:300, isNecromancer:true, lockHpUpgrade:true, lockDmgUpgrade:true, useImg:false },
     glass_cannon: { name:'Glass Cannon', color:'#22d3ee', shadow:'#0e7490', projColor:'#67e8f9', ability:null, manaCost:0, cdMax:0, isGlassCannon:true, lockHpUpgrade:true, useImg:false },
     tank: { name:'Tank', color:'#4ade80', shadow:'#166534', projColor:'#4ade80', ability:'ground_slam', manaCost:0, cdMax:180, isTank:true, useImg:false },
-    megumi: { name:'Megumi Fushiguro', color:'#1e293b', shadow:'#0f172a', projColor:'#7dd3fc', ability:'devil_dogs', manaCost:40, cdMax:0, isMegumi:true, useImg:false },
+    megumi: { name:'Megumi Fushiguro', color:'#1e293b', shadow:'#0f172a', projColor:'#7dd3fc', ability:'devil_dogs', manaCost:0, cdMax:0, isMegumi:true, useImg:false },
     hornet: { name:'Hornet', color:'#f59e0b', shadow:'#92400e', projColor:'#fde68a', ability:'silk_storm', manaCost:4, cdMax:0, isHornet:true, useImg:false },
     speedrunner: { name:'Speedrunner', color:'#facc15', shadow:'#713f12', projColor:'#fde047', ability:'sprint_burst', manaCost:0, cdMax:240, isSpeedrunner:true, lockHpUpgrade:true, lockDmgUpgrade:true, useImg:false },
 };
@@ -2204,7 +2186,7 @@ function getProjectileDamage() {
         return Math.floor(10 + Math.random() * 140);
     }
     if (currentCharacter === 'glass_cannon') return 150 + glassCannAdrenaline;
-    if (currentCharacter === 'megumi' && megumiIsMahoragah) return player.damage * 3.2;
+    if (currentCharacter === 'megumi' && megumiIsMahoragah) return player.damage * 4.0;
     if (currentCharacter === 'speedrunner') {
         const vel = Math.hypot(speedrunnerVelX, speedrunnerVelY);
         return Math.max(1, Math.floor(8 + vel * 3.5));
@@ -2742,7 +2724,7 @@ function buyShopItem(item, isAbility) {
     if(runGold < item.cost) return;
     const stack = getStackCount(item.id);
     if(stack >= item.maxStack) return;
-    // Disable clicked item immediately for visual feedback
+    
     event && event.currentTarget && (event.currentTarget.style.pointerEvents = 'none');
     setTimeout(() => {
         runGold -= item.cost;
@@ -2868,7 +2850,7 @@ class Turret {
     draw(){
         ctx.save();
         const col = this.infinite ? '#fbbf24' : (this.isArchitectTurret ? '#a78bfa' : '#22c55e');
-        ctx.fillStyle=col; ctx.shadowBlur=12; ctx.shadowColor=col;
+        ctx.fillStyle=col; ctx.shadowBlur = _shadowsEnabled ? 12 : 0; ctx.shadowColor=col;
         ctx.beginPath(); ctx.arc(this.x,this.y,this.radius,0,Math.PI*2); ctx.fill();
         ctx.fillStyle='#fff'; ctx.font='10px Arial'; ctx.textAlign='center';
         ctx.fillText(this.infinite ? '🎖️' : (this.isArchitectTurret ? '🏛️' : '⚙️'),this.x,this.y+4);
@@ -2935,7 +2917,7 @@ function playJackpotMusic() {
     const playPromise = jackpotAudio.play();
     if (playPromise !== undefined) {
         playPromise.then(() => {
-            // Audio started — now fade out main theme and fade in jackpot
+            
             fadeOutMainTheme(800, false);
             let vol = 0;
             jackpotAudio._fadeIn = setInterval(() => {
@@ -2944,11 +2926,11 @@ function playJackpotMusic() {
                 if (vol >= getMusicVol()) clearInterval(jackpotAudio._fadeIn);
             }, 60);
         }).catch(() => {
-            // Mobile blocked autoplay — jackpot audio can't play, keep main theme running
+            
             jackpotAudio._audioBlocked = true;
         });
     } else {
-        // Old browser fallback
+        
         fadeOutMainTheme(800, false);
         let vol = 0;
         jackpotAudio._fadeIn = setInterval(() => {
@@ -2972,7 +2954,7 @@ function stopJackpotMusic() {
             jackpotAudio._fadeOut = null;
             jackpotAudio.pause();
             jackpotAudio.currentTime = 0;
-            // Fade main theme back in once Hakari's theme fully ends (only if in-game)
+            
             if (gameRunning && !gamePaused) { fadeInMainTheme(1200); }
         }
     }, 60);
@@ -2980,10 +2962,6 @@ function stopJackpotMusic() {
 function pauseJackpotMusic() { if (!jackpotAudio.paused) jackpotAudio.pause(); }
 function resumeJackpotMusic() { if (hakariJackpotActive && jackpotAudio.paused) jackpotAudio.play().catch(()=>{}); }
 
-// ── MOBILE AUDIO UNLOCK ───────────────────────────────────────────────────────
-// Mobile browsers block audio until a direct user gesture. On the first
-// touch or click we silently play-then-pause every audio element so they
-// are "unlocked" and can be started programmatically later (e.g. jackpot).
 (function() {
     let _audioUnlocked = false;
     function _unlockAudio() {
@@ -3006,11 +2984,10 @@ function resumeJackpotMusic() { if (hakariJackpotActive && jackpotAudio.paused) 
     document.addEventListener('click',      _unlockAudio, { once: true });
 })();
 
-// ── MAIN THEME ────────────────────────────────────────────────────────────────
 const mainTheme = new Audio('https://res.cloudinary.com/dz1dungk5/video/upload/v1772861276/circulate_ifgxxj.wav');
 mainTheme.loop = true;
 mainTheme.volume = 0;
-const MAIN_THEME_MAX_VOL = 0.55; // fallback; overridden by settings.musicVolume
+const MAIN_THEME_MAX_VOL = 0.55; 
 mainTheme._fadeIn  = null;
 mainTheme._fadeOut = null;
 
@@ -3020,11 +2997,11 @@ function getMusicVol() {
 
 function applyMusicVolume() {
     const mv = getMusicVol();
-    // If theme is actively playing (not mid-fade), snap it to the new ceiling
+    
     if (!mainTheme._fadeIn && !mainTheme._fadeOut && !mainTheme.paused) {
         mainTheme.volume = mv;
     }
-    // Hakari theme respects music volume too
+    
     if (!jackpotAudio._fadeIn && !jackpotAudio._fadeOut && !jackpotAudio.paused) {
         jackpotAudio.volume = mv;
     }
@@ -3067,7 +3044,6 @@ function fadeOutMainTheme(ms, andPause) {
 }
 
 function stopMainTheme() { fadeOutMainTheme(800, true); }
-// ─────────────────────────────────────────────────────────────────────────────
 
 const SLOT_SYMBOLS = ['7️⃣','🍒','⭐','🎱','💎','🌸'];
 const SLOT_LOSE_SETS = [
@@ -3167,7 +3143,7 @@ function tickNewCharacters(ts, dt) {
 
             ctx.save();
             ctx.globalAlpha = Math.min(1, m.life/60);
-            ctx.shadowBlur = 12; ctx.shadowColor = '#a855f7';
+            ctx.shadowBlur = _shadowsEnabled ? 12 : 0; ctx.shadowColor = '#a855f7';
             ctx.fillStyle = '#7c3aed';
             ctx.beginPath(); ctx.arc(m.x, m.y, 9, 0, Math.PI*2); ctx.fill();
             ctx.fillStyle = '#e9d5ff'; ctx.font = '10px Arial'; ctx.textAlign='center';
@@ -3181,7 +3157,7 @@ function tickNewCharacters(ts, dt) {
 
         if (necroMinions.length > 0) {
             ctx.save(); ctx.font='bold 10px Arial'; ctx.fillStyle='rgba(192,132,252,0.85)'; ctx.textAlign='left';
-            ctx.shadowBlur=6; ctx.shadowColor='#a855f7';
+            ctx.shadowBlur = _shadowsEnabled ? 6 : 0; ctx.shadowColor='#a855f7';
             ctx.fillText(`💀 NECROMANCER ${necroMinions.length} minion${necroMinions.length!==1?'s':''} | R: Soul Burst (40 mana)`,12,22);
             ctx.restore();
         } else {
@@ -3191,77 +3167,255 @@ function tickNewCharacters(ts, dt) {
         }
     }
 
-
-    // ── Megumi Fushiguro — Devil Dogs + Mahoragah ─────────────────
+    
     if (skin === 'megumi') {
-        // Mahoragah timer
+        
         if (megumiIsMahoragah) {
             megumiMahoragahTimer -= dt;
             if (megumiMahoragahTimer <= 0) {
                 megumiIsMahoragah = false;
-                if (megumiMahoragahSpeedBoosted) { player.speed -= 4; megumiMahoragahSpeedBoosted = false; }
+                if (megumiMahoragahSpeedBoosted) { player.speed = 6; megumiMahoragahSpeedBoosted = false; }
+                player.maxHealth = 140; player.health = Math.min(player.health, 140);
                 floatMoneyText('🌑 Mahoragah fades...');
             }
-            // Mahoragah player glow
+            
             ctx.save();
-            ctx.shadowBlur = 30 + Math.sin(Date.now()*0.005)*10;
+            ctx.shadowBlur = _shadowsEnabled ? 30 + Math.sin(Date.now()*0.005)*10 : 0;
             ctx.shadowColor = '#dc2626';
             ctx.strokeStyle = 'rgba(220,38,38,0.6)';
             ctx.lineWidth = 3;
             ctx.beginPath(); ctx.arc(player.x, player.y, player.radius+6, 0, Math.PI*2); ctx.stroke();
             ctx.restore();
-            // Banner
+            
             ctx.save(); ctx.font='bold 11px Arial'; ctx.fillStyle='rgba(220,38,38,0.95)'; ctx.textAlign='left';
-            ctx.shadowBlur=8; ctx.shadowColor='#dc2626';
+            ctx.shadowBlur = _shadowsEnabled ? 8 : 0; ctx.shadowColor='#dc2626';
             const mSec = Math.ceil(megumiMahoragahTimer/60);
-            ctx.fillText(`🌑 MAHORAGAH: 3.2x DMG + AoE + 60% more dmg taken | ${mSec}s left`,12,22);
+            ctx.fillText(`🌑 MAHORAGAH: 4x DMG + 160px AoE + 75% splash + 60% more dmg taken | Speed 3 · 500 HP | ${mSec}s left`,12,22);
             ctx.restore();
         } else if (megumiMahoragahTransforming) {
             ctx.save(); ctx.font='bold 11px Arial'; ctx.fillStyle='rgba(99,102,241,0.9)'; ctx.textAlign='left';
-            ctx.shadowBlur=8; ctx.shadowColor='#6366f1';
-            ctx.fillText('🌑 SUMMONING MAHORAGAH... invulnerable',12,22);
+            ctx.shadowBlur = _shadowsEnabled ? 8 : 0; ctx.shadowColor='#6366f1';
+            ctx.fillText('🌑 SUMMONING MAHORAGAH...',12,22);
             ctx.restore();
+
+            // Fallback: always complete transform after audio duration (or 15s hard cap if metadata never loaded)
+            {
+                const elapsed = (Date.now() - megumiTransformStartTime) / 1000;
+                const maxWait = (megumiTransformAudioDuration > 0 ? megumiTransformAudioDuration : 15) + 0.5;
+                if (elapsed >= maxWait) {
+                    megumiMahoragahTransforming = false;
+                    megumiIsMahoragah = true;
+                    megumiSphere = null;
+                    megumiBloodSplat = null;
+                    megumiMahoragahTimer = 2700;
+                    player.mana = 0;
+                    player.invulnerable = 0;
+                    player.speed = 3;
+                    player.maxHealth = 500; player.health = Math.min(player.health + 500, 500);
+                    megumiMahoragahSpeedBoosted = true;
+                    megumiMahoragahActivations++;
+                    floatMoneyText('🌑 MAHORAGAH! DIVINE GENERAL AWAKENED!');
+                    for(let i=0;i<150;i++) particles.push(new Particle(player.x+(Math.random()-0.5)*400,player.y+(Math.random()-0.5)*400,Math.random()<0.5?'#dc2626':'#1e293b'));
+                    checkHonored();
+                }
+            }
+
+            if (megumiSphere) {
+                const s = megumiSphere;
+                if (s.phase === 'approach') {
+                    s.opacity = Math.min(1, s.opacity + dt * 0.04);
+                    const dx = s.tx - s.x, dy = s.ty - s.y;
+                    const remainingDist = Math.sqrt(dx*dx+dy*dy);
+                    // Target: sphere arrives at 70% of audio duration; fallback 8s
+                    const targetArrivalSec = (megumiTransformAudioDuration > 0 ? megumiTransformAudioDuration : 8.0) * 0.70;
+                    const elapsedSec = (Date.now() - megumiTransformStartTime) / 1000;
+                    const remainingSec = Math.max(0.05, targetArrivalSec - elapsedSec);
+                    const speed = Math.max(0.3, (remainingDist / remainingSec) * (dt / 60));
+                    if (remainingDist > speed) {
+                        s.x += (dx/remainingDist)*speed; s.y += (dy/remainingDist)*speed;
+                    } else {
+                        s.x = s.tx; s.y = s.ty;
+                        s.phase = 'impact';
+                        for(let i=0;i<80;i++) particles.push(new Particle(s.x+(Math.random()-0.5)*20, s.y+(Math.random()-0.5)*20, i<40?'#dc2626':'#7f1d1d'));
+                        for(let i=0;i<40;i++) particles.push(new Particle(s.x+(Math.random()-0.5)*60, s.y+(Math.random()-0.5)*60, '#ef4444'));
+                        megumiBloodSplat = { x: s.x, y: s.y, timer: 0, drops: Array.from({length:18},()=>({angle:Math.random()*Math.PI*2, dist:20+Math.random()*55, size:3+Math.random()*8})) };
+                        megumiBloodTimer = 0;
+                    }
+                    ctx.save();
+                    ctx.globalAlpha = s.opacity * (0.85 + 0.15*Math.sin(Date.now()*0.012));
+                    ctx.shadowBlur = _shadowsEnabled ? 30 : 0; ctx.shadowColor = '#ffffff';
+                    ctx.fillStyle = '#f0f0ff';
+                    ctx.beginPath(); ctx.arc(s.x, s.y, s.radius, 0, Math.PI*2); ctx.fill();
+                    ctx.strokeStyle = 'rgba(200,200,255,0.6)'; ctx.lineWidth = 3;
+                    ctx.beginPath(); ctx.arc(s.x, s.y, s.radius + 8, 0, Math.PI*2); ctx.stroke();
+                    ctx.restore();
+                } else if (s.phase === 'impact') {
+                    // Keep pulsing aura on player during the rest of the audio
+                    const pulse = 0.5 + 0.5 * Math.sin(Date.now() * 0.008);
+                    ctx.save();
+                    ctx.globalAlpha = 0.25 + 0.2 * pulse;
+                    ctx.shadowBlur = _shadowsEnabled ? (40 + 20 * pulse) : 0; ctx.shadowColor = '#dc2626';
+                    ctx.strokeStyle = '#dc2626';
+                    ctx.lineWidth = 3 + 2 * pulse;
+                    ctx.beginPath(); ctx.arc(player.x, player.y, player.radius + 14 + 8 * pulse, 0, Math.PI*2); ctx.stroke();
+                    ctx.globalAlpha = 0.12 + 0.1 * pulse;
+                    ctx.fillStyle = '#7f1d1d';
+                    ctx.beginPath(); ctx.arc(player.x, player.y, player.radius + 28 + 12 * pulse, 0, Math.PI*2); ctx.fill();
+                    ctx.restore();
+                    // Occasional burst particles
+                    if (Math.random() < 0.12 * dt) {
+                        for(let i=0;i<6;i++) particles.push(new Particle(player.x+(Math.random()-0.5)*60, player.y+(Math.random()-0.5)*60, Math.random()<0.5?'#dc2626':'#1e293b'));
+                    }
+                }
+            }
+
+            if (megumiBloodSplat) {
+                megumiBloodTimer += dt;
+                const bs = megumiBloodSplat;
+                // Fade based on remaining audio time rather than fixed timer
+                const audioElapsed = megumiTransformAudio ? (megumiTransformAudio.currentTime || 0) : 0;
+                const audioDur = megumiTransformAudioDuration > 0 ? megumiTransformAudioDuration : 10;
+                const audioProgress = Math.min(1, audioElapsed / audioDur);
+                ctx.save();
+                bs.drops.forEach(d => {
+                    const progress = Math.min(1, megumiBloodTimer / 30);
+                    const bx = bs.x + Math.cos(d.angle) * d.dist * progress;
+                    const by = bs.y + Math.sin(d.angle) * d.dist * progress;
+                    ctx.fillStyle = '#dc2626';
+                    // Keep drops visible until last 20% of audio
+                    ctx.globalAlpha = Math.max(0, 1 - Math.max(0, (audioProgress - 0.8) / 0.2));
+                    ctx.beginPath(); ctx.arc(bx, by, d.size * (1-progress*0.3), 0, Math.PI*2); ctx.fill();
+                });
+                ctx.restore();
+            }
         } else {
-            ctx.save(); ctx.font='bold 10px Arial'; ctx.fillStyle=player.mana>=1000?'rgba(220,38,38,0.9)':'rgba(125,211,252,0.7)'; ctx.textAlign='left';
-            const ceText = megumiCETotal>=1000 ? '🌑 1000 Total CE reached! Press R to summon MAHORAGAH!' : `🐺 Dogs: ${megumiDevilDogs.filter(d=>d.life>0).length} active | Total CE: ${Math.floor(megumiCETotal)}/1000 | R: Spawn Dogs (40)`;
-            ctx.fillText(ceText,12,22);
+            
+            const MAHO_HOLD_FRAMES = 420; 
+            const rHeld = keys[binds.special] || megumiHoldActive; 
+            if (rHeld && !megumiIsMahoragah && !megumiMahoragahTransforming) {
+                if (currentRound < 100) {
+                    if (Math.floor(Date.now() / 1000) % 2 === 0) floatMoneyText(`🌑 Need Wave 100 to summon Mahoragah! (${currentRound}/100)`);
+                    megumiHoldTimer = 0;
+                } else {
+                megumiHoldTimer += dt;
+                if (megumiHoldTimer >= MAHO_HOLD_FRAMES) {
+                    megumiHoldTimer = 0;
+                    megumiHoldActive = false;
+                    megumiMahoragahTransforming = true;
+                    player.invulnerable = 99999;
+                    floatMoneyText('🌑 TEN SHADOWS... MAHORAGAH!');
+                    const ang = Math.atan2(player.y - canvas.height/2, player.x - canvas.width/2);
+                    megumiSphere = {
+                        x: player.x + Math.cos(ang) * 280,
+                        y: player.y + Math.sin(ang) * 280,
+                        tx: player.x, ty: player.y,
+                        radius: 18, opacity: 0, phase: 'approach'
+                    };
+                    megumiBloodSplat = null; megumiBloodTimer = 0;
+                    megumiTransformStartTime = Date.now();
+                    megumiTransformAudioDuration = 0;
+                    if (megumiTransformAudio) { try { megumiTransformAudio.pause(); } catch(e){} }
+                    megumiTransformAudio = new Audio('https://res.cloudinary.com/dz1dungk5/video/upload/v1773032710/audiomass-output_1_l7vboo.mp3');
+                    megumiTransformAudio.addEventListener('loadedmetadata', () => {
+                        megumiTransformAudioDuration = megumiTransformAudio.duration || 0;
+                    });
+                    megumiTransformAudio.addEventListener('ended', () => {
+                        if (!gameRunning) return;
+                        megumiMahoragahTransforming = false;
+                        megumiIsMahoragah = true;
+                        megumiSphere = null;
+                        megumiBloodSplat = null;
+                        megumiMahoragahTimer = 2700;
+                        player.mana = 0;
+                        player.invulnerable = 0;
+                        player.speed = 3;
+                        player.maxHealth = 500; player.health = Math.min(player.health + 500, 500);
+                        megumiMahoragahSpeedBoosted = true;
+                        megumiMahoragahActivations++;
+                        floatMoneyText('🌑 MAHORAGAH! DIVINE GENERAL AWAKENED!');
+                        for(let i=0;i<150;i++) particles.push(new Particle(player.x+(Math.random()-0.5)*400,player.y+(Math.random()-0.5)*400,Math.random()<0.5?'#dc2626':'#1e293b'));
+                        checkHonored();
+                    });
+                    megumiTransformAudio.play().catch(()=>{});
+                }
+                } // end else (wave >= 100)
+            } else if (!rHeld && megumiHoldTimer > 0) {
+                megumiHoldTimer = Math.max(0, megumiHoldTimer - dt * 2); 
+            }
+
+            
+            if (megumiHoldTimer > 0) {
+                const pct = Math.min(megumiHoldTimer / MAHO_HOLD_FRAMES, 1);
+                const bw = 60, bh = 8;
+                const bx = player.x - bw/2, by = player.y - player.radius - 22;
+                ctx.save();
+                ctx.fillStyle = 'rgba(0,0,0,0.55)';
+                ctx.fillRect(bx, by, bw, bh);
+                const barColor = pct < 0.5 ? '#6366f1' : pct < 0.85 ? '#a855f7' : '#dc2626';
+                ctx.fillStyle = barColor;
+                ctx.shadowBlur = _shadowsEnabled ? 10 : 0; ctx.shadowColor = barColor;
+                ctx.fillRect(bx, by, bw * pct, bh);
+                ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+                ctx.lineWidth = 1;
+                ctx.strokeRect(bx, by, bw, bh);
+                ctx.font = 'bold 9px Arial'; ctx.fillStyle = '#fff'; ctx.textAlign = 'center'; ctx.shadowBlur = 0;
+                ctx.fillText(pct >= 1 ? 'RELEASE!' : `${Math.ceil((MAHO_HOLD_FRAMES - megumiHoldTimer)/60)}s`, player.x, by - 3);
+                ctx.restore();
+            }
+
+            ctx.save(); ctx.font='bold 10px Arial'; ctx.fillStyle='rgba(125,211,252,0.7)'; ctx.textAlign='left';
+            ctx.fillText(`🐺 Dogs: ${megumiDevilDogs.filter(d=>d.life>0).length} active | CE: ${Math.floor(player.mana)}/100 | R: Dogs (35) | Hold R 7s: MAHORAGAH${currentRound < 100 ? ` (Wave 100 req · ${currentRound}/100)` : ''}`,12,22);
             ctx.restore();
         }
 
-        // Devil dogs AI + draw
+        if (megumiRockCooldown > 0) megumiRockCooldown -= dt;
+        if (megumiIsMahoragah && megumiRockCooldown <= 0) {
+            ctx.save(); ctx.font='bold 10px Arial'; ctx.fillStyle='rgba(255,200,100,0.9)'; ctx.textAlign='left';
+            ctx.fillText(`🪨 Rock ready! Press R`, canvas.width - 160, 36);
+            ctx.restore();
+        } else if (megumiIsMahoragah) {
+            ctx.save(); ctx.font='bold 10px Arial'; ctx.fillStyle='rgba(180,180,180,0.7)'; ctx.textAlign='left';
+            ctx.fillText(`🪨 Rock: ${Math.ceil(megumiRockCooldown/60)}s`, canvas.width - 120, 36);
+            ctx.restore();
+        }
+
         megumiDevilDogs = megumiDevilDogs.filter(d => d.life > 0);
         for (const dog of megumiDevilDogs) {
             dog.life -= dt;
             dog.shootTimer -= dt;
             let nearest = null, nDist = Infinity;
-            enemies.forEach(e => { if(!e.alive) return; const d = Math.hypot(e.x-dog.x, e.y-dog.y); if(d<nDist){nDist=d;nearest=e;} });
+            for(let i=0;i<enemies.length;i++){const e=enemies[i];if(!e.alive)continue;const dx=e.x-dog.x,dy=e.y-dog.y,d=dx*dx+dy*dy;if(d<nDist){nDist=d;nearest=e;}}
+            const nDistReal = nDist < Infinity ? Math.sqrt(nDist) : Infinity;
             if (nearest) {
-                const ddx = nearest.x-dog.x, ddy = nearest.y-dog.y, dd = Math.hypot(ddx,ddy);
-                dog.x += (ddx/dd)*4*dt; dog.y += (ddy/dd)*4*dt;
-                if (dog.shootTimer <= 0 && nDist < 35) {
-                    dog.shootTimer = 25;
-                    const dogDmg = player.damage * 0.25;
+                const ddx = nearest.x-dog.x, ddy = nearest.y-dog.y, dd = nDistReal;
+                dog.x += (ddx/dd)*5.5*dt; dog.y += (ddy/dd)*5.5*dt;
+                if (dog.shootTimer <= 0 && nDistReal < 35) {
+                    dog.shootTimer = 20;
+                    const dogDmg = player.damage * 0.45;
                     if (damageEnemy(nearest, dogDmg, dog.x, dog.y)) {
-                        for(let i=0;i<6;i++) particles.push(new Particle(nearest.x,nearest.y,dog.dogType==='white'?'#e0f2fe':'#312e81'));
+                        for(let i=0;i<8;i++) particles.push(new Particle(nearest.x,nearest.y,dog.dogType==='white'?'#e0f2fe':dog.dogType==='shadow'?'#7c3aed':'#312e81'));
                         if (nearest.health<=0&&nearest.alive){nearest.alive=false;player.kills++;gainExp(nearest.expValue);handleKill(nearest);megumiDogKills++;}
                     }
-                } else if (dog.shootTimer <= 0 && nDist < 220) {
-                    dog.shootTimer = 35;
+                } else if (dog.shootTimer <= 0 && nDistReal < 280) {
+                    dog.shootTimer = 28;
                     const ang = Math.atan2(nearest.y-dog.y, nearest.x-dog.x);
-                    projectiles.push(new Projectile(dog.x, dog.y, ang, player.damage*0.25, dog.dogType==='white'?'#93c5fd':'#4338ca'));
+                    const projColor = dog.dogType==='white'?'#93c5fd':dog.dogType==='shadow'?'#a855f7':'#4338ca';
+                    projectiles.push(new Projectile(dog.x, dog.y, ang, player.damage*0.45, projColor));
                 }
             } else {
                 const ddx = player.x-dog.x, ddy = player.y-dog.y, dd = Math.hypot(ddx,ddy);
                 if(dd>65){ dog.x+=(ddx/dd)*2.5*dt; dog.y+=(ddy/dd)*2.5*dt; }
             }
-            // Draw dog
+            
             ctx.save();
             ctx.globalAlpha = Math.min(1, dog.life/60);
-            ctx.shadowBlur = 16; ctx.shadowColor = dog.dogType==='white'?'#93c5fd':'#4338ca';
-            ctx.fillStyle = dog.dogType==='white'?'#dbeafe':'#1e1b4b';
+            const dogGlow = dog.dogType==='white'?'#93c5fd':dog.dogType==='shadow'?'#a855f7':'#4338ca';
+            const dogFill = dog.dogType==='white'?'#dbeafe':dog.dogType==='shadow'?'#3b0764':'#1e1b4b';
+            ctx.shadowBlur = _shadowsEnabled ? 16 : 0; ctx.shadowColor = dogGlow;
+            ctx.fillStyle = dogFill;
             ctx.beginPath(); ctx.arc(dog.x, dog.y, 11, 0, Math.PI*2); ctx.fill();
             ctx.fillStyle='#fff'; ctx.font='13px Arial'; ctx.textAlign='center';
-            ctx.fillText('🐺', dog.x, dog.y+5);
+            ctx.fillText(dog.dogType==='shadow'?'👻':'🐺', dog.x, dog.y+5);
             const lw=24; const lx=dog.x-12;
             ctx.fillStyle='rgba(0,0,0,0.4)'; ctx.fillRect(lx,dog.y-18,lw,3);
             ctx.fillStyle=dog.dogType==='white'?'#93c5fd':'#4338ca'; ctx.fillRect(lx,dog.y-18,lw*(dog.life/dog.maxLife),3);
@@ -3272,7 +3426,7 @@ function tickNewCharacters(ts, dt) {
     if (skin === 'glass_cannon') {
         if (glassCannAdrenaline > 0) {
             ctx.save(); ctx.font='bold 10px Arial'; ctx.fillStyle='rgba(34,211,238,0.9)'; ctx.textAlign='left';
-            ctx.shadowBlur=6; ctx.shadowColor='#22d3ee';
+            ctx.shadowBlur = _shadowsEnabled ? 6 : 0; ctx.shadowColor='#22d3ee';
             ctx.fillText(`💥 GLASS CANNON +${glassCannAdrenaline} ADRENALINE dmg | 1 HP don't get hit!`,12,22);
             ctx.restore();
         } else {
@@ -3293,7 +3447,7 @@ function tickNewCharacters(ts, dt) {
             }
         });
         ctx.save(); ctx.font='bold 10px Arial'; ctx.fillStyle='rgba(74,222,128,0.8)'; ctx.textAlign='left';
-        ctx.shadowBlur=6; ctx.shadowColor='#4ade80';
+        ctx.shadowBlur = _shadowsEnabled ? 6 : 0; ctx.shadowColor='#4ade80';
         ctx.fillText(`🛡️ TANK 500 HP • Contact dmg • No shooting | R: Ground Slam (AOE)`,12,22);
         ctx.restore();
     }
@@ -3311,20 +3465,20 @@ function tickNewCharacters(ts, dt) {
         const bonusDmg = Math.floor(vel * 3.5);
         ctx.save(); ctx.font='bold 10px Arial';
         ctx.fillStyle = vel > 2 ? 'rgba(253,224,71,0.9)' : 'rgba(253,224,71,0.4)'; ctx.textAlign='left';
-        ctx.shadowBlur=6; ctx.shadowColor='#facc15';
+        ctx.shadowBlur = _shadowsEnabled ? 6 : 0; ctx.shadowColor='#facc15';
         ctx.fillText(`⚡ SPEEDRUNNER base 8 +${bonusDmg} speed dmg${speedrunnerSprintActive?' [SPRINT '+Math.ceil(speedrunnerSprintTimer/60)+'s]':' | R: Sprint Burst'}`,12,22);
         ctx.restore();
     }
 
     if (skin === 'hornet') {
-        // Speed timer
+        
         if (hornetSpeedTimer > 0) {
             hornetSpeedTimer -= dt;
             if (hornetSpeedTimer <= 0) { player.speed = Math.max(player.speed - hornetSpeedBonus, 6); hornetSpeedBonus = 0; floatMoneyText('Speed bonus ended'); }
         }
-        // Shard cooldown
+        
         if (hornetShardCooldown > 0) hornetShardCooldown -= dt;
-        // Bind windup
+        
         if (hornetBindWindup > 0) {
             hornetBindWindup -= dt;
             if (hornetBindWindup <= 0) {
@@ -3335,15 +3489,15 @@ function tickNewCharacters(ts, dt) {
                 updateHUD();
             }
         }
-        // Shard traps
+        
         hornetShardTraps = hornetShardTraps.filter(t => t.life > 0);
         hornetShardTraps.forEach(t => {
             t.life -= dt;
-            // Draw trap
-            ctx.save(); ctx.fillStyle='#f59e0b'; ctx.shadowBlur=8; ctx.shadowColor='#f59e0b';
+            
+            ctx.save(); ctx.fillStyle='#f59e0b'; ctx.shadowBlur = _shadowsEnabled ? 8 : 0; ctx.shadowColor='#f59e0b';
             ctx.beginPath(); ctx.moveTo(t.x,t.y-10); ctx.lineTo(t.x+10,t.y+6); ctx.lineTo(t.x-10,t.y+6); ctx.closePath(); ctx.fill();
             ctx.restore();
-            // Check enemy collision
+            
             enemies.forEach(e => {
                 if(!e.alive||t.triggered)return;
                 if(Math.hypot(e.x-t.x,e.y-t.y)<28){
@@ -3356,11 +3510,11 @@ function tickNewCharacters(ts, dt) {
                 }
             });
         });
-        // HUD
+        
         const maskStr = '🎭'.repeat(hornetMasks) + '🩶'.repeat(HORNET_MAX_MASKS-hornetMasks);
         const silkStr = `🕸️ Silk: ${hornetSilk}/${HORNET_MAX_SILK}`;
         ctx.save(); ctx.font='bold 10px Arial'; ctx.textAlign='left';
-        ctx.fillStyle='rgba(245,158,11,0.9)'; ctx.shadowBlur=6; ctx.shadowColor='#f59e0b';
+        ctx.fillStyle='rgba(245,158,11,0.9)'; ctx.shadowBlur = _shadowsEnabled ? 6 : 0; ctx.shadowColor='#f59e0b';
         if (HORNET_ICON_IMG.complete && HORNET_ICON_IMG.naturalWidth > 0) {
             ctx.drawImage(HORNET_ICON_IMG, 12, 8, 14, 14);
             ctx.fillText(`HORNET  ${maskStr}  ${silkStr}  ${hornetShardCooldown>0?'⚠️ E: '+Math.ceil(hornetShardCooldown/60)+'s':'⚠️ E: Ready'}  ${hornetBindWindup>0?'🩹 Binding...':'Q: Bind (9 silk)'}  R: Silk Storm (4 silk)`,30,22);
@@ -3400,7 +3554,7 @@ function tickNewCharacters(ts, dt) {
     if (skin === 'last_architect') {
         ctx.save();
         ctx.font = 'bold 11px Arial'; ctx.textAlign = 'center'; ctx.fillStyle = lastArchitectMode === 'robot' ? '#c4b5fd' : '#a78bfa';
-        ctx.shadowBlur = 6; ctx.shadowColor = lastArchitectMode === 'robot' ? '#c4b5fd' : '#a78bfa';
+        ctx.shadowBlur = _shadowsEnabled ? 6 : 0; ctx.shadowColor = lastArchitectMode === 'robot' ? '#c4b5fd' : '#a78bfa';
         ctx.fillText(lastArchitectMode === 'robot' ? '🤖 ROBOT MODE' : '🏛️ TURRET MODE', player.x, player.y - player.radius - 10);
         ctx.restore();
         lastArchitectRobots = lastArchitectRobots.filter(r => r.life > 0);
@@ -3433,7 +3587,7 @@ function tickNewCharacters(ts, dt) {
                 }
             }
             ctx.save();
-            ctx.shadowBlur = 14; ctx.shadowColor = '#a78bfa';
+            ctx.shadowBlur = _shadowsEnabled ? 14 : 0; ctx.shadowColor = '#a78bfa';
             ctx.fillStyle = '#a78bfa';
             ctx.beginPath(); ctx.arc(r.x, r.y, 10, 0, Math.PI*2); ctx.fill();
             ctx.fillStyle = '#fff'; ctx.font = '10px Arial'; ctx.textAlign = 'center';
@@ -3469,7 +3623,7 @@ function tickNewCharacters(ts, dt) {
         if (s.timer <= 0) return false;
         const alpha = s.timer < 60 ? s.timer / 60 : 1;
         ctx.save(); ctx.globalAlpha = alpha;
-        ctx.shadowBlur = 20; ctx.shadowColor = '#4ade80';
+        ctx.shadowBlur = _shadowsEnabled ? 20 : 0; ctx.shadowColor = '#4ade80';
         ctx.font = '22px Arial'; ctx.textAlign = 'center';
         ctx.fillText('🍄', s.x, s.y + 8);
         ctx.strokeStyle = 'rgba(74,222,128,0.3)'; ctx.lineWidth = 2;
@@ -3502,7 +3656,7 @@ function tickNewCharacters(ts, dt) {
         ctx.restore();
         ctx.save();
         ctx.font = 'bold 10px Arial'; ctx.textAlign = 'center'; ctx.fillStyle = '#fed7aa';
-        ctx.shadowBlur = 10; ctx.shadowColor = '#c2410c';
+        ctx.shadowBlur = _shadowsEnabled ? 10 : 0; ctx.shadowColor = '#c2410c';
         ctx.fillText(`${Math.round(pct*100)}% CHARGE`, player.x, player.y - player.radius - 8);
         ctx.restore();
     }
@@ -3511,10 +3665,10 @@ function tickNewCharacters(ts, dt) {
         ctx.save();
         ctx.font = 'bold 9px Arial'; ctx.textAlign = 'center';
         if (cyborgMode === 'rapid') {
-            ctx.fillStyle = '#38bdf8'; ctx.shadowBlur=8; ctx.shadowColor='#0ea5e9';
+            ctx.fillStyle = '#38bdf8'; ctx.shadowBlur = _shadowsEnabled ? 8 : 0; ctx.shadowColor='#0ea5e9';
             ctx.fillText('RAPID ⚡', player.x, player.y - player.radius - 7);
         } else {
-            ctx.fillStyle = '#c084fc'; ctx.shadowBlur=8; ctx.shadowColor='#7c3aed';
+            ctx.fillStyle = '#c084fc'; ctx.shadowBlur = _shadowsEnabled ? 8 : 0; ctx.shadowColor='#7c3aed';
             ctx.fillText('HEAVY 💥', player.x, player.y - player.radius - 7);
         }
         ctx.restore();
@@ -3923,7 +4077,7 @@ class Projectile {
     update(dt=1) {
         if(this.homing && enemies.length>0){
             let nearest=null,nDist=Infinity;
-            enemies.forEach(e=>{ const d=Math.hypot(e.x-this.x,e.y-this.y); if(d<nDist){nDist=d;nearest=e;} });
+            for(let i=0;i<enemies.length;i++){const e=enemies[i];if(!e.alive)continue;const dx=e.x-this.x,dy=e.y-this.y,d=dx*dx+dy*dy;if(d<nDist){nDist=d;nearest=e;}}
             if(nearest){
                 const ta=Math.atan2(nearest.y-this.y,nearest.x-this.x);
                 const ca=Math.atan2(this.vy,this.vx);
@@ -3945,10 +4099,10 @@ class Projectile {
             ctx.fillStyle='#c0c0c0'; ctx.beginPath(); ctx.moveTo(10,0); ctx.lineTo(5,-3); ctx.lineTo(5,3); ctx.closePath(); ctx.fill();
             ctx.strokeStyle='#ef4444'; ctx.lineWidth=1.5; ctx.beginPath(); ctx.moveTo(-8,0); ctx.lineTo(-13,-3); ctx.moveTo(-8,0); ctx.lineTo(-13,3); ctx.stroke();
         } else if (this.isMG) {
-            ctx.shadowBlur=6; ctx.shadowColor='#e5e7eb';
+            ctx.shadowBlur = _shadowsEnabled ? 6 : 0; ctx.shadowColor='#e5e7eb';
             ctx.beginPath(); ctx.arc(this.x,this.y,this.radius,0,Math.PI*2); ctx.fillStyle='#f9fafb'; ctx.fill();
         } else {
-            ctx.shadowBlur=15; ctx.shadowColor=this.color;
+            ctx.shadowBlur = _shadowsEnabled ? 15 : 0; ctx.shadowColor=this.color;
             ctx.beginPath(); ctx.arc(this.x,this.y,this.radius,0,Math.PI*2); ctx.fillStyle=this.color; ctx.fill();
         }
         ctx.restore();
@@ -4017,10 +4171,14 @@ class Enemy {
 
         if (!this.path) this.path = [];
         if (this.pathTimer === undefined) this.pathTimer = Math.random() * 30;
+        if (this.navPhase === undefined) this.navPhase = Math.floor(Math.random() * 4); 
         this.pathTimer -= dt;
 
         const distToPlayer = Math.hypot(player.x - this.x, player.y - this.y);
-        const hasLOS = !navRayBlocked(this.x, this.y, player.x, player.y);
+        
+        const myNavFrame = (navFrameCounter + this.navPhase) % 4 === 0;
+        const hasLOS = myNavFrame ? !navRayBlocked(this.x, this.y, player.x, player.y) : (this._lastLOS !== undefined ? this._lastLOS : true);
+        if (myNavFrame) this._lastLOS = hasLOS;
 
         if (hasLOS) {
             this.path = [];
@@ -4140,7 +4298,7 @@ class Enemy {
     draw() {
         ctx.save();
         if (this.drawAlpha !== undefined && this.drawAlpha < 1) ctx.globalAlpha = this.drawAlpha;
-        ctx.shadowBlur = getGfx().shadows ? 20 : 0;
+        ctx.shadowBlur = _shadowsEnabled ? 20 : 0;
 
         if(this.frozen>0){
             if(CHARACTERS[currentCharacter].isGoldHoarder){ctx.shadowColor='#b8860b';ctx.fillStyle='#daa520';}
@@ -4162,7 +4320,7 @@ class Enemy {
             ctx.restore(); ctx.save();
             ctx.globalAlpha = (this.drawAlpha||1);
             ctx.strokeStyle='#60a5fa'; ctx.lineWidth=5;
-            ctx.shadowBlur=18; ctx.shadowColor='#3b82f6';
+            ctx.shadowBlur = _shadowsEnabled ? 18 : 0; ctx.shadowColor='#3b82f6';
             ctx.beginPath();
             ctx.arc(this.x, this.y, this.radius+6, this.shieldFacing-0.9, this.shieldFacing+0.9);
             ctx.stroke();
@@ -4178,7 +4336,7 @@ class Enemy {
             const fl = 0.7+0.3*Math.sin(this.fuseFlash*0.3);
             const dist = Math.hypot(player.x-this.x, player.y-this.y);
             const rage = Math.max(0, 1 - dist/300);
-            ctx.shadowBlur = 20+rage*25; ctx.shadowColor='#f59e0b';
+            ctx.shadowBlur = _shadowsEnabled ? 20+rage*25 : 0; ctx.shadowColor='#f59e0b';
             ctx.fillStyle = `rgb(${Math.round(239+rage*16)},${Math.round(68*(1-rage*0.5))},16)`;
             ctx.beginPath(); ctx.arc(this.x,this.y,this.radius*fl,0,Math.PI*2); ctx.fill();
 
@@ -4231,7 +4389,7 @@ class Enemy {
             ctx.beginPath(); ctx.arc(this.x,this.y,this.radius,0,Math.PI*2); ctx.fill();
 
             ctx.restore(); ctx.save(); ctx.globalAlpha=(this.drawAlpha||1)*0.6;
-            ctx.strokeStyle='#10b981'; ctx.lineWidth=2; ctx.shadowBlur=10; ctx.shadowColor='#10b981';
+            ctx.strokeStyle='#10b981'; ctx.lineWidth=2; ctx.shadowBlur = _shadowsEnabled ? 10 : 0; ctx.shadowColor='#10b981';
             ctx.beginPath(); ctx.arc(this.x,this.y,this.radius+5,0,Math.PI*2); ctx.stroke();
         } else if (this.isSplitter || this.isSplitterMini) {
             ctx.beginPath(); ctx.arc(this.x,this.y,this.radius,0,Math.PI*2); ctx.fill();
@@ -4246,7 +4404,7 @@ class Enemy {
             const ca=Math.atan2(player.y-this.y,player.x-this.x);
             const wind=this.charging?0:(1-(this.chargeTimer/90));
             ctx.fillStyle=`rgba(251,191,36,${0.5+wind*0.5})`;
-            ctx.shadowBlur=wind*15; ctx.shadowColor='#f59e0b';
+            ctx.shadowBlur = _shadowsEnabled ? wind*15 : 0; ctx.shadowColor='#f59e0b';
             ctx.translate(this.x,this.y); ctx.rotate(ca);
             ctx.beginPath(); ctx.moveTo(this.radius,0); ctx.lineTo(this.radius+8+wind*10,0);
             ctx.lineWidth=3+wind*3; ctx.strokeStyle=`rgba(251,191,36,${0.5+wind*0.5})`; ctx.stroke();
@@ -4254,7 +4412,7 @@ class Enemy {
             const secsLeft=Math.ceil(this.fuseTimer/60);
             const urgency=Math.max(0,1-this.fuseTimer/600);
             ctx.fillStyle=`rgb(${Math.round(180+urgency*75)},${Math.round(40*(1-urgency))},20)`;
-            ctx.shadowColor='#ef4444'; ctx.shadowBlur=10+urgency*30;
+            ctx.shadowColor='#ef4444'; ctx.shadowBlur = _shadowsEnabled ? 10+urgency*30 : 0;
             ctx.beginPath(); ctx.arc(this.x,this.y,this.radius*(1+urgency*0.15),0,Math.PI*2); ctx.fill();
             ctx.restore(); ctx.save(); ctx.globalAlpha=(this.drawAlpha||1);
             ctx.font=`bold ${10+Math.round(urgency*4)}px Arial`; ctx.textAlign='center';
@@ -4273,7 +4431,7 @@ class Enemy {
 
             ctx.beginPath(); ctx.arc(this.x,this.y,this.radius,0,Math.PI*2); ctx.fill();
             ctx.restore(); ctx.save(); ctx.globalAlpha=(this.drawAlpha||1)*0.7;
-            ctx.strokeStyle='#fbbf24'; ctx.lineWidth=3; ctx.shadowBlur=16; ctx.shadowColor='#fbbf24';
+            ctx.strokeStyle='#fbbf24'; ctx.lineWidth=3; ctx.shadowBlur = _shadowsEnabled ? 16 : 0; ctx.shadowColor='#fbbf24';
             ctx.beginPath(); ctx.arc(this.x,this.y,this.radius+5,0,Math.PI*2); ctx.stroke();
             if(this.guardTarget&&this.guardTarget.alive){
                 ctx.globalAlpha=(this.drawAlpha||1)*0.25;
@@ -4300,12 +4458,12 @@ class Enemy {
         }
         if (this.isCursed) {
             ctx.save(); ctx.strokeStyle='rgba(139,92,246,0.7)'; ctx.lineWidth=2;
-            ctx.shadowBlur=12; ctx.shadowColor='#8b5cf6';
+            ctx.shadowBlur = _shadowsEnabled ? 12 : 0; ctx.shadowColor='#8b5cf6';
             ctx.beginPath(); ctx.arc(this.x,this.y,this.radius+4,0,Math.PI*2); ctx.stroke(); ctx.restore();
         }
         if (this.isBounty && this.alive) {
             ctx.save(); ctx.strokeStyle='#fbbf24'; ctx.lineWidth=3;
-            ctx.shadowBlur=16; ctx.shadowColor='#fbbf24';
+            ctx.shadowBlur = _shadowsEnabled ? 16 : 0; ctx.shadowColor='#fbbf24';
             ctx.beginPath(); ctx.arc(this.x,this.y,this.radius+6,0,Math.PI*2); ctx.stroke();
             ctx.font='bold 9px Arial'; ctx.textAlign='center'; ctx.fillStyle='#fde047';
             ctx.fillText(`🎯 ${this.name}`,this.x,this.y-this.radius-16);
@@ -4313,7 +4471,7 @@ class Enemy {
         }
         if(this.frozen>0){
             ctx.save(); ctx.font='bold 10px Arial'; ctx.textAlign='center';
-            ctx.fillStyle='#e0f7ff'; ctx.shadowColor='#06b6d4'; ctx.shadowBlur=6;
+            ctx.fillStyle='#e0f7ff'; ctx.shadowColor='#06b6d4'; ctx.shadowBlur = _shadowsEnabled ? 6 : 0;
             ctx.fillText('❄️'+(this.frozen/60).toFixed(1)+'s', this.x, this.y-this.radius-14); ctx.restore();
         }
 
@@ -4341,7 +4499,7 @@ class Enemy {
                 ctx.font = 'bold 8px Arial';
                 ctx.textAlign = 'center';
                 ctx.fillStyle = 'rgba(255,255,255,0.85)';
-                ctx.shadowBlur = 4;
+                ctx.shadowBlur = _shadowsEnabled ? 4 : 0;
                 ctx.shadowColor = 'rgba(0,0,0,0.9)';
                 ctx.fillText(label, this.x, this.y - this.radius - (this.health < this.maxHealth ? 18 : 6));
                 ctx.restore();
@@ -4473,7 +4631,7 @@ class Boss {
         ctx.rotate(this.rotation);
 
         ctx.fillStyle = '#dc2626';
-        ctx.shadowBlur = 30;
+        ctx.shadowBlur = _shadowsEnabled ? 30 : 0;
         ctx.shadowColor = '#dc2626';
         ctx.beginPath();
         const size = this.radius;
@@ -4500,7 +4658,13 @@ class Particle {
     constructor(x,y,color){
         if(settings && !settings.particles){this.life=0;this.decay=1;this.x=x;this.y=y;this.radius=0;this.color=color;this.vx=0;this.vy=0;return;}this.x=x;this.y=y;this.vx=(Math.random()-.5)*10;this.vy=(Math.random()-.5)*10;this.radius=Math.random()*4+2;this.color=color;this.life=1;this.decay=Math.random()*.02+.02;}
     update(dt=1){this.x+=this.vx*dt;this.y+=this.vy*dt;this.vx*=Math.pow(.98,dt);this.vy*=Math.pow(.98,dt);this.life-=this.decay*dt;}
-    draw(){ctx.save();ctx.globalAlpha=this.life;ctx.beginPath();ctx.arc(this.x,this.y,this.radius,0,Math.PI*2);ctx.fillStyle=this.color;ctx.fill();ctx.restore();}
+    draw(){
+        ctx.globalAlpha = this.life;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI*2);
+        ctx.fillStyle = this.color;
+        ctx.fill();
+    }
 }
 
 class Item {
@@ -4525,7 +4689,7 @@ class Item {
             this.alive=false;updateHUD();
         }
     }
-    draw(){const ps=Math.sin(this.pulse)*3;ctx.save();ctx.shadowBlur=20;ctx.shadowColor=this.color;ctx.beginPath();ctx.arc(this.x,this.y,this.radius+ps,0,Math.PI*2);ctx.fillStyle=this.color;ctx.fill();ctx.restore();}
+    draw(){const ps=Math.sin(this.pulse)*3;ctx.save();if(_shadowsEnabled){ctx.shadowBlur=20;ctx.shadowColor=this.color;}ctx.beginPath();ctx.arc(this.x,this.y,this.radius+ps,0,Math.PI*2);ctx.fillStyle=this.color;ctx.fill();ctx.restore();}
 }
 
 function getDifficulty(){return Math.floor(currentRound/50);}
@@ -4641,7 +4805,7 @@ function tickSpecialEnemies(dt) {
             let diff = targetAngle - e.shieldFacing;
             while (diff > Math.PI)  diff -= Math.PI * 2;
             while (diff < -Math.PI) diff += Math.PI * 2;
-            const turnRate = 0.03; // radians per tick - slow, deliberate turn
+            const turnRate = 0.03; 
             e.shieldFacing += diff * turnRate;
         }
 
@@ -4855,7 +5019,7 @@ function spawnWave(){
             if(currentRound >= 25) typePool.push('phantom_e');
             if(currentRound >= 28) typePool.push('leech');
             if(currentRound >= 30) typePool.push('sniper_e');
-            // mirror_e removed
+            
             if(currentRound >= 40) typePool.push('puller');
             if(currentRound >= 45) typePool.push('guardian');
             if(currentRound >= 55) typePool.push('timebomb');
@@ -4882,14 +5046,13 @@ function spawnWave(){
                 currentBountyEnemy = e;
                 e.bountyColor = '#fbbf24';
             }
-            // Mark enemy type as seen for bestiary
+            
             if (!seenEnemyTypes.includes(type)) { seenEnemyTypes.push(type); savePersistentData(); }
             enemies.push(e);
         },spawnDelay);
     }
 }
 
-// ── COLLISION HELPER ──
 function circleRect(cx, cy, cr, rx, ry, rw, rh) {
     const nearX = Math.max(rx, Math.min(cx, rx + rw));
     const nearY = Math.max(ry, Math.min(cy, ry + rh));
@@ -4897,7 +5060,6 @@ function circleRect(cx, cy, cr, rx, ry, rw, rh) {
     return dx * dx + dy * dy < cr * cr;
 }
 
-// ── THE ENEMY ──
 let theEnemyActive = false;
 let theEnemyData = null;
 let theEnemyElapsed = 0;
@@ -4905,15 +5067,15 @@ let theEnemyHorror = 0;
 
 function spawnTheEnemy() {
     theEnemyActive = true;
-    theEnemyElapsed = 120; // start at full horror immediately
+    theEnemyElapsed = 120; 
     theEnemyHorror = 1;
-    theEnemyCamZoom = 1 + 1.8; // max zoom instantly
+    theEnemyCamZoom = 1 + 1.8; 
     player._theEnemySlowMult = 0.25 / (player.speed || 5);
 
     const darkEl = document.getElementById('theEnemyDarkness');
     if (darkEl) { darkEl.style.display = 'block'; darkEl.style.opacity = '0.82'; }
 
-    // Kill all existing enemies
+    
     enemies.forEach(e => { e.alive = false; });
     enemies = [];
     bossBullets = [];
@@ -4942,11 +5104,11 @@ function updateTheEnemy(dt) {
     const te = theEnemyData;
     te.pulseT += dt;
 
-    // Kill any enemies that sneak in
+    
     enemies.forEach(e => { e.alive = false; });
     enemies = [];
 
-    // Move directly toward player - no wall collision, pure pursuit
+    
     const dx = player.x - te.x, dy = player.y - te.y;
     const dist = Math.hypot(dx, dy);
     if (dist > 0) {
@@ -4956,23 +5118,23 @@ function updateTheEnemy(dt) {
     te.x = Math.max(te.radius, Math.min(canvas.width - te.radius, te.x));
     te.y = Math.max(te.radius, Math.min(canvas.height - te.radius, te.y));
 
-    // Step sound
+    
     te.stepTimer -= dt;
     if (te.stepTimer <= 0) {
         te.stepTimer = Math.max(60 - theEnemyHorror*40, 20);
         playSound(40 + Math.random()*20, 0.04, 'sine');
     }
 
-    // Player speed locked to 0.25 effective
+    
     player._theEnemySlowMult = 0.25 / (player.speed || 5);
 
-    // Apply darkness + zoom via CSS
+    
     const darkness = document.getElementById('theEnemyDarkness');
     const hf = document.getElementById('theEnemyHeartflash');
     if (darkness) darkness.style.opacity = (theEnemyHorror * 0.82).toFixed(3);
     theEnemyCamZoom = 1 + theEnemyHorror * 1.8;
 
-    // Touch = instant death → game over
+    
     if (dist < te.radius + player.radius + 2) {
         theEnemyActive = false;
         player._theEnemySlowMult = 1;
@@ -4988,9 +5150,9 @@ function drawTheEnemy(ctx) {
     if (!theEnemyActive || !theEnemyData) return;
     const te = theEnemyData;
 
-    // Glow aura
+    
     ctx.save();
-    ctx.shadowBlur = 30 + theEnemyHorror * 60;
+    ctx.shadowBlur = _shadowsEnabled ? 30 + theEnemyHorror * 60 : 0;
     ctx.shadowColor = '#ff0000';
     ctx.globalAlpha = 0.12 + theEnemyHorror * 0.18;
     ctx.fillStyle = '#8b0000';
@@ -4999,22 +5161,22 @@ function drawTheEnemy(ctx) {
     ctx.fill();
     ctx.restore();
 
-    // Body
+    
     ctx.save();
     ctx.fillStyle = 'rgba(20,0,0,0.3)';
     ctx.beginPath(); ctx.arc(te.x, te.y, te.radius, 0, Math.PI*2); ctx.fill();
 
-    // >:[ text
+    
     ctx.font = `bold ${te.radius * 1.6}px VT323, "Courier New", monospace`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.shadowBlur = 20 + theEnemyHorror * 40;
+    ctx.shadowBlur = _shadowsEnabled ? 20 + theEnemyHorror * 40 : 0;
     ctx.shadowColor = '#ff0000';
     ctx.fillStyle = `rgb(${180 + Math.floor(theEnemyHorror*75)},${Math.floor(30 - theEnemyHorror*20)},${Math.floor(30 - theEnemyHorror*20)})`;
     ctx.fillText('>:[', te.x, te.y);
     ctx.restore();
 
-    // Horror messages
+    
     if (theEnemyHorror > 0.3) {
         const msgs = ['it is getting closer','you cannot run','there is no escape','it sees you','it has always seen you'];
         const msgIdx = Math.min(Math.floor(theEnemyHorror * 5) - 1, msgs.length-1);
@@ -5073,7 +5235,7 @@ function spawnSukunaBoss() {
 }
 
 function teleportPlayerToSafety() {
-    // Pick a corner far from the centre where bosses spawn
+    
     const margin = 80;
     const corners = [
         { x: margin, y: margin },
@@ -5081,7 +5243,7 @@ function teleportPlayerToSafety() {
         { x: margin, y: canvas.height - margin },
         { x: canvas.width - margin, y: canvas.height - margin },
     ];
-    // Choose the corner furthest from all current enemies/boss
+    
     let best = corners[0], bestDist = 0;
     for (const c of corners) {
         let minEnemyDist = Infinity;
@@ -5096,7 +5258,7 @@ function teleportPlayerToSafety() {
     }
     player.x = best.x;
     player.y = best.y;
-    player.invulnerable = 180; // 3s of invulnerability after teleport
+    player.invulnerable = 180; 
     for (let i = 0; i < 30; i++) particles.push(new Particle(best.x + (Math.random()-0.5)*40, best.y + (Math.random()-0.5)*40, '#60a5fa'));
     floatMoneyText('✨ Teleported to safety!');
 }
@@ -5277,7 +5439,7 @@ class Rhomboid {
         }
 
         const s = this.radius;
-        ctx.shadowBlur = 35;
+        ctx.shadowBlur = _shadowsEnabled ? 35 : 0;
         ctx.shadowColor = '#00ff66';
         ctx.fillStyle = '#00aa44';
         ctx.beginPath();
@@ -5384,7 +5546,6 @@ function doGoldRush() {
     setTimeout(()=>{ specialInProgress=false; autoFireEnabled=true; }, 600);
 }
 
-// ── HORNET STATE ──────────────────────────────
 const HORNET_ICON_IMG = new Image();
 HORNET_ICON_IMG.src = 'https://res.cloudinary.com/dz1dungk5/image/upload/v1772727788/f0e95622d20a747e93f5403e5193b155_vhmhmy.ico';
 const HORNET_MAX_SILK = 18;
@@ -5505,7 +5666,7 @@ function specialAttack(){
                 const bx2 = player.x + Math.cos(angle)*500, by2 = player.y + Math.sin(angle)*500;
                 ctx.save();
                 ctx.strokeStyle = `rgba(192,132,252,0.9)`; ctx.lineWidth = 6;
-                ctx.shadowBlur = 24; ctx.shadowColor = '#7c3aed';
+                ctx.shadowBlur = _shadowsEnabled ? 24 : 0; ctx.shadowColor = '#7c3aed';
                 ctx.beginPath(); ctx.moveTo(player.x,player.y); ctx.lineTo(bx2,by2); ctx.stroke();
                 ctx.restore();
                 enemies.forEach(e => {
@@ -5793,7 +5954,7 @@ function specialAttack(){
             break;
         }
         case 'silk_storm': {
-            // R - Silk Storm: thread slam around player, costs 4 silk
+            
             if (hornetSilk < 4) { floatMoneyText('🕸️ Not enough silk! (4 needed)'); return; }
             hornetSilk -= 4;
             const stormR = 260;
@@ -6068,50 +6229,41 @@ function specialAttack(){
             break;
         }
         case 'devil_dogs': {
-            // Mahoragah — requires 1000 total CE accumulated
-            if (megumiCETotal >= 1000 && !megumiMahoragahTransforming && !megumiIsMahoragah) {
-                megumiMahoragahTransforming = true;
-                player.invulnerable = 99999;
-                floatMoneyText('🌑 TEN SHADOWS... MAHORAGAH!');
-                for(let i=0;i<100;i++) particles.push(new Particle(player.x+(Math.random()-0.5)*300,player.y+(Math.random()-0.5)*300,'#1e293b'));
-                for(let i=0;i<60;i++) particles.push(new Particle(player.x+(Math.random()-0.5)*200,player.y+(Math.random()-0.5)*200,'#6366f1'));
-                const mahAudio = new Audio('https://res.cloudinary.com/dz1dungk5/video/upload/v1773032710/audiomass-output_1_l7vboo.mp3');
-                mahAudio.play().catch(()=>{});
-                mahAudio.addEventListener('ended', () => {
-                    if (!gameRunning) return;
-                    megumiMahoragahTransforming = false;
-                    megumiIsMahoragah = true;
-                    megumiMahoragahTimer = 1800; // 30 seconds
-                    player.mana = 0;
-                    player.invulnerable = 0;
-                    player.speed += 4;
-                    megumiMahoragahSpeedBoosted = true;
-                    megumiMahoragahActivations++;
-                    floatMoneyText('🌑 MAHORAGAH! DIVINE GENERAL AWAKENED!');
-                    for(let i=0;i<150;i++) particles.push(new Particle(player.x+(Math.random()-0.5)*400,player.y+(Math.random()-0.5)*400,Math.random()<0.5?'#dc2626':'#1e293b'));
-                    checkHonored();
-                });
+            if (megumiMahoragahTransforming) { floatMoneyText('🌑 Summoning Mahoragah...'); break; }
+            if (megumiIsMahoragah) {
+                if (megumiRockCooldown > 0) { floatMoneyText(`🪨 Rock on cooldown: ${Math.ceil(megumiRockCooldown/60)}s`); break; }
+                const ang = Math.atan2(mousePos.y - player.y, mousePos.x - player.x);
+                const rockDmg = player.damage * 5;
+                const rock = new Projectile(player.x, player.y, ang, rockDmg, '#78716c');
+                rock.radius = 22;
+                rock.speed = 9;
+                rock.vx = Math.cos(ang) * rock.speed;
+                rock.vy = Math.sin(ang) * rock.speed;
+                rock.isMahoRock = true;
+                projectiles.push(rock);
+                megumiRockCooldown = 180;
+                for(let i=0;i<20;i++) particles.push(new Particle(player.x+(Math.random()-0.5)*30, player.y+(Math.random()-0.5)*30, '#a8a29e'));
+                floatMoneyText('🪨 MAHORAGAH ROCK! 5x DMG!');
+                playSound(180, 0.1, 'square');
                 break;
             }
-            if (megumiMahoragahTransforming) { floatMoneyText('🌑 Summoning Mahoragah...'); break; }
-            if (megumiIsMahoragah) { floatMoneyText('🌑 Mahoragah is already here!'); break; }
-            // Devil Dogs — costs 40 CE
-            if (player.mana < 40) { floatMoneyText(`❌ Need 40 CE (${Math.floor(player.mana)}/40)`); break; }
-            player.mana -= 40;
+            
+            if (player.mana < 35) { floatMoneyText(`❌ Need 35 CE (${Math.floor(player.mana)}/35)`); break; }
+            player.mana -= 35;
             megumiDevilDogs = megumiDevilDogs.filter(d => d.life > 0);
-            const dogColors = ['white','black'];
-            for (let i = 0; i < 2; i++) {
-                const ang = (Math.PI * 2 / 2) * i;
+            const dogColors = ['white','black','shadow'];
+            for (let i = 0; i < 3; i++) {
+                const ang = (Math.PI * 2 / 3) * i;
                 megumiDevilDogs.push({
                     x: player.x + Math.cos(ang)*65, y: player.y + Math.sin(ang)*65,
-                    life: 600, maxLife: 600, shootTimer: 0, id: megumiDogId++,
+                    life: 900, maxLife: 900, shootTimer: 0, id: megumiDogId++,
                     dogType: dogColors[i]
                 });
             }
             megumiDogsSpawned++;
             megumiDogsSpawnedTotal++;
             localStorage.setItem('ballRPGMegumiDogs', megumiDogsSpawnedTotal);
-            floatMoneyText('🐺🐺 Divine Dogs: Bite!');
+            floatMoneyText('🐺🐺🐺 Three Divine Dogs: Bite!');
             updateHUD(); checkHonored();
             break;
         }
@@ -6167,7 +6319,7 @@ function specialAttack(){
 function dash(){
     if(player.dashCooldown>0)return;
     const sk = CHARACTERS[currentCharacter];
-    // Hornet dash: +1 speed for 5s, damages enemies dashed through
+    
     if(currentCharacter === 'hornet') {
         const dashAngle=Math.atan2(mousePos.y-player.y,mousePos.x-player.x);
         const dashDist=90;
@@ -6187,7 +6339,7 @@ function dash(){
         player.x+=Math.cos(dashAngle)*dashDist;
         player.y+=Math.sin(dashAngle)*dashDist;
         player.dashCooldown=60; player.invulnerable=10;
-        hornetSpeedTimer=300; // 5s at 60fps
+        hornetSpeedTimer=300; 
         player.speed+=1;
         hornetSpeedBonus+=1;
         for(let i=0;i<20;i++)particles.push(new Particle(player.x,player.y,'#f59e0b'));
@@ -6213,11 +6365,11 @@ function dash(){
 function handleKill(e) {
     const dropChance = Math.random(); if (dropChance < 0.3) createOrb(e.x, e.y, "HP"); if (dropChance > 0.6) createOrb(e.x, e.y, "MANA");
     runKills++;
-    // Track seen types & kill counts for bestiary + quests
+    
     const eType = e.type || 'normal';
     if (!seenEnemyTypes.includes(eType)) { seenEnemyTypes.push(eType); savePersistentData(); }
     enemyKillCounts[eType] = (enemyKillCounts[eType] || 0) + 1;
-    // Hornet silk gain
+    
     if (currentCharacter === 'hornet') {
         hornetSilk = Math.min(hornetSilk + 1, HORNET_MAX_SILK);
         updateHUD();
@@ -6254,12 +6406,12 @@ function handleKill(e) {
     }
 
     if (currentCharacter === 'megumi' && !megumiIsMahoragah && !megumiMahoragahTransforming) {
-        const ceGain = 15;
+        const ceGain = 22;
         player.mana = Math.min(player.mana + ceGain, player.maxMana);
         megumiCETotal += ceGain;
         updateHUD();
     }
-    // Untouchable quest — 10 kills in a row without damage
+    
     megumiKillStreak++;
     if (megumiKillStreak >= 50) megumiStreakReached = true;
     if(e.isGoldForm) { earnRunGold(10); earnMoney(10, 'gold enemy'); }
@@ -6298,7 +6450,7 @@ function handleKill(e) {
 }
 
 function gainExp(amount){
-    if (theEnemyActive) return; // no level-ups during >:[ encounter
+    if (theEnemyActive) return; 
     playSound(800, 0.08, 'sine');
     player.exp+=amount;
     if(player.exp>=expToNextLevel){
@@ -6423,10 +6575,19 @@ let megumiIsMahoragah = false;
 let megumiMahoragahTimer = 0;
 let megumiMahoragahTransforming = false;
 let megumiMahoragahSpeedBoosted = false;
+let megumiHoldTimer = 0;
+let megumiHoldActive = false;
+let megumiSphere = null;
+let megumiBloodSplat = null;
+let megumiBloodTimer = 0;
+let megumiRockCooldown = 0;
 let megumiDogKills = 0;
 let megumiDogsSpawned = 0;
 let megumiMahoragahActivations = 0;
 let megumiKillStreak = 0;
+let megumiTransformAudio = null;
+let megumiTransformAudioDuration = 0;
+let megumiTransformStartTime = 0;
 let megumiStreakReached = false;
 let megumiCETotal = 0;
 
@@ -6726,7 +6887,7 @@ function restoreLevelUpHTML() {
 }
 
 function upgrade(type){
-    // Disable all upgrade buttons immediately to prevent double-click
+    
     document.querySelectorAll('.upgrade-btn').forEach(b => { b.style.pointerEvents='none'; b.style.opacity='0.5'; });
     setTimeout(() => {
         if(type==='health'){player.maxHealth+=30;player.health=player.maxHealth;}
@@ -6930,6 +7091,7 @@ function restartGame(){document.getElementById('gameOver').style.display='none';
 
 const NAV_CELL = 20;
 let navGrid = null;
+let navFrameCounter = 0; 
 let navCols = 0, navRows = 0;
 
 function navBuild() {
@@ -6981,41 +7143,62 @@ function navFindPath(sx, sy, ex, ey) {
     if (!navGrid) return null;
     const start = navWorldToCell(sx, sy);
     const end   = navWorldToCell(ex, ey);
-
     if (start.c === end.c && start.r === end.r) return null;
 
     const key = (c, r) => r * navCols + c;
-    const h   = (c, r) => Math.hypot(c - end.c, r - end.r);
+    
+    const h = (c, r) => Math.max(Math.abs(c - end.c), Math.abs(r - end.r));
 
-    const open   = new Map();
+    
+    const heap = [];
+    const heapPush = (node) => {
+        heap.push(node);
+        let i = heap.length - 1;
+        while (i > 0) {
+            const parent = (i - 1) >> 1;
+            if (heap[parent].f <= heap[i].f) break;
+            [heap[parent], heap[i]] = [heap[i], heap[parent]];
+            i = parent;
+        }
+    };
+    const heapPop = () => {
+        const top = heap[0];
+        const last = heap.pop();
+        if (heap.length > 0) {
+            heap[0] = last;
+            let i = 0;
+            while (true) {
+                let s = i, l = 2*i+1, r = 2*i+2;
+                if (l < heap.length && heap[l].f < heap[s].f) s = l;
+                if (r < heap.length && heap[r].f < heap[s].f) s = r;
+                if (s === i) break;
+                [heap[i], heap[s]] = [heap[s], heap[i]];
+                i = s;
+            }
+        }
+        return top;
+    };
+
     const closed = new Set();
     const gScore = new Map();
-    const fScore = new Map();
     const cameFrom = new Map();
 
     const sk = key(start.c, start.r);
     gScore.set(sk, 0);
-    fScore.set(sk, h(start.c, start.r));
-    open.set(sk, { c: start.c, r: start.r });
+    heapPush({ c: start.c, r: start.r, f: h(start.c, start.r), k: sk });
 
-    const DIRS = [
-        [1,0],[-1,0],[0,1],[0,-1],
-        [1,1],[1,-1],[-1,1],[-1,-1]
-    ];
+    const DIRS = [[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]];
 
     let iterations = 0;
-    while (open.size > 0 && iterations++ < 1200) {
-        let bestKey = null, bestF = Infinity;
-        for (const [k] of open) {
-            const f = fScore.get(k) ?? Infinity;
-            if (f < bestF) { bestF = f; bestKey = k; }
-        }
-        const cur = open.get(bestKey);
-        open.delete(bestKey);
+    while (heap.length > 0 && iterations++ < 400) {
+        const cur = heapPop();
+        const curK = cur.k;
+        if (closed.has(curK)) continue;
+        closed.add(curK);
 
         if (cur.c === end.c && cur.r === end.r) {
             const path = [];
-            let k = bestKey;
+            let k = curK;
             while (cameFrom.has(k)) {
                 const node = cameFrom.get(k);
                 path.unshift(navCellToWorld(node.c, node.r));
@@ -7025,8 +7208,7 @@ function navFindPath(sx, sy, ex, ey) {
             return navStringPull(path, sx, sy);
         }
 
-        closed.add(bestKey);
-
+        const curG = gScore.get(curK) ?? Infinity;
         for (const [dc, dr] of DIRS) {
             const nc = cur.c + dc, nr = cur.r + dr;
             if (nc < 0 || nc >= navCols || nr < 0 || nr >= navRows) continue;
@@ -7038,12 +7220,11 @@ function navFindPath(sx, sy, ex, ey) {
             const nk = key(nc, nr);
             if (closed.has(nk)) continue;
             const moveCost = (dc !== 0 && dr !== 0) ? 1.414 : 1;
-            const tentG = (gScore.get(bestKey) ?? Infinity) + moveCost;
+            const tentG = curG + moveCost;
             if (tentG < (gScore.get(nk) ?? Infinity)) {
-                cameFrom.set(nk, cur);
+                cameFrom.set(nk, { c: cur.c, r: cur.r });
                 gScore.set(nk, tentG);
-                fScore.set(nk, tentG + h(nc, nr));
-                open.set(nk, { c: nc, r: nr });
+                heapPush({ c: nc, r: nr, f: tentG + h(nc, nr), k: nk });
             }
         }
     }
@@ -7181,7 +7362,7 @@ function drawWalls() {
     walls.forEach(w => {
         ctx.save();
         if (isDungeon) {
-            ctx.shadowBlur = 6; ctx.shadowColor = 'rgba(100,100,120,0.4)';
+            ctx.shadowBlur = _shadowsEnabled ? 6 : 0; ctx.shadowColor = 'rgba(100,100,120,0.4)';
             ctx.fillStyle = '#555';
             ctx.fillRect(w.x, w.y, w.w, w.h);
             ctx.fillStyle = '#777';
@@ -7191,7 +7372,7 @@ function drawWalls() {
             ctx.fillRect(w.x, w.y + w.h - 2, w.w, 2);
             ctx.fillRect(w.x + w.w - 2, w.y, 2, w.h);
         } else {
-            ctx.shadowBlur = 12;
+            ctx.shadowBlur = _shadowsEnabled ? 12 : 0;
             ctx.shadowColor = 'rgba(100,180,255,0.35)';
             ctx.fillStyle = '#1e3a5f';
             ctx.fillRect(w.x, w.y, w.w, w.h);
@@ -7206,7 +7387,7 @@ function drawWalls() {
     });
     builderWalls.forEach(w => {
         ctx.save();
-        ctx.shadowBlur = 12;
+        ctx.shadowBlur = _shadowsEnabled ? 12 : 0;
         if (w.isDungeonTile) {
             ctx.shadowColor = 'rgba(68,68,255,0.7)';
             ctx.fillStyle = '#444488';
@@ -7239,66 +7420,83 @@ function drawWalls() {
 
 function resolveCircleWall(cx, cy, radius) {
     let nx = cx, ny = cy;
-    walls.forEach(w => {
+    const r2 = radius * radius;
+    
+    for (let i = 0; i < walls.length; i++) {
+        const w = walls[i];
+        
+        if (nx < w.x - radius || nx > w.x + w.w + radius ||
+            ny < w.y - radius || ny > w.y + w.h + radius) continue;
         const nearX = Math.max(w.x, Math.min(w.x + w.w, nx));
         const nearY = Math.max(w.y, Math.min(w.y + w.h, ny));
         const dx = nx - nearX, dy = ny - nearY;
-        const dist = Math.sqrt(dx*dx + dy*dy);
-        if (dist < radius && dist > 0) {
+        const dist2 = dx*dx + dy*dy;
+        if (dist2 < r2 && dist2 > 0) {
+            const dist = Math.sqrt(dist2);
             const overlap = radius - dist;
             nx += (dx / dist) * overlap;
             ny += (dy / dist) * overlap;
-        } else if (dist === 0) {
+        } else if (dist2 === 0) {
             const overlapX = (nx < w.x + w.w/2) ? (nx - w.x) : (w.x + w.w - nx);
             const overlapY = (ny < w.y + w.h/2) ? (ny - w.y) : (w.y + w.h - ny);
             if (overlapX < overlapY) nx += (nx < w.x + w.w/2) ? -overlapX - radius : overlapX + radius;
             else ny += (ny < w.y + w.h/2) ? -overlapY - radius : overlapY + radius;
         }
-    });
-    builderWalls.forEach(w => {
+    }
+    
+    for (let i = 0; i < builderWalls.length; i++) {
+        const w = builderWalls[i];
+        if (nx < w.x - radius || nx > w.x + w.w + radius ||
+            ny < w.y - radius || ny > w.y + w.h + radius) continue;
         const nearX = Math.max(w.x, Math.min(w.x + w.w, nx));
         const nearY = Math.max(w.y, Math.min(w.y + w.h, ny));
         const dx = nx - nearX, dy = ny - nearY;
-        const dist = Math.sqrt(dx*dx + dy*dy);
-        if (dist < radius && dist > 0) {
+        const dist2 = dx*dx + dy*dy;
+        if (dist2 < r2 && dist2 > 0) {
+            const dist = Math.sqrt(dist2);
             const overlap = radius - dist;
             nx += (dx / dist) * overlap;
             ny += (dy / dist) * overlap;
-        } else if (dist === 0) {
+        } else if (dist2 === 0) {
             const overlapX = (nx < w.x + w.w/2) ? (nx - w.x) : (w.x + w.w - nx);
             const overlapY = (ny < w.y + w.h/2) ? (ny - w.y) : (w.y + w.h - ny);
             if (overlapX < overlapY) nx += (nx < w.x + w.w/2) ? -overlapX - radius : overlapX + radius;
             else ny += (ny < w.y + w.h/2) ? -overlapY - radius : overlapY + radius;
         }
-    });
+    }
     return { x: nx, y: ny };
 }
 
 function projectileHitsWall(proj) {
     if (proj.isPhantom) return false;
-    let hit = walls.some(w => {
+    const pr = proj.radius + 1;
+    const pr2 = pr * pr;
+    for (let i = 0; i < walls.length; i++) {
+        const w = walls[i];
+        if (proj.x < w.x - pr || proj.x > w.x + w.w + pr ||
+            proj.y < w.y - pr || proj.y > w.y + w.h + pr) continue;
         const nearX = Math.max(w.x, Math.min(w.x + w.w, proj.x));
         const nearY = Math.max(w.y, Math.min(w.y + w.h, proj.y));
-        const dist = Math.hypot(proj.x - nearX, proj.y - nearY);
-        return dist < proj.radius + 1;
-    });
-    if (!hit) {
-        hit = builderWalls.some(w => {
-            const nearX = Math.max(w.x, Math.min(w.x + w.w, proj.x));
-            const nearY = Math.max(w.y, Math.min(w.y + w.h, proj.y));
-            const dist = Math.hypot(proj.x - nearX, proj.y - nearY);
-            if (dist < proj.radius + 1) {
-                w.hp -= 5;
-                if (w.hp <= 0) {
-                    builderWalls = builderWalls.filter(bw => bw !== w);
-                    for(let i=0;i<30;i++) particles.push(new Particle(w.x + w.w/2, w.y + w.h/2, '#d2691e'));
-                }
-                return true;
-            }
-            return false;
-        });
+        const dx = proj.x - nearX, dy = proj.y - nearY;
+        if (dx*dx + dy*dy < pr2) return true;
     }
-    return hit;
+    for (let i = 0; i < builderWalls.length; i++) {
+        const w = builderWalls[i];
+        if (proj.x < w.x - pr || proj.x > w.x + w.w + pr ||
+            proj.y < w.y - pr || proj.y > w.y + w.h + pr) continue;
+        const nearX = Math.max(w.x, Math.min(w.x + w.w, proj.x));
+        const nearY = Math.max(w.y, Math.min(w.y + w.h, proj.y));
+        const dx = proj.x - nearX, dy = proj.y - nearY;
+        if (dx*dx + dy*dy < pr2) {
+            w.hp -= 5;
+            if (w.hp <= 0) {
+                builderWalls = builderWalls.filter(bw => bw !== w);
+                for(let j=0;j<30;j++) particles.push(new Particle(w.x + w.w/2, w.y + w.h/2, '#d2691e'));
+            }
+            return true;
+        }
+    }
+    return false;
 }
 
 function resetGame(){
@@ -7419,9 +7617,13 @@ function resetGame(){
     megumiDevilDogs = []; megumiDogId = 0;
     megumiIsMahoragah = false; megumiMahoragahTimer = 0;
     megumiMahoragahTransforming = false; megumiMahoragahSpeedBoosted = false;
+    if (megumiTransformAudio) { try { megumiTransformAudio.pause(); megumiTransformAudio.currentTime = 0; } catch(e){} megumiTransformAudio = null; }
+    megumiTransformAudioDuration = 0; megumiTransformStartTime = 0;
+    megumiHoldTimer = 0; megumiHoldActive = false;
+    megumiSphere = null; megumiBloodSplat = null; megumiBloodTimer = 0; megumiRockCooldown = 0;
     megumiDogKills = 0; megumiDogsSpawned = 0; megumiMahoragahActivations = 0;
     megumiKillStreak = 0; megumiStreakReached = false; megumiCETotal = 0;
-    if (currentCharacter === 'megumi') { player.maxHealth=110; player.health=110; player.speed=5.5; player.damage=22; player.maxMana=100; player.mana=0; }
+    if (currentCharacter === 'megumi') { player.maxHealth=140; player.health=140; player.speed=6; player.damage=30; player.maxMana=100; player.mana=0; }
     glassCannAdrenaline = 0;
     speedrunnerSprintActive = false; speedrunnerSprintTimer = 0; speedrunnerVelX = 0; speedrunnerVelY = 0;
     cursedWaveActive = false;
@@ -7449,7 +7651,7 @@ function drawPlayer(ts, dt=1){
         if(player.invulnerable > 0 && Math.floor(ts / 100) % 2 === 0) ctx.globalAlpha = 0.5;
         const r = player.radius;
 
-        ctx.shadowBlur = 18; ctx.shadowColor = '#4444ff';
+        ctx.shadowBlur = _shadowsEnabled ? 18 : 0; ctx.shadowColor = '#4444ff';
         ctx.fillStyle = '#4444ff';
         ctx.fillRect(player.x - r, player.y - r, r * 2, r * 2);
 
@@ -7497,13 +7699,12 @@ function drawPlayer(ts, dt=1){
         return;
     }
 
-
     if(currentCharacter === 'war_veteran') {
         if (true) {
             const wt = WAR_VETERAN_TIERS[warVeteranTier];
             ctx.save();
             if(player.invulnerable>0&&Math.floor(ts/100)%2===0)ctx.globalAlpha=0.5;
-            ctx.shadowBlur = 25 + warVeteranTier * 8; ctx.shadowColor = wt.shadow;
+            ctx.shadowBlur = _shadowsEnabled ? 25 + warVeteranTier * 8 : 0; ctx.shadowColor = wt.shadow;
             ctx.beginPath(); ctx.arc(player.x, player.y, player.radius, 0, Math.PI*2);
             ctx.fillStyle = wt.color; ctx.fill();
             const ang = Math.atan2(mousePos.y - player.y, mousePos.x - player.x);
@@ -7514,7 +7715,7 @@ function drawPlayer(ts, dt=1){
             ctx.setLineDash([5, 3]); ctx.beginPath(); ctx.arc(0, 0, player.radius + 8 + warVeteranTier * 3, 0, Math.PI*2); ctx.stroke();
             ctx.restore();
             ctx.font = `bold 9px Arial`; ctx.textAlign = 'center'; ctx.fillStyle = wt.color;
-            ctx.shadowBlur = 8; ctx.shadowColor = wt.shadow;
+            ctx.shadowBlur = _shadowsEnabled ? 8 : 0; ctx.shadowColor = wt.shadow;
             ctx.fillText(wt.name, player.x, player.y - player.radius - 6);
             ctx.restore();
             return;
@@ -7522,7 +7723,7 @@ function drawPlayer(ts, dt=1){
         const t = VETERAN_TIERS[veteranTier];
         ctx.save();
         if(player.invulnerable>0&&Math.floor(ts/100)%2===0)ctx.globalAlpha=0.5;
-        ctx.shadowBlur=20+veteranTier*8; ctx.shadowColor=t.shadow;
+        ctx.shadowBlur = _shadowsEnabled ? 20+veteranTier*8 : 0; ctx.shadowColor=t.shadow;
         ctx.beginPath();ctx.arc(player.x,player.y,player.radius,0,Math.PI*2);ctx.fillStyle=t.color;ctx.fill();
         const ang=Math.atan2(mousePos.y-player.y,mousePos.x-player.x);
         ctx.fillStyle='white';ctx.shadowBlur=0;
@@ -7545,7 +7746,7 @@ function drawPlayer(ts, dt=1){
         const t = VETERAN_TIERS[veteranTier];
         ctx.save();
         if(player.invulnerable>0&&Math.floor(ts/100)%2===0)ctx.globalAlpha=0.5;
-        ctx.shadowBlur=20+veteranTier*8; ctx.shadowColor=t.shadow;
+        ctx.shadowBlur = _shadowsEnabled ? 20+veteranTier*8 : 0; ctx.shadowColor=t.shadow;
         ctx.beginPath();ctx.arc(player.x,player.y,player.radius,0,Math.PI*2);ctx.fillStyle=t.color;ctx.fill();
         const ang=Math.atan2(mousePos.y-player.y,mousePos.x-player.x);
         ctx.fillStyle='white';ctx.shadowBlur=0;
@@ -7587,7 +7788,7 @@ function drawPlayer(ts, dt=1){
         if(player.invulnerable>0&&Math.floor(ts/100)%2===0) ctx.globalAlpha=0.5;
         const grad=ctx.createRadialGradient(player.x-4,player.y-4,2,player.x,player.y,player.radius);
         grad.addColorStop(0,'#bbf7d0'); grad.addColorStop(0.5,'#16a34a'); grad.addColorStop(1,'#052e16');
-        ctx.shadowBlur=20; ctx.shadowColor='#4ade80';
+        ctx.shadowBlur = _shadowsEnabled ? 20 : 0; ctx.shadowColor='#4ade80';
         ctx.beginPath();ctx.arc(player.x,player.y,player.radius,0,Math.PI*2);ctx.fillStyle=grad;ctx.fill();
         for(let i=0;i<4;i++){
             const a=(Math.PI*2/4)*i+ts*0.003;
@@ -7605,7 +7806,7 @@ function drawPlayer(ts, dt=1){
         const pct=pyroCharging?Math.min(pyroChargeTimer/180,1):0;
         const grad=ctx.createRadialGradient(player.x-5,player.y-5,2,player.x,player.y,player.radius);
         grad.addColorStop(0,'#fff7ed'); grad.addColorStop(0.4,`rgb(${Math.round(194+pct*61)},65,12)`); grad.addColorStop(1,'#431407');
-        ctx.shadowBlur=(20+pct*30)*flicker; ctx.shadowColor='#fb923c';
+        ctx.shadowBlur = _shadowsEnabled ? (20+pct*30)*flicker : 0; ctx.shadowColor='#fb923c';
         ctx.beginPath();ctx.arc(player.x,player.y,player.radius*(1+pct*0.15),0,Math.PI*2);ctx.fillStyle=grad;ctx.fill();
         ctx.font='12px Arial';ctx.textAlign='center';ctx.fillStyle='#fff7ed';ctx.shadowBlur=0;
         ctx.fillText('🔮',player.x,player.y+5);
@@ -7626,7 +7827,7 @@ function drawPlayer(ts, dt=1){
         const c2 = isRapid ? '#0ea5e9' : '#7c3aed';
         const grad=ctx.createRadialGradient(player.x-4,player.y-4,2,player.x,player.y,player.radius);
         grad.addColorStop(0,isRapid?'#bae6fd':'#ede9fe'); grad.addColorStop(0.5,c1); grad.addColorStop(1,c2);
-        ctx.shadowBlur=20; ctx.shadowColor=c1;
+        ctx.shadowBlur = _shadowsEnabled ? 20 : 0; ctx.shadowColor=c1;
         ctx.beginPath();ctx.arc(player.x,player.y,player.radius,0,Math.PI*2);ctx.fillStyle=grad;ctx.fill();
         ctx.save();ctx.translate(player.x,player.y);ctx.rotate(ts*(isRapid?0.008:0.003));
         ctx.strokeStyle=c1;ctx.lineWidth=2;
@@ -7642,7 +7843,7 @@ function drawPlayer(ts, dt=1){
         if(player.invulnerable>0&&Math.floor(ts/100)%2===0) ctx.globalAlpha=0.5;
         const grad=ctx.createRadialGradient(player.x-4,player.y-4,2,player.x,player.y,player.radius);
         grad.addColorStop(0,'#faf5ff'); grad.addColorStop(0.5,'#d8b4fe'); grad.addColorStop(1,'#4c1d95');
-        ctx.shadowBlur=22; ctx.shadowColor='#a78bfa';
+        ctx.shadowBlur = _shadowsEnabled ? 22 : 0; ctx.shadowColor='#a78bfa';
         ctx.beginPath();ctx.arc(player.x,player.y,player.radius,0,Math.PI*2);ctx.fillStyle=grad;ctx.fill();
         ctx.save();ctx.translate(player.x,player.y);ctx.rotate(ts*0.005);
         ctx.strokeStyle='rgba(167,139,250,0.7)';ctx.lineWidth=2;ctx.setLineDash([6,5]);
@@ -7660,7 +7861,7 @@ function drawPlayer(ts, dt=1){
         const flicker = 0.85 + 0.15*Math.sin(ts*0.02);
         const grad=ctx.createRadialGradient(player.x-5,player.y-5,2,player.x,player.y,player.radius);
         grad.addColorStop(0,'#fff7ed'); grad.addColorStop(0.4,'#ff4500'); grad.addColorStop(1,'#7f1d1d');
-        ctx.shadowBlur=30*flicker; ctx.shadowColor='#ff4500';
+        ctx.shadowBlur = _shadowsEnabled ? 30*flicker : 0; ctx.shadowColor='#ff4500';
         ctx.beginPath();ctx.arc(player.x,player.y,player.radius,0,Math.PI*2);ctx.fillStyle=grad;ctx.fill();
         ctx.save();ctx.translate(player.x,player.y);ctx.rotate(ts*0.004);
         ctx.strokeStyle=`rgba(255,69,0,${0.6*flicker})`;ctx.lineWidth=3;
@@ -7675,7 +7876,7 @@ function drawPlayer(ts, dt=1){
         if(player.invulnerable>0&&Math.floor(ts/100)%2===0)ctx.globalAlpha=0.5;
         const grad=ctx.createRadialGradient(player.x-6,player.y-6,2,player.x,player.y,player.radius);
         grad.addColorStop(0,'#f0f9ff'); grad.addColorStop(0.5,'#67e8f9'); grad.addColorStop(1,'#0891b2');
-        ctx.shadowBlur=28; ctx.shadowColor='#67e8f9';
+        ctx.shadowBlur = _shadowsEnabled ? 28 : 0; ctx.shadowColor='#67e8f9';
         ctx.beginPath();ctx.arc(player.x,player.y,player.radius,0,Math.PI*2);ctx.fillStyle=grad;ctx.fill();
         ctx.save();ctx.translate(player.x,player.y);ctx.rotate(ts*0.0025);
         ctx.strokeStyle='#e0f7ff';ctx.lineWidth=2;
@@ -7695,7 +7896,7 @@ function drawPlayer(ts, dt=1){
         const pulse=0.7+0.3*Math.sin(ts*0.025);
         const grad=ctx.createRadialGradient(player.x,player.y,2,player.x,player.y,player.radius);
         grad.addColorStop(0,'#fef9c3'); grad.addColorStop(0.5,'#facc15'); grad.addColorStop(1,'#7c3aed');
-        ctx.shadowBlur=25*pulse; ctx.shadowColor=overloadCharges>0?'#ffffff':'#a855f7';
+        ctx.shadowBlur = _shadowsEnabled ? 25*pulse : 0; ctx.shadowColor=overloadCharges>0?'#ffffff':'#a855f7';
         ctx.beginPath();ctx.arc(player.x,player.y,player.radius,0,Math.PI*2);ctx.fillStyle=grad;ctx.fill();
         if(overloadCharges>0){
             ctx.save();ctx.translate(player.x,player.y);ctx.rotate(ts*0.012);
@@ -7724,7 +7925,7 @@ function drawPlayer(ts, dt=1){
         grad.addColorStop(0, yujiIsSukuna ? '#ff9999' : '#ff8080');
         grad.addColorStop(0.5, yujiColor);
         grad.addColorStop(1, yujiShadow);
-        ctx.shadowBlur=25; ctx.shadowColor=yujiShadow;
+        ctx.shadowBlur = _shadowsEnabled ? 25 : 0; ctx.shadowColor=yujiShadow;
         ctx.beginPath();ctx.arc(player.x,player.y,player.radius,0,Math.PI*2);ctx.fillStyle=grad;ctx.fill();
         ctx.font='12px Arial';ctx.textAlign='center';ctx.shadowBlur=0;
         ctx.fillText(yujiIsSukuna?'👹':'👊',player.x,player.y+5);
@@ -7747,7 +7948,7 @@ function drawPlayer(ts, dt=1){
         grad.addColorStop(0,'#fef08a');
         grad.addColorStop(0.5,'#eab308');
         grad.addColorStop(1,'#92400e');
-        ctx.shadowBlur=25; ctx.shadowColor='#fbbf24';
+        ctx.shadowBlur = _shadowsEnabled ? 25 : 0; ctx.shadowColor='#fbbf24';
         ctx.beginPath();ctx.arc(player.x,player.y,player.radius,0,Math.PI*2);
         ctx.fillStyle=grad; ctx.fill();
         ctx.font='bold 14px Arial'; ctx.textAlign='center'; ctx.shadowBlur=0;
@@ -7761,16 +7962,59 @@ function drawPlayer(ts, dt=1){
         return;
     }
 
+    if(sk.isMegumi) {
+        ctx.save();
+        if (megumiMahoragahTransforming) {
+            // White glowing sphere during transformation
+            const pulse = 0.6 + 0.4 * Math.sin(ts * 0.018);
+            const grad = ctx.createRadialGradient(player.x - 4, player.y - 4, 2, player.x, player.y, player.radius);
+            grad.addColorStop(0, '#ffffff');
+            grad.addColorStop(0.5, '#e0e8ff');
+            grad.addColorStop(1, '#a5b4fc');
+            ctx.shadowBlur = _shadowsEnabled ? 30 + 20 * pulse : 0;
+            ctx.shadowColor = '#ffffff';
+            ctx.beginPath(); ctx.arc(player.x, player.y, player.radius, 0, Math.PI*2);
+            ctx.fillStyle = grad; ctx.fill();
+            ctx.globalAlpha = 0.4 * pulse;
+            ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 3;
+            ctx.beginPath(); ctx.arc(player.x, player.y, player.radius + 8 + 4 * pulse, 0, Math.PI*2); ctx.stroke();
+        } else if (megumiIsMahoragah) {
+            // Large white sphere with red aura as Mahoragah
+            const pulse = 0.5 + 0.5 * Math.sin(ts * 0.008);
+            const grad = ctx.createRadialGradient(player.x - 4, player.y - 4, 2, player.x, player.y, player.radius);
+            grad.addColorStop(0, '#ffffff');
+            grad.addColorStop(0.5, '#f0f0ff');
+            grad.addColorStop(1, '#dc2626');
+            ctx.shadowBlur = _shadowsEnabled ? 35 + 15 * pulse : 0;
+            ctx.shadowColor = '#dc2626';
+            ctx.beginPath(); ctx.arc(player.x, player.y, player.radius, 0, Math.PI*2);
+            ctx.fillStyle = grad; ctx.fill();
+            ctx.globalAlpha = 0.55 + 0.25 * pulse;
+            ctx.strokeStyle = '#dc2626'; ctx.lineWidth = 2 + pulse;
+            ctx.beginPath(); ctx.arc(player.x, player.y, player.radius + 5 + 3 * pulse, 0, Math.PI*2); ctx.stroke();
+        } else {
+            // Normal Megumi
+            ctx.shadowBlur = _shadowsEnabled ? 30 : 0; ctx.shadowColor = sk.shadow;
+            ctx.beginPath(); ctx.arc(player.x, player.y, player.radius, 0, Math.PI*2);
+            ctx.fillStyle = sk.color; ctx.fill();
+            const ang = Math.atan2(mousePos.y - player.y, mousePos.x - player.x);
+            ctx.fillStyle = '#7dd3fc'; ctx.shadowBlur = 0;
+            ctx.beginPath(); ctx.arc(player.x + Math.cos(ang)*8, player.y + Math.sin(ang)*8, 5, 0, Math.PI*2); ctx.fill();
+        }
+        ctx.restore();
+        return;
+    }
+
     if(!sk.useImg){
         ctx.save();
         if(player.invulnerable>0&&Math.floor(ts/100)%2===0)ctx.globalAlpha=0.5;
-        ctx.shadowBlur=30;ctx.shadowColor=sk.shadow;
+        ctx.shadowBlur = _shadowsEnabled ? 30 : 0;ctx.shadowColor=sk.shadow;
         ctx.beginPath();ctx.arc(player.x,player.y,player.radius,0,Math.PI*2);ctx.fillStyle=sk.color;ctx.fill();
         if (sk.isVampire) {
             const ang=Math.atan2(mousePos.y-player.y,mousePos.x-player.x);
             const ex=player.x+Math.cos(ang)*8, ey=player.y+Math.sin(ang)*8;
             const perpX=-Math.sin(ang)*4, perpY=Math.cos(ang)*4;
-            ctx.fillStyle='#ef4444';ctx.shadowBlur=10;ctx.shadowColor='#ef4444';
+            ctx.fillStyle='#ef4444';ctx.shadowBlur = _shadowsEnabled ? 10 : 0;ctx.shadowColor='#ef4444';
             ctx.beginPath();ctx.arc(ex+perpX,ey+perpY,3,0,Math.PI*2);ctx.fill();
             ctx.beginPath();ctx.arc(ex-perpX,ey-perpY,3,0,Math.PI*2);ctx.fill();
             ctx.fillStyle='white';ctx.shadowBlur=0;
@@ -7783,7 +8027,7 @@ function drawPlayer(ts, dt=1){
             ctx.strokeStyle='#9ca3af';ctx.lineWidth=4;ctx.lineCap='round';
             ctx.beginPath();ctx.moveTo(player.x,player.y);ctx.lineTo(player.x+Math.cos(ang)*28,player.y+Math.sin(ang)*28);ctx.stroke();
             if (ts - mgLastShot < 60) {
-                ctx.globalAlpha=0.7;ctx.fillStyle='#fbbf24';ctx.shadowBlur=20;ctx.shadowColor='#fbbf24';
+                ctx.globalAlpha=0.7;ctx.fillStyle='#fbbf24';ctx.shadowBlur = _shadowsEnabled ? 20 : 0;ctx.shadowColor='#fbbf24';
                 ctx.beginPath();ctx.arc(player.x+Math.cos(ang)*30,player.y+Math.sin(ang)*30,4,0,Math.PI*2);ctx.fill();
             }
         } else {
@@ -7793,7 +8037,7 @@ function drawPlayer(ts, dt=1){
         ctx.restore();
     } else {
         ctx.save();
-        ctx.shadowBlur=20;ctx.shadowColor=sk.shadow;ctx.strokeStyle=sk.shadow;ctx.lineWidth=2;
+        ctx.shadowBlur = _shadowsEnabled ? 20 : 0;ctx.shadowColor=sk.shadow;ctx.strokeStyle=sk.shadow;ctx.lineWidth=2;
         ctx.beginPath();ctx.arc(player.x,player.y,player.radius+2,0,Math.PI*2);ctx.stroke();
         ctx.restore();
     }
@@ -7865,7 +8109,7 @@ function tickFireEffects(dt) {
         ctx.save();
         ctx.globalAlpha = 0.25 * (p.timer / p.maxTimer);
         ctx.fillStyle = p.isBlizzard ? '#67e8f9' : '#ff4500';
-        ctx.shadowBlur = 20;
+        ctx.shadowBlur = _shadowsEnabled ? 20 : 0;
         ctx.shadowColor = p.isBlizzard ? '#06b6d4' : '#ff4500';
         ctx.beginPath(); ctx.arc(p.x, p.y, p.radius, 0, Math.PI*2); ctx.fill();
         ctx.globalAlpha = 0.15 * (p.timer / p.maxTimer);
@@ -7908,6 +8152,10 @@ function tickGoldFormEnemies(dt) {
 }
 
 let lastTs = 0;
+let _shadowsEnabled = true; 
+let _fpsFrames = 0;
+let _fpsTimer = 0;
+let _fpsDisplay = 60;
 function applyBiomeEffects(dt) {
     if(currentBiome.name === '🔥 Lava Fields') {
         enemies.forEach(e => {
@@ -7960,7 +8208,7 @@ function gameLoop(ts){
     }
 
     if(!gameRunning){
-        // Keep >:[ darkness updating even when paused/level-up screen showing
+        
         if (theEnemyActive) {
             const darkness = document.getElementById('theEnemyDarkness');
             if (darkness) darkness.style.opacity = (theEnemyHorror * 0.82).toFixed(3);
@@ -7970,6 +8218,18 @@ function gameLoop(ts){
     const rawDt = lastTs ? Math.min(ts - lastTs, 50) : 16.667;
     const dt = (rawDt / 16.667) * (settings ? settings.gameSpeed : 1);
     lastTs = ts;
+    const _gfx = getGfx(); 
+    _shadowsEnabled = _gfx.shadows;
+    navFrameCounter = (navFrameCounter + 1) % 4;
+
+    
+    _fpsFrames++;
+    _fpsTimer += rawDt;
+    if (_fpsTimer >= 500) {
+        _fpsDisplay = Math.round(_fpsFrames / (_fpsTimer / 1000));
+        _fpsFrames = 0;
+        _fpsTimer = 0;
+    }
 
     tickGoldFormEnemies(dt);
 
@@ -7983,17 +8243,29 @@ function gameLoop(ts){
         }
     }
 
-    const _bgA = getGfx().bgAlpha;
+    const _bgA = _gfx.bgAlpha;
     ctx.fillStyle = `rgba(15,15,30,${_bgA})`;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    
+    const fpsColor = _fpsDisplay >= 50 ? '#4ade80' : _fpsDisplay >= 30 ? '#facc15' : '#f87171';
+    ctx.save();
+    ctx.font = 'bold 11px monospace';
+    ctx.textAlign = 'right';
+    ctx.fillStyle = fpsColor;
+    ctx.shadowBlur = 0;
+    ctx.fillText(`${_fpsDisplay} FPS`, canvas.width - 8, 14);
+    ctx.restore();
 
     drawBiomeBackground();
 
     const biomeColors = getBiomeColors();
-    if(getGfx().grid) {
+    if(_gfx.grid) {
         ctx.strokeStyle=biomeColors.gridColor;ctx.lineWidth=1;
-        for(let x=0;x<canvas.width;x+=50){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,canvas.height);ctx.stroke();}
-        for(let y=0;y<canvas.height;y+=50){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(canvas.width,y);ctx.stroke();}
+        ctx.beginPath();
+        for(let x=0;x<canvas.width;x+=50){ctx.moveTo(x,0);ctx.lineTo(x,canvas.height);}
+        for(let y=0;y<canvas.height;y+=50){ctx.moveTo(0,y);ctx.lineTo(canvas.width,y);}
+        ctx.stroke();
     }
 
     drawWalls();
@@ -8010,7 +8282,7 @@ function gameLoop(ts){
         ctx.strokeStyle = '#f87171';
         ctx.lineWidth = 2;
         ctx.shadowColor = '#ef4444';
-        ctx.shadowBlur = 8;
+        ctx.shadowBlur = _shadowsEnabled ? 8 : 0;
         ctx.beginPath();
         ctx.arc(ind.x, ind.y, pulseR, 0, Math.PI * 2);
         ctx.stroke();
@@ -8131,8 +8403,10 @@ function gameLoop(ts){
     }
 
     let mx=0,my=0;
-    if(keys[binds.moveUp]||keys['arrowup'])my-=1;if(keys[binds.moveDown]||keys['arrowdown'])my+=1;
-    if(keys[binds.moveLeft]||keys['arrowleft'])mx-=1;if(keys[binds.moveRight]||keys['arrowright'])mx+=1;
+    if (!(currentCharacter==='megumi' && megumiMahoragahTransforming)) {
+        if(keys[binds.moveUp]||keys['arrowup'])my-=1;if(keys[binds.moveDown]||keys['arrowdown'])my+=1;
+        if(keys[binds.moveLeft]||keys['arrowleft'])mx-=1;if(keys[binds.moveRight]||keys['arrowright'])mx+=1;
+    }
 
     if (currentCharacter === 'speedrunner') {
         speedrunnerVelX = mx * player.speed;
@@ -8172,7 +8446,7 @@ function gameLoop(ts){
     if(player.manaRegen>=60){
         let manaPerSec = 1 + passiveState.manaflow/30;
         if(currentCharacter === 'gojo') manaPerSec = 5;
-        if(currentCharacter === 'megumi') { manaPerSec = 8; }
+        if(currentCharacter === 'megumi') { manaPerSec = 12; }
         if(currentBiome.effect === 'mana_regen') manaPerSec *= 2;
         if(currentBiome.effect === 'mana_vortex') manaPerSec *= 1.75;
         if(currentBiome.effect === 'arcane') manaPerSec *= 2;
@@ -8221,9 +8495,9 @@ function gameLoop(ts){
     orbs.forEach(orb => {
         const bob = Math.sin(orb.bobOffset) * 3; const pulse = 1 + Math.sin(orb.pulseOffset) * 0.2; const alpha = orb.life < 180 ? orb.life / 180 : 1;
         ctx.save(); ctx.globalAlpha = alpha;
-        ctx.shadowBlur = getGfx().shadows ? 15 * pulse : 0; ctx.shadowColor = orb.glowColor; ctx.fillStyle = orb.color;
+        ctx.shadowBlur = _shadowsEnabled ? 15 * pulse : 0; ctx.shadowColor = orb.glowColor; ctx.fillStyle = orb.color;
         ctx.beginPath(); ctx.arc(orb.x, orb.y + bob, (orb.radius + 3) * pulse, 0, Math.PI * 2); ctx.fill();
-        ctx.shadowBlur = getGfx().shadows ? 8 : 0; ctx.fillStyle = '#ffffff';
+        ctx.shadowBlur = _shadowsEnabled ? 8 : 0; ctx.fillStyle = '#ffffff';
         ctx.beginPath(); ctx.arc(orb.x, orb.y + bob, orb.radius * pulse * 0.7, 0, Math.PI * 2); ctx.fill();
 
         const secsLeft = Math.ceil(orb.life / 60);
@@ -8231,7 +8505,7 @@ function gameLoop(ts){
         ctx.font = 'bold 10px Arial';
         ctx.textAlign = 'center';
         ctx.fillStyle = orb.life < 180 ? '#ff6b6b' : '#ffffff';
-        ctx.shadowBlur = getGfx().shadows ? 4 : 0; ctx.shadowColor = orb.glowColor;
+        ctx.shadowBlur = _shadowsEnabled ? 4 : 0; ctx.shadowColor = orb.glowColor;
         ctx.fillText(secsLeft + 's', orb.x, orb.y + bob - orb.radius - 7);
         ctx.restore();
     });
@@ -8289,47 +8563,47 @@ function gameLoop(ts){
 
     const diff=getDifficulty();
     ctx.save();ctx.font='bold 13px Arial';
-    ctx.fillStyle=diff===0?'rgba(255,255,255,0.4)':`hsl(${Math.max(0,120-diff*15)},90%,55%)`;
+    ctx.fillStyle=diff===0?'rgba(255,255,255,1)':`hsl(${Math.max(0,120-diff*15)},90%,70%)`;
     ctx.textAlign='right';
     ctx.shadowColor = biomeColors.uiColor;
-    ctx.shadowBlur = 8;
+    ctx.shadowBlur = _shadowsEnabled ? 10 : 0;
     ctx.fillText(`Wave ${currentRound} • Tier ${diff+1}`,canvas.width-12,22);
-    const sc=getSpawnCount();ctx.font='bold 11px Arial';ctx.fillStyle='rgba(255,255,255,0.3)';
-    ctx.shadowColor = 'rgba(0,0,0,0.3)';
+    const sc=getSpawnCount();ctx.font='bold 11px Arial';ctx.fillStyle='rgba(255,255,255,0.85)';
+    ctx.shadowColor = 'rgba(0,0,0,0.6)';ctx.shadowBlur = _shadowsEnabled ? 4 : 0;
     ctx.fillText(`${sc} enemy${sc>1?'s':''}/wave`,canvas.width-12,40);
-    ctx.fillStyle='rgba(251,191,36,0.7)';ctx.fillText(`💰 ${runGold} gold`,canvas.width-12,60);
+    ctx.fillStyle='rgba(251,191,36,1)';ctx.fillText(`💰 ${runGold} gold`,canvas.width-12,60);
 
     if (bountyActive && currentBountyEnemy && currentBountyEnemy.alive) {
         ctx.fillStyle='rgba(251,191,36,0.9)';ctx.font='bold 10px Arial';
-        ctx.shadowColor='#fbbf24';ctx.shadowBlur=8;
+        ctx.shadowColor='#fbbf24';ctx.shadowBlur = _shadowsEnabled ? 8 : 0;
         ctx.fillText(`🎯 BOUNTY: ${bountyLabel} $${bountyGold}`,canvas.width-12,78);
     }
     ctx.textAlign='left';ctx.restore();
 
     if(currentCharacter==='phantom'){
         ctx.save();ctx.font='bold 10px Arial';ctx.fillStyle='rgba(125,211,252,0.8)';ctx.textAlign='left';
-        ctx.shadowBlur=6;ctx.shadowColor='#38bdf8';
+        ctx.shadowBlur = _shadowsEnabled ? 6 : 0;ctx.shadowColor='#38bdf8';
         ctx.fillText(`👻 PHANTOM shots pierce walls! | R: Ghost Walk${phantomPhasing?' [PHASING]':' (3s CD)'}`,12,22);ctx.restore();
     }
     if(currentCharacter==='druid'){
         ctx.save();ctx.font='bold 10px Arial';ctx.fillStyle='rgba(74,222,128,0.8)';ctx.textAlign='left';
-        ctx.shadowBlur=6;ctx.shadowColor='#16a34a';
+        ctx.shadowBlur = _shadowsEnabled ? 6 : 0;ctx.shadowColor='#16a34a';
         ctx.fillText(`🌿 DRUID shots ROOT enemies 1.5s! | R: Mushroom ring (heal zone) | Shrooms: ${druidShrooms.length}`,12,22);ctx.restore();
     }
     if(currentCharacter==='pyromancer'){
         ctx.save();ctx.font='bold 10px Arial';ctx.fillStyle='rgba(251,146,60,0.9)';ctx.textAlign='left';
-        ctx.shadowBlur=6;ctx.shadowColor='#c2410c';
+        ctx.shadowBlur = _shadowsEnabled ? 6 : 0;ctx.shadowColor='#c2410c';
         const pct2=pyroCharging?Math.round(Math.min(pyroChargeTimer/180,1)*100):0;
         ctx.fillText('🔮 PYROMANCER - hold click to charge shots' + (pyroCharging?' ['+pct2+'%]':'') + ' | R: Meteor Strike',12,22);ctx.restore();
     }
     if(currentCharacter==='cyborg'){
         ctx.save();ctx.font='bold 10px Arial';ctx.fillStyle=cyborgMode==='rapid'?'rgba(56,189,248,0.9)':'rgba(192,132,252,0.9)';ctx.textAlign='left';
-        ctx.shadowBlur=6;ctx.shadowColor=cyborgMode==='rapid'?'#0ea5e9':'#7c3aed';
+        ctx.shadowBlur = _shadowsEnabled ? 6 : 0;ctx.shadowColor=cyborgMode==='rapid'?'#0ea5e9':'#7c3aed';
         ctx.fillText(`🤖 CYBORG [${cyborgMode.toUpperCase()}] E: toggle mode | R: Laser Sweep`,12,22);ctx.restore();
     }
     if(currentCharacter==='timewizard'){
         ctx.save();ctx.font='bold 10px Arial';ctx.fillStyle='rgba(216,180,254,0.9)';ctx.textAlign='left';
-        ctx.shadowBlur=6;ctx.shadowColor='#7c3aed';
+        ctx.shadowBlur = _shadowsEnabled ? 6 : 0;ctx.shadowColor='#7c3aed';
         const snapHp=timeWizardSnapshot?Math.round(timeWizardSnapshot.health):'N/A';
         ctx.fillText(`⏳ TIME WIZARD shots echo twice! | R: Rewind HP | Snapshot: ${snapHp} HP`,12,22);ctx.restore();
     }
@@ -8339,7 +8613,7 @@ function gameLoop(ts){
     }
     if(currentCharacter==='goldhoarder'){
         ctx.save();ctx.font='bold 10px Arial';ctx.fillStyle='rgba(234,179,8,0.7)';ctx.textAlign='left';
-        ctx.shadowBlur=6;ctx.shadowColor='#fbbf24';
+        ctx.shadowBlur = _shadowsEnabled ? 6 : 0;ctx.shadowColor='#fbbf24';
         ctx.fillText('🪙 GOLD HOARDER - 5x gold | slow & weak | R: Gold Rush',12,22);ctx.restore();
     }
     if(currentCharacter==='default'){
@@ -8347,29 +8621,29 @@ function gameLoop(ts){
             const wt = WAR_VETERAN_TIERS[warVeteranTier];
             const secLeft = warVeteranTier < WAR_VETERAN_TIERS.length-1 ? Math.ceil((2700-warVeteranTimer)/60) : 'MAX';
             ctx.save();ctx.font='bold 10px Arial';ctx.fillStyle=wt.color;ctx.textAlign='left';
-            ctx.shadowBlur=8;ctx.shadowColor=wt.shadow;
+            ctx.shadowBlur = _shadowsEnabled ? 8 : 0;ctx.shadowColor=wt.shadow;
             ctx.fillText(`🎖️ ${wt.name} R: Ranked Bombardment | promotes in: ${secLeft}s`,12,22);ctx.restore();
         } else {
             const vt=VETERAN_TIERS[veteranTier];
             const secLeft=veteranTier<VETERAN_TIERS.length-1?Math.ceil((1800-veteranTimer)/60):'MAX';
             ctx.save();ctx.font='bold 10px Arial';ctx.fillStyle=vt.color;ctx.textAlign='left';
-            ctx.shadowBlur=8;ctx.shadowColor=vt.shadow;
+            ctx.shadowBlur = _shadowsEnabled ? 8 : 0;ctx.shadowColor=vt.shadow;
             ctx.fillText(`⭐ ${vt.name} R: ${vt.label} | evolves in: ${secLeft}s`,12,22);ctx.restore();
         }
     }
     if(currentCharacter==='fire'){
         ctx.save();ctx.font='bold 10px Arial';ctx.fillStyle='rgba(255,100,0,0.8)';ctx.textAlign='left';
-        ctx.shadowBlur=6;ctx.shadowColor='#ff4500';
+        ctx.shadowBlur = _shadowsEnabled ? 6 : 0;ctx.shadowColor='#ff4500';
         ctx.fillText('🔥 FIRE BALL - shots leave burn patches | R: Inferno (ignites all)',12,22);ctx.restore();
     }
     if(currentCharacter==='ice'){
         ctx.save();ctx.font='bold 10px Arial';ctx.fillStyle='rgba(103,232,249,0.8)';ctx.textAlign='left';
-        ctx.shadowBlur=6;ctx.shadowColor='#06b6d4';
+        ctx.shadowBlur = _shadowsEnabled ? 6 : 0;ctx.shadowColor='#06b6d4';
         ctx.fillText('❄️ ICE BALL - pierce shots | shatter frozen for 3x dmg | R: Blizzard',12,22);ctx.restore();
     }
     if(currentCharacter==='electric'){
         ctx.save();ctx.font='bold 10px Arial';ctx.fillStyle='rgba(250,204,21,0.8)';ctx.textAlign='left';
-        ctx.shadowBlur=6;ctx.shadowColor='#a855f7';
+        ctx.shadowBlur = _shadowsEnabled ? 6 : 0;ctx.shadowColor='#a855f7';
         ctx.fillText(`⚡ TESLA shots auto-chain | R: Overload${overloadCharges>0?' ACTIVE x'+overloadCharges:''}`,12,22);ctx.restore();
     }
     let buffY = canvas.height - 14;
@@ -8402,10 +8676,31 @@ function gameLoop(ts){
     }
 
     projectiles=projectiles.filter(proj=>{
-        if(!proj.alive)return false;proj.update(dt);if(!proj.isHollowPurple && projectileHitsWall(proj)){proj.alive=false;for(let i=0;i<4;i++)particles.push(new Particle(proj.x,proj.y,'rgba(100,180,255,0.7)'));return false;}proj.draw();
+        if(!proj.alive)return false;proj.update(dt);
+        if(!proj.isHollowPurple && projectileHitsWall(proj)){
+            if(proj.isMahoRock){
+                for(let i=0;i<30;i++) particles.push(new Particle(proj.x+(Math.random()-0.5)*40,proj.y+(Math.random()-0.5)*40,i%2===0?'#78716c':'#57534e'));
+                proj.alive=false; return false;
+            }
+            proj.alive=false;for(let i=0;i<4;i++)particles.push(new Particle(proj.x,proj.y,'rgba(100,180,255,0.7)'));return false;
+        }
+        if(proj.isMahoRock){
+            ctx.save();
+            ctx.shadowBlur = _shadowsEnabled ? 18 : 0; ctx.shadowColor='#a8a29e';
+            ctx.fillStyle='#78716c';
+            ctx.beginPath();ctx.arc(proj.x,proj.y,proj.radius,0,Math.PI*2);ctx.fill();
+            ctx.fillStyle='#a8a29e';
+            ctx.beginPath();ctx.arc(proj.x-6,proj.y-6,7,0,Math.PI*2);ctx.fill();
+            ctx.beginPath();ctx.arc(proj.x+5,proj.y+3,4,0,Math.PI*2);ctx.fill();
+            ctx.restore();
+        } else {
+            proj.draw();
+        }
         if((currentCharacter==='gojo'||currentCharacter==='the_strongest_today') && !proj.hitEnemies) proj.hitEnemies = new Set();
+        if(proj.isMahoRock && !proj.hitEnemies) proj.hitEnemies = new Set();
         for(let e of enemies){if(!e.alive)continue;const dx=e.x-proj.x,dy=e.y-proj.y;
-            if(Math.sqrt(dx*dx+dy*dy)<e.radius+proj.radius){
+            const radSum=e.radius+proj.radius;
+            if(dx*dx+dy*dy<radSum*radSum){
 
                 if (e.isPhantomEnemy && !e.isVisible) {
                     for(let i=0;i<5;i++) particles.push(new Particle(e.x,e.y,'#a78bfa'));
@@ -8424,6 +8719,8 @@ function gameLoop(ts){
                 }
                 if((currentCharacter==='gojo'||currentCharacter==='the_strongest_today') && proj.hitEnemies.has(e)) continue;
                 if(currentCharacter==='gojo'||currentCharacter==='the_strongest_today') proj.hitEnemies.add(e);
+                if(proj.isMahoRock && proj.hitEnemies.has(e)) continue;
+                if(proj.isMahoRock) proj.hitEnemies.add(e);
                 let pdmg = proj.damage;
                 if(hakariJackpotActive) pdmg *= 50;
                 if(passiveState.crit>0&&Math.random()<passiveState.crit){pdmg*=3;}
@@ -8437,21 +8734,27 @@ function gameLoop(ts){
                     continue;
                 }
 
-                if(!damageEnemy(e, pdmg, proj.x, proj.y)){ if(currentCharacter!=='gojo'&&currentCharacter!=='the_strongest_today') proj.alive=false; continue; }
+                if(!damageEnemy(e, pdmg, proj.x, proj.y)){ if(currentCharacter!=='gojo'&&currentCharacter!=='the_strongest_today'&&!proj.isMahoRock) proj.alive=false; continue; }
+                if(proj.isMahoRock){
+                    for(let i=0;i<15;i++) particles.push(new Particle(e.x+(Math.random()-0.5)*40,e.y+(Math.random()-0.5)*40,i%3===0?'#dc2626':'#78716c'));
+                    if(e.health<=0&&e.alive){e.alive=false;player.kills++;gainExp(e.expValue);handleKill(e);}
+                    runDamage += pdmg;
+                    continue;
+                }
                 runDamage += pdmg; if(currentCharacter!=='gojo' && currentCharacter!=='the_strongest_today' && !proj.isHollowPurple) proj.alive=false;
                 if(runDamage >= 10000 && !hqCompleted.includes('hq_damage')) { checkHonored(); }
 
-                // Mahoragah AoE — every hit detonates in a radius
+                
                 if (currentCharacter === 'megumi' && megumiIsMahoragah) {
-                    const aoeR = 130;
+                    const aoeR = 160;
                     enemies.forEach(ae => {
                         if (!ae.alive || ae === e) return;
                         if (Math.hypot(ae.x-e.x, ae.y-e.y) < aoeR) {
-                            damageEnemy(ae, pdmg * 0.6, e.x, e.y);
+                            damageEnemy(ae, pdmg * 0.75, e.x, e.y);
                             if (ae.health<=0&&ae.alive){ae.alive=false;player.kills++;gainExp(ae.expValue);handleKill(ae);}
                         }
                     });
-                    for(let i=0;i<20;i++) particles.push(new Particle(e.x+(Math.random()-0.5)*aoeR,e.y+(Math.random()-0.5)*aoeR,Math.random()<0.5?'#dc2626':'#7c3aed'));
+                    for(let i=0;i<25;i++) particles.push(new Particle(e.x+(Math.random()-0.5)*aoeR,e.y+(Math.random()-0.5)*aoeR,Math.random()<0.5?'#dc2626':'#7c3aed'));
                 }
 
                 if(currentCharacter==='fire'||proj.isFire){
@@ -8554,7 +8857,7 @@ function gameLoop(ts){
     enemies=enemies.filter(e=>{if(!e.alive)return false;e.update(dt);if(e.alive)e.draw();return e.alive;});
     tickSpecialEnemies(dt);
     updateTheEnemy(dt);
-    // Apply camera zoom for The Enemy via canvas CSS
+    
     if (theEnemyActive) {
         const zoom = theEnemyCamZoom;
         const cEl = document.getElementById('gameCanvas');
@@ -8609,7 +8912,7 @@ function gameLoop(ts){
                 ctx.save();
                 ctx.strokeStyle = '#ef4444';
                 ctx.lineWidth = 8;
-                ctx.shadowBlur = 15;
+                ctx.shadowBlur = _shadowsEnabled ? 15 : 0;
                 ctx.shadowColor = '#dc2626';
                 ctx.beginPath();
                 ctx.moveTo(b.x, b.y);
@@ -8648,7 +8951,7 @@ function gameLoop(ts){
                 b.y += b.vy * dt;
 
                 ctx.save();
-                ctx.shadowBlur = 15;
+                ctx.shadowBlur = _shadowsEnabled ? 15 : 0;
                 ctx.shadowColor = '#dc2626';
                 ctx.fillStyle = '#ef4444';
                 ctx.beginPath();
@@ -8685,7 +8988,7 @@ function gameLoop(ts){
             ctx.translate(mt.x, mt.y);
             ctx.rotate(mt.rotation);
             ctx.fillStyle = '#fca5a5';
-            ctx.shadowBlur = 15;
+            ctx.shadowBlur = _shadowsEnabled ? 15 : 0;
             ctx.shadowColor = '#fca5a5';
             ctx.beginPath();
             const s = mt.radius;
@@ -8767,7 +9070,7 @@ function gameLoop(ts){
                 b.x += b.vx * dt;
                 b.y += b.vy * dt;
                 ctx.save();
-                ctx.shadowBlur = 18;
+                ctx.shadowBlur = _shadowsEnabled ? 18 : 0;
                 ctx.shadowColor = '#00ff66';
                 ctx.fillStyle = '#00cc44';
                 ctx.beginPath();
@@ -8805,7 +9108,7 @@ function gameLoop(ts){
         ctx.save();
         ctx.translate(m.x, m.y);
         ctx.rotate(m.rotation);
-        ctx.shadowBlur = 20;
+        ctx.shadowBlur = _shadowsEnabled ? 20 : 0;
         ctx.shadowColor = '#00ff66';
         ctx.fillStyle = '#00aa44';
         const s = m.radius;
@@ -8840,7 +9143,10 @@ function gameLoop(ts){
         return m.alive;
     });
     const _pcap = getGfx().particleCap; if(_pcap === 0) { particles = []; } else if(particles.length > _pcap) particles.splice(0, particles.length - _pcap);
+    ctx.save();
     particles=particles.filter(p=>{if(p.life<=0)return false;p.update(dt);p.draw();return true;});
+    ctx.globalAlpha=1;
+    ctx.restore();
 
     if (hakariDomainActive) {
         hakariDomainTimer -= dt;
@@ -8862,7 +9168,7 @@ function gameLoop(ts){
         ctx.font = 'bold 14px Arial';
         ctx.textAlign = 'center';
         ctx.fillStyle = '#ec4899';
-        ctx.shadowBlur = 20;
+        ctx.shadowBlur = _shadowsEnabled ? 20 : 0;
         ctx.shadowColor = '#ec4899';
         ctx.fillText('🎰 DOMAIN EXPANSION 🎰', player.x, player.y - 220);
         ctx.restore();
@@ -8871,7 +9177,7 @@ function gameLoop(ts){
         ctx.font = 'bold 16px Arial';
         ctx.textAlign = 'center';
         ctx.fillStyle = '#fbbf24';
-        ctx.shadowBlur = 15;
+        ctx.shadowBlur = _shadowsEnabled ? 15 : 0;
         ctx.shadowColor = '#fbbf24';
         ctx.fillText(`ROLLS: ${hakariRollCount}`, player.x, player.y - 190);
         const timeLeft = Math.ceil(hakariDomainTimer / 60);
@@ -8887,7 +9193,7 @@ function gameLoop(ts){
             ctx.font = 'bold 24px Arial';
             ctx.textAlign = 'center';
             ctx.fillStyle = '#ec4899';
-            ctx.shadowBlur = 20;
+            ctx.shadowBlur = _shadowsEnabled ? 20 : 0;
             ctx.shadowColor = '#ec4899';
             ctx.fillText('🎰', 0, 30);
             ctx.restore();
@@ -8952,7 +9258,7 @@ function gameLoop(ts){
         ctx.font = 'bold 14px Arial';
         ctx.textAlign = 'center';
         ctx.fillStyle = '#fbbf24';
-        ctx.shadowBlur = 15;
+        ctx.shadowBlur = _shadowsEnabled ? 15 : 0;
         ctx.shadowColor = '#fbbf24';
         ctx.fillText(`🎰 JACKPOT ${minLeft}:${secLeft.toString().padStart(2, '0')} 🎰`, player.x, player.y - 40);
         ctx.restore();
@@ -8976,7 +9282,7 @@ function gameLoop(ts){
         ctx.font = 'bold 16px Arial';
         ctx.textAlign = 'center';
         ctx.fillStyle = yujiIsSukuna ? '#8b0000' : '#e84d4d';
-        ctx.shadowBlur = 20;
+        ctx.shadowBlur = _shadowsEnabled ? 20 : 0;
         ctx.shadowColor = yujiIsSukuna ? '#8b0000' : '#e84d4d';
         const fingerText = yujiIsSukuna ? 'SUKUNA' : `🩸 Fingers: ${yujiSukunaFingers}/20`;
         ctx.fillText(fingerText, player.x, player.y - 60);
@@ -9100,7 +9406,7 @@ function gameLoop(ts){
         ctx.save();
         ctx.translate(sb.x, sb.y);
         ctx.rotate(sb.rotation);
-        ctx.shadowBlur = getGfx().shadows ? 40 : 0;
+        ctx.shadowBlur = _shadowsEnabled ? 40 : 0;
         ctx.shadowColor = '#8b0000';
         ctx.fillStyle = '#1a0000';
         ctx.beginPath();
@@ -9153,7 +9459,7 @@ function gameLoop(ts){
         ctx.save();
         ctx.strokeStyle = `rgba(180,0,0,${borderAlpha})`;
         ctx.lineWidth = 10;
-        ctx.shadowBlur = 20;
+        ctx.shadowBlur = _shadowsEnabled ? 20 : 0;
         ctx.shadowColor = '#8b0000';
         ctx.strokeRect(5, 5, canvas.width-10, canvas.height-10);
 
@@ -9279,7 +9585,7 @@ function gameLoop(ts){
         ctx.font = 'bold 16px Arial';
         ctx.textAlign = 'center';
         ctx.fillStyle = '#fbbf24';
-        ctx.shadowBlur = 12;
+        ctx.shadowBlur = _shadowsEnabled ? 12 : 0;
         ctx.shadowColor = '#fbbf24';
         ctx.fillText(currentNotification, canvas.width / 2, 80);
         ctx.restore();
@@ -9358,9 +9664,9 @@ function applySettings() {
 }
 
 const GFX_PRESETS = {
-    high:   { particleCap: 999, shadows: true,  grid: true,  bgAlpha: 0.72, desc:'Full effects best visuals, needs a decent PC.' },
-    medium: { particleCap: 150, shadows: true,  grid: false, bgAlpha: 0.80, desc:'Balanced fewer particles, no grid. Good for mid-range PCs.' },
-    low:    { particleCap: 0,  shadows: false, grid: false, bgAlpha: 0.90, desc:'Performance mode no particles, no shadows. Best for waves 500+.' },
+    high:   { particleCap: 350, shadows: true,  grid: true,  bgAlpha: 0.72, desc:'Full effects, good visuals.' },
+    medium: { particleCap: 120, shadows: false, grid: false, bgAlpha: 0.80, desc:'Balanced — no shadows/grid. Good for mid-range devices.' },
+    low:    { particleCap: 0,   shadows: false, grid: false, bgAlpha: 0.90, desc:'Performance mode — no particles or shadows. Best for waves 500+.' },
 };
 
 function getGfx() { return GFX_PRESETS[settings.graphics] || GFX_PRESETS.high; }
@@ -9814,8 +10120,17 @@ document.addEventListener('keydown',e=>{
     }
     if(k === 'tab' && gameRunning) { e.preventDefault(); toggleStatsDisplay(); return; }
     if(k === binds.dash) { e.preventDefault(); if(gameRunning && currentCharacter !== 'last_architect') dash(); }
-    if(k === binds.special && gameRunning) specialAttack();
-    // Hornet abilities
+    if(k === binds.special && gameRunning) {
+        if (currentCharacter === 'megumi' && !megumiIsMahoragah && !megumiMahoragahTransforming) {
+            if (!e.repeat) {
+                megumiHoldActive = true;
+                specialAttack();
+            }
+        } else {
+            specialAttack();
+        }
+    }
+    
     if(k === 'q' && currentCharacter === 'hornet' && gameRunning) {
         if (hornetSilk < 9) { floatMoneyText('🕸️ Need 9 silk for Bind!'); }
         else if (hornetBindActive || hornetBindWindup > 0) { floatMoneyText('⏳ Bind already active!'); }
@@ -9858,6 +10173,10 @@ document.addEventListener('keydown',e=>{
 document.addEventListener('keyup',e=>{
     keys[e.key.toLowerCase()]=false;
     if(e.key.toLowerCase() === 'f') fKeyHeld = false;
+    if(e.key.toLowerCase() === binds.special && currentCharacter === 'megumi') {
+        megumiHoldActive = false;
+        megumiHoldTimer = 0;
+    }
 });
 canvas.addEventListener('mousemove',e=>{
     const r=canvas.getBoundingClientRect();
@@ -10384,18 +10703,18 @@ const CHAR_INFO = {
         name:'Megumi Fushiguro', tag:'Quest Unlock | Ten Shadows Technique', icon:'🐺',
         iconBg:'linear-gradient(135deg,#0f172a,#1e3a8a)', iconGlow:'#7dd3fc',
         stats:[
-            { label:'HP', value:'110' },
-            { label:'Damage', value:'22' },
-            { label:'Speed', value:'5.5' },
-            { label:'CE Bar', value:'Max 100 (spend on dogs). Total CE earned counts toward Mahoragah.' },{ label:'CE Regen', value:'8 per sec + 15 per kill (tracked toward 1000 total)' },
-            { label:'R (under 1000 Total CE)', value:'Spawn 2 Divine Dogs for 40 CE. Bar caps at 100. Dogs deal 25% of your damage.' },
-            { label:'R (1000 Total CE earned)', value:'MAHORAGAH: invulnerable during summon, 3.2x DMG, AoE explosions on every hit, +60% damage taken, +4 speed for 30s' },
-            { label:'Dog Duration', value:'10 seconds per pair' },
+            { label:'HP', value:'140 (→ 500 as Mahoragah)' },
+            { label:'Damage', value:'30 (→ 4x = 120 as Mahoragah)' },
+            { label:'Speed', value:'6 (→ 3 as Mahoragah)' },
+            { label:'CE Bar', value:'Max 100 (spend on dogs). Total CE earned counts toward Mahoragah.' },
+            { label:'CE Regen', value:'12 per sec + 22 per kill (tracked toward 1000 total)' },
+            { label:'R (tap)', value:'Spawn 3 Divine Dogs for 35 CE. Dogs deal 45% of your damage, 15s duration.' },
+            { label:'R (hold 7s)', value:'MAHORAGAH (requires Wave 100+): invulnerable during summon, becomes white sphere, 4x DMG, 160px AoE on every hit (75% splash), speed drops to 3, HP surges to 500, 45s duration, +60% damage taken. Speed & HP revert when Mahoragah fades.' },
             { label:'Unlock', value:'Complete all 5 Megumi quests' },
         ],
-        abilities:`<b>Divine Dogs:</b> Press R (costs 40 CE) to summon a White and Black dog. They chase enemies and bite at close range or fire shadow projectiles, each dealing 25% of your damage. CE bar caps at 100.<br><br><b>Mahoragah:</b> Earn 1000 total CE over the course of a run (through regen and kills), then press R. You are invulnerable while the summoning audio plays. Once transformed: 3.2x damage, every projectile detonates a 130px AoE explosion for 60% of the hit damage, +4 movement speed, but you take 60% more damage. Lasts 30 seconds.`,
-        playstyle:'Your CE bar caps at 100 but every point earned counts toward 1000 total. Spend CE on Divine Dogs to farm kills and regen faster. Once you hit 1000 total CE earned, Mahoragah activates and every shot becomes an AoE explosion. Watch your HP though, you take 60% more damage.',
-        tip:'🐺 Tip: Dog kills give +15 CE each. Spam dogs to reach 1000 total CE faster. Mahoragah hits hard but the +60% damage taken makes you fragile, so pop it when you have room to move.',
+        abilities:`<b>Divine Dogs:</b> Tap R (costs 35 CE) to summon three dogs — White, Black, and Shadow. They chase and bite enemies in melee (45% damage) or fire shadow projectiles at range (up to 280px). Each pack lasts 15 seconds.<br><br><b>Mahoragah (Wave 100+ Required):</b> Hold R for 7 full seconds — a charge bar fills above your character. Release early and the bar drains. Once fully charged, you are invulnerable while the summoning audio plays. Once transformed into a glowing white sphere: 4x damage, every projectile detonates a 160px AoE explosion for 75% of hit damage, speed drops to 3, max HP becomes 500 (topped up on transform), but you take 60% more damage. Lasts 45 seconds. When Mahoragah fades, speed returns to 6 and HP cap returns to 140.`,
+        playstyle:'Tap R to spam dogs and deal consistent DPS while building up CE. Survive to Wave 100, then look for a safe moment to hold R for 7 seconds — Mahoragah turns you into a screen-clearing white sphere. You move slower but hit like a freight train. Watch your HP carefully; the +60% damage taken can end the form fast.',
+        tip:'🐺 Tip: You need Wave 100 before Mahoragah unlocks — use dogs aggressively to build CE while surviving early waves. Once Mahoragah is active, play around your slow speed (3) by staying near the centre and letting enemies come to you — the 160px AoE will clear them before they reach you.',
     },
 
     hornet: {
@@ -11013,9 +11332,9 @@ function submitCode() {
         Object.keys(MASTERY_DATA).forEach(m => {
             if (!unlockedMasteries.includes(m)) unlockedMasteries.push(m);
         });
-        // Complete every single quest
+        
         HONORED_QUESTS.forEach(q => { if (!hqCompleted.includes(q.id)) hqCompleted.push(q.id); });
-        // Satisfy stat trackers
+        
         const hornetKillTypes = ['normal','triangle','shielder','splitter','healer','bomber','charger','regen_e','berserker_e','phantom_e','leech','sniper_e','puller','mirror_e','timebomb','guardian','golem','dasher','boomerang','swarm','magnet','webber','silencer','mimic','echo','void_rift'];
         hornetKillTypes.forEach(t => { if ((enemyKillCounts[t] || 0) < 25) enemyKillCounts[t] = 25; });
         hornetNoDmgWave  = Math.max(hornetNoDmgWave, 100);
@@ -11025,7 +11344,7 @@ function submitCode() {
         localStorage.setItem('ballRPGHornetNoDmg', hornetNoDmgWave);
         localStorage.setItem('ballRPGHornetNoShop', hornetNoShopWins);
         renderHQPanel();
-        // Do NOT push to usedCodes — this code is redeemable every time
+        
         savePersistentData();
         updateShopDisplay();
         floatMoneyText(codeData.message);
@@ -11053,12 +11372,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// ── APOLOGY PICKER ─────────────────────────────────────────
 function openApologyPicker() {
     const existing = document.getElementById('apologyPickerOverlay');
     if (existing) existing.remove();
 
-    // Build the full list of every character with its metadata
+    
     const ALL_PICKS = [];
     Object.keys(CHAR_INFO).forEach(key => {
         const info = CHAR_INFO[key];
@@ -11072,7 +11390,7 @@ function openApologyPicker() {
             iconGlow: info.iconGlow || '#ffffff',
         });
     });
-    // Also include characters in CHARACTERS not in CHAR_INFO (safety net)
+    
     Object.keys(CHARACTERS).forEach(key => {
         if (ALL_PICKS.find(p => p.key === key)) return;
         if (CHARACTERS[key].removed) return;
@@ -11200,20 +11518,20 @@ function openApologyPicker() {
     window.apologyPickClaim = function() {
         if (selected.length !== 2) return;
         selected.forEach(p => {
-            // Unlock the character
+            
             if (!unlockedCharacters.includes(p.key)) unlockedCharacters.push(p.key);
-            // Unlock any associated mastery
+            
             if (MASTERY_DATA && MASTERY_DATA[p.key] && !unlockedMasteries.includes(p.key)) {
                 unlockedMasteries.push(p.key);
                 equippedMasteries.push(p.key);
             }
-            // Complete any associated HQ quests
+            
             const relatedQuests = HONORED_QUESTS.filter(q =>
                 q.character && q.character.toLowerCase().replace(/ /g,'_') === p.key ||
                 q.character === p.name
             );
             relatedQuests.forEach(q => { if (!hqCompleted.includes(q.id)) hqCompleted.push(q.id); });
-            // Satisfy hornet-specific stats
+            
             if (p.key === 'hornet') {
                 const hornetKillTypes = ['normal','triangle','shielder','splitter','healer','bomber','charger','regen_e','berserker_e','phantom_e','leech','sniper_e','puller','mirror_e','timebomb','guardian','golem','dasher','boomerang','swarm','magnet','webber','silencer','mimic','echo','void_rift'];
                 hornetKillTypes.forEach(t => { if ((enemyKillCounts[t]||0)<25) enemyKillCounts[t]=25; });
@@ -11255,7 +11573,6 @@ function openApologyPicker() {
     document.body.appendChild(overlay);
     render();
 }
-// ───────────────────────────────────────────────────────────
 
 const MASTERY_DATA = {
     default: {
@@ -11595,7 +11912,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-
 const BESTIARY = [
     { icon:'⬛', name:'Normal',      bType:'normal',      color:'#ef4444', round:1,  desc:'Basic enemy. Walks straight at you. No tricks just pressure in numbers.' },
     { icon:'▲',  name:'Triangle',   bType:'triangle',    color:'#7c3aed', round:3,  desc:'Fast and agile. Slightly harder to hit due to its small size and speed.' },
@@ -11626,7 +11942,7 @@ const BESTIARY = [
 
 function openBestiary() {
     const grid = document.getElementById('bestiaryGrid');
-    // Track seen on spawn - also mark enemies as seen when viewing bestiary if already killed
+    
     grid.innerHTML = BESTIARY.map(e => {
         return `
         <div style="
@@ -11660,8 +11976,6 @@ function closeBestiary() {
 
 </script>
 
-
-<!-- ENEMY BESTIARY MODAL -->
 <div id="bestiaryModal" style="
     display:none; position:fixed; inset:0; z-index:9000;
     background:rgba(0,0,0,0.85); justify-content:center; align-items:center;
@@ -11686,7 +12000,6 @@ function closeBestiary() {
     </div>
 </div>
 
-<!-- CREDITS MODAL -->
 <style>
 @keyframes creditsSlideIn {
     0%   { transform: translateX(-150vw); opacity: 0; }
@@ -11727,7 +12040,7 @@ const _creditsSlideAudio = new Audio('https://res.cloudinary.com/dz1dungk5/video
 _creditsSlideAudio.loop = true;
 _creditsSlideAudio.volume = 0.3;
 
-const CREDITS_SLIDE_DURATION = 16000; // ms — matches the 16s animation
+const CREDITS_SLIDE_DURATION = 16000; 
 let _creditsStopTimer = null;
 
 function openCredits() {
@@ -11738,11 +12051,11 @@ function openCredits() {
     box.offsetHeight;
     box.style.animation = 'creditsSlideIn 16s linear forwards';
 
-    // Start looping sound
+    
     _creditsSlideAudio.currentTime = 0;
     _creditsSlideAudio.play().catch(() => {});
 
-    // Stop exactly when the box lands in position
+    
     clearTimeout(_creditsStopTimer);
     _creditsStopTimer = setTimeout(() => {
         _creditsSlideAudio.pause();
@@ -11751,7 +12064,7 @@ function openCredits() {
 }
 
 function closeCredits() {
-    // Stop sound immediately if still playing
+    
     clearTimeout(_creditsStopTimer);
     _creditsSlideAudio.pause();
     _creditsSlideAudio.currentTime = 0;
@@ -11766,12 +12079,7 @@ function closeCredits() {
 </script>
 
 <script>
-/* ═══════════════════════════════════════════════════════════
-   MOBILE SUPPORT — Touch controls, orientation, auto-fire
-   + Character-specific buttons + Input auto-detection
-═══════════════════════════════════════════════════════════ */
 
-/* ── Input mode auto-detection ──────────────────────────── */
 let _usingTouch = false;
 
 function setInputMode(touch) {
@@ -11789,7 +12097,6 @@ document.addEventListener('touchstart', () => setInputMode(true), { passive: tru
 
 const isMobile = () => navigator.maxTouchPoints > 0 || 'ontouchstart' in window;
 
-/* ── Orientation handler ─────────────────────────────────── */
 function handleOrientation() {
     const portrait = window.innerHeight > window.innerWidth;
     const inGame   = document.getElementById('gameContainer').style.display === 'block';
@@ -11804,7 +12111,6 @@ window.addEventListener('resize',           handleOrientation);
 window.addEventListener('orientationchange',() => setTimeout(handleOrientation, 200));
 document.addEventListener('DOMContentLoaded', handleOrientation);
 
-/* ── Pause button — reliable touch + click handler ───────── */
 const _pauseBtn = document.getElementById('mobBtnPause');
 function _mobilePauseTap(e) {
     e.preventDefault();
@@ -11815,7 +12121,6 @@ function _mobilePauseTap(e) {
 _pauseBtn.addEventListener('touchstart', _mobilePauseTap, { passive: false });
 _pauseBtn.addEventListener('click',      _mobilePauseTap);
 
-/* ── Show/hide mobile controls ───────────────────────────── */
 function showMobileControls(show) {
     const mc = document.getElementById('mobileControls');
     const pb = document.getElementById('mobBtnPause');
@@ -11825,18 +12130,14 @@ function showMobileControls(show) {
     if (show) { updateCharacterButtons(); handleOrientation(); }
 }
 
-/* ─────────────────────────────────────────────────────────
-   CHARACTER-SPECIFIC BUTTON DEFINITIONS
-   Each character gets custom extra buttons beyond R + Dash
-───────────────────────────────────────────────────────── */
 const CHAR_MOBILE_BUTTONS = {
-    // Gojo: F (hold CE→HP)
+    
     gojo: [
         { id:'mobF', label:'F', color:'rgba(99,102,241,0.6)', border:'#6366f1',
           onpress: () => { fKeyHeld = true; },
           onrelease: () => { fKeyHeld = false; } }
     ],
-    // The Strongest Today: Z, X, C, F
+    
     the_strongest_today: [
         { id:'mobZ', label:'💙', color:'rgba(59,130,246,0.6)', border:'#3b82f6',
           onpress: () => { if(gameRunning) tst_maximumBlue(); } },
@@ -11848,7 +12149,7 @@ const CHAR_MOBILE_BUTTONS = {
           onpress: () => { fKeyHeld = true; },
           onrelease: () => { fKeyHeld = false; } }
     ],
-    // Hornet: Q (Bind), E (Shard Trap)
+    
     hornet: [
         { id:'mobQ', label:'🩹', color:'rgba(245,158,11,0.6)', border:'#f59e0b',
           onpress: () => {
@@ -11869,7 +12170,7 @@ const CHAR_MOBILE_BUTTONS = {
               }
           }}
     ],
-    // Cyborg: E (toggle mode)
+    
     cyborg: [
         { id:'mobE', label:'🤖', color:'rgba(56,189,248,0.6)', border:'#38bdf8',
           onpress: () => {
@@ -11880,7 +12181,7 @@ const CHAR_MOBILE_BUTTONS = {
               updateHUD();
           }}
     ],
-    // Builder: E (move mode toggle), Shift+tap handled via long-press on canvas
+    
     builder: [
         { id:'mobE', label:'🏗️', color:'rgba(210,105,30,0.6)', border:'#d2691e',
           onpress: () => {
@@ -11898,7 +12199,7 @@ const CHAR_MOBILE_BUTTONS = {
               savePersistentData(); updateMasteryCardButtons();
           }}
     ],
-    // Last Architect: toggle robot/turret mode
+    
     last_architect: [
         { id:'mobMode', label:'🔄', color:'rgba(167,139,250,0.6)', border:'#a78bfa',
           onpress: () => {
@@ -11909,7 +12210,6 @@ const CHAR_MOBILE_BUTTONS = {
     ]
 };
 
-/* ── Build/refresh the extra character buttons ─────────────── */
 function updateCharacterButtons() {
     const container = document.getElementById('mobCharButtons');
     if (!container) return;
@@ -11928,7 +12228,6 @@ function updateCharacterButtons() {
     });
 }
 
-/* ── Patch startGame / restartGame / backToMainMenu ─────── */
 const _origStartGame = startGame;
 startGame = function() { _origStartGame(); showMobileControls(true); };
 const _origRestartGame = restartGame;
@@ -11938,7 +12237,6 @@ backToMainMenu = function() { _origBackToMainMenu(); showMobileControls(false); 
 const _origPauseToMainMenu = pauseToMainMenu;
 pauseToMainMenu = function() { _origPauseToMainMenu(); showMobileControls(false); handleOrientation(); };
 
-/* ── Virtual Joystick ────────────────────────────────────── */
 let _joy = { active: false, id: null, baseX: 0, baseY: 0, dx: 0, dy: 0 };
 const JOY_RADIUS = 55;
 const joyZone = document.getElementById('joystickZone');
@@ -11988,7 +12286,6 @@ joyZone.addEventListener('touchmove',  joyMove,  { passive: false });
 joyZone.addEventListener('touchend',   joyEnd,   { passive: false });
 joyZone.addEventListener('touchcancel',joyEnd,   { passive: false });
 
-/* Inject joystick movement + aim projection into game loop */
 const _origGameLoop = gameLoop;
 gameLoop = function(ts) {
     if (_usingTouch && _joy.active) {
@@ -12000,7 +12297,7 @@ gameLoop = function(ts) {
     } else if (_usingTouch && !_joy.active) {
         keys['w'] = keys['s'] = keys['a'] = keys['d'] = false;
     }
-    // Keep aim joystick projection updated each frame
+    
     if (_usingTouch && _aimJoy.active && typeof player !== 'undefined') {
         const AIM_DIST = 600;
         mousePos.x = player.x + _aimJoy.dx * AIM_DIST;
@@ -12009,9 +12306,8 @@ gameLoop = function(ts) {
     _origGameLoop(ts);
 };
 
-/* ── Aim Joystick (right side) ───────────────────────────── */
 let _aimJoy = { active: false, id: null, dx: 0, dy: 0 };
-const AIM_JOY_RADIUS = 40; // half the 130px base minus knob
+const AIM_JOY_RADIUS = 40; 
 let _mobileAutoFire = null;
 const aimJoyZone = document.getElementById('aimJoyZone');
 const aimJoyKnob = document.getElementById('aimJoyKnob');
@@ -12056,12 +12352,12 @@ function updateAimJoy(touch) {
     if (dist > AIM_JOY_RADIUS) { dx = dx/dist*AIM_JOY_RADIUS; dy = dy/dist*AIM_JOY_RADIUS; }
     _aimJoy.dx = dx / AIM_JOY_RADIUS;
     _aimJoy.dy = dy / AIM_JOY_RADIUS;
-    // Move knob visually (knob is positioned relative to centre via translate -50%,-50%)
+    
     const pctX = 50 + (_aimJoy.dx * 50);
     const pctY = 50 + (_aimJoy.dy * 50);
     aimJoyKnob.style.left = pctX + '%';
     aimJoyKnob.style.top  = pctY + '%';
-    // Project aim direction far ahead of player on the canvas
+    
     if (typeof player !== 'undefined' && dist > 5) {
         const AIM_DIST = 600;
         mousePos.x = player.x + _aimJoy.dx * AIM_DIST;
@@ -12073,7 +12369,6 @@ aimJoyZone.addEventListener('touchmove',  aimJoyMove,  { passive: false });
 aimJoyZone.addEventListener('touchend',   aimJoyEnd,   { passive: false });
 aimJoyZone.addEventListener('touchcancel',aimJoyEnd,   { passive: false });
 
-/* ── Standard action buttons ─────────────────────────────── */
 function mobileAbility() {
     if (!gameRunning || gamePaused) return;
     specialAttack();
@@ -12083,7 +12378,6 @@ function mobileDash() {
     dash();
 }
 
-/* ── Auto-set low graphics on first mobile load ──────────── */
 document.addEventListener('DOMContentLoaded', () => {
     if (isMobile() && settings && !localStorage.getItem('ballSurvivalSettings')) {
         settings.graphics = 'low';
@@ -12091,7 +12385,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-/* Refresh char buttons whenever character changes */
 const _origSelectChar = selectCharacter;
 if (typeof selectCharacter === 'function') {
     selectCharacter = function(name) {
