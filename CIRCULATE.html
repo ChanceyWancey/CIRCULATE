@@ -1238,6 +1238,7 @@
     <div id="dailyCodeHint_menu" style="font-size:10px;color:rgba(255,255,255,0.18);letter-spacing:1px;margin-top:-10px;margin-bottom:6px;font-family:monospace;user-select:none;"></div>
     <div class="currency-display">💰 $<span id="totalMoney">0</span></div>
     <button class="menu-btn" onclick="showCharacterShop()">Characters</button>
+    <button id="deleteRunSaveBtn" onclick="deleteRunSave()" style="display:none;background:rgba(220,38,38,0.12);border:1px solid rgba(220,38,38,0.35);color:rgba(255,120,120,0.7);font-size:10px;padding:4px 14px;border-radius:5px;cursor:pointer;margin-bottom:3px;font-family:inherit;">🗑️ Delete Run Save</button>
     <button id="continueRunBtn" class="menu-btn" onclick="loadRun()" style="display:none;background:#16a34a;border-bottom-color:#14532d;">▶️ Continue Run</button>
     <button class="menu-btn" onclick="startGame()">▶️ Play Game</button>
     <button class="menu-btn" onclick="showQuestsPage()" style="background:#4f46e5;border-bottom-color:#312e81;">⭐ Quests</button>
@@ -2280,6 +2281,8 @@ let overloadCharges = 0;
 let runGold = 0;
 let runKills = 0;
 let runDamage = 0;
+let playerWebSlowTimer = 0;
+let playerSilencedTimer = 0;
 let runSpecialUses = 0;
 let runPlayTime = 0;
 let totalPlayTimeSaved = parseInt(localStorage.getItem('ballRPGTotalPlayTime')) || 0;
@@ -2298,9 +2301,9 @@ const HONORED_QUESTS = [
         character: 'Hornet',
         label:'Silk Slaughter',
         desc:'Kill 25 of every enemy type',
-        check: () => (enemyKillCounts['normal']||0)>=25 && (enemyKillCounts['triangle']||0)>=25 && (enemyKillCounts['shielder']||0)>=25 && (enemyKillCounts['splitter']||0)>=25 && (enemyKillCounts['healer']||0)>=25 && (enemyKillCounts['bomber']||0)>=25 && (enemyKillCounts['charger']||0)>=25 && (enemyKillCounts['regen_e']||0)>=25 && (enemyKillCounts['berserker_e']||0)>=25 && (enemyKillCounts['phantom_e']||0)>=25 && (enemyKillCounts['leech']||0)>=25 && (enemyKillCounts['sniper_e']||0)>=25 && (enemyKillCounts['puller']||0)>=25 && (enemyKillCounts['mirror_e']||0)>=25 && (enemyKillCounts['timebomb']||0)>=25 && (enemyKillCounts['guardian']||0)>=25 && (enemyKillCounts['golem']||0)>=25 && (enemyKillCounts['dasher']||0)>=25 && (enemyKillCounts['boomerang']||0)>=25 && (enemyKillCounts['swarm']||0)>=25 && (enemyKillCounts['magnet']||0)>=25 && (enemyKillCounts['webber']||0)>=25 && (enemyKillCounts['silencer']||0)>=25 && (enemyKillCounts['mimic']||0)>=25 && (enemyKillCounts['echo']||0)>=25 && (enemyKillCounts['void_rift']||0)>=25,
+        check: () => (enemyKillCounts['normal']||0)>=25 && (enemyKillCounts['triangle']||0)>=25 && (enemyKillCounts['shielder']||0)>=25 && (enemyKillCounts['splitter']||0)>=25 && (enemyKillCounts['healer']||0)>=25 && (enemyKillCounts['bomber']||0)>=25 && (enemyKillCounts['charger']||0)>=25 && (enemyKillCounts['regen_e']||0)>=25 && (enemyKillCounts['berserker_e']||0)>=25 && (enemyKillCounts['phantom_e']||0)>=25 && (enemyKillCounts['leech']||0)>=25 && (enemyKillCounts['sniper_e']||0)>=25 && (enemyKillCounts['puller']||0)>=25 && (enemyKillCounts['mirror_e']||0)>=25 && (enemyKillCounts['timebomb']||0)>=25 && (enemyKillCounts['guardian']||0)>=25 && (enemyKillCounts['golem']||0)>=25 && (enemyKillCounts['dasher']||0)>=25 && (enemyKillCounts['boomerang']||0)>=25 && (enemyKillCounts['swarm_unit']||0)>=25 && (enemyKillCounts['magnet']||0)>=25 && (enemyKillCounts['webber']||0)>=25 && (enemyKillCounts['silencer']||0)>=25 && (enemyKillCounts['mimic']||0)>=25 && (enemyKillCounts['echo']||0)>=25 && (enemyKillCounts['void_rift']||0)>=25,
         progress: () => {
-            const types = ['normal', 'triangle', 'shielder', 'splitter', 'healer', 'bomber', 'charger', 'regen_e', 'berserker_e', 'phantom_e', 'leech', 'sniper_e', 'puller', 'mirror_e', 'timebomb', 'guardian', 'golem', 'dasher', 'boomerang', 'swarm', 'magnet', 'webber', 'silencer', 'mimic', 'echo', 'void_rift'];
+            const types = ['normal', 'triangle', 'shielder', 'splitter', 'healer', 'bomber', 'charger', 'regen_e', 'berserker_e', 'phantom_e', 'leech', 'sniper_e', 'puller', 'mirror_e', 'timebomb', 'guardian', 'golem', 'dasher', 'boomerang', 'swarm_unit', 'magnet', 'webber', 'silencer', 'mimic', 'echo', 'void_rift'];
             const done = types.filter(t=>(enemyKillCounts[t]||0)>=25).length;
             return done+'/'+types.length+' types (25 kills each)';
         },
@@ -4200,12 +4203,34 @@ class Enemy {
         this.isTimeBomb   = type==='timebomb';
         this.isLeech      = type==='leech';
         this.isGuardian   = type==='guardian';
+        this.isGolem      = type==='golem';
+        this.isDasher     = type==='dasher';
+        this.isBoomerang  = type==='boomerang';
+        this.isSwarm      = type==='swarm';
+        this.isSwarmUnit  = type==='swarm_unit';
+        this.isMagnet     = type==='magnet';
+        this.isWebber     = type==='webber';
+        this.isSilencer   = type==='silencer';
+        this.isMimic      = type==='mimic';
+        this.isEcho       = type==='echo';
+        this.isVoidRift   = type==='void_rift';
 
         if(type==='charger')   { this.radius=17; this.chargeTimer=90; this.charging=false; this.chargeDx=0; this.chargeDy=0; this.chargeSpeed=0; this.drawAlpha=1; }
         if(type==='mirror_e')  { this.radius=14; this.mirrorTimer=0; this.drawAlpha=1; this.mirrorAngle=0; }
         if(type==='timebomb')  { this.radius=18; this.fuseTimer=600; this.drawAlpha=1; this.speed=0.5; }
         if(type==='leech')     { this.radius=13; this.leechTimer=0; this.drawAlpha=1; this.attached=false; }
         if(type==='guardian')  { this.radius=24; this.guardTarget=null; this.drawAlpha=1; this.guardTimer=0; }
+        if(type==='golem')     { this.radius=20; this.drawAlpha=1; this.golemFacing=Math.atan2(player.y-this.y,player.x-this.x); this.rotation=this.golemFacing; }
+        if(type==='dasher')    { this.radius=14; this.drawAlpha=1; this.dasherTimer=90+Math.random()*60; this.dasherAfterimage=[]; }
+        if(type==='boomerang') { this.radius=13; this.drawAlpha=1; this.boomAngle=Math.atan2(player.y-this.y,player.x-this.x); this.boomSpeed=4.5; this.boomArc=0; this.boomReturning=false; }
+        if(type==='swarm')     { this.radius=4;  this.drawAlpha=1; }
+        if(type==='swarm_unit'){ this.radius=5;  this.drawAlpha=1; }
+        if(type==='magnet')    { this.radius=16; this.drawAlpha=1; this.magnetPulse=0; }
+        if(type==='webber')    { this.radius=14; this.drawAlpha=1; this.webShootTimer=120; }
+        if(type==='silencer')  { this.radius=14; this.drawAlpha=1; }
+        if(type==='mimic')     { this.radius=10; this.drawAlpha=1; this.mimicRevealed=false; }
+        if(type==='echo')      { this.radius=14; this.drawAlpha=1; this.echoTimer=180; this.echoPulse=0; }
+        if(type==='void_rift') { this.radius=18; this.drawAlpha=1; this.voidSpawnTimer=120; this.speed=0; }
     }
     update(dt=1) {
         if(this.frozen>0){this.frozen-=dt;return;}
@@ -4276,7 +4301,7 @@ class Enemy {
         }
 
         const ddx = tx - this.x, ddy = ty - this.y, ddist = Math.sqrt(ddx*ddx + ddy*ddy);
-        if(ddist > 0) {
+        if(ddist > 0 && !this.isBoomerang && !this.isVoidRift && !this.isDasher) {
             this.x += (ddx/ddist) * this.speed * dt * slowMult * effectiveSlowMult;
             this.y += (ddy/ddist) * this.speed * dt * slowMult * effectiveSlowMult;
         }
@@ -4488,6 +4513,107 @@ class Enemy {
                 ctx.beginPath(); ctx.moveTo(this.x,this.y); ctx.lineTo(this.guardTarget.x,this.guardTarget.y); ctx.stroke();
                 ctx.setLineDash([]);
             }
+        } else if (this.isGolem) {
+            // Body
+            ctx.fillStyle = this.frozen>0 ? '#67e8f9' : '#78716c';
+            ctx.beginPath(); ctx.arc(this.x,this.y,this.radius,0,Math.PI*2); ctx.fill();
+            // Armor plate facing player
+            ctx.restore(); ctx.save(); ctx.globalAlpha=(this.drawAlpha||1);
+            ctx.strokeStyle='#a8a29e'; ctx.lineWidth=4;
+            ctx.beginPath(); ctx.arc(this.x,this.y,this.radius+2,this.golemFacing-1.0,this.golemFacing+1.0); ctx.stroke();
+            // Glowing orange weak spot on BACK
+            const backAng = (this.golemFacing||0) + Math.PI;
+            ctx.shadowBlur = _shadowsEnabled ? 14 : 0; ctx.shadowColor='#f97316';
+            ctx.fillStyle='#f97316';
+            ctx.beginPath(); ctx.arc(this.x+Math.cos(backAng)*(this.radius-4),this.y+Math.sin(backAng)*(this.radius-4),5,0,Math.PI*2); ctx.fill();
+        } else if (this.isDasher) {
+            if(this.dasherAfterimage) {
+                this.dasherAfterimage.forEach(a => {
+                    ctx.save(); ctx.globalAlpha=a.life*0.35;
+                    ctx.fillStyle='#a78bfa'; ctx.beginPath(); ctx.arc(a.x,a.y,this.radius,0,Math.PI*2); ctx.fill(); ctx.restore();
+                });
+            }
+            ctx.fillStyle='#a78bfa';
+            ctx.beginPath(); ctx.arc(this.x,this.y,this.radius,0,Math.PI*2); ctx.fill();
+            // Lightning bolts
+            ctx.restore(); ctx.save(); ctx.globalAlpha=(this.drawAlpha||1)*0.8;
+            ctx.strokeStyle='#c4b5fd'; ctx.lineWidth=1.5;
+            for(let i=0;i<3;i++){
+                const ba=(Math.PI*2/3)*i+Date.now()*0.003;
+                ctx.beginPath(); ctx.moveTo(this.x+Math.cos(ba)*(this.radius+2),this.y+Math.sin(ba)*(this.radius+2));
+                ctx.lineTo(this.x+Math.cos(ba)*(this.radius+8),this.y+Math.sin(ba)*(this.radius+8)); ctx.stroke();
+            }
+        } else if (this.isBoomerang) {
+            ctx.save(); ctx.translate(this.x,this.y);
+            ctx.rotate(this.boomAngle + this.boomArc * 3);
+            ctx.strokeStyle='#f59e0b'; ctx.lineWidth=3; ctx.lineCap='round';
+            ctx.shadowBlur = _shadowsEnabled ? 12 : 0; ctx.shadowColor='#f59e0b';
+            ctx.beginPath(); ctx.arc(0,0,this.radius,0.3,Math.PI-0.3); ctx.stroke();
+            ctx.beginPath(); ctx.arc(0,0,this.radius,-Math.PI+0.3,-0.3); ctx.stroke();
+            ctx.restore(); ctx.save();
+        } else if (this.isSwarm || this.isSwarmUnit) {
+            ctx.fillStyle='#fbbf24';
+            ctx.beginPath(); ctx.arc(this.x,this.y,this.radius,0,Math.PI*2); ctx.fill();
+        } else if (this.isMagnet) {
+            ctx.fillStyle='#3b82f6'; ctx.beginPath(); ctx.arc(this.x,this.y,this.radius,0,Math.PI*2); ctx.fill();
+            // Magnetic field rings
+            ctx.restore(); ctx.save();
+            for(let r=1;r<=2;r++){
+                const phase=((this.magnetPulse||0)/120)*Math.PI*2;
+                ctx.globalAlpha=(this.drawAlpha||1)*(0.2+0.12*Math.sin(phase+r));
+                ctx.strokeStyle='#60a5fa'; ctx.lineWidth=1.5;
+                ctx.beginPath(); ctx.arc(this.x,this.y,this.radius+r*20,0,Math.PI*2); ctx.stroke();
+            }
+            ctx.restore(); ctx.save(); ctx.globalAlpha=(this.drawAlpha||1);
+            ctx.fillStyle='#fff'; ctx.font='bold 11px Arial'; ctx.textAlign='center';
+            ctx.fillText('🧲',this.x,this.y+4);
+        } else if (this.isWebber) {
+            ctx.fillStyle='#94a3b8'; ctx.beginPath(); ctx.arc(this.x,this.y,this.radius,0,Math.PI*2); ctx.fill();
+            // Web strands
+            ctx.restore(); ctx.save(); ctx.globalAlpha=(this.drawAlpha||1)*0.5;
+            ctx.strokeStyle='#cbd5e1'; ctx.lineWidth=1;
+            for(let i=0;i<6;i++){const wa=(Math.PI*2/6)*i;ctx.beginPath();ctx.moveTo(this.x,this.y);ctx.lineTo(this.x+Math.cos(wa)*(this.radius+6),this.y+Math.sin(wa)*(this.radius+6));ctx.stroke();}
+            ctx.beginPath(); ctx.arc(this.x,this.y,this.radius*0.6,0,Math.PI*2); ctx.stroke();
+        } else if (this.isSilencer) {
+            ctx.fillStyle='#475569'; ctx.beginPath(); ctx.arc(this.x,this.y,this.radius,0,Math.PI*2); ctx.fill();
+            ctx.restore(); ctx.save(); ctx.globalAlpha=(this.drawAlpha||1);
+            ctx.font='bold 12px Arial'; ctx.textAlign='center'; ctx.fillStyle='#fff';
+            ctx.fillText('🔇',this.x,this.y+4);
+        } else if (this.isMimic) {
+            if (!this.mimicRevealed) {
+                // Fake health pickup
+                ctx.fillStyle='#22c55e'; ctx.shadowColor='#22c55e';
+                ctx.beginPath(); ctx.arc(this.x,this.y,this.radius,0,Math.PI*2); ctx.fill();
+                ctx.restore(); ctx.save(); ctx.globalAlpha=(this.drawAlpha||1);
+                ctx.font='bold 12px Arial'; ctx.textAlign='center'; ctx.fillStyle='#fff';
+                ctx.fillText('❤️',this.x,this.y+4);
+            } else {
+                ctx.fillStyle='#ef4444'; ctx.shadowColor='#ef4444';
+                ctx.beginPath(); ctx.arc(this.x,this.y,this.radius,0,Math.PI*2); ctx.fill();
+                ctx.restore(); ctx.save(); ctx.globalAlpha=(this.drawAlpha||1);
+                ctx.font='bold 12px Arial'; ctx.textAlign='center'; ctx.fillStyle='#fff';
+                ctx.fillText('⚠️',this.x,this.y+4);
+            }
+        } else if (this.isEcho) {
+            ctx.fillStyle='#e879f9'; ctx.beginPath(); ctx.arc(this.x,this.y,this.radius,0,Math.PI*2); ctx.fill();
+            ctx.restore(); ctx.save();
+            const ep = (this.echoPulse||0)/90;
+            ctx.globalAlpha=(this.drawAlpha||1)*(0.3+0.2*Math.sin(ep*Math.PI*2));
+            ctx.strokeStyle='#f0abfc'; ctx.lineWidth=2;
+            ctx.beginPath(); ctx.arc(this.x,this.y,this.radius+8+Math.sin(ep*Math.PI*2)*4,0,Math.PI*2); ctx.stroke();
+        } else if (this.isVoidRift) {
+            const vt = Date.now() * 0.002;
+            ctx.fillStyle='#1e1b4b'; ctx.shadowColor='#7c3aed'; ctx.shadowBlur = _shadowsEnabled ? 25 : 0;
+            ctx.beginPath(); ctx.arc(this.x,this.y,this.radius,0,Math.PI*2); ctx.fill();
+            ctx.restore(); ctx.save(); ctx.globalAlpha=(this.drawAlpha||1);
+            for(let r=1;r<=3;r++){
+                ctx.globalAlpha=(this.drawAlpha||1)*(0.4-r*0.1+0.1*Math.sin(vt+r));
+                ctx.strokeStyle='#7c3aed'; ctx.lineWidth=2;
+                ctx.beginPath(); ctx.arc(this.x,this.y,this.radius+r*10,0,Math.PI*2); ctx.stroke();
+            }
+            ctx.restore(); ctx.save(); ctx.globalAlpha=(this.drawAlpha||1);
+            ctx.font='bold 13px Arial'; ctx.textAlign='center'; ctx.fillStyle='#c4b5fd';
+            ctx.fillText('🌀',this.x,this.y+5);
         } else {
             ctx.beginPath(); ctx.arc(this.x,this.y,this.radius,0,Math.PI*2); ctx.fill();
         }
@@ -4541,6 +4667,16 @@ class Enemy {
             else if (this.isTimeBomb)     label = null;
             else if (this.isLeech)        label = '🩸 Leech';
             else if (this.isGuardian)     label = '🛡 Guardian';
+            else if (this.isGolem)        label = '🪨 Golem';
+            else if (this.isDasher)       label = '💨 Dasher';
+            else if (this.isBoomerang)    label = '🪃 Boomerang';
+            else if (this.isSwarm || this.isSwarmUnit) label = '🐝 Swarm';
+            else if (this.isMagnet)       label = '🧲 Magnet';
+            else if (this.isWebber)       label = '🕸️ Webber';
+            else if (this.isSilencer)     label = '🔇 Silencer';
+            else if (this.isMimic)        label = this.mimicRevealed ? '⚠️ Mimic' : null;
+            else if (this.isEcho)         label = '🪞 Echo';
+            else if (this.isVoidRift)     label = '🌀 Void Rift';
             else if (this.isTriangle)     label = '▲ Triangle';
             else if (this.isMiniBoss)     label = '⚔️ Mini Boss';
             if (label) {
@@ -4794,6 +4930,17 @@ function getEnemyStats(type){
     if(type==='timebomb')  return{health:999999,   speed:0.5,        damage:40+d*8};
     if(type==='leech')     return{health:160+d*40, speed:3.0+d*0.15, damage:6+d*1};
     if(type==='guardian')  return{health:700+d*150,speed:1.5+d*0.08, damage:20+d*4};
+    if(type==='golem')     return{health:600+d*120,speed:1.2+d*0.05, damage:18+d*4};
+    if(type==='dasher')    return{health:220+d*50, speed:2.2+d*0.1,  damage:14+d*3};
+    if(type==='boomerang') return{health:180+d*40, speed:4.5,        damage:16+d*3};
+    if(type==='swarm')     return{health:50+d*10,  speed:4.5+d*0.2,  damage:8+d*2};
+    if(type==='swarm_unit')return{health:40+d*8,   speed:5.0+d*0.2,  damage:7+d*1};
+    if(type==='magnet')    return{health:280+d*60, speed:1.5+d*0.08, damage:12+d*2};
+    if(type==='webber')    return{health:200+d*45, speed:2.0+d*0.1,  damage:10+d*2};
+    if(type==='silencer')  return{health:240+d*55, speed:2.8+d*0.12, damage:12+d*2};
+    if(type==='mimic')     return{health:180+d*40, speed:3.5+d*0.15, damage:20+d*4};
+    if(type==='echo')      return{health:260+d*60, speed:1.8+d*0.08, damage:15+d*3};
+    if(type==='void_rift') return{health:400+d*80, speed:0,          damage:8+d*2};
 
     let healthMult = 1, speedMult = 1, damageMult = 1;
     if(currentRound>=50 && currentRound<500) {
@@ -4840,6 +4987,21 @@ function damageEnemy(e, dmg, srcX, srcY) {
     if (shieldBlocks(e, srcX, srcY)) {
         for(let i=0;i<5;i++) particles.push(new Particle(e.x, e.y, '#60a5fa'));
         return false;
+    }
+    if (e.isGolem && srcX !== undefined && srcY !== undefined) {
+        const attackAngle = Math.atan2(srcY - e.y, srcX - e.x);
+        const facingAngle = e.golemFacing || 0;
+        let diff = Math.abs(((attackAngle - facingAngle + Math.PI * 3) % (Math.PI * 2)) - Math.PI);
+        if (diff < 1.2) {
+            // Front hit - heavy armor
+            dmg *= 0.3;
+            for(let i=0;i<4;i++) particles.push(new Particle(e.x, e.y, '#78716c'));
+        } else {
+            // Back/side hit - weak spot
+            dmg *= 3.0;
+            for(let i=0;i<10;i++) particles.push(new Particle(e.x, e.y, '#f97316'));
+            floatMoneyText('🪨 Weak spot!');
+        }
     }
     e.health -= dmg;
     return true;
@@ -4997,6 +5159,113 @@ function tickSpecialEnemies(dt) {
                 e.y=e.guardTarget.y+Math.sin(ga)*(e.guardTarget.radius+e.radius+6);
             }
         }
+
+        if (e.isGolem) {
+            e.golemFacing = Math.atan2(player.y - e.y, player.x - e.x);
+        }
+
+        if (e.isDasher) {
+            e.dasherAfterimage = e.dasherAfterimage || [];
+            e.dasherAfterimage.push({ x: e.x, y: e.y, life: 1 });
+            e.dasherAfterimage = e.dasherAfterimage.filter(a => { a.life -= 0.12; return a.life > 0; });
+            e.dasherTimer = (e.dasherTimer || 90) - dt;
+            if (e.dasherTimer <= 0) {
+                const ang = Math.atan2(player.y - e.y, player.x - e.x) + (Math.random() - 0.5) * 0.8;
+                const dist = 80 + Math.random() * 60;
+                e.x = Math.max(e.radius, Math.min(canvas.width - e.radius, e.x + Math.cos(ang) * dist));
+                e.y = Math.max(e.radius, Math.min(canvas.height - e.radius, e.y + Math.sin(ang) * dist));
+                for (let i = 0; i < 12; i++) particles.push(new Particle(e.x, e.y, '#a78bfa'));
+                e.dasherTimer = 80 + Math.random() * 60;
+                playSound(600, 0.04, 'sine');
+            }
+        }
+
+        if (e.isBoomerang) {
+            e.boomArc = (e.boomArc || 0) + dt * 0.025;
+            const perpX = -Math.sin(e.boomAngle), perpY = Math.cos(e.boomAngle);
+            const arcStrength = Math.sin(e.boomArc) * 2.5;
+            e.x += (Math.cos(e.boomAngle) * e.boomSpeed + perpX * arcStrength) * dt;
+            e.y += (Math.sin(e.boomAngle) * e.boomSpeed + perpY * arcStrength) * dt;
+            const distToPlayer = Math.hypot(player.x - e.x, player.y - e.y);
+            if (!e.boomReturning && e.boomArc > Math.PI * 0.7) {
+                e.boomReturning = true;
+                e.boomAngle = Math.atan2(player.y - e.y, player.x - e.x);
+                e.boomArc = 0;
+            }
+            if (e.boomReturning && e.boomArc > Math.PI * 0.9) {
+                e.alive = false; return;
+            }
+            if (e.x < -60 || e.x > canvas.width + 60 || e.y < -60 || e.y > canvas.height + 60) {
+                if (!e.boomReturning) { e.boomReturning = true; e.boomAngle = Math.atan2(player.y - e.y, player.x - e.x); e.boomArc = 0; }
+            }
+        }
+
+        if (e.isMagnet) {
+            e.magnetPulse = ((e.magnetPulse || 0) + dt) % 120;
+        }
+
+        if (e.isWebber) {
+            e.webShootTimer = (e.webShootTimer || 120) - dt;
+            const wdist = Math.hypot(player.x - e.x, player.y - e.y);
+            if (e.webShootTimer <= 0 && wdist < 320) {
+                e.webShootTimer = 180;
+                playerWebSlowTimer = 90;
+                for (let i = 0; i < 10; i++) particles.push(new Particle(player.x + (Math.random() - 0.5) * 30, player.y + (Math.random() - 0.5) * 30, '#94a3b8'));
+                floatMoneyText('🕸️ Webbed! Slowed!');
+                playSound(200, 0.06, 'triangle');
+            }
+        }
+
+        if (e.isSilencer) {
+            const sdist = Math.hypot(player.x - e.x, player.y - e.y);
+            if (sdist < 55 && playerSilencedTimer <= 0) {
+                playerSilencedTimer = 180;
+                floatMoneyText('🔇 Silenced! No abilities!');
+                playSound(150, 0.08, 'triangle');
+                for (let i = 0; i < 15; i++) particles.push(new Particle(player.x + (Math.random()-0.5)*30, player.y + (Math.random()-0.5)*30, '#475569'));
+            }
+        }
+
+        if (e.isMimic) {
+            const mdist = Math.hypot(player.x - e.x, player.y - e.y);
+            if (!e.mimicRevealed && mdist < 70) {
+                e.mimicRevealed = true;
+                e.radius = 13;
+                floatMoneyText('⚠️ Mimic revealed!');
+                for (let i = 0; i < 15; i++) particles.push(new Particle(e.x, e.y, '#22c55e'));
+                playSound(400, 0.07, 'sawtooth');
+            }
+        }
+
+        if (e.isEcho) {
+            e.echoPulse = ((e.echoPulse || 0) + dt) % 90;
+            e.echoTimer = (e.echoTimer || 180) - dt;
+            if (e.echoTimer <= 0) {
+                e.echoTimer = 200 + Math.random() * 100;
+                const ang = Math.atan2(player.y - e.y, player.x - e.x);
+                for (let i = -1; i <= 1; i++) {
+                    const a = ang + i * 0.25;
+                    bossBullets.push({ x: e.x, y: e.y, vx: Math.cos(a) * 6, vy: Math.sin(a) * 6, damage: e.damage, radius: 6, alive: true, isLine: false, color: '#e879f9' });
+                }
+                for (let i = 0; i < 10; i++) particles.push(new Particle(e.x, e.y, '#e879f9'));
+                playSound(500 + Math.random() * 200, 0.05, 'sine');
+            }
+        }
+
+        if (e.isVoidRift) {
+            e.voidSpawnTimer = (e.voidSpawnTimer || 120) - dt;
+            if (e.voidSpawnTimer <= 0) {
+                e.voidSpawnTimer = 90 + Math.random() * 60;
+                const ang = Math.random() * Math.PI * 2;
+                const sx = e.x + Math.cos(ang) * 30, sy = e.y + Math.sin(ang) * 30;
+                const mini = new Enemy(sx, sy, 'normal');
+                const ms = getEnemyStats('normal');
+                mini.health = ms.health * 0.5; mini.maxHealth = mini.health; mini.speed = ms.speed * 1.2; mini.damage = ms.damage;
+                mini.color = '#7c3aed';
+                enemies.push(mini);
+                for (let i = 0; i < 8; i++) particles.push(new Particle(e.x, e.y, '#7c3aed'));
+            }
+        }
     }
 }
 
@@ -5072,6 +5341,17 @@ function spawnWave(){
             if(currentRound >= 40) typePool.push('puller');
             if(currentRound >= 45) typePool.push('guardian');
             if(currentRound >= 55) typePool.push('timebomb');
+            if(currentRound >= 16) typePool.push('golem');
+            if(currentRound >= 20) typePool.push('dasher');
+            if(currentRound >= 22) typePool.push('boomerang');
+            if(currentRound >= 18) typePool.push('swarm');
+            if(currentRound >= 24) typePool.push('magnet');
+            if(currentRound >= 26) typePool.push('webber');
+            if(currentRound >= 28) typePool.push('silencer');
+            if(currentRound >= 30) typePool.push('mimic');
+            if(currentRound >= 32) typePool.push('echo');
+            if(currentRound >= 38) typePool.push('void_rift');
+            if(currentRound >= 35) typePool.push('mirror_e');
             const type = typePool[Math.floor(Math.random()*typePool.length)];
             const e=new Enemy(spawnX,spawnY,type);const stats=getEnemyStats(type);
             e.health=stats.health;e.maxHealth=stats.health;e.speed=stats.speed;e.damage=stats.damage;
@@ -5089,6 +5369,30 @@ function spawnWave(){
             if(e.isTimeBomb)     { e.color='#dc2626'; e.expValue=40; }
             if(e.isLeech)        { e.color='#be123c'; e.expValue=14; }
             if(e.isGuardian)     { e.color='#b45309'; e.expValue=30; }
+            if(e.isGolem)        { e.color='#78716c'; e.expValue=32; }
+            if(e.isDasher)       { e.color='#a78bfa'; e.expValue=22; }
+            if(e.isBoomerang)    { e.color='#f59e0b'; e.expValue=20; }
+            if(e.isSwarm)        { e.color='#fbbf24'; e.expValue=8; }
+            if(e.isSwarmUnit)    { e.color='#fbbf24'; e.expValue=5; }
+            if(e.isMagnet)       { e.color='#3b82f6'; e.expValue=26; }
+            if(e.isWebber)       { e.color='#94a3b8'; e.expValue=22; }
+            if(e.isSilencer)     { e.color='#475569'; e.expValue=24; }
+            if(e.isMimic)        { e.color='#22c55e'; e.expValue=20; }
+            if(e.isEcho)         { e.color='#e879f9'; e.expValue=28; }
+            if(e.isVoidRift)     { e.color='#7c3aed'; e.expValue=45; }
+            // Swarm: replace single enemy with 6 tiny swarm units
+            if(e.isSwarm) {
+                for(let si=0;si<6;si++){
+                    const sa=((Math.PI*2)/6)*si, sr=35;
+                    const su=new Enemy(e.x+Math.cos(sa)*sr,e.y+Math.sin(sa)*sr,'swarm_unit');
+                    const ss=getEnemyStats('swarm_unit');
+                    su.health=ss.health;su.maxHealth=ss.health;su.speed=ss.speed;su.damage=ss.damage;
+                    su.color='#fbbf24';su.expValue=5;
+                    enemies.push(su);
+                }
+                // Don't push the swarm placeholder itself
+                enemies.splice(enemies.indexOf(e),1);
+            }
             if (isBountyEnemy) {
                 e.health = Math.round(e.health * 3); e.maxHealth = Math.round(e.maxHealth * 3); e.speed *= 1.2; e.damage = Math.round(e.damage * 1.5);
                 e.isBounty = true; e.name = bountyLabel;
@@ -5635,6 +5939,7 @@ let lastPlayerAbility = null;
 
 function specialAttack(){
     if(gameRunning) { runSpecialUses++; checkHonored(); }
+    if(playerSilencedTimer > 0) { floatMoneyText('🔇 Silenced!'); return; }
     const sk=CHARACTERS[currentCharacter];
     if(sk.isMachineGun) return;
     if(sk.isGoldHoarder && !sk.isCoinKing) { doGoldRush(); return; }
@@ -6416,8 +6721,10 @@ function handleKill(e) {
     runKills++;
     
     const eType = e.type || 'normal';
-    if (!seenEnemyTypes.includes(eType)) { seenEnemyTypes.push(eType); savePersistentData(); }
+    if (!seenEnemyTypes.includes(eType)) { seenEnemyTypes.push(eType); }
     enemyKillCounts[eType] = (enemyKillCounts[eType] || 0) + 1;
+    localStorage.setItem('ballRPGSeenEnemies', JSON.stringify(seenEnemyTypes));
+    localStorage.setItem('ballRPGEnemyKills', JSON.stringify(enemyKillCounts));
     
     if (currentCharacter === 'hornet') {
         hornetSilk = Math.min(hornetSilk + 1, HORNET_MAX_SILK);
@@ -7577,6 +7884,7 @@ function resetGame(){
     mgLastShot=0; lastTs=0;
     runGold=0; runKills=0; runDamage=0; runSpecialUses=0; runPlayTime=0; activeAbilities=[]; activePassives=[]; lastShopWave=0; shopRerollCost=30;
     runTookDamage=false; runShopPurchases=0;
+    playerWebSlowTimer=0; playerSilencedTimer=0;
     if(currentCharacter==='hornet'){hornetMasks=10;hornetSilk=0;hornetShardTraps=[];hornetSpeedTimer=0;}
     turrets=[]; pendingAirstrikes=[]; firePatches=[]; overloadCharges=0;
     veteranTier=0; veteranTimer=0;
@@ -8483,7 +8791,7 @@ function gameLoop(ts){
             player._gridMoveTimer = 0;
         }
     } else {
-        if(mx||my){const m=Math.sqrt(mx*mx+my*my);const bSpd=passiveState.berserkerActive?1.5:1;const ghSpd=CHARACTERS[currentCharacter].isGoldHoarder?GH_SPEED_MULT:1;const biomeSpd=1+biomeSpeedBonus;const teSlow=player._theEnemySlowMult!==undefined?player._theEnemySlowMult:1;player.x+=(mx/m)*player.speed*dt*bSpd*ghSpd*biomeSpd*teSlow;player.y+=(my/m)*player.speed*dt*bSpd*ghSpd*biomeSpd*teSlow;}
+        if(mx||my){const m=Math.sqrt(mx*mx+my*my);const bSpd=passiveState.berserkerActive?1.5:1;const ghSpd=CHARACTERS[currentCharacter].isGoldHoarder?GH_SPEED_MULT:1;const biomeSpd=1+biomeSpeedBonus;const teSlow=player._theEnemySlowMult!==undefined?player._theEnemySlowMult:1;const webSlow=playerWebSlowTimer>0?0.4:1;player.x+=(mx/m)*player.speed*dt*bSpd*ghSpd*biomeSpd*teSlow*webSlow;player.y+=(my/m)*player.speed*dt*bSpd*ghSpd*biomeSpd*teSlow*webSlow;}
     }
     player.x=Math.max(player.radius,Math.min(canvas.width-player.radius,player.x));
     player.y=Math.max(player.radius,Math.min(canvas.height-player.radius,player.y));
@@ -8492,6 +8800,8 @@ function gameLoop(ts){
     if(player.dashCooldown>0)player.dashCooldown-=dt;
     if(player.invulnerable>0)player.invulnerable-=dt;
     if(player.specialCooldown>0){player.specialCooldown-=dt;updateHUD();}
+    if(playerWebSlowTimer>0){playerWebSlowTimer-=dt;if(playerWebSlowTimer<=0)floatMoneyText('🕸️ Web cleared!');}
+    if(playerSilencedTimer>0){playerSilencedTimer-=dt;}
     player.manaRegen+=dt;
     if(player.manaRegen>=60){
         let manaPerSec = 1 + passiveState.manaflow/30;
@@ -8748,6 +9058,10 @@ function gameLoop(ts){
         }
         if((currentCharacter==='gojo'||currentCharacter==='the_strongest_today') && !proj.hitEnemies) proj.hitEnemies = new Set();
         if(proj.isMahoRock && !proj.hitEnemies) proj.hitEnemies = new Set();
+        // Magnet deflection
+        for(let me of enemies){ if(!me.alive||!me.isMagnet)continue; const md=Math.hypot(proj.x-me.x,proj.y-me.y); if(md<90&&!proj.isSpecial){ const repAngle=Math.atan2(proj.y-me.y,proj.x-me.x); const spd=Math.hypot(proj.vx,proj.vy); proj.vx=Math.cos(repAngle)*spd; proj.vy=Math.sin(repAngle)*spd; break; } }
+        // Mirror reflect
+        for(let me of enemies){ if(!me.alive||!me.isMirror)continue; const md=Math.hypot(proj.x-me.x,proj.y-me.y); if(md<me.radius+proj.radius+8){ const reflectAng=Math.atan2(proj.y-me.y,proj.x-me.x); const spd=Math.hypot(proj.vx,proj.vy); proj.vx=Math.cos(reflectAng)*spd; proj.vy=Math.sin(reflectAng)*spd; for(let i=0;i<8;i++)particles.push(new Particle(proj.x,proj.y,'#c084fc')); break; } }
         for(let e of enemies){if(!e.alive)continue;const dx=e.x-proj.x,dy=e.y-proj.y;
             const radSum=e.radius+proj.radius;
             if(dx*dx+dy*dy<radSum*radSum){
@@ -8772,6 +9086,7 @@ function gameLoop(ts){
                 if(proj.isMahoRock && proj.hitEnemies.has(e)) continue;
                 if(proj.isMahoRock) proj.hitEnemies.add(e);
                 let pdmg = proj.damage;
+                if(proj.isHollowPurple) { pdmg = 999999999; e.health = 0; }
                 if(hakariJackpotActive) pdmg *= 50;
                 if(passiveState.crit>0&&Math.random()<passiveState.crit){pdmg*=3;}
 
@@ -11096,6 +11411,14 @@ function computeSaveHash(data) {
     return (h ^ 0xDEADC0DE) >>> 0;
 }
 
+function deleteRunSave() {
+    if (!localStorage.getItem('ballRPGRunSave')) { floatMoneyText('No run save to delete.'); return; }
+    if (!confirm('Delete your saved run? This cannot be undone.')) return;
+    localStorage.removeItem('ballRPGRunSave');
+    checkRunSave();
+    floatMoneyText('🗑️ Run save deleted.');
+}
+
 function saveRun() {
     if (!gameRunning && !gamePaused) return;
     const save = {
@@ -11203,15 +11526,24 @@ function loadRun() {
 
 function checkRunSave() {
     const btn = document.getElementById('continueRunBtn');
+    const delBtn = document.getElementById('deleteRunSaveBtn');
     if (!btn) return;
     const raw = localStorage.getItem('ballRPGRunSave');
-    if (!raw) { btn.style.display = 'none'; return; }
+    if (!raw) {
+        btn.style.display = 'none';
+        if (delBtn) delBtn.style.display = 'none';
+        return;
+    }
     try {
         const save = JSON.parse(raw);
         const charName = CHARACTERS[save.character]?.name || save.character;
         btn.style.display = '';
         btn.textContent = `▶️ Continue Run — ${charName} · Wave ${save.round}`;
-    } catch(e) { btn.style.display = 'none'; }
+        if (delBtn) delBtn.style.display = '';
+    } catch(e) {
+        btn.style.display = 'none';
+        if (delBtn) delBtn.style.display = 'none';
+    }
 }
 
 function openSaveManager() {
@@ -11512,7 +11844,7 @@ function submitCode() {
         
         HONORED_QUESTS.forEach(q => { if (!hqCompleted.includes(q.id)) hqCompleted.push(q.id); });
         
-        const hornetKillTypes = ['normal','triangle','shielder','splitter','healer','bomber','charger','regen_e','berserker_e','phantom_e','leech','sniper_e','puller','mirror_e','timebomb','guardian','golem','dasher','boomerang','swarm','magnet','webber','silencer','mimic','echo','void_rift'];
+        const hornetKillTypes = ['normal','triangle','shielder','splitter','healer','bomber','charger','regen_e','berserker_e','phantom_e','leech','sniper_e','puller','mirror_e','timebomb','guardian','golem','dasher','boomerang','swarm_unit','magnet','webber','silencer','mimic','echo','void_rift'];
         hornetKillTypes.forEach(t => { if ((enemyKillCounts[t] || 0) < 25) enemyKillCounts[t] = 25; });
         hornetNoDmgWave  = Math.max(hornetNoDmgWave, 100);
         hornetNoShopWins = Math.max(hornetNoShopWins, 1);
@@ -11710,7 +12042,7 @@ function openApologyPicker() {
             relatedQuests.forEach(q => { if (!hqCompleted.includes(q.id)) hqCompleted.push(q.id); });
             
             if (p.key === 'hornet') {
-                const hornetKillTypes = ['normal','triangle','shielder','splitter','healer','bomber','charger','regen_e','berserker_e','phantom_e','leech','sniper_e','puller','mirror_e','timebomb','guardian','golem','dasher','boomerang','swarm','magnet','webber','silencer','mimic','echo','void_rift'];
+                const hornetKillTypes = ['normal','triangle','shielder','splitter','healer','bomber','charger','regen_e','berserker_e','phantom_e','leech','sniper_e','puller','mirror_e','timebomb','guardian','golem','dasher','boomerang','swarm_unit','magnet','webber','silencer','mimic','echo','void_rift'];
                 hornetKillTypes.forEach(t => { if ((enemyKillCounts[t]||0)<25) enemyKillCounts[t]=25; });
                 hornetNoDmgWave=Math.max(hornetNoDmgWave,100); hornetNoShopWins=Math.max(hornetNoShopWins,1);
                 localStorage.setItem('ballRPGHornetNoDmg', hornetNoDmgWave);
