@@ -93,7 +93,156 @@
         .menu-btn:active { transform: translateY(2px); border-bottom-width: 1px; }
         .currency-display { font-size: 20px; color: #fbbf24; margin: 20px 0; font-weight: bold; }
 
-        /* ===== LOADING SCREEN ===== */
+        /* ===== PLAY MENU ===== */
+        #playMenu {
+            background: rgba(0,0,0,0.9);
+            border-radius: 8px;
+            padding: 40px 48px;
+            max-width: 560px;
+            width: 92%;
+            border: 3px solid rgba(59,130,246,0.5);
+            box-shadow: 0 0 50px rgba(59,130,246,0.3);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        #playMenuHeader { margin-bottom: 28px; position: relative; text-align: center; }
+        #playMenuBackBtn {
+            position: absolute; left: 0; top: 50%; transform: translateY(-50%);
+            background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.15);
+            color: rgba(255,255,255,0.6); padding: 7px 14px; border-radius: 6px;
+            cursor: pointer; font-size: 12px; font-family: inherit;
+            transition: all 0.15s;
+        }
+        #playMenuBackBtn:hover { background: rgba(255,255,255,0.12); color: white; }
+        #playMenuHeader h2 { font-size: 28px; color: #3b82f6; font-weight: bold; margin: 0 0 6px; }
+        #playMenuSub { font-size: 12px; color: rgba(255,255,255,0.4); font-family: monospace; }
+
+        /* Save slots */
+        #playMenuSlots { display: flex; flex-direction: column; gap: 12px; margin-bottom: 0; }
+        .play-slot {
+            border-radius: 10px; padding: 18px 20px;
+            display: flex; align-items: center; gap: 16px;
+            transition: all 0.2s; position: relative; overflow: hidden;
+        }
+        .play-slot.occupied {
+            background: rgba(59,130,246,0.08);
+            border: 1.5px solid rgba(59,130,246,0.35);
+            cursor: pointer;
+        }
+        .play-slot.occupied:hover {
+            background: rgba(59,130,246,0.16);
+            border-color: rgba(59,130,246,0.65);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 20px rgba(59,130,246,0.2);
+        }
+        .play-slot.empty {
+            background: rgba(255,255,255,0.03);
+            border: 1.5px dashed rgba(255,255,255,0.12);
+        }
+        .play-slot-num {
+            font-size: 11px; color: rgba(255,255,255,0.25);
+            font-family: monospace; letter-spacing: 1px;
+            min-width: 28px; text-align: center;
+        }
+        .play-slot-icon {
+            width: 44px; height: 44px; border-radius: 50%; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 20px;
+        }
+        .play-slot-info { flex: 1; min-width: 0; }
+        .play-slot-title {
+            font-size: 14px; font-weight: bold; color: #e2e8f0;
+            margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .play-slot-meta {
+            font-size: 11px; color: rgba(255,255,255,0.45);
+            font-family: monospace; display: flex; gap: 12px; flex-wrap: wrap;
+        }
+        .play-slot-meta span { display: flex; align-items: center; gap: 3px; }
+        .play-slot-empty-label {
+            font-size: 13px; color: rgba(255,255,255,0.2);
+            font-style: italic;
+        }
+        .play-slot-actions {
+            display: flex; gap: 6px; flex-shrink: 0;
+        }
+        .play-slot-load-btn {
+            background: #3b82f6; color: white; border: none;
+            padding: 8px 16px; border-radius: 6px; cursor: pointer;
+            font-size: 12px; font-weight: bold; font-family: inherit;
+            border-bottom: 3px solid #1d4ed8; transition: all 0.1s;
+            white-space: nowrap;
+        }
+        .play-slot-load-btn:hover { background: #2563eb; transform: translateY(-1px); }
+        .play-slot-load-btn:active { transform: translateY(1px); border-bottom-width: 1px; }
+        .play-slot-del-btn {
+            background: rgba(220,38,38,0.12); color: rgba(248,113,113,0.8);
+            border: 1px solid rgba(220,38,38,0.3); padding: 8px 10px;
+            border-radius: 6px; cursor: pointer; font-size: 13px; font-family: inherit;
+            transition: all 0.15s;
+        }
+        .play-slot-del-btn:hover { background: rgba(220,38,38,0.25); color: #f87171; }
+
+        /* New game strip */
+        #playMenuDivider {
+            text-align: center; margin: 20px 0 16px;
+            color: rgba(255,255,255,0.2); font-size: 12px;
+            display: flex; align-items: center; gap: 10px;
+        }
+        #playMenuDivider::before, #playMenuDivider::after {
+            content: ''; flex: 1; height: 1px;
+            background: rgba(255,255,255,0.1);
+        }
+        #playMenuStartBtn {
+            width: 100%; background: linear-gradient(135deg,rgba(59,130,246,0.18),rgba(29,78,216,0.25));
+            border: 2px solid rgba(59,130,246,0.5); color: white;
+            border-radius: 10px; padding: 18px 22px; cursor: pointer;
+            display: flex; align-items: center; gap: 16px; text-align: left;
+            transition: all 0.2s; font-family: inherit;
+        }
+        #playMenuStartBtn:hover {
+            background: linear-gradient(135deg,rgba(59,130,246,0.28),rgba(29,78,216,0.38));
+            border-color: rgba(59,130,246,0.8);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 20px rgba(59,130,246,0.25);
+        }
+        #playMenuStartBtn:active { transform: translateY(1px); }
+        #playMenuStartIcon { font-size: 28px; flex-shrink: 0; }
+        #playMenuStartLabel { font-size: 15px; font-weight: bold; color: #93c5fd; margin-bottom: 3px; }
+        #playMenuStartSub { font-size: 11px; color: rgba(255,255,255,0.4); font-family: monospace; }
+
+        /* Save slot picker (shown in pause menu) */
+        #slotPickerOverlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.75);
+            z-index: 9000; display: none; align-items: center; justify-content: center;
+        }
+        #slotPickerBox {
+            background: linear-gradient(135deg,#0f172a,#1e1b4b);
+            border: 2px solid rgba(59,130,246,0.6); border-radius: 14px;
+            padding: 32px 36px; max-width: 400px; width: 90%;
+            box-shadow: 0 0 40px rgba(59,130,246,0.3);
+        }
+        #slotPickerBox h3 { font-size: 18px; color: #60a5fa; margin: 0 0 6px; font-weight: bold; }
+        #slotPickerBox p { font-size: 11px; color: rgba(255,255,255,0.35); margin: 0 0 20px; font-family: monospace; }
+        .slot-picker-btn {
+            width: 100%; background: rgba(255,255,255,0.04);
+            border: 1.5px solid rgba(255,255,255,0.1); color: white;
+            border-radius: 8px; padding: 14px 16px; margin-bottom: 8px;
+            cursor: pointer; font-family: inherit; font-size: 13px;
+            display: flex; align-items: center; gap: 12px;
+            transition: all 0.15s; text-align: left;
+        }
+        .slot-picker-btn:hover { background: rgba(59,130,246,0.15); border-color: rgba(59,130,246,0.5); }
+        .slot-picker-btn.has-save { border-color: rgba(251,191,36,0.35); }
+        .slot-picker-btn.has-save:hover { background: rgba(251,191,36,0.1); border-color: rgba(251,191,36,0.6); }
+        #slotPickerCancel {
+            width: 100%; margin-top: 4px; background: none;
+            border: 1px solid rgba(255,255,255,0.12); color: rgba(255,255,255,0.4);
+            padding: 10px; border-radius: 8px; cursor: pointer; font-family: inherit;
+            transition: all 0.15s;
+        }
+        #slotPickerCancel:hover { color: white; border-color: rgba(255,255,255,0.3); }
+
         #loadingScreen {
             position: fixed; inset: 0; z-index: 99999;
             background: linear-gradient(135deg, #0a0a1a 0%, #0d1526 50%, #0a1020 100%);
@@ -1311,6 +1460,32 @@
 </div>
 
 
+<!-- ===== PLAY MENU ===== -->
+<div id="playMenu" style="display:none;">
+    <div id="playMenuInner">
+        <div id="playMenuHeader">
+            <button id="playMenuBackBtn" onclick="closePlayMenu()">← Back</button>
+            <h2>▶️ Play Game</h2>
+            <div id="playMenuSub">Continue a saved run or start fresh</div>
+        </div>
+
+        <div id="playMenuSlots">
+            <!-- Slots injected by renderPlayMenu() -->
+        </div>
+
+        <div id="playMenuNewGame">
+            <div id="playMenuDivider"><span>— or —</span></div>
+            <button id="playMenuStartBtn" onclick="startGame()">
+                <span id="playMenuStartIcon">⚔️</span>
+                <div>
+                    <div id="playMenuStartLabel">Start New Game</div>
+                    <div id="playMenuStartSub">Begin a fresh run with your selected character</div>
+                </div>
+            </button>
+        </div>
+    </div>
+</div>
+
 <!-- ===== LOADING SCREEN ===== -->
 <div id="loadingScreen">
     <div id="loadingInner">
@@ -1330,7 +1505,7 @@
     <button class="menu-btn" onclick="showCharacterShop()">Characters</button>
     <button id="deleteRunSaveBtn" onclick="deleteRunSave()" style="display:none;background:rgba(220,38,38,0.12);border:1px solid rgba(220,38,38,0.35);color:rgba(255,120,120,0.7);font-size:10px;padding:4px 14px;border-radius:5px;cursor:pointer;margin-bottom:3px;font-family:inherit;">🗑️ Delete Run Save</button>
     <button id="continueRunBtn" class="menu-btn" onclick="loadRun()" style="display:none;background:#16a34a;border-bottom-color:#14532d;">▶️ Continue Run</button>
-    <button class="menu-btn" onclick="startGame()">▶️ Play Game</button>
+    <button class="menu-btn" onclick="openPlayMenu()">▶️ Play Game</button>
     <button class="menu-btn" onclick="showQuestsPage()" style="background:#4f46e5;border-bottom-color:#312e81;">⭐ Quests</button>
     <div style="margin-top: 10px; display: flex; gap: 8px; justify-content: center;">
         <button class="menu-btn" onclick="openSaveManager()" style="background:#7c3aed;border-bottom-color:#4c1d95;min-width:120px;padding:10px 16px;font-size:12px;">💾 Save Manager</button>
@@ -1968,8 +2143,18 @@
     <div class="pause-sub">Press ESC or P to resume</div>
     <button class="pause-btn" onclick="resumeGame()">▶️ Resume</button>
     <button class="pause-btn" onclick="openSettingsFromPause()">⚙️ Settings</button>
-    <button class="pause-btn" onclick="saveRun()" style="background:#16a34a;border-left-color:#15803d;">💾 Save Run</button>
+    <button class="pause-btn" onclick="openSlotPicker()" style="background:#16a34a;border-left-color:#15803d;">💾 Save Run</button>
     <button class="pause-btn danger" onclick="pauseToMainMenu()">🏠 Main Menu</button>
+</div>
+
+<!-- Slot picker for saving -->
+<div id="slotPickerOverlay">
+    <div id="slotPickerBox">
+        <h3>💾 Save Run</h3>
+        <p>Choose a slot to save your current run</p>
+        <div id="slotPickerSlots"></div>
+        <button id="slotPickerCancel" onclick="closeSlotPicker()">Cancel</button>
+    </div>
 </div>
 
 <div id="settingsMenu">
@@ -8248,7 +8433,9 @@ function endGame(sukunaKilled=false){
     document.getElementById('finalKills').textContent=player.kills;
     document.getElementById('finalWave').textContent=currentRound;
     document.getElementById('moneyEarned').textContent=sessionMoney;
-    localStorage.removeItem('ballRPGRunSave');
+    // Clear the slot that corresponds to the active run (all slots wipe on death)
+    if (typeof RUN_SLOT_KEYS !== 'undefined') RUN_SLOT_KEYS.forEach(k => localStorage.removeItem(k));
+    else localStorage.removeItem('ballRPGRunSave');
 }
 function restartGame(){document.getElementById('gameOver').style.display='none';document.body.classList.add('game-active');mousePos={x:canvas.width/2,y:canvas.height/2};resetGame();gameRunning=true;mainTheme.pause();mainTheme.currentTime=0;fadeInMainTheme(1200);requestAnimationFrame(gameLoop);}
 
@@ -8262,14 +8449,15 @@ function navBuild() {
     navCols = Math.ceil(W / NAV_CELL);
     navRows = Math.ceil(H / NAV_CELL);
     navGrid = [];
+    const allWalls = walls.concat(builderWalls || []);
     for (let r = 0; r < navRows; r++) {
         navGrid[r] = [];
         for (let c = 0; c < navCols; c++) {
             const wx = c * NAV_CELL + NAV_CELL / 2;
             const wy = r * NAV_CELL + NAV_CELL / 2;
-            const margin = 30;
+            const margin = 22; // tighter so narrow gaps stay navigable
             let blocked = false;
-            for (const w of walls) {
+            for (const w of allWalls) {
                 if (wx + margin > w.x && wx - margin < w.x + w.w &&
                     wy + margin > w.y && wy - margin < w.y + w.h) {
                     blocked = true; break;
@@ -8292,36 +8480,62 @@ function navCellToWorld(c, r) {
 
 function navRayBlocked(x1, y1, x2, y2) {
     if (!navGrid) return false;
-    const steps = Math.ceil(Math.hypot(x2 - x1, y2 - y1) / (NAV_CELL * 0.5));
-    for (let i = 1; i < steps; i++) {
+    const dist = Math.hypot(x2 - x1, y2 - y1);
+    if (dist === 0) return false;
+    const steps = Math.ceil(dist / (NAV_CELL * 0.4));
+    for (let i = 0; i <= steps; i++) {
         const t = i / steps;
-        const wx = x1 + (x2 - x1) * t, wy = y1 + (y2 - y1) * t;
+        const wx = x1 + (x2 - x1) * t;
+        const wy = y1 + (y2 - y1) * t;
         const { c, r } = navWorldToCell(wx, wy);
         if (!navGrid[r] || !navGrid[r][c]) return true;
     }
     return false;
 }
 
+// Find the nearest free nav cell to (wx,wy), searching outward
+function navNearestFree(wx, wy) {
+    const { c: cc, r: cr } = navWorldToCell(wx, wy);
+    if (navGrid[cr] && navGrid[cr][cc]) return { c: cc, r: cr };
+    for (let d = 1; d <= 5; d++) {
+        for (let dr = -d; dr <= d; dr++) {
+            for (let dc = -d; dc <= d; dc++) {
+                if (Math.abs(dr) !== d && Math.abs(dc) !== d) continue;
+                const nr = cr + dr, nc = cc + dc;
+                if (nr >= 0 && nr < navRows && nc >= 0 && nc < navCols && navGrid[nr][nc]) {
+                    return { c: nc, r: nr };
+                }
+            }
+        }
+    }
+    return { c: cc, r: cr }; // fallback
+}
+
 function navFindPath(sx, sy, ex, ey) {
     if (!navGrid) return null;
-    const start = navWorldToCell(sx, sy);
-    const end   = navWorldToCell(ex, ey);
+
+    const start = navNearestFree(sx, sy);
+    const end   = navNearestFree(ex, ey);
     if (start.c === end.c && start.r === end.r) return null;
 
     const key = (c, r) => r * navCols + c;
-    
-    const h = (c, r) => Math.max(Math.abs(c - end.c), Math.abs(r - end.r));
+    // Octile distance heuristic — consistent & admissible for 8-directional movement
+    const D = 1, D2 = 1.414;
+    const h = (c, r) => {
+        const dx = Math.abs(c - end.c), dy = Math.abs(r - end.r);
+        return D * (dx + dy) + (D2 - 2 * D) * Math.min(dx, dy);
+    };
 
-    
+    // Binary min-heap
     const heap = [];
     const heapPush = (node) => {
         heap.push(node);
         let i = heap.length - 1;
         while (i > 0) {
-            const parent = (i - 1) >> 1;
-            if (heap[parent].f <= heap[i].f) break;
-            [heap[parent], heap[i]] = [heap[i], heap[parent]];
-            i = parent;
+            const p = (i - 1) >> 1;
+            if (heap[p].f <= heap[i].f) break;
+            [heap[p], heap[i]] = [heap[i], heap[p]];
+            i = p;
         }
     };
     const heapPop = () => {
@@ -8342,47 +8556,50 @@ function navFindPath(sx, sy, ex, ey) {
         return top;
     };
 
-    const closed = new Set();
-    const gScore = new Map();
+    const closed  = new Set();
+    const gScore  = new Map();
     const cameFrom = new Map();
 
     const sk = key(start.c, start.r);
     gScore.set(sk, 0);
     heapPush({ c: start.c, r: start.r, f: h(start.c, start.r), k: sk });
 
-    const DIRS = [[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]];
+    const DIRS = [[1,0],[0,1],[-1,0],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]];
 
     let iterations = 0;
-    while (heap.length > 0 && iterations++ < 400) {
+    while (heap.length > 0 && iterations++ < 3000) {
         const cur = heapPop();
-        const curK = cur.k;
-        if (closed.has(curK)) continue;
-        closed.add(curK);
+        if (closed.has(cur.k)) continue;
+        closed.add(cur.k);
 
         if (cur.c === end.c && cur.r === end.r) {
+            // Reconstruct path — exclude start cell (enemy is already there)
             const path = [];
-            let k = curK;
+            let k = cur.k;
             while (cameFrom.has(k)) {
                 const node = cameFrom.get(k);
                 path.unshift(navCellToWorld(node.c, node.r));
                 k = key(node.c, node.r);
             }
+            // path[0] is the start cell; remove it so enemy doesn't step backward
+            if (path.length > 0) path.shift();
             path.push(navCellToWorld(end.c, end.r));
             return navStringPull(path, sx, sy);
         }
 
-        const curG = gScore.get(curK) ?? Infinity;
+        const curG = gScore.get(cur.k) ?? Infinity;
         for (const [dc, dr] of DIRS) {
             const nc = cur.c + dc, nr = cur.r + dr;
             if (nc < 0 || nc >= navCols || nr < 0 || nr >= navRows) continue;
             if (!navGrid[nr][nc]) continue;
+            // Prevent corner-cutting through walls on diagonal moves
             if (dc !== 0 && dr !== 0) {
-                if (!navGrid[cur.r + dr] || !navGrid[cur.r + dr][cur.c]) continue;
-                if (!navGrid[cur.r]      || !navGrid[cur.r][cur.c + dc]) continue;
+                if (!navGrid[cur.r + dr]?.[cur.c]) continue;
+                if (!navGrid[cur.r]?.[cur.c + dc]) continue;
             }
             const nk = key(nc, nr);
             if (closed.has(nk)) continue;
-            const moveCost = (dc !== 0 && dr !== 0) ? 1.414 : 1;
+            const moveCost = (dc !== 0 && dr !== 0) ? D2 : D;
             const tentG = curG + moveCost;
             if (tentG < (gScore.get(nk) ?? Infinity)) {
                 cameFrom.set(nk, { c: cur.c, r: cur.r });
@@ -8400,10 +8617,13 @@ function navStringPull(waypoints, startX, startY) {
     let cx = startX, cy = startY;
     let i = 0;
     while (i < waypoints.length) {
+        // Find the FURTHEST visible waypoint from current position
         let furthest = i;
         for (let j = i + 1; j < waypoints.length; j++) {
-            if (!navRayBlocked(cx, cy, waypoints[j].wx, waypoints[j].wy)) furthest = j;
-            else break;
+            if (!navRayBlocked(cx, cy, waypoints[j].wx, waypoints[j].wy)) {
+                furthest = j;
+            }
+            // Don't break — a later waypoint might still be visible around the corner
         }
         result.push(waypoints[furthest]);
         cx = waypoints[furthest].wx;
@@ -12148,6 +12368,7 @@ function backToMenu(){
     renderHQPanel();document.getElementById('tutorial').style.display='none';document.getElementById('characterShop').style.display='none';document.getElementById('questsPage').style.display='none';document.getElementById('moneyPopup').classList.remove('show');document.getElementById('mainMenu').style.display='block';updateMoneyDisplay();}
 function startGame(){
     document.getElementById('mainMenu').style.display='none';
+    document.getElementById('playMenu').style.display='none';
     document.getElementById('gameContainer').style.display='block';
     document.body.classList.add('game-active');
     gameRunning=true;
@@ -12161,7 +12382,7 @@ function startGame(){
     fadeInMainTheme(1200);
     requestAnimationFrame(gameLoop);
 }
-function backToMainMenu(){stopJackpotMusic();stopMainTheme();hideSlotMachine();document.getElementById('gameOver').style.display='none';document.getElementById('gameContainer').style.display='none';document.body.classList.remove('game-active');skinOverlay.style.display='none';document.getElementById('mainMenu').style.display='block';updateMoneyDisplay();const darkBM=document.getElementById('theEnemyDarkness');if(darkBM){darkBM.style.opacity='0';darkBM.style.display='none';}const cBM=document.getElementById('gameCanvas');if(cBM){cBM.style.transform='';}checkRunSave();}
+function backToMainMenu(){stopJackpotMusic();stopMainTheme();hideSlotMachine();document.getElementById('gameOver').style.display='none';document.getElementById('gameContainer').style.display='none';document.body.classList.remove('game-active');skinOverlay.style.display='none';document.getElementById('playMenu').style.display='none';document.getElementById('mainMenu').style.display='block';updateMoneyDisplay();const darkBM=document.getElementById('theEnemyDarkness');if(darkBM){darkBM.style.opacity='0';darkBM.style.display='none';}const cBM=document.getElementById('gameCanvas');if(cBM){cBM.style.transform='';}checkRunSave();}
 function updateMoneyDisplay(){document.getElementById('totalMoney').textContent=totalMoney;document.getElementById('shopMoney').textContent=totalMoney;}
 function updateShopDisplay(){
     updateMoneyDisplay();
@@ -12407,18 +12628,42 @@ function computeSaveHash(data) {
     return (h ^ 0xDEADC0DE) >>> 0;
 }
 
-function deleteRunSave() {
-    if (!localStorage.getItem('ballRPGRunSave')) { floatMoneyText('No run save to delete.'); return; }
-    if (!confirm('Delete your saved run? This cannot be undone.')) return;
-    localStorage.removeItem('ballRPGRunSave');
-    checkRunSave();
-    floatMoneyText('🗑️ Run save deleted.');
+// ===== MULTI-SLOT RUN SAVE SYSTEM =====
+const RUN_SLOT_KEYS = ['ballRPGRunSave_1','ballRPGRunSave_2','ballRPGRunSave_3'];
+const NUM_SLOTS = 3;
+
+// Migrate any legacy single save into slot 1
+(function migrateLegacySave() {
+    const legacy = localStorage.getItem('ballRPGRunSave');
+    if (legacy && !localStorage.getItem(RUN_SLOT_KEYS[0])) {
+        localStorage.setItem(RUN_SLOT_KEYS[0], legacy);
+        localStorage.removeItem('ballRPGRunSave');
+    }
+})();
+
+function getRunSlot(slot) {
+    const raw = localStorage.getItem(RUN_SLOT_KEYS[slot - 1]);
+    if (!raw) return null;
+    try { return JSON.parse(raw); } catch(e) { return null; }
 }
 
-function saveRun() {
-    if (!gameRunning && !gamePaused) return;
-    const save = {
-        v: 1,
+function deleteRunSave(slot) {
+    // Legacy call with no argument: delete all slots (for old backToMainMenu etc)
+    if (slot === undefined) {
+        RUN_SLOT_KEYS.forEach(k => localStorage.removeItem(k));
+        checkRunSave(); return;
+    }
+    if (!getRunSlot(slot)) { floatMoneyText('No save in that slot.'); return; }
+    if (!confirm(`Delete Slot ${slot}? This cannot be undone.`)) return;
+    localStorage.removeItem(RUN_SLOT_KEYS[slot - 1]);
+    checkRunSave();
+    renderPlayMenu();
+    floatMoneyText('🗑️ Slot ' + slot + ' deleted.');
+}
+
+function _buildSaveObject() {
+    return {
+        v: 2,
         character: currentCharacter,
         round: currentRound,
         roundTimer: roundTimer,
@@ -12429,51 +12674,43 @@ function saveRun() {
             x: player.x, y: player.y, radius: player.radius,
             level: player.level, exp: player.exp, kills: player.kills
         },
-        runGold: runGold,
-        runKills: runKills,
-        runDamage: runDamage,
-        runTookDamage: runTookDamage,
-        lastShopWave: lastShopWave,
-        shopRerollCost: shopRerollCost,
+        runGold, runKills, runDamage, runTookDamage,
+        lastShopWave, shopRerollCost,
         passive: JSON.parse(JSON.stringify(passiveState)),
         biomeIndex: BIOMES.indexOf(currentBiome),
-        nextBiomeChangeWave: nextBiomeChangeWave,
-        veteranTier: veteranTier, veteranTimer: veteranTimer,
-        warVeteranTier: warVeteranTier, warVeteranTimer: warVeteranTimer,
-        megumiIsMahoragah: megumiIsMahoragah,
-        megumiMahoragahTimer: megumiMahoragahTimer,
-        megumiCETotal: megumiCETotal,
-        megumiDogKills: megumiDogKills,
-        megumiDogsSpawned: megumiDogsSpawned,
-        megumiMahoragahActivations: megumiMahoragahActivations,
-        megumiKillStreak: megumiKillStreak,
-        megumiStreakReached: megumiStreakReached,
-        yujiSukunaFingers: yujiSukunaFingers,
-        yujiIsSukuna: yujiIsSukuna,
-        glassCannAdrenaline: glassCannAdrenaline,
-        overloadCharges: overloadCharges,
-        gojoPhase: gojoPhase,
+        nextBiomeChangeWave,
+        veteranTier, veteranTimer,
+        warVeteranTier, warVeteranTimer,
+        megumiIsMahoragah, megumiMahoragahTimer, megumiCETotal,
+        megumiDogKills, megumiDogsSpawned, megumiMahoragahActivations,
+        megumiKillStreak, megumiStreakReached,
+        yujiSukunaFingers, yujiIsSukuna,
+        glassCannAdrenaline, overloadCharges, gojoPhase,
         ts: Date.now()
     };
-    localStorage.setItem('ballRPGRunSave', JSON.stringify(save));
-    floatMoneyText('💾 Run saved! Wave ' + currentRound);
-    checkRunSave();
 }
 
-function loadRun() {
-    const raw = localStorage.getItem('ballRPGRunSave');
-    if (!raw) return;
-    let save;
-    try { save = JSON.parse(raw); } catch(e) { alert('Save file corrupted.'); return; }
+function saveRun(slot) {
+    if (!gameRunning && !gamePaused) return;
+    const save = _buildSaveObject();
+    localStorage.setItem(RUN_SLOT_KEYS[slot - 1], JSON.stringify(save));
+    floatMoneyText('💾 Saved to Slot ' + slot + ' — Wave ' + currentRound);
+    checkRunSave();
+    closeSlotPicker();
+}
 
+function loadRun(slot) {
+    const save = getRunSlot(slot);
+    if (!save) return;
+
+    // Silently switch to the saved character — the slot card already shows who it belongs to
     if (save.character !== currentCharacter) {
-        const confirmSwitch = confirm(`This save is for ${CHARACTERS[save.character]?.name || save.character}.\nYou currently have ${CHARACTERS[currentCharacter]?.name || currentCharacter} selected.\n\nSwitch to the saved character and continue?`);
-        if (!confirmSwitch) return;
         currentCharacter = save.character;
         savePersistentData();
     }
 
-    document.getElementById('mainMenu').style.display = 'none';
+    document.getElementById('playMenu').style.display    = 'none';
+    document.getElementById('mainMenu').style.display    = 'none';
     document.getElementById('gameContainer').style.display = 'block';
     document.body.classList.add('game-active');
     gameRunning = true;
@@ -12481,36 +12718,37 @@ function loadRun() {
 
     resetGame();
 
-    // Restore state
-    currentRound = save.round || 0;
-    roundTimer = save.roundTimer || 0;
+    currentRound   = save.round      || 0;
+    roundTimer     = save.roundTimer || 0;
     Object.assign(player, save.player);
     player.invulnerable = 0; player.dashCooldown = 0;
-    runGold = save.runGold || 0;
-    runKills = save.runKills || 0;
-    runDamage = save.runDamage || 0;
-    runTookDamage = save.runTookDamage || false;
-    lastShopWave = save.lastShopWave || 0;
-    shopRerollCost = save.shopRerollCost || 30;
+    runGold         = save.runGold        || 0;
+    runKills        = save.runKills       || 0;
+    runDamage       = save.runDamage      || 0;
+    runTookDamage   = save.runTookDamage  || false;
+    lastShopWave    = save.lastShopWave   || 0;
+    shopRerollCost  = save.shopRerollCost || 30;
     if (save.passive) Object.assign(passiveState, save.passive);
     const bi = save.biomeIndex >= 0 && save.biomeIndex < BIOMES.length ? save.biomeIndex : 0;
-    currentBiome = BIOMES[bi];
-    nextBiomeChangeWave = save.nextBiomeChangeWave || currentRound + 10;
-    veteranTier = save.veteranTier || 0; veteranTimer = save.veteranTimer || 0;
-    warVeteranTier = save.warVeteranTier || 0; warVeteranTimer = save.warVeteranTimer || 0;
-    megumiIsMahoragah = save.megumiIsMahoragah || false;
-    megumiMahoragahTimer = save.megumiMahoragahTimer || 0;
-    megumiCETotal = save.megumiCETotal || 0;
-    megumiDogKills = save.megumiDogKills || 0;
-    megumiDogsSpawned = save.megumiDogsSpawned || 0;
-    megumiMahoragahActivations = save.megumiMahoragahActivations || 0;
-    megumiKillStreak = save.megumiKillStreak || 0;
-    megumiStreakReached = save.megumiStreakReached || false;
-    yujiSukunaFingers = save.yujiSukunaFingers || 0;
-    yujiIsSukuna = save.yujiIsSukuna || false;
-    glassCannAdrenaline = save.glassCannAdrenaline || 0;
-    overloadCharges = save.overloadCharges || 0;
-    gojoPhase = save.gojoPhase || 0;
+    currentBiome         = BIOMES[bi];
+    nextBiomeChangeWave  = save.nextBiomeChangeWave || currentRound + 10;
+    veteranTier          = save.veteranTier     || 0;
+    veteranTimer         = save.veteranTimer    || 0;
+    warVeteranTier       = save.warVeteranTier  || 0;
+    warVeteranTimer      = save.warVeteranTimer || 0;
+    megumiIsMahoragah        = save.megumiIsMahoragah        || false;
+    megumiMahoragahTimer     = save.megumiMahoragahTimer     || 0;
+    megumiCETotal            = save.megumiCETotal            || 0;
+    megumiDogKills           = save.megumiDogKills           || 0;
+    megumiDogsSpawned        = save.megumiDogsSpawned        || 0;
+    megumiMahoragahActivations= save.megumiMahoragahActivations || 0;
+    megumiKillStreak         = save.megumiKillStreak         || 0;
+    megumiStreakReached       = save.megumiStreakReached      || false;
+    yujiSukunaFingers        = save.yujiSukunaFingers        || 0;
+    yujiIsSukuna             = save.yujiIsSukuna             || false;
+    glassCannAdrenaline      = save.glassCannAdrenaline      || 0;
+    overloadCharges          = save.overloadCharges          || 0;
+    gojoPhase                = save.gojoPhase                || 0;
     if (currentCharacter === 'gojo' || currentCharacter === 'the_strongest_today') applyGojoPhase();
 
     updateBiome(); updateBiomeColors(); showBiomeIndicator();
@@ -12521,26 +12759,182 @@ function loadRun() {
 }
 
 function checkRunSave() {
-    const btn = document.getElementById('continueRunBtn');
+    // Keep old continueRunBtn/deleteRunSaveBtn hidden since Play Menu replaces them
+    const btn    = document.getElementById('continueRunBtn');
     const delBtn = document.getElementById('deleteRunSaveBtn');
-    if (!btn) return;
-    const raw = localStorage.getItem('ballRPGRunSave');
-    if (!raw) {
-        btn.style.display = 'none';
-        if (delBtn) delBtn.style.display = 'none';
-        return;
+    if (btn)    btn.style.display    = 'none';
+    if (delBtn) delBtn.style.display = 'none';
+}
+
+// ===== PLAY MENU UI =====
+function openPlayMenu() {
+    renderPlayMenu();
+    document.getElementById('mainMenu').style.display = 'none';
+    document.getElementById('playMenu').style.display = 'block';
+}
+
+function closePlayMenu() {
+    document.getElementById('playMenu').style.display = 'none';
+    document.getElementById('mainMenu').style.display = 'block';
+}
+
+function renderPlayMenu() {
+    const container = document.getElementById('playMenuSlots');
+    if (!container) return;
+
+    const charColors = {
+        default:'#3b82f6', goldhoarder:'#fbbf24', vampire:'#ef4444',
+        builder:'#d2691e', phantom:'#7dd3fc', pyromancer:'#fb923c',
+        druid:'#4ade80', cyborg:'#38bdf8', timewizard:'#d8b4fe',
+        fire:'#ff4500', ice:'#67e8f9', electric:'#facc15', boxer:'#fca5a5',
+        wemmbu:'#a855f7', eggchan:'#ec4899', dice:'#f97316',
+        hakari_v2:'#ec4899', yuji_itadori:'#e84d4d', character10b:'#00ff00',
+        war_veteran:'#60a5fa', prime_veteran:'#3b82f6', last_architect:'#a78bfa',
+        coin_king:'#fbbf24', rouge_square:'#4444ff', gojo:'#e0e7ff',
+        the_strongest_today:'#ffffff', necromancer:'#a855f7', glass_cannon:'#22d3ee',
+        tank:'#4ade80', megumi:'#1e293b', hornet:'#f59e0b',
+        speedrunner:'#facc15', luffy:'#e63946'
+    };
+
+    function timeAgo(ts) {
+        const diff = Date.now() - ts;
+        const m = Math.floor(diff / 60000);
+        if (m < 1)   return 'just now';
+        if (m < 60)  return m + 'm ago';
+        const h = Math.floor(m / 60);
+        if (h < 24)  return h + 'h ago';
+        return Math.floor(h / 24) + 'd ago';
     }
-    try {
-        const save = JSON.parse(raw);
-        const charName = CHARACTERS[save.character]?.name || save.character;
-        btn.style.display = '';
-        btn.textContent = `▶️ Continue Run — ${charName} · Wave ${save.round}`;
-        if (delBtn) delBtn.style.display = '';
-    } catch(e) {
-        btn.style.display = 'none';
-        if (delBtn) delBtn.style.display = 'none';
+
+    container.innerHTML = '';
+
+    for (let s = 1; s <= NUM_SLOTS; s++) {
+        const save  = getRunSlot(s);
+        const slot  = document.createElement('div');
+        slot.className = 'play-slot ' + (save ? 'occupied' : 'empty');
+
+        const slotNum = document.createElement('div');
+        slotNum.className = 'play-slot-num';
+        slotNum.textContent = 'SLOT ' + s;
+
+        if (save) {
+            const charKey  = save.character || 'default';
+            const charName = CHARACTERS[charKey]?.name || charKey;
+            const col      = charColors[charKey] || '#3b82f6';
+            const lvl      = save.player?.level || 1;
+            const hp       = save.player?.health !== undefined ? Math.round(save.player.health) : '?';
+            const maxHp    = save.player?.maxHealth || '?';
+
+            const icon = document.createElement('div');
+            icon.className = 'play-slot-icon';
+            icon.style.background = `radial-gradient(circle at 38% 38%, ${col}55, ${col}22)`;
+            icon.style.border = `2px solid ${col}66`;
+            icon.style.boxShadow = `0 0 12px ${col}33`;
+            icon.textContent = CHAR_INFO[charKey]?.icon || '⚔️';
+
+            const info = document.createElement('div');
+            info.className = 'play-slot-info';
+            info.innerHTML = `
+                <div class="play-slot-title" style="color:${col}">${charName}</div>
+                <div class="play-slot-meta">
+                    <span>🌊 Wave ${save.round || 0}</span>
+                    <span>❤️ ${hp}/${maxHp}</span>
+                    <span>⭐ Lv.${lvl}</span>
+                    <span style="color:rgba(255,255,255,0.3)">${timeAgo(save.ts)}</span>
+                </div>`;
+
+            const actions = document.createElement('div');
+            actions.className = 'play-slot-actions';
+
+            const loadBtn = document.createElement('button');
+            loadBtn.className = 'play-slot-load-btn';
+            loadBtn.textContent = '▶ Continue';
+            loadBtn.onclick = (e) => { e.stopPropagation(); loadRun(s); };
+
+            const delBtn = document.createElement('button');
+            delBtn.className = 'play-slot-del-btn';
+            delBtn.title = 'Delete this save';
+            delBtn.textContent = '🗑';
+            delBtn.onclick = (e) => { e.stopPropagation(); deleteRunSave(s); };
+
+            actions.append(loadBtn, delBtn);
+            slot.append(slotNum, icon, info, actions);
+            slot.addEventListener('click', () => loadRun(s));
+        } else {
+            const emptyIcon = document.createElement('div');
+            emptyIcon.className = 'play-slot-icon';
+            emptyIcon.style.background = 'rgba(255,255,255,0.03)';
+            emptyIcon.style.border = '1.5px dashed rgba(255,255,255,0.1)';
+            emptyIcon.textContent = '💤';
+
+            const lbl = document.createElement('div');
+            lbl.className = 'play-slot-info';
+            lbl.innerHTML = '<div class="play-slot-empty-label">Empty slot</div>';
+
+            slot.append(slotNum, emptyIcon, lbl);
+        }
+        container.appendChild(slot);
+    }
+
+    // Update the "Start New Game" sub-label with selected char name
+    const sub = document.getElementById('playMenuStartSub');
+    if (sub) {
+        const cn = CHARACTERS[currentCharacter]?.name || currentCharacter;
+        sub.textContent = `Start fresh as ${cn}`;
     }
 }
+
+// ===== SLOT PICKER (shown in pause menu for saving) =====
+function openSlotPicker() {
+    const overlay = document.getElementById('slotPickerOverlay');
+    if (!overlay) return;
+    renderSlotPicker();
+    overlay.style.display = 'flex';
+}
+
+function closeSlotPicker() {
+    const overlay = document.getElementById('slotPickerOverlay');
+    if (overlay) overlay.style.display = 'none';
+}
+
+function renderSlotPicker() {
+    const container = document.getElementById('slotPickerSlots');
+    if (!container) return;
+    container.innerHTML = '';
+    for (let s = 1; s <= NUM_SLOTS; s++) {
+        const save = getRunSlot(s);
+        const btn  = document.createElement('button');
+        btn.className = 'slot-picker-btn' + (save ? ' has-save' : '');
+
+        const numSpan = document.createElement('span');
+        numSpan.style.cssText = 'font-family:monospace;font-size:11px;color:rgba(255,255,255,0.3);min-width:44px;';
+        numSpan.textContent = 'SLOT ' + s;
+
+        const detailSpan = document.createElement('span');
+        detailSpan.style.flex = '1';
+        if (save) {
+            const cn  = CHARACTERS[save.character]?.name || save.character;
+            const diff = Date.now() - (save.ts || 0);
+            const ago  = diff < 60000 ? 'just now' : diff < 3600000
+                ? Math.floor(diff/60000)+'m ago'
+                : diff < 86400000 ? Math.floor(diff/3600000)+'h ago'
+                : Math.floor(diff/86400000)+'d ago';
+            detailSpan.innerHTML = `<b style="color:#fbbf24">${cn}</b> <span style="color:rgba(255,255,255,0.4);font-size:11px;">· Wave ${save.round} · ${ago}</span>`;
+        } else {
+            detailSpan.innerHTML = '<span style="color:rgba(255,255,255,0.25);font-style:italic;">Empty</span>';
+        }
+
+        const overwriteLabel = document.createElement('span');
+        overwriteLabel.style.cssText = 'font-size:10px;color:rgba(220,38,38,0.7);';
+        if (save) overwriteLabel.textContent = '⚠ Overwrite';
+
+        btn.append(numSpan, detailSpan, overwriteLabel);
+        btn.onclick = () => saveRun(s);
+        container.appendChild(btn);
+    }
+}
+
+
 
 function openSaveManager() {
     const m = document.getElementById('saveManagerModal');
@@ -13511,7 +13905,7 @@ startGame = function() { _origStartGame(); showMobileControls(true); };
 const _origRestartGame = window.restartGame;
 window.restartGame = function() { if(_origRestartGame) _origRestartGame(); showMobileControls(true); };
 const _origLoadRun = window.loadRun;
-window.loadRun = function() { if(_origLoadRun) _origLoadRun(); showMobileControls(true); };
+window.loadRun = function(slot) { if(_origLoadRun) _origLoadRun(slot); showMobileControls(true); };
 const _origBackToMainMenu = backToMainMenu;
 backToMainMenu = function() { _origBackToMainMenu(); showMobileControls(false); handleOrientation(); };
 const _origPauseToMainMenu = pauseToMainMenu;
