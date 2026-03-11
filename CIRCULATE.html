@@ -790,11 +790,11 @@
             z-index: 2000; text-align: center;
             box-shadow: 0 0 80px rgba(251,191,36,0.3), 0 0 40px rgba(0,0,0,0.8);
             min-width: 700px; max-width: 90vw;
-            max-height: 90vh; overflow-y: auto;
+            max-height: 90vh; overflow: hidden;
             transition: transform 0.25s cubic-bezier(.34,1.56,.64,1);
         }
-        #waveShop::-webkit-scrollbar { width: 6px; }
-        #waveShop::-webkit-scrollbar-thumb { background: #fbbf24; border-radius: 3px; }
+        #waveShop::-webkit-scrollbar { display: none; }
+        #waveShop::-webkit-scrollbar-thumb { display: none; }
         #waveShop.show { transform: translate(-50%, -50%) scale(1); display: block; }
         #waveShop h2 { font-size: 26px; color: #fbbf24; margin-bottom: 4px; font-weight: bold; text-shadow: 0 0 20px rgba(251,191,36,0.6); }
         #waveShop .shop-subtitle { font-size: 12px; color: rgba(255,255,255,0.5); margin-bottom: 18px; }
@@ -10613,8 +10613,8 @@ function gameLoop(ts){
         if(proj.isMahoRock && !proj.hitEnemies) proj.hitEnemies = new Set();
         // Magnet deflection
         for(let me of enemies){ if(!me.alive||!me.isMagnet)continue; const md=Math.hypot(proj.x-me.x,proj.y-me.y); if(md<90&&!proj.isSpecial){ const repAngle=Math.atan2(proj.y-me.y,proj.x-me.x); const spd=Math.hypot(proj.vx,proj.vy); proj.vx=Math.cos(repAngle)*spd; proj.vy=Math.sin(repAngle)*spd; break; } }
-        // Mirror reflect
-        for(let me of enemies){ if(!me.alive||!me.isMirror)continue; const md=Math.hypot(proj.x-me.x,proj.y-me.y); if(md<me.radius+proj.radius+8){ const reflectAng=Math.atan2(proj.y-me.y,proj.x-me.x); const spd=Math.hypot(proj.vx,proj.vy); proj.vx=Math.cos(reflectAng)*spd; proj.vy=Math.sin(reflectAng)*spd; for(let i=0;i<8;i++)particles.push(new Particle(proj.x,proj.y,'#c084fc')); break; } }
+        // Mirror reflect - deals damage to mirror on each reflect
+        for(let me of enemies){ if(!me.alive||!me.isMirror)continue; const md=Math.hypot(proj.x-me.x,proj.y-me.y); if(md<me.radius+proj.radius+8){ const reflectAng=Math.atan2(proj.y-me.y,proj.x-me.x); const spd=Math.hypot(proj.vx,proj.vy); proj.vx=Math.cos(reflectAng)*spd; proj.vy=Math.sin(reflectAng)*spd; me.health -= proj.damage * 0.5; if(me.health<=0&&me.alive){me.alive=false;player.kills++;gainExp(me.expValue);handleKill(me);} for(let i=0;i<8;i++)particles.push(new Particle(proj.x,proj.y,'#c084fc')); break; } }
         for(let e of enemies){if(!e.alive)continue;const dx=e.x-proj.x,dy=e.y-proj.y;
             const radSum=e.radius+proj.radius;
             if(dx*dx+dy*dy<radSum*radSum){
@@ -12773,8 +12773,8 @@ function startGame(){
     requestAnimationFrame(gameLoop);
 }
 function startEndlessMode(){
+    startGame(); // startGame resets endlessMode to false, so we override after
     endlessMode = true;
-    startGame();
 }
 function backToMainMenu(){stopJackpotMusic();stopMainTheme();hideSlotMachine();document.getElementById('gameOver').style.display='none';document.getElementById('gameContainer').style.display='none';document.body.classList.remove('game-active');skinOverlay.style.display='none';document.getElementById('playMenu').style.display='none';document.getElementById('mainMenu').style.display='block';updateMoneyDisplay();const darkBM=document.getElementById('theEnemyDarkness');if(darkBM){darkBM.style.opacity='0';darkBM.style.display='none';}const cBM=document.getElementById('gameCanvas');if(cBM){cBM.style.transform='';}checkRunSave();}
 function updateMoneyDisplay(){document.getElementById('totalMoney').textContent=totalMoney;document.getElementById('shopMoney').textContent=totalMoney;}
@@ -13069,7 +13069,10 @@ function _buildSaveObject() {
             level: player.level, exp: player.exp, kills: player.kills
         },
         runGold, runKills, runDamage, runTookDamage,
-        lastShopWave, shopRerollCost,
+        lastShopWave, shopRerollCost, runShopPurchases,
+        expToNextLevel,
+        activeAbilities: [...activeAbilities],
+        activePassives:  [...activePassives],
         passive: JSON.parse(JSON.stringify(passiveState)),
         biomeIndex: BIOMES.indexOf(currentBiome),
         nextBiomeChangeWave,
@@ -13123,6 +13126,10 @@ function loadRun(slot) {
     runTookDamage   = save.runTookDamage  || false;
     lastShopWave    = save.lastShopWave   || 0;
     shopRerollCost  = save.shopRerollCost || 30;
+    runShopPurchases = save.runShopPurchases || 0;
+    expToNextLevel  = save.expToNextLevel || 100;
+    activeAbilities = save.activeAbilities ? [...save.activeAbilities] : [];
+    activePassives  = save.activePassives  ? [...save.activePassives]  : [];
     if (save.passive) Object.assign(passiveState, save.passive);
     const bi = save.biomeIndex >= 0 && save.biomeIndex < BIOMES.length ? save.biomeIndex : 0;
     currentBiome         = BIOMES[bi];
