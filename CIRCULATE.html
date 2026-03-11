@@ -293,6 +293,10 @@
             0%, 100% { box-shadow: 0 0 20px rgba(2,132,199,0.6), inset 0 0 15px rgba(2,132,199,0.2); }
             50% { box-shadow: 0 0 30px rgba(2,132,199,0.8), inset 0 0 20px rgba(2,132,199,0.3); }
         }
+        @keyframes luffyGlow {
+            0%, 100% { box-shadow: 0 0 20px rgba(59,130,246,0.6), inset 0 0 15px rgba(59,130,246,0.2); border-color:#3b82f6; }
+            50% { box-shadow: 0 0 35px rgba(59,130,246,0.95), inset 0 0 25px rgba(59,130,246,0.35); border-color:#93c5fd; }
+        }
         @keyframes expiredGlow {
             0%, 100% { box-shadow: 0 0 20px rgba(127,29,29,0.6), inset 0 0 15px rgba(127,29,29,0.2); }
             50% { box-shadow: 0 0 30px rgba(127,29,29,0.8), inset 0 0 20px rgba(127,29,29,0.3); }
@@ -1233,9 +1237,8 @@
 </div>
 
 <div id="mainMenu">
-    <p style="font-family: 'Press Start 2P', monospace; font-size: 14px; color: #fbbf24; margin: 0 0 15px 0; opacity: 0.7;">SHAW! (use code SORRY_FOR_THE_CHANGE)</p>
+    <p style="font-family: 'Press Start 2P', monospace; font-size: 14px; color: #fbbf24; margin: 0 0 15px 0; opacity: 0.7;">The One Piece Is REAL?1</p>
     <h1>⚔️ CIRCULATE ⚔️</h1>
-    <div id="dailyCodeHint_menu" style="font-size:10px;color:rgba(255,255,255,0.18);letter-spacing:1px;margin-top:-10px;margin-bottom:6px;font-family:monospace;user-select:none;"></div>
     <div class="currency-display">💰 $<span id="totalMoney">0</span></div>
     <button class="menu-btn" onclick="showCharacterShop()">Characters</button>
     <button id="deleteRunSaveBtn" onclick="deleteRunSave()" style="display:none;background:rgba(220,38,38,0.12);border:1px solid rgba(220,38,38,0.35);color:rgba(255,120,120,0.7);font-size:10px;padding:4px 14px;border-radius:5px;cursor:pointer;margin-bottom:3px;font-family:inherit;">🗑️ Delete Run Save</button>
@@ -1282,8 +1285,22 @@
         <h2 style="font-size:20px;color:#60a5fa;margin:0 0 4px;font-weight:bold;">📋 Update Log</h2>
         <p style="font-size:11px;color:rgba(255,255,255,0.3);margin:0 0 24px;font-family:monospace;">CIRCULATE — patch notes</p>
         <div style="display:flex;flex-direction:column;gap:18px;">
+            <div style="border-left:3px solid #e63946;padding-left:16px;">
+                <div style="font-size:12px;font-weight:bold;color:#f87171;margin-bottom:2px;">🔴 Latest Patch</div>
+                <div style="font-size:10px;color:rgba(255,255,255,0.3);margin-bottom:10px;font-family:monospace;">Luffy — LIMITED CHARACTER</div>
+                <ul style="font-size:12px;color:rgba(255,255,255,0.75);line-height:2;padding-left:16px;margin:0;">
+                    <li><b style="color:#fca5a5;">Luffy</b> — NEW $1,000,000 <b>LIMITED</b> character (available until Mar 18)</li>
+                    <li><b style="color:#fca5a5;">Luffy</b> — Evolves through <b>5 Gears</b> every 60 seconds</li>
+                    <li><b style="color:#fca5a5;">Luffy</b> — <b>Observation Haki</b>: 35% dodge on all incoming hits</li>
+                    <li><b style="color:#fca5a5;">Luffy</b> — <b>R: Arm Haki</b> — 1.5x damage + 1.5x damage reduction (30s cd)</li>
+                    <li><b style="color:#fca5a5;">Luffy</b> — <b>Z/X/C</b> abilities change with each Gear</li>
+                    <li><b style="color:#fca5a5;">Luffy</b> — G4 is randomly <b>Bounce Man</b> or <b>Snake Man</b> (50/50)</li>
+                    <li><b style="color:#fca5a5;">Luffy</b> — G5 <b>Toon Force</b>: 30 DMG, 10 SPD, CoC stuns entire screen</li>
+                    <li><b style="color:#fb923c;">Bug Fix</b> — Resolved <b>restartGame</b> reference error on mobile</li>
+                </ul>
+            </div>
             <div style="border-left:3px solid #a78bfa;padding-left:16px;">
-                <div style="font-size:12px;font-weight:bold;color:#a78bfa;margin-bottom:2px;">🟣 Latest Patch</div>
+                <div style="font-size:12px;font-weight:bold;color:#a78bfa;margin-bottom:2px;">🟣 Previous Patch</div>
                 <div style="font-size:10px;color:rgba(255,255,255,0.3);margin-bottom:10px;font-family:monospace;">Megumi Rework + UI Polish</div>
                 <ul style="font-size:12px;color:rgba(255,255,255,0.75);line-height:2;padding-left:16px;margin:0;">
                     <li><b style="color:#7dd3fc;">Megumi</b> — Mahoragah now requires <b>Wave 100</b> to activate</li>
@@ -1357,7 +1374,6 @@
 
 <div id="characterShop">
     <h2>CHARACTER SHOP</h2>
-    <div id="dailyCodeHint_shop" style="font-size:9px;color:rgba(255,255,255,0.15);letter-spacing:2px;text-transform:uppercase;margin-top:-18px;margin-bottom:8px;font-family:monospace;user-select:none;"></div>
     <div class="currency-display">💰 $<span id="shopMoney">0</span></div>
     <div class="character-grid">
 
@@ -1588,6 +1604,14 @@
             <div class="limited-timer" id="character10bTimer"></div>
             <button class="info-btn" onclick="event.stopPropagation();showCharInfo('character10b')">INFO</button>
         </div>
+        <div class="character-card limited-card" onclick="selectCharacter('luffy')" id="luffyCharacter" style="border-color:#3b82f6;box-shadow:0 0 20px rgba(59,130,246,0.6),inset 0 0 15px rgba(59,130,246,0.2);animation:luffyGlow 2s ease-in-out infinite;">
+            <div class="character-preview" style="background:linear-gradient(135deg,#7f1d1d,#e63946);box-shadow:0 0 22px rgba(230,57,70,.9);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:32px;"></div>
+            <div class="character-name" style="color:#fca5a5;">Luffy</div>
+            <div class="character-ability" style="color:#fca5a5;">10 DMG • 85 HP • Speed 4.5<br>G1→G2→G3→G4→G5!<br>Obs. Haki: 35% dodge<br>R: Arm Haki · Z/X/C per Gear</div>
+            <div class="character-price" style="color:#fca5a5;">$1,000,000</div>
+            <div class="limited-timer" id="luffyTimer" style="background:rgba(59,130,246,0.85);border-color:#3b82f6;color:#fff;"></div>
+            <button class="info-btn" onclick="event.stopPropagation();showCharInfo('luffy')" style="border-color:rgba(230,57,70,0.5);color:#fca5a5;">INFO</button>
+        </div>
         <div class="character-card limited-card" onclick="selectCharacter('rouge_square')" id="rougeSquareCharacter">
             <div class="character-preview" style="background:linear-gradient(135deg,#1e1b4b,#4444ff);box-shadow:0 0 22px rgba(68,68,255,.9);"></div>
             <div class="character-name" style="color:#8888ff;">Rouge Square</div>
@@ -1808,7 +1832,6 @@
 <div id="waveShop">
     <h2>🛒 WAVE SHOP</h2>
     <div class="shop-subtitle" id="shopWaveLabel">You survived wave 50! Spend your gold wisely.</div>
-    <div id="dailyCodeHint_waveshop" style="font-size:9px;color:rgba(255,255,255,0.13);letter-spacing:1px;font-family:monospace;margin-top:-6px;margin-bottom:4px;user-select:none;"></div>
     <div class="shop-gold">💰 Gold: <span id="shopGoldDisplay">0</span></div>
     <div class="shop-section-label">⚔️ ABILITIES</div>
     <div class="shop-grid" id="shopAbilities"></div>
@@ -1931,24 +1954,6 @@ const spatialGrid = {
     getNearby(x, y, range = 1) { const nearby = []; const cx = Math.floor(x / GRID_SIZE); const cy = Math.floor(y / GRID_SIZE); for (let dx = -range; dx <= range; dx++) { for (let dy = -range; dy <= range; dy++) { const cell = this.cells.get(`${cx + dx},${cy + dy}`); if (cell) nearby.push(...cell); } } return nearby; }
 };
 
-const DAILY_CODE_WORDS = [
-
-    ['Cursed','Hollow','Sacred','Blazing','Silent','Ancient','Shattered','Crimson',
-     'Frozen','Dark','Infinite','Wicked','Divine','Radiant','Broken','Twisted',
-     'Ethereal','Savage','Brutal','Phantom','Celestial','Forbidden','Lethal','Rogue',
-     'Volatile','Vile','Primal','Wretched','Gilded','Obsidian'],
-
-    ['Domain','Energy','Blade','Vessel','Specter','Throne','Abyss','Flame',
-     'Storm','Veil','Relic','Surge','Rift','Void','Cipher','Titan',
-     'Shadow','Nexus','Ember','Fang','Bastion','Comet','Wraith','Monolith',
-     'Pulse','Shard','Requiem','Revenant','Colossus','Harbinger'],
-
-    ['Rising','Reborn','Unleashed','Eternal','Broken','Ascended','Awakened','Fallen',
-     'Ignited','Sealed','Shattered','Reforged','Unbound','Forsaken','Redeemed','Consumed',
-     'Defiant','Fractured','Transcended','Condemned','Empowered','Banished','Restored','Eclipsed',
-     'Evolved','Claimed','Crowned','Severed','Untamed','Ignited'],
-];
-
 function _seededRand(seed) {
     let s = seed;
     return function() {
@@ -1959,64 +1964,49 @@ function _seededRand(seed) {
 
 function _getDailyIndex() {
     const now = new Date();
-
     return now.getFullYear() * 10000 + (now.getMonth() + 1) * 100 + now.getDate();
 }
 
-function _getDailyCode() {
+function claimDailyReward() {
+    const today = new Date().toDateString();
+    const lastClaim = localStorage.getItem('ballRPGDailyRewardDate');
+    if (lastClaim === today) return;
+
     const daySeed = _getDailyIndex();
     const rand = _seededRand(daySeed);
-    const w1 = DAILY_CODE_WORDS[0][Math.floor(rand() * 30)];
-    const w2 = DAILY_CODE_WORDS[1][Math.floor(rand() * 30)];
-    const w3 = DAILY_CODE_WORDS[2][Math.floor(rand() * 30)];
-    const code = w1 + w2 + w3;
+    const amount = 1000 + Math.floor(rand() * 9001);
 
-    const reward = 2000 + Math.floor(rand() * 8001);
-    return { code, reward };
+    totalMoney += amount;
+    localStorage.setItem('ballRPGDailyRewardDate', today);
+    savePersistentData();
+    updateMoneyDisplay();
+
+    const banner = document.createElement('div');
+    banner.style.cssText = `
+        position:fixed;top:20px;left:50%;transform:translateX(-50%);
+        z-index:99999;background:linear-gradient(135deg,#ca8a04,#fbbf24);
+        color:#000;font-family:'Arial',sans-serif;font-weight:900;
+        font-size:16px;padding:16px 32px;border-radius:12px;
+        box-shadow:0 0 40px rgba(251,191,36,0.6);letter-spacing:0.5px;
+        text-align:center;pointer-events:none;
+        animation:dailyBannerIn 0.4s ease-out;
+    `;
+    banner.innerHTML = `🎁 Daily Reward! <span style="font-size:20px;">+$${amount.toLocaleString()}</span>`;
+    if (!document.getElementById('dailyBannerStyle')) {
+        const st = document.createElement('style');
+        st.id = 'dailyBannerStyle';
+        st.textContent = `@keyframes dailyBannerIn{from{opacity:0;top:0px}to{opacity:1;top:20px}}`;
+        document.head.appendChild(st);
+    }
+    document.body.appendChild(banner);
+    setTimeout(() => { banner.style.transition='opacity 0.5s'; banner.style.opacity='0'; setTimeout(()=>banner.remove(),500); }, 3000);
 }
-
-const _todayEntry = _getDailyCode();
-const DAILY_CODE = _todayEntry.code;
-const _DAILY_CODE_AMOUNT = _todayEntry.reward;
 
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 const skinOverlay = document.getElementById('playerSkinOverlay');
 
-let lastDailyCodeDate = localStorage.getItem('lastDailyCodeDate') || null;
 
-function getDailyCodeUsed() {
-    const today = new Date().toDateString();
-    return lastDailyCodeDate === today;
-}
-
-function _codeHash(str) {
-    let h = 0;
-    for (let i = 0; i < str.length; i++) h = (h * 31 + str.charCodeAt(i)) >>> 0;
-    return h;
-}
-
-function getCodeLocation() {
-    if (!DAILY_CODE) return 0;
-    return _codeHash(DAILY_CODE) % 3;
-}
-
-function injectHiddenCode() {
-    if (!DAILY_CODE) return;
-    const loc = getCodeLocation();
-    const code = DAILY_CODE;
-
-    if (loc === 0) {
-        const el = document.getElementById('dailyCodeHint_menu');
-        if (el) el.textContent = `v${code.toLowerCase()} build`;
-    } else if (loc === 1) {
-        const el = document.getElementById('dailyCodeHint_shop');
-        if (el) el.textContent = `edition: ${code.toLowerCase()}`;
-    } else {
-        const el = document.getElementById('dailyCodeHint_waveshop');
-        if (el) el.textContent = `patch ${code.toLowerCase()}`;
-    }
-}
 
 const SAVE_VERSION = 1;
 const storedVersion = parseInt(localStorage.getItem('ballRPGSaveVersion')) || 0;
@@ -2077,20 +2067,22 @@ if (unlockedCharacters.includes('technoblade') || unlockedCharacters.includes('d
     localStorage.setItem('ballRPGCurrentCharacter', currentCharacter);
 }
 
-const LIMITED_CHARACTERS = ['dice', 'hakari_v2', 'yuji_itadori', 'character10b', 'rouge_square'];
+const LIMITED_CHARACTERS = ['dice', 'hakari_v2', 'yuji_itadori', 'character10b', 'rouge_square', 'luffy'];
 const LIMITED_CARD_IDS = {
     'dice': 'diceCharacter',
     'hakari_v2': 'hakariCharacter',
     'yuji_itadori': 'yujiCharacter',
     'character10b': 'character10bCharacter',
-    'rouge_square': 'rougeSquareCharacter'
+    'rouge_square': 'rougeSquareCharacter',
+    'luffy': 'luffyCharacter'
 };
 const LIMITED_EXPIRY = {
     'dice': new Date(2026, 2, 8, 23, 59, 59),
     'hakari_v2': new Date(2026, 2, 8, 23, 59, 59),
     'yuji_itadori': new Date(2026, 2, 8, 23, 59, 59),
     'character10b': new Date(2026, 2, 6, 23, 59, 59),
-    'rouge_square': new Date(2026, 2, 13, 12, 0, 0)
+    'rouge_square': new Date(2026, 2, 13, 12, 0, 0),
+    'luffy': new Date(2026, 2, 18, 0, 0, 0)
 };
 
 function updateLimitedTimers() {
@@ -2178,6 +2170,7 @@ const CHARACTERS = {
     megumi: { name:'Megumi Fushiguro', color:'#1e293b', shadow:'#0f172a', projColor:'#7dd3fc', ability:'devil_dogs', manaCost:0, cdMax:0, isMegumi:true, useImg:false },
     hornet: { name:'Hornet', color:'#f59e0b', shadow:'#92400e', projColor:'#fde68a', ability:'silk_storm', manaCost:4, cdMax:0, isHornet:true, useImg:false },
     speedrunner: { name:'Speedrunner', color:'#facc15', shadow:'#713f12', projColor:'#fde047', ability:'sprint_burst', manaCost:0, cdMax:240, isSpeedrunner:true, lockHpUpgrade:true, lockDmgUpgrade:true, useImg:false },
+    luffy: { name:'Luffy', color:'#e63946', shadow:'#7f1d1d', projColor:'#ff6b6b', ability:'arm_haki', manaCost:0, cdMax:0, isLuffy:true, useImg:false },
 };
 
 const SKIN_URLS = {
@@ -2194,7 +2187,7 @@ const PRICES = {
     phantom:250, druid:750, pyromancer:1500, cyborg:3000, timewizard:4500,
     fire:500, ice:1000, electric:2500, boxer:500,
     wemmbu:5000, eggchan:5000, dice:2345, hakari_v2:35000, yuji_itadori:28000, character10b:50000, war_veteran:0, prime_veteran:0, last_architect:0, coin_king:0, rouge_square:250000, gojo:0, the_strongest_today:0,
-    necromancer:4000, glass_cannon:3500, tank:2000, speedrunner:2500, hornet:0, megumi:0
+    necromancer:4000, glass_cannon:3500, tank:2000, speedrunner:2500, hornet:0, megumi:0, luffy:1000000
 };
 
 const CHARACTER_ORDER = Object.keys(PRICES).sort((a, b) => PRICES[a] - PRICES[b]);
@@ -2242,6 +2235,13 @@ function getProjectileDamage() {
         return Math.max(1, Math.floor(8 + vel * 3.5));
     }
 
+    if (currentCharacter === 'luffy') {
+        let ldmg = player.damage;
+        // Gatling damage reduction
+        if(luffyGatlingActive > 0) ldmg *= (luffyGear >= 1 ? 0.4 : 0.5);
+        // G4 SM 4x atk speed natural shot dmg (same as base)
+        return applyPassiveDamageBoost(ldmg * (luffyArmHakiActive>0?1.5:1));
+    }
     let baseDmg = player.damage;
     return baseDmg;
 }
@@ -2256,6 +2256,26 @@ let autoFireLastShot = 0;
 
 let veteranTier = 0;
 let veteranTimer = 0;
+
+// ========== LUFFY STATE ==========
+let luffyGear = 0;            // 0=G1, 1=G2, 2=G3, 3=G4, 4=G5
+let luffyGearTimer = 0;
+const LUFFY_GEAR_TIME = 3600; // 60s per gear at 60fps
+let luffySnakeMan = false;    // G4 variant (false = Bounce Man)
+let luffyArmHakiActive = 0;   // ticks remaining (G1 R buff)
+let luffyArmHakiCd = 0;       // ticks remaining cooldown
+let luffyZCd = 0;
+let luffyXCd = 0;
+let luffyCoCCd = 0;
+let luffyCoCActive = 0;       // ticks remaining of CoC freeze
+let luffySelfStunTimer = 0;   // G2 Z self-stun
+let luffyGatlingActive = 0;   // ticks remaining gatling speed boost
+let luffyRapidRifleActive = 0;// G4 SM Z ticks
+let luffyRapidRifleTimer = 0;
+const LUFFY_GEAR_NAMES = ['G1','G2','G3','G4-BM','G4-SM'];
+const LUFFY_GEAR_COLORS = ['#e63946','#ff4d6d','#ff6b35','#a855f7','#fbbf24'];
+// ========== END LUFFY STATE ==========
+
 const VETERAN_TIERS = [
     { name:'Rookie',    color:'#3b82f6', shadow:'#3b82f6', projColor:'#60a5fa', dmgMult:1.0, speedBonus:0,   label:'Burst' },
     { name:'Soldier',   color:'#22c55e', shadow:'#16a34a', projColor:'#86efac', dmgMult:1.4, speedBonus:0.5, label:'Volley' },
@@ -3818,12 +3838,18 @@ function applyPassiveDamageBoost(baseDmg) {
     let dmg = baseDmg;
     if(passiveState.crit > 0 && Math.random() < passiveState.crit) { dmg *= 3; }
     if(passiveState.berserkerActive) dmg *= 2;
+    // Luffy: Arm Haki 1.5x damage
+    if(currentCharacter === 'luffy' && luffyArmHakiActive > 0) dmg *= 1.5;
     return dmg;
 }
 
 function applyPassiveIncomingDamage(dmg) {
     if(passiveState.ghostly > 0 && Math.random() < passiveState.ghostly) { floatMoneyText('DODGED!'); return 0; }
+    // Luffy: Observation Haki 35% dodge
+    if(currentCharacter === 'luffy' && Math.random() < 0.35) { floatMoneyText('👁️ OBS. HAKI! DODGED!'); return 0; }
     dmg = dmg * (1 - passiveState.armor);
+    // Luffy: Arm Haki 1.5x damage reduction when active (divide by 1.5)
+    if(currentCharacter === 'luffy' && luffyArmHakiActive > 0) dmg /= 1.5;
 
     if(currentBiome.effect === 'starlight') dmg *= 0.9;
     if(currentBiome.effect === 'void') dmg *= 0.5;
@@ -4386,11 +4412,7 @@ class Enemy {
             ctx.moveTo(0,-s); ctx.lineTo(s*0.866,s*0.5); ctx.lineTo(-s*0.866,s*0.5);
             ctx.closePath(); ctx.fill();
         } else if (this.isShielder) {
-
-            ctx.beginPath();
-            for(let i=0;i<6;i++){const a=(Math.PI/3)*i-Math.PI/6;ctx.lineTo(this.x+Math.cos(a)*this.radius,this.y+Math.sin(a)*this.radius);}
-            ctx.closePath(); ctx.fill();
-
+            ctx.beginPath(); ctx.arc(this.x,this.y,this.radius,0,Math.PI*2); ctx.fill();
             ctx.restore(); ctx.save();
             ctx.globalAlpha = (this.drawAlpha||1);
             ctx.strokeStyle='#60a5fa'; ctx.lineWidth=5;
@@ -4420,14 +4442,7 @@ class Enemy {
         } else if (this.isPhantomEnemy) {
             ctx.beginPath(); ctx.arc(this.x,this.y,this.radius,0,Math.PI*2); ctx.fill();
         } else if (this.isSniperEnemy) {
-
-            ctx.beginPath();
-            ctx.moveTo(this.x,this.y-this.radius*1.3);
-            ctx.lineTo(this.x+this.radius,this.y);
-            ctx.lineTo(this.x,this.y+this.radius*1.3);
-            ctx.lineTo(this.x-this.radius,this.y);
-            ctx.closePath(); ctx.fill();
-
+            ctx.beginPath(); ctx.arc(this.x,this.y,this.radius,0,Math.PI*2); ctx.fill();
             if (this.isVisible !== false) {
                 ctx.restore(); ctx.save(); ctx.globalAlpha=(this.drawAlpha||1)*0.35;
                 ctx.strokeStyle='#ef4444'; ctx.lineWidth=1; ctx.setLineDash([4,4]);
@@ -4514,140 +4529,24 @@ class Enemy {
                 ctx.setLineDash([]);
             }
         } else if (this.isGolem) {
-            // Rocky jagged body
-            const gAng = this.golemFacing || 0;
-            ctx.fillStyle = this.frozen>0 ? '#67e8f9' : '#78716c';
-            ctx.shadowColor = this.frozen>0 ? '#06b6d4' : '#57534e';
-            ctx.beginPath();
-            const gVerts = 8, gJag = [0,2,-1,3,-2,1,-3,2];
-            for(let i=0;i<gVerts;i++){
-                const a=(Math.PI*2/gVerts)*i;
-                const r=this.radius+gJag[i];
-                i===0?ctx.moveTo(this.x+Math.cos(a)*r,this.y+Math.sin(a)*r):ctx.lineTo(this.x+Math.cos(a)*r,this.y+Math.sin(a)*r);
-            }
-            ctx.closePath(); ctx.fill();
-            // Rock crack lines
-            ctx.restore(); ctx.save(); ctx.globalAlpha=(this.drawAlpha||1)*0.4;
-            ctx.strokeStyle='#292524'; ctx.lineWidth=1.5;
-            ctx.beginPath(); ctx.moveTo(this.x-4,this.y-8); ctx.lineTo(this.x-1,this.y-1); ctx.lineTo(this.x+5,this.y+4); ctx.stroke();
-            ctx.beginPath(); ctx.moveTo(this.x+6,this.y-5); ctx.lineTo(this.x+2,this.y+2); ctx.stroke();
-            // Front armor plate arc
-            ctx.restore(); ctx.save(); ctx.globalAlpha=(this.drawAlpha||1);
-            ctx.strokeStyle='#d6d3d1'; ctx.lineWidth=5; ctx.lineCap='round';
-            ctx.shadowBlur = _shadowsEnabled ? 8 : 0; ctx.shadowColor='#a8a29e';
-            ctx.beginPath(); ctx.arc(this.x,this.y,this.radius+1,gAng-0.95,gAng+0.95); ctx.stroke();
-            // Glowing orange weak spot on back
-            const backAng=(this.golemFacing||0)+Math.PI;
-            ctx.shadowBlur = _shadowsEnabled ? 16 : 0; ctx.shadowColor='#f97316';
-            ctx.fillStyle='#f97316';
-            ctx.beginPath(); ctx.arc(this.x+Math.cos(backAng)*(this.radius-5),this.y+Math.sin(backAng)*(this.radius-5),5,0,Math.PI*2); ctx.fill();
-            ctx.fillStyle='#fde68a'; ctx.beginPath(); ctx.arc(this.x+Math.cos(backAng)*(this.radius-5),this.y+Math.sin(backAng)*(this.radius-5),2.5,0,Math.PI*2); ctx.fill();
+            ctx.beginPath(); ctx.arc(this.x,this.y,this.radius,0,Math.PI*2); ctx.fill();
 
         } else if (this.isDasher) {
-            // Afterimage trail
-            if(this.dasherAfterimage){this.dasherAfterimage.forEach(a=>{ctx.save();ctx.globalAlpha=a.life*0.25;ctx.fillStyle='#7c3aed';ctx.shadowBlur=_shadowsEnabled?8:0;ctx.shadowColor='#a78bfa';ctx.beginPath();ctx.arc(a.x,a.y,this.radius*0.8,0,Math.PI*2);ctx.fill();ctx.restore();});}
-            // Diamond/arrowhead body pointing toward player
-            const dAng = Math.atan2(player.y-this.y, player.x-this.x);
-            ctx.save(); ctx.translate(this.x,this.y); ctx.rotate(dAng);
-            ctx.fillStyle='#a78bfa'; ctx.shadowBlur=_shadowsEnabled?20:0; ctx.shadowColor='#7c3aed';
-            ctx.beginPath();
-            ctx.moveTo(this.radius,0);
-            ctx.lineTo(0,-this.radius*0.7);
-            ctx.lineTo(-this.radius*0.7,0);
-            ctx.lineTo(0,this.radius*0.7);
-            ctx.closePath(); ctx.fill();
-            // Speed slash lines behind
-            ctx.strokeStyle='#c4b5fd'; ctx.lineWidth=1.5; ctx.globalAlpha=0.6;
-            for(let i=0;i<3;i++){
-                const off=(i-1)*5;
-                ctx.beginPath(); ctx.moveTo(-this.radius*0.5,off-2); ctx.lineTo(-this.radius*1.4,off); ctx.stroke();
-            }
-            ctx.restore(); ctx.save(); ctx.globalAlpha=(this.drawAlpha||1);
+            ctx.beginPath(); ctx.arc(this.x,this.y,this.radius,0,Math.PI*2); ctx.fill();
 
         } else if (this.isBoomerang) {
-            // Solid boomerang wing shape
-            ctx.save(); ctx.translate(this.x,this.y);
-            ctx.rotate(this.boomAngle + this.boomArc * 4);
-            ctx.fillStyle='#d97706'; ctx.shadowBlur=_shadowsEnabled?14:0; ctx.shadowColor='#f59e0b';
-            // Wing 1
-            ctx.beginPath(); ctx.arc(0,0,this.radius,0.2,Math.PI-0.2); ctx.lineTo(0,0); ctx.closePath(); ctx.fill();
-            // Wing 2
-            ctx.beginPath(); ctx.arc(0,0,this.radius,Math.PI+0.2,Math.PI*2-0.2); ctx.lineTo(0,0); ctx.closePath(); ctx.fill();
-            // Center
-            ctx.fillStyle='#fbbf24'; ctx.beginPath(); ctx.arc(0,0,3.5,0,Math.PI*2); ctx.fill();
-            // Edge highlight
-            ctx.strokeStyle='#fde68a'; ctx.lineWidth=1.5; ctx.globalAlpha=0.7;
-            ctx.beginPath(); ctx.arc(0,0,this.radius-2,0.2,Math.PI-0.2); ctx.stroke();
-            ctx.beginPath(); ctx.arc(0,0,this.radius-2,Math.PI+0.2,Math.PI*2-0.2); ctx.stroke();
-            ctx.restore(); ctx.save(); ctx.globalAlpha=(this.drawAlpha||1);
+            ctx.beginPath(); ctx.arc(this.x,this.y,this.radius,0,Math.PI*2); ctx.fill();
 
         } else if (this.isSwarmUnit) {
-            // Tiny hexagon bee shape
-            ctx.fillStyle='#fbbf24'; ctx.shadowBlur=_shadowsEnabled?10:0; ctx.shadowColor='#f59e0b';
-            ctx.beginPath();
-            for(let i=0;i<6;i++){const a=(Math.PI/3)*i-Math.PI/6;ctx.lineTo(this.x+Math.cos(a)*this.radius,this.y+Math.sin(a)*this.radius);}
-            ctx.closePath(); ctx.fill();
-            // Stripe
-            ctx.restore(); ctx.save(); ctx.globalAlpha=(this.drawAlpha||1)*0.5;
-            ctx.fillStyle='#78350f'; ctx.fillRect(this.x-this.radius*0.4,this.y-1,this.radius*0.8,2);
+            ctx.beginPath(); ctx.arc(this.x,this.y,this.radius,0,Math.PI*2); ctx.fill();
         } else if (this.isMagnet) {
-            // U-shaped horseshoe magnet
-            ctx.restore(); ctx.save(); ctx.globalAlpha=(this.drawAlpha||1);
-            ctx.shadowBlur=_shadowsEnabled?18:0; ctx.shadowColor='#3b82f6';
-            // Body U
-            ctx.strokeStyle='#3b82f6'; ctx.lineWidth=7; ctx.lineCap='round';
-            ctx.beginPath(); ctx.arc(this.x,this.y+4,9,Math.PI,0,false); ctx.stroke();
-            ctx.beginPath(); ctx.moveTo(this.x-9,this.y+4); ctx.lineTo(this.x-9,this.y-7); ctx.stroke();
-            ctx.beginPath(); ctx.moveTo(this.x+9,this.y+4); ctx.lineTo(this.x+9,this.y-7); ctx.stroke();
-            // Pole tips (N=red, S=blue)
-            ctx.fillStyle='#ef4444'; ctx.shadowColor='#ef4444'; ctx.beginPath(); ctx.arc(this.x-9,this.y-8,4,0,Math.PI*2); ctx.fill();
-            ctx.fillStyle='#60a5fa'; ctx.shadowColor='#60a5fa'; ctx.beginPath(); ctx.arc(this.x+9,this.y-8,4,0,Math.PI*2); ctx.fill();
-            // Pulsing field arcs
-            const mp=((this.magnetPulse||0)/120)*Math.PI*2;
-            ctx.strokeStyle='#93c5fd'; ctx.lineWidth=1; ctx.globalAlpha=(this.drawAlpha||1)*(0.15+0.12*Math.sin(mp));
-            ctx.beginPath(); ctx.arc(this.x,this.y,this.radius+14,0,Math.PI*2); ctx.stroke();
-            ctx.globalAlpha=(this.drawAlpha||1)*(0.1+0.08*Math.sin(mp+1));
-            ctx.beginPath(); ctx.arc(this.x,this.y,this.radius+24,0,Math.PI*2); ctx.stroke();
+            ctx.beginPath(); ctx.arc(this.x,this.y,this.radius,0,Math.PI*2); ctx.fill();
 
         } else if (this.isWebber) {
-            // Spider body + legs
-            ctx.fillStyle='#475569'; ctx.shadowBlur=_shadowsEnabled?14:0; ctx.shadowColor='#64748b';
-            // Abdomen
-            ctx.beginPath(); ctx.ellipse(this.x,this.y+3,this.radius*0.75,this.radius,0,0,Math.PI*2); ctx.fill();
-            // Head
-            ctx.fillStyle='#334155'; ctx.beginPath(); ctx.arc(this.x,this.y-this.radius*0.55,this.radius*0.52,0,Math.PI*2); ctx.fill();
-            // Eyes
-            ctx.fillStyle='#ef4444'; ctx.shadowBlur=_shadowsEnabled?8:0; ctx.shadowColor='#ef4444';
-            ctx.beginPath(); ctx.arc(this.x-3,this.y-this.radius*0.6,2,0,Math.PI*2); ctx.fill();
-            ctx.beginPath(); ctx.arc(this.x+3,this.y-this.radius*0.6,2,0,Math.PI*2); ctx.fill();
-            // 4 legs each side
-            ctx.restore(); ctx.save(); ctx.globalAlpha=(this.drawAlpha||1)*0.8;
-            ctx.strokeStyle='#64748b'; ctx.lineWidth=1.2; ctx.lineCap='round';
-            const legAngles=[-0.6,-0.85,-1.1,-1.35];
-            legAngles.forEach((a,i)=>{
-                const lx=this.x-this.radius*0.6, rx=this.x+this.radius*0.6, ly=this.y+(i-1.5)*4;
-                const ex=lx-Math.cos(a)*14, ey=ly-Math.sin(Math.abs(a))*10;
-                ctx.beginPath(); ctx.moveTo(lx,ly); ctx.quadraticCurveTo(lx-7,ly-5,ex,ey); ctx.stroke();
-                const ex2=rx+Math.cos(a)*14;
-                ctx.beginPath(); ctx.moveTo(rx,ly); ctx.quadraticCurveTo(rx+7,ly-5,ex2,ey); ctx.stroke();
-            });
+            ctx.beginPath(); ctx.arc(this.x,this.y,this.radius,0,Math.PI*2); ctx.fill();
 
         } else if (this.isSilencer) {
-            // Dark hexagon with sound wave bars crossed out
-            ctx.fillStyle='#334155'; ctx.shadowBlur=_shadowsEnabled?14:0; ctx.shadowColor='#475569';
-            ctx.beginPath();
-            for(let i=0;i<6;i++){const a=(Math.PI/3)*i;ctx.lineTo(this.x+Math.cos(a)*this.radius,this.y+Math.sin(a)*this.radius);}
-            ctx.closePath(); ctx.fill();
-            // Sound wave bars
-            ctx.restore(); ctx.save(); ctx.globalAlpha=(this.drawAlpha||1)*0.7;
-            ctx.strokeStyle='#94a3b8'; ctx.lineWidth=2; ctx.lineCap='round';
-            for(let i=-1;i<=1;i++){const h=5+Math.abs(i)*4;ctx.beginPath();ctx.moveTo(this.x+i*4,this.y-h);ctx.lineTo(this.x+i*4,this.y+h);ctx.stroke();}
-            // Red X slash through it
-            ctx.restore(); ctx.save(); ctx.globalAlpha=(this.drawAlpha||1)*0.85;
-            ctx.strokeStyle='#ef4444'; ctx.lineWidth=2.5; ctx.lineCap='round';
-            ctx.shadowBlur=_shadowsEnabled?10:0; ctx.shadowColor='#ef4444';
-            ctx.beginPath(); ctx.moveTo(this.x-7,this.y-7); ctx.lineTo(this.x+7,this.y+7); ctx.stroke();
-            ctx.beginPath(); ctx.moveTo(this.x+7,this.y-7); ctx.lineTo(this.x-7,this.y+7); ctx.stroke();
+            ctx.beginPath(); ctx.arc(this.x,this.y,this.radius,0,Math.PI*2); ctx.fill();
 
         } else if (this.isMimic) {
             if (!this.mimicRevealed) {
@@ -4729,23 +4628,7 @@ class Enemy {
             ctx.fillStyle='#c4b5fd'; ctx.shadowBlur=_shadowsEnabled?20:0; ctx.shadowColor='#c4b5fd';
             ctx.beginPath(); ctx.arc(this.x,this.y,4+Math.sin(vt*3)*1.5,0,Math.PI*2); ctx.fill();
         } else if (this.isMirror) {
-            // Oval mirror frame with reflective surface
-            ctx.save(); ctx.translate(this.x, this.y);
-            const mt = Date.now() * 0.001;
-            // Frame
-            ctx.strokeStyle='#c084fc'; ctx.lineWidth=3; ctx.shadowBlur=_shadowsEnabled?18:0; ctx.shadowColor='#a855f7';
-            ctx.beginPath(); ctx.ellipse(0,0,this.radius,this.radius*1.3,0,0,Math.PI*2); ctx.stroke();
-            // Reflective surface shimmer
-            const grad = ctx.createLinearGradient(-this.radius,0,this.radius,0);
-            grad.addColorStop(0,'rgba(167,139,250,0.15)');
-            grad.addColorStop(0.4+Math.sin(mt)*0.15,'rgba(255,255,255,0.45)');
-            grad.addColorStop(1,'rgba(167,139,250,0.1)');
-            ctx.fillStyle=grad;
-            ctx.beginPath(); ctx.ellipse(0,0,this.radius-2,this.radius*1.3-2,0,0,Math.PI*2); ctx.fill();
-            // Highlight streak
-            ctx.globalAlpha=0.5+Math.sin(mt*2)*0.2;
-            ctx.fillStyle='#fff'; ctx.beginPath(); ctx.ellipse(-this.radius*0.25,0,2.5,this.radius*0.7,0,0,Math.PI*2); ctx.fill();
-            ctx.restore(); ctx.save(); ctx.globalAlpha=(this.drawAlpha||1);
+            ctx.beginPath(); ctx.arc(this.x,this.y,this.radius,0,Math.PI*2); ctx.fill();
 
         } else {
             ctx.beginPath(); ctx.arc(this.x,this.y,this.radius,0,Math.PI*2); ctx.fill();
@@ -6798,14 +6681,176 @@ function specialAttack(){
             floatMoneyText('⚡ SPRINT BURST! 3 seconds!');
             break;
         }
-    }
+        case 'arm_haki': {
+            // Luffy R: Arm Haki — 30s cd, grants 1.5x dmg + 1.5x dmg reduction for 10s
+            if(luffyArmHakiCd > 0){ floatMoneyText(`⏳ Arm Haki: ${(luffyArmHakiCd/60).toFixed(1)}s`); return; }
+            luffyArmHakiActive = 600; // 10s = 600 ticks
+            luffyArmHakiCd = 1800;   // 30s = 1800 ticks
+            for(let r=0;r<140;r+=20) for(let a=0;a<Math.PI*2;a+=0.35) particles.push(new Particle(player.x+Math.cos(a)*r,player.y+Math.sin(a)*r,'#000000'));
+            for(let i=0;i<60;i++) particles.push(new Particle(player.x,player.y,'#1a1a1a'));
+            floatMoneyText('🖤 ARM HAKI! 1.5x DMG + 1.5x DEF! 10s!');
+            playSound(80,0.15,'sawtooth'); playSound(160,0.1,'sine');
+            break;
+        }
     for(let i=0;i<15;i++)particles.push(new Particle(player.x,player.y,sk.color));
     updateHUD();
 }
 
+// ===== LUFFY ABILITIES =====
+function luffyKnockback(e, mult, sourceX, sourceY) {
+    const ang = Math.atan2(e.y - sourceY, e.x - sourceX);
+    const dist = 80 * mult;
+    e.x = Math.max(e.radius, Math.min(canvas.width - e.radius, e.x + Math.cos(ang) * dist));
+    e.y = Math.max(e.radius, Math.min(canvas.height - e.radius, e.y + Math.sin(ang) * dist));
+}
+function luffyZAbility() {
+    if(luffySelfStunTimer > 0) { floatMoneyText('💫 Stunned!'); return; }
+    if(luffyZCd > 0){ floatMoneyText('⏳ Z: '+(luffyZCd/60).toFixed(1)+'s'); return; }
+    const angle = Math.atan2(mousePos.y-player.y, mousePos.x-player.x);
+    const g = luffyGear;
+    const hakiMult = luffyArmHakiActive > 0 ? 1.5 : 1;
+    if(g === 0) {
+        const dmg = applyPassiveDamageBoost(22.5 * hakiMult);
+        const p = new Projectile(player.x,player.y,angle,dmg,'#e63946',true);
+        p.radius = 14; p.speed = 14; p.luffyKB = 2;
+        projectiles.push(p);
+        for(let i=0;i<30;i++) particles.push(new Particle(player.x,player.y,'#e63946'));
+        floatMoneyText('💥 GUMA BAZOOKA! '+Math.round(dmg)+' dmg!');
+        luffyZCd = 1500;
+    } else if(g === 1) {
+        const dx = Math.cos(angle)*120, dy = Math.sin(angle)*120;
+        player.x = Math.max(player.radius,Math.min(canvas.width-player.radius,player.x+dx));
+        player.y = Math.max(player.radius,Math.min(canvas.height-player.radius,player.y+dy));
+        const dmg = applyPassiveDamageBoost(25 * hakiMult);
+        enemies.forEach(e => {
+            if(!e.alive)return;
+            if(Math.hypot(e.x-player.x,e.y-player.y)<e.radius+player.radius+50){
+                damageEnemy(e,dmg,player.x,player.y);
+                luffyKnockback(e,3,player.x,player.y);
+                for(let i=0;i<12;i++) particles.push(new Particle(e.x,e.y,'#ff4d6d'));
+            }
+        });
+        luffySelfStunTimer = 120;
+        autoFireEnabled = false; setTimeout(()=>{if(currentCharacter==='luffy')autoFireEnabled=true;},2000);
+        for(let i=0;i<40;i++) particles.push(new Particle(player.x,player.y,'#ff4d6d'));
+        floatMoneyText('💨 JET HEADBUTT! 25 DMG + 2s Self-Stun!');
+        luffyZCd = 3000;
+    } else if(g === 2) {
+        enemies.forEach(e => {
+            if(!e.alive)return;
+            if(Math.hypot(e.x-player.x,e.y-player.y)<220){
+                const dmg = e.isBoss ? 500 : Math.max(1, e.health * 0.5);
+                damageEnemy(e,dmg,player.x,player.y);
+                e.frozen = Math.max(e.frozen||0, 300);
+                for(let i=0;i<8;i++) particles.push(new Particle(e.x,e.y,'#ff6b35'));
+            }
+        });
+        for(let r=30;r<240;r+=28) for(let a=0;a<Math.PI*2;a+=0.4) particles.push(new Particle(player.x+Math.cos(a)*r,player.y+Math.sin(a)*r,'#ff6b35'));
+        floatMoneyText('🪓 GIANT BATTLE AXE! 50% HP + 5s STUN!');
+        luffyZCd = 2400;
+    } else if(g === 3) {
+        if(luffySnakeMan) {
+            if(luffyRapidRifleActive > 0){ floatMoneyText('🔫 Rapid Rifle active!'); return; }
+            luffyRapidRifleActive = 600; luffyRapidRifleTimer = 0;
+            autoFireEnabled = false;
+            floatMoneyText('🐍 RAPID RIFLE! 10s / 250 total DMG!');
+            luffyZCd = 3600;
+        } else {
+            const ang2 = Math.atan2(mousePos.y-player.y, mousePos.x-player.x);
+            const dmg = applyPassiveDamageBoost(50 * hakiMult);
+            let hit = false;
+            enemies.forEach(e => {
+                if(!e.alive || hit)return;
+                if(Math.hypot(e.x-player.x,e.y-player.y)<350){
+                    damageEnemy(e,dmg,player.x,player.y);
+                    e.x = Math.abs(Math.cos(ang2))>Math.abs(Math.sin(ang2)) ? (Math.cos(ang2)>0?canvas.width-e.radius:e.radius) : e.x;
+                    e.y = Math.abs(Math.sin(ang2))>=Math.abs(Math.cos(ang2)) ? (Math.sin(ang2)>0?canvas.height-e.radius:e.radius) : e.y;
+                    e.frozen = 180; hit = true;
+                    for(let i=0;i<25;i++) particles.push(new Particle(e.x,e.y,'#a855f7'));
+                }
+            });
+            floatMoneyText('💜 MASSIVE PISTOL! 50 DMG + WALL SLAM!');
+            luffyZCd = 2400;
+        }
+    } else if(g === 4) {
+        // G5: Crumbs of Liberation — full HP regen
+        player.health = player.maxHealth;
+        for(let i=0;i<80;i++) particles.push(new Particle(player.x,player.y,'#fbbf24'));
+        floatMoneyText('✨ CRUMBS OF LIBERATION! FULL HEAL!');
+        luffyZCd = 1800; updateHUD(); return;
+    }
+    playSound(300,0.12,'sawtooth'); updateHUD();
+}
+function luffyXAbility() {
+    if(luffySelfStunTimer > 0) { floatMoneyText('💫 Stunned!'); return; }
+    if(luffyXCd > 0){ floatMoneyText('⏳ X: '+(luffyXCd/60).toFixed(1)+'s'); return; }
+    const g = luffyGear;
+    const hakiMult = luffyArmHakiActive > 0 ? 1.5 : 1;
+    if(g === 0) {
+        luffyGatlingActive = 300;
+        floatMoneyText('🔫 GATLING! 3x SPEED 0.5x DMG 5s!');
+        luffyXCd = 1200;
+    } else if(g === 1) {
+        luffyGatlingActive = 300;
+        floatMoneyText('⚡ JET GATLING! 6x SPEED 0.4x DMG 5s!');
+        luffyXCd = 2100;
+    } else if(g === 2) {
+        const angle = Math.atan2(mousePos.y-player.y, mousePos.x-player.x);
+        const dmg = applyPassiveDamageBoost(20 * hakiMult);
+        enemies.forEach(e => {
+            if(!e.alive)return;
+            if(Math.hypot(e.x-player.x,e.y-player.y)<380){
+                damageEnemy(e,dmg,player.x,player.y);
+                e.x = Math.abs(Math.cos(angle))>Math.abs(Math.sin(angle)) ? (Math.cos(angle)>0?canvas.width-e.radius:e.radius) : e.x;
+                e.y = Math.abs(Math.sin(angle))>=Math.abs(Math.cos(angle)) ? (Math.sin(angle)>0?canvas.height-e.radius:e.radius) : e.y;
+                e.frozen = 180;
+                for(let i=0;i<12;i++) particles.push(new Particle(e.x,e.y,'#ff6b35'));
+            }
+        });
+        floatMoneyText('💨 GIANT BAZOOKA! Wall slam + 3s stun!');
+        luffyXCd = 1800;
+    } else if(g === 3) {
+        floatMoneyText('🔕 No X in G4! Use Z or C.');
+        return;
+    } else if(g === 4) {
+        // G5 X: Wall Grab — pull closest wall toward player
+        if(walls.length === 0 && builderWalls.length === 0) { floatMoneyText('No walls to grab!'); return; }
+        let closest = null, closestDist = Infinity;
+        walls.forEach(w => {
+            const cx = w.x + w.w/2, cy = w.y + w.h/2;
+            const d = Math.hypot(cx-mousePos.x, cy-mousePos.y);
+            if(d < closestDist){ closestDist=d; closest=w; }
+        });
+        if(closest) {
+            closest.x = player.x - closest.w/2;
+            closest.y = player.y - closest.h/2 - player.radius - closest.h/2 - 5;
+            for(let i=0;i<30;i++) particles.push(new Particle(player.x,player.y,'#fbbf24'));
+            floatMoneyText('🌀 WALL GRAB!');
+        } else { floatMoneyText('No walls in range!'); return; }
+        luffyXCd = 1800; // 30s
+    }
+    playSound(400,0.1,'square'); updateHUD();
+}
+function luffyCAbility() {
+    if(luffySelfStunTimer > 0) { floatMoneyText('💫 Stunned!'); return; }
+    if(luffyCoCCd > 0){ floatMoneyText('⏳ CoC: '+(luffyCoCCd/60).toFixed(1)+'s'); return; }
+    const permStun = luffyGear === 4;
+    const freezeDur = permStun ? 99999 : 300;
+    let count = 0;
+    enemies.forEach(e => {
+        if(!e.alive)return;
+        const inRange = permStun || Math.hypot(e.x-player.x,e.y-player.y)<360;
+        if(inRange){ e.frozen=freezeDur; count++; }
+    });
+    luffyCoCActive = 300; luffyCoCCd = 3600;
+    for(let r=0;r<400;r+=45) for(let a=0;a<Math.PI*2;a+=0.25) particles.push(new Particle(player.x+Math.cos(a)*r,player.y+Math.sin(a)*r,'#7f1d1d'));
+    playSound(50,0.2,'sawtooth'); playSound(100,0.15,'sine');
+    floatMoneyText(permStun ? '👑 CoC! ALL ENEMIES PERMA-STUNNED!' : '👑 CONQUEROR\'S HAKI! '+count+' enemies frozen 5s!');
+    updateHUD();
+}
+// ===== END LUFFY ABILITIES =====
+
 function dash(){
-    if(player.dashCooldown>0)return;
-    const sk = CHARACTERS[currentCharacter];
     
     if(currentCharacter === 'hornet') {
         const dashAngle=Math.atan2(mousePos.y-player.y,mousePos.x-player.x);
@@ -7507,6 +7552,21 @@ function updateHUD(){
     } else if(sk.isVampire){
         if(rLabel)rLabel.textContent='PASSIVE';const ab=document.getElementById('armorBar');if(ab)ab.style.display='none';
         rEl.style.fontSize='7px';rEl.style.color='#ef4444';rEl.textContent='+8 HP/kill';
+    } else if(sk.isLuffy){
+        const gearNames = ['G1','G2','G3','G4','G5'];
+        const gearColors2 = ['#e63946','#ff4d6d','#ff6b35','#a855f7','#fbbf24'];
+        const col2 = gearColors2[luffyGear]||'#e63946';
+        if(rLabel)rLabel.textContent='ARM HAKI';
+        const ab=document.getElementById('armorBar'),af=document.getElementById('armorBarFill');
+        if(ab)ab.style.display='block';
+        if(af){
+            const pct=luffyGear>=4?100:Math.min((luffyGearTimer/LUFFY_GEAR_TIME)*100,100);
+            af.style.width=pct+'%'; af.style.background=col2;
+        }
+        rEl.style.fontSize='7px'; rEl.style.color=col2;
+        if(luffyArmHakiCd > 0){ rEl.textContent=(luffyArmHakiCd/60).toFixed(1)+'s 🖤'; }
+        else if(luffyArmHakiActive > 0){ rEl.textContent='🖤 HAKI ON!'; }
+        else { rEl.textContent=(luffyGear===3&&luffySnakeMan?'G4-SM':['G1','G2','G3','G4-BM','G5'][luffyGear])+' READY'; }
     } else {
         if(rLabel)rLabel.textContent='R KEY';rEl.style.fontSize='';const ab=document.getElementById('armorBar');if(ab)ab.style.display='none';
         if(sk.cdMax>0&&player.specialCooldown>0){rEl.textContent=(player.specialCooldown/60).toFixed(1)+'s';rEl.style.color='#ef4444';}
@@ -8022,6 +8082,13 @@ function resetGame(){
     turrets=[]; pendingAirstrikes=[]; firePatches=[]; overloadCharges=0;
     veteranTier=0; veteranTimer=0;
     warVeteranTier=0; warVeteranTimer=0;
+    // Luffy reset
+    luffyGear=0; luffyGearTimer=0; luffySnakeMan=false;
+    luffyArmHakiActive=0; luffyArmHakiCd=0;
+    luffyZCd=0; luffyXCd=0; luffyCoCCd=0; luffyCoCActive=0;
+    luffySelfStunTimer=0; luffyGatlingActive=0;
+    luffyRapidRifleActive=0; luffyRapidRifleTimer=0;
+    if(currentCharacter==='luffy'){ player.maxHealth=85;player.health=85;player.speed=4.5;player.damage=10; }
     if (currentCharacter === 'war_veteran') {
         player.damage = 20;
         player.speed = 6;
@@ -8136,6 +8203,60 @@ function resetGame(){
 
 function drawPlayer(ts, dt=1){
     const sk=CHARACTERS[currentCharacter];
+
+    if(currentCharacter === 'luffy') {
+        ctx.save();
+        if(player.invulnerable>0&&Math.floor(ts/100)%2===0) ctx.globalAlpha=0.5;
+        const gearColors = ['#e63946','#ff4d6d','#ff6b35','#a855f7','#fbbf24'];
+        const col = gearColors[luffyGear] || '#e63946';
+        const r = player.radius;
+        // Gear size scaling
+        const gearScale = [1, 1.05, 1.15, 1.1, 1.2][luffyGear] || 1;
+        const dr = r * gearScale;
+        // Arm Haki aura (dark)
+        if(luffyArmHakiActive > 0) {
+            ctx.shadowBlur = _shadowsEnabled ? 30 : 0; ctx.shadowColor = '#000';
+            ctx.strokeStyle = '#000'; ctx.lineWidth = 5;
+            ctx.beginPath(); ctx.arc(player.x,player.y,dr+8,0,Math.PI*2); ctx.stroke();
+        }
+        // CoC aura (golden ring)
+        if(luffyCoCActive > 0) {
+            ctx.shadowBlur = _shadowsEnabled ? 25 : 0; ctx.shadowColor='#7f1d1d';
+            ctx.strokeStyle='#7f1d1d'; ctx.lineWidth=4;
+            ctx.beginPath(); ctx.arc(player.x,player.y,dr+14+Math.sin(ts*0.015)*4,0,Math.PI*2); ctx.stroke();
+        }
+        // G5 toon force spin ring
+        if(luffyGear===4){
+            ctx.save(); ctx.translate(player.x,player.y); ctx.rotate(ts*0.004);
+            ctx.strokeStyle='#fbbf24'; ctx.lineWidth=3; ctx.setLineDash([8,6]);
+            ctx.shadowBlur=_shadowsEnabled?20:0; ctx.shadowColor='#fbbf24';
+            ctx.beginPath(); ctx.arc(0,0,dr+18,0,Math.PI*2); ctx.stroke();
+            ctx.setLineDash([]);
+            ctx.restore();
+        }
+        // G4 BM bouncy ring
+        if(luffyGear===3 && !luffySnakeMan){
+            ctx.strokeStyle='#a855f7'; ctx.lineWidth=3;
+            ctx.shadowBlur=_shadowsEnabled?16:0; ctx.shadowColor='#a855f7';
+            ctx.beginPath(); ctx.arc(player.x,player.y,dr+10+Math.abs(Math.sin(ts*0.008))*5,0,Math.PI*2); ctx.stroke();
+        }
+        ctx.shadowBlur = _shadowsEnabled ? 22 : 0; ctx.shadowColor = col;
+        ctx.beginPath(); ctx.arc(player.x,player.y,dr,0,Math.PI*2);
+        ctx.fillStyle = col; ctx.fill();
+        // Inner highlight
+        ctx.shadowBlur=0; ctx.fillStyle='rgba(255,255,255,0.18)';
+        ctx.beginPath(); ctx.arc(player.x-dr*0.25,player.y-dr*0.25,dr*0.45,0,Math.PI*2); ctx.fill();
+        // Aim dot
+        const ang=Math.atan2(mousePos.y-player.y,mousePos.x-player.x);
+        ctx.fillStyle='white'; ctx.shadowBlur=0;
+        ctx.beginPath(); ctx.arc(player.x+Math.cos(ang)*dr*0.65,player.y+Math.sin(ang)*dr*0.65,4,0,Math.PI*2); ctx.fill();
+        // Gear label
+        ctx.font=`bold ${9+luffyGear}px Arial`; ctx.textAlign='center'; ctx.fillStyle='white';
+        ctx.fillText(luffyGear===3?(luffySnakeMan?'SM':'BM'):['G1','G2','G3','G4','G5'][luffyGear], player.x, player.y-dr-6);
+        ctx.textAlign='left';
+        ctx.restore();
+        return;
+    }
 
     if(currentCharacter === 'rouge_square') {
         ctx.save();
@@ -8566,6 +8687,73 @@ function tickVeteran(dt) {
     }
 }
 
+}
+
+function tickLuffy(dt) {
+    if(currentCharacter !== 'luffy') return;
+    // Cooldown timers
+    if(luffyArmHakiActive > 0) { luffyArmHakiActive -= dt; if(luffyArmHakiActive<=0){ luffyArmHakiActive=0; floatMoneyText('🖤 Arm Haki faded'); } }
+    if(luffyArmHakiCd > 0) luffyArmHakiCd -= dt;
+    if(luffyZCd > 0) luffyZCd -= dt;
+    if(luffyXCd > 0) luffyXCd -= dt;
+    if(luffyCoCCd > 0) luffyCoCCd -= dt;
+    if(luffyCoCActive > 0) luffyCoCActive -= dt;
+    if(luffySelfStunTimer > 0) luffySelfStunTimer -= dt;
+    if(luffyGatlingActive > 0) luffyGatlingActive -= dt;
+    // Rapid Rifle (G4 Snake Man Z)
+    if(luffyRapidRifleActive > 0) {
+        luffyRapidRifleActive -= dt;
+        luffyRapidRifleTimer += dt;
+        if(luffyRapidRifleTimer >= 6) { // 10 shots/s = every 6 ticks at 60fps
+            luffyRapidRifleTimer = 0;
+            const angle = Math.atan2(mousePos.y-player.y, mousePos.x-player.x);
+            const pdmg = applyPassiveDamageBoost(0.25 * (luffyArmHakiActive>0?1.5:1));
+            const p = new Projectile(player.x,player.y,angle,pdmg,'#fbbf24',false);
+            p.speed = 16;
+            projectiles.push(p);
+        }
+        if(luffyRapidRifleActive <= 0) {
+            luffyRapidRifleActive = 0;
+            autoFireEnabled = true;
+            floatMoneyText('🐍 Rapid Rifle ended!');
+        }
+    }
+    // Gear progression — 60s per gear
+    if(luffyGear >= 4) return;
+    luffyGearTimer += dt;
+    if(luffyGearTimer >= LUFFY_GEAR_TIME) {
+        luffyGearTimer = 0;
+        luffyGear++;
+        const gNames = ['G1','G2','G3','G4','G5'];
+        const gColors = ['#e63946','#ff4d6d','#ff6b35','#a855f7','#fbbf24'];
+        // Apply gear stat changes
+        if(luffyGear === 1) { // G2
+            player.maxHealth = 95; player.health = Math.min(player.health + (95-85), 95);
+            player.speed *= 2; // 2x speed passive
+            floatMoneyText('🔥 GEAR 2! 2x Speed! 95 HP!');
+        } else if(luffyGear === 2) { // G3
+            player.maxHealth = 105; player.health = Math.min(player.health + (105-95), 105);
+            player.speed = (player.speed / 2); // Remove G2 speed to rebase
+            floatMoneyText('💪 GEAR 3! Giant mode! 105 HP!');
+        } else if(luffyGear === 3) { // G4
+            player.maxHealth = 115; player.health = Math.min(player.health + (115-105), 115);
+            luffySnakeMan = Math.random() < 0.5;
+            if(luffySnakeMan){ player.speed = 10; floatMoneyText('🐍 GEAR 4: SNAKE MAN! 4x Spd! 115 HP!'); }
+            else { player.speed = player.speed*3; floatMoneyText('💜 GEAR 4: BOUNCE MAN! 3x KB! 115 HP!'); }
+        } else if(luffyGear === 4) { // G5
+            player.maxHealth = 130; player.health = Math.min(player.health + (130-115), 130);
+            player.speed = 10;
+            player.damage = Math.max(player.damage, 30); // G5 30 base dmg (uses all dmg ups)
+            floatMoneyText('⭐ GEAR 5! TOON FORCE! 130 HP! 30 DMG!');
+        }
+        const col = gColors[luffyGear];
+        for(let i=0;i<150;i++) particles.push(new Particle(player.x+(Math.random()-0.5)*120,player.y+(Math.random()-0.5)*120,col));
+        CHARACTERS['luffy'].color = col; CHARACTERS['luffy'].shadow = col; CHARACTERS['luffy'].projColor = col;
+        playSound(200+luffyGear*80,0.15,'sawtooth');
+        updateHUD();
+    }
+}
+
 function tickFireEffects(dt) {
     enemies.forEach(e => {
         if(e.burning > 0) {
@@ -8877,12 +9065,28 @@ function gameLoop(ts){
     if (CHARACTERS[currentCharacter].isGoldHoarder && gameRunning && !document.getElementById('levelUpNotice').classList.contains('show')) {
         if (ts - mgLastShot > GH_FIRE_INTERVAL) { shootProjectile(); mgLastShot = ts; }
     }
+    // Luffy auto-fire
+    if (currentCharacter === 'luffy' && autoFireEnabled && !document.getElementById('levelUpNotice').classList.contains('show')) {
+        let luffyInterval = 416; // G1: 0.6x normal (250/0.6≈416ms)
+        if (luffyGear >= 1) luffyInterval = 208; // G2+: 2x speed passive
+        if (luffyGear === 3 && luffySnakeMan) luffyInterval = 104; // G4-SM: 4x speed
+        if (luffyGear === 4) luffyInterval = 104; // G5: 10 spd still fast
+        // Gatling: G1=3x, G2=6x speed
+        if (luffyGatlingActive > 0) {
+            luffyInterval = luffyGear >= 1 ? (208/6) : (416/3); // G2: 6x, G1: 3x
+        }
+        const overclockMult = 1 - Math.min(passiveState.overclock * 0.25, 0.75);
+        if (ts - autoFireLastShot > luffyInterval * overclockMult) {
+            shootProjectile();
+            autoFireLastShot = ts;
+        }
+    }
     if (CHARACTERS[currentCharacter].isGojo && autoFireEnabled && !document.getElementById('levelUpNotice').classList.contains('show')) {
         const overclockMult = 1 - Math.min(passiveState.overclock * 0.25, 0.75);
         const gojoFireInterval = GOJO_PHASES[gojoPhase].fireRate * overclockMult;
         if (ts - autoFireLastShot > gojoFireInterval) { shootProjectile(); autoFireLastShot = ts; }
     }
-    if (!CHARACTERS[currentCharacter].isMachineGun && !CHARACTERS[currentCharacter].isGoldHoarder && !CHARACTERS[currentCharacter].isBoxer && !CHARACTERS[currentCharacter].isGojo && !CHARACTERS[currentCharacter].isTank && autoFireEnabled &&
+    if (!CHARACTERS[currentCharacter].isMachineGun && !CHARACTERS[currentCharacter].isGoldHoarder && !CHARACTERS[currentCharacter].isBoxer && !CHARACTERS[currentCharacter].isGojo && !CHARACTERS[currentCharacter].isTank && !CHARACTERS[currentCharacter].isLuffy && autoFireEnabled &&
         !document.getElementById('levelUpNotice').classList.contains('show')) {
         if (!tickNewCharAutoFire(ts, dt)) {
             const overclockMult = 1 - Math.min(passiveState.overclock * 0.25, 0.75);
@@ -8964,6 +9168,7 @@ function gameLoop(ts){
     }
     tickPassives(dt);
     tickVeteran(dt);
+    tickLuffy(dt);
     tickFireEffects(dt);
     applyBiomeEffects(dt);
     tickGoldFormEnemies(dt);
@@ -9241,6 +9446,15 @@ function gameLoop(ts){
                 }
                 runDamage += pdmg; if(currentCharacter!=='gojo' && currentCharacter!=='the_strongest_today' && !proj.isHollowPurple) proj.alive=false;
                 if(runDamage >= 10000 && !hqCompleted.includes('hq_damage')) { checkHonored(); }
+
+                // Luffy: G1 Bazooka knockback
+                if(proj.luffyKB){ luffyKnockback(e, proj.luffyKB, proj.x, proj.y); }
+                // Luffy: Observation Haki passive knockback on non-kills + G3 2x knockback passive
+                if(currentCharacter==='luffy' && e.alive && e.health > 0){
+                    const kbMult = luffyGear >= 2 ? 2 : 1;
+                    luffyKnockback(e, kbMult, proj.x, proj.y);
+                    if(luffyGear >= 2) e.frozen = Math.max(e.frozen||0, 120); // G3+ 2s stun on all hits
+                }
 
                 
                 if (currentCharacter === 'megumi' && megumiIsMahoragah) {
@@ -10667,6 +10881,13 @@ document.addEventListener('keydown',e=>{
     if(k === 'z' && gameRunning && currentCharacter === 'the_strongest_today') { tst_maximumBlue(); }
     if(k === 'x' && gameRunning && currentCharacter === 'the_strongest_today') { tst_maximumRed(); }
     if(k === 'c' && gameRunning && currentCharacter === 'the_strongest_today') { tst_hollowPurple(); }
+
+    // Luffy Z/X/C abilities
+    if(currentCharacter === 'luffy' && gameRunning) {
+        if(k === 'z') luffyZAbility();
+        if(k === 'x') luffyXAbility();
+        if(k === 'c') luffyCAbility();
+    }
 });
 document.addEventListener('keyup',e=>{
     keys[e.key.toLowerCase()]=false;
@@ -11215,8 +11436,38 @@ const CHAR_INFO = {
         tip:'🐺 Tip: You need Wave 100 before Mahoragah unlocks — use dogs aggressively to build CE while surviving early waves. Once Mahoragah is active, play around your slow speed (3) by staying near the centre and letting enemies come to you — the 160px AoE will clear them before they reach you.',
     },
 
+    luffy: {
+        name:'Luffy', tag: 'LIMITED · King of the Pirates · 5 Gears', icon: '',
+        iconBg: 'linear-gradient(135deg,#7f1d1d,#e63946)', iconGlow: '#fca5a5',
+        stats: [
+            { label:'G1 Stats', value:'10 DMG · 85 HP · 4.5 SPD · 0.6x fire rate' },
+            { label:'G2 Stats', value:'95 HP · 2x speed passive (all including fire)' },
+            { label:'G3 Stats', value:'105 HP · 2x knockback + 2s stun on all hits' },
+            { label:'G4-BM/SM', value:'115 HP · Bounce Man OR Snake Man (50/50 RNG)' },
+            { label:'G5 Toon Force', value:'130 HP · 30 DMG · 10 SPD' },
+            { label:'Passive', value:'Obs. Haki: 35% dodge chance any hit' },
+            { label:'Gear Timer', value:'60 seconds per gear (G1→G2→G3→G4→G5)' },
+            { label:'Price', value:'$1,000,000 LIMITED' },
+        ],
+        abilities:`<b>Passive Observation Haki:</b> 35% dodge on every incoming hit. Non-kills get knocked back. G3+ hits apply 2x knockback + 2s freeze.<br><br>
+<b>R — Arm Haki (30s cd, 10s duration):</b> Black coating — 1.5x damage AND 1.5x damage reduction!<br><br>
+<b>Z per Gear:</b><br>
+🔴 <b>G1:</b> Guma Bazooka — 22.5 dmg, 2x KB (25s cd)<br>
+🩷 <b>G2:</b> Jet Headbutt — dash+hit 25 dmg 3x KB self-stun 2s (50s cd)<br>
+🟠 <b>G3:</b> Giant Battle Axe — 50% HP of all nearby (500 to bosses), 5s stun (40s cd)<br>
+🟣 <b>G4-BM:</b> Massive Pistol — 50 dmg slam closest enemy to wall + 3s stun (40s cd)<br>
+🟣 <b>G4-SM:</b> Rapid Rifle — 10 shots/s for 10 seconds (250 total dmg, 60s cd)<br>
+⭐ <b>G5:</b> Crumbs of Liberation — full HP regen (30s cd)<br><br>
+<b>X per Gear:</b><br>
+🔴 <b>G1:</b> Gatling — 3x fire speed 0.5x dmg 5s (125 total, 20s cd)<br>
+🩷 <b>G2:</b> Jet Gatling — 6x fire speed 0.4x dmg 5s (200 total, 35s cd)<br>
+🟠 <b>G3:</b> Giant Bazooka — 20 dmg slam all to walls + 3s stun (30s cd)<br><br>
+<b>C — Conqueror's Haki (60s cd):</b> Freeze enemies in 360px for 5s. G5: entire screen perma-stunned!`,
+        playstyle:'An evolving fighter who gets dramatically stronger every 60 seconds. G1 is weak — survive! G2 doubles your speed. G3 staggers everything with knockback+stun. G4 is random: Bounce Man = massive knockback / breaks walls. Snake Man = insane rapid fire. G5 Toon Force is near-unstoppable: 30 DMG base, CoC stuns all, Z is a full heal.',
+        tip:'⚓ Use Arm Haki R before every Z/X/C combo for maximum damage. CoC + Arm Haki at once is your strongest burst. At G5, X Wall Grab can squeeze enemies. Rapid Rifle in G4-SM shreds bosses!',
+    },
+
     hornet: {
-        iconBg: 'linear-gradient(135deg,#92400e,#f59e0b)', iconGlow: '#fde68a',
         stats: [
             { label:'HP', value:'10 Masks (each hit = 1 mask lost)' },
             { label:'Damage', value:'27.5' },
@@ -11339,6 +11590,7 @@ function updateShopDisplay(){
         'tank': 'tankCharacter',
         'speedrunner': 'speedrunnerCharacter',
         'the_strongest_today': 'theStrongestTodayCharacter',
+        'luffy': 'luffyCharacter',
     };
 
     const wvCard = document.getElementById('warVeteranCharacter');
@@ -11830,13 +12082,8 @@ function resetAllProgress(){
 const CODES = {
     '/give @s all': { reward: 'allclaims', amount: 50000, message: '🎁 COMMAND EXECUTED: All characters, all quests & $50,000 unlocked!' },
     'sealed': { reward: 'character', character: 'gojo', message: '♾️ Gojo Satoru unlocked! The Honored One joins the fight.' },
-    'shaw!': { reward: 'character', character: 'hornet', message: '🗡️ Hornet unlocked! The masked warrior joins the fight.' },
-    'sorry_for_the_change': { reward: 'apology_pick', message: '🎁 Choose any 2 characters as an apology gift!' }
+    'shaw!': { reward: 'character', character: 'hornet', message: '🗡️ Hornet unlocked! The masked warrior joins the fight.' }
 };
-
-if(DAILY_CODE && DAILY_CODE.trim()) {
-    CODES[DAILY_CODE.toLowerCase()] = { reward: 'money', amount: _DAILY_CODE_AMOUNT, message: '🎁 Daily Code: +$' + _DAILY_CODE_AMOUNT + '!', isDaily: true };
-}
 
 function submitCode() {
     const codeInput = document.getElementById('codeInput');
@@ -11855,27 +12102,11 @@ function submitCode() {
     }
 
     if (usedCodes.includes(code) && code !== '/give @s all') {
-        const codeDataCheck = CODES[code];
-
-        if (codeDataCheck && codeDataCheck.isDaily) {
-            const usedDailyDate = localStorage.getItem('ballRPGDailyCodeDate_' + code);
-            const today = new Date().toDateString();
-            if (usedDailyDate === today) {
-                playSound(250, 0.08, 'triangle');
-                playSound(180, 0.1, 'triangle');
-                alert('You already claimed today\'s daily code! Come back tomorrow.');
-                codeInput.value = '';
-                return;
-            }
-
-            usedCodes = usedCodes.filter(c => c !== code);
-        } else {
-            playSound(250, 0.08, 'triangle');
-            playSound(180, 0.1, 'triangle');
-            alert('You already used this code!');
-            codeInput.value = '';
-            return;
-        }
+        playSound(250, 0.08, 'triangle');
+        playSound(180, 0.1, 'triangle');
+        alert('You already used this code!');
+        codeInput.value = '';
+        return;
     }
 
     const codeData = CODES[code];
@@ -11909,9 +12140,6 @@ function submitCode() {
         playSound(1000, 0.08, 'sine');
         totalMoney += codeData.amount;
         usedCodes.push(code);
-        if (codeData.isDaily) {
-            localStorage.setItem('ballRPGDailyCodeDate_' + code, new Date().toDateString());
-        }
         savePersistentData();
         updateMoneyDisplay();
         floatMoneyText(codeData.message);
@@ -11951,12 +12179,6 @@ function submitCode() {
         updateMoneyDisplay();
         floatMoneyText(codeData.message);
         alert('✨ Claimed: Hakari + Yuji Itadori + $10,000!');
-    } else if (codeData.reward === 'apology_pick') {
-        usedCodes.push(code);
-        savePersistentData();
-        codeInput.value = '';
-        openApologyPicker();
-        return;
     } else if (codeData.reward === 'allclaims') {
         const allChars = Object.keys(CHARACTERS);
         allChars.forEach(char => {
@@ -12013,208 +12235,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
-
-function openApologyPicker() {
-    const existing = document.getElementById('apologyPickerOverlay');
-    if (existing) existing.remove();
-
-    
-    const ALL_PICKS = [];
-    Object.keys(CHAR_INFO).forEach(key => {
-        const info = CHAR_INFO[key];
-        if (!info || !info.name) return;
-        ALL_PICKS.push({
-            key,
-            name: info.name,
-            tag: info.tag || '',
-            icon: info.icon || '⭐',
-            iconBg: info.iconBg || 'rgba(255,255,255,0.08)',
-            iconGlow: info.iconGlow || '#ffffff',
-        });
-    });
-    
-    Object.keys(CHARACTERS).forEach(key => {
-        if (ALL_PICKS.find(p => p.key === key)) return;
-        if (CHARACTERS[key].removed) return;
-        ALL_PICKS.push({
-            key,
-            name: CHARACTERS[key].name || key,
-            tag: '',
-            icon: '⭐',
-            iconBg: `linear-gradient(135deg,${CHARACTERS[key].shadow||'#1a1a2e'},${CHARACTERS[key].color||'#3b82f6'})`,
-            iconGlow: CHARACTERS[key].color || '#3b82f6',
-        });
-    });
-
-    let selected = [];
-
-    const overlay = document.createElement('div');
-    overlay.id = 'apologyPickerOverlay';
-    overlay.style.cssText = `
-        position:fixed;inset:0;z-index:99999;
-        background:rgba(0,0,0,0.92);backdrop-filter:blur(8px);
-        display:flex;align-items:center;justify-content:center;
-        font-family:'Arial',sans-serif;
-    `;
-
-    const box = document.createElement('div');
-    box.style.cssText = `
-        background:linear-gradient(135deg,#0a0f1e,#0d1528);
-        border:3px solid rgba(251,191,36,0.6);
-        border-radius:14px;padding:36px 40px;
-        max-width:820px;width:94%;max-height:88vh;
-        overflow-y:auto;position:relative;
-        box-shadow:0 0 80px rgba(251,191,36,0.25),0 0 160px rgba(0,0,0,0.9);
-        scrollbar-width:thin;scrollbar-color:#fbbf24 transparent;
-    `;
-
-    function render() {
-        box.innerHTML = `
-            <div style="text-align:center;margin-bottom:6px;">
-                <div style="font-size:28px;font-weight:900;color:#fbbf24;text-shadow:0 0 20px rgba(251,191,36,0.7);letter-spacing:1px;">🎁 SORRY FOR THE CHANGE</div>
-                <div style="font-size:12px;color:rgba(255,255,255,0.45);margin-top:6px;font-style:italic;">Pick any 2 characters as an apology gift - limiteds, quest-locked, masteries, anything.</div>
-            </div>
-
-            <div style="display:flex;justify-content:center;gap:16px;margin:18px 0 22px;">
-                ${[0,1].map(i => {
-                    const p = selected[i];
-                    const isUrl = p && (p.icon.startsWith('http')||p.icon.startsWith('/'));
-                    return `<div style="
-                        width:130px;height:90px;border-radius:10px;
-                        border:2px solid ${p ? p.iconGlow+'99' : 'rgba(255,255,255,0.15)'};
-                        background:${p ? p.iconBg : 'rgba(255,255,255,0.04)'};
-                        display:flex;flex-direction:column;align-items:center;justify-content:center;
-                        gap:6px;transition:all 0.2s;
-                        box-shadow:${p ? '0 0 18px '+p.iconGlow+'44' : 'none'};
-                    ">
-                        ${p ? `
-                            <div style="font-size:${isUrl?'0':'22px'}">${isUrl ? '' : p.icon}</div>
-                            ${isUrl ? `<img src="${p.icon}" style="width:28px;height:28px;object-fit:contain;">` : ''}
-                            <div style="font-size:10px;font-weight:bold;color:${p.iconGlow};text-align:center;padding:0 6px;line-height:1.3;">${p.name}</div>
-                        ` : `
-                            <div style="font-size:22px;opacity:0.3;">❔</div>
-                            <div style="font-size:10px;color:rgba(255,255,255,0.25);">Slot ${i+1}</div>
-                        `}
-                    </div>`;
-                }).join('')}
-            </div>
-
-            <div style="font-size:10px;text-transform:uppercase;letter-spacing:2px;color:rgba(255,255,255,0.35);margin-bottom:14px;border-bottom:1px solid rgba(255,255,255,0.08);padding-bottom:8px;">
-                ${selected.length < 2 ? `Choose ${2 - selected.length} more` : '✅ Both chosen - claim below'}
-            </div>
-
-            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;margin-bottom:22px;">
-                ${ALL_PICKS.map(p => {
-                    const isSelected = selected.find(s => s.key === p.key);
-                    const isDisabled = !isSelected && selected.length >= 2;
-                    const isUrl = p.icon.startsWith('http') || p.icon.startsWith('/');
-                    return `<div onclick="apologyPickToggle('${p.key}')" style="
-                        border-radius:8px;padding:12px 8px;text-align:center;cursor:${isDisabled?'not-allowed':'pointer'};
-                        border:2px solid ${isSelected ? p.iconGlow : 'rgba(255,255,255,0.1)'};
-                        background:${isSelected ? p.iconBg : 'rgba(255,255,255,0.04)'};
-                        opacity:${isDisabled ? '0.35' : '1'};
-                        box-shadow:${isSelected ? '0 0 16px '+p.iconGlow+'55' : 'none'};
-                        transition:all 0.15s;
-                        transform:${isSelected ? 'scale(1.04)' : 'scale(1)'};
-                        position:relative;
-                    ">
-                        ${isSelected ? `<div style="position:absolute;top:5px;right:7px;font-size:11px;color:${p.iconGlow};">✔</div>` : ''}
-                        <div style="font-size:${isUrl?'0':'24px'};margin-bottom:4px;">${isUrl ? '' : p.icon}</div>
-                        ${isUrl ? `<img src="${p.icon}" style="width:28px;height:28px;object-fit:contain;margin-bottom:4px;">` : ''}
-                        <div style="font-size:10px;font-weight:bold;color:${isSelected ? p.iconGlow : '#e2e8f0'};line-height:1.3;">${p.name}</div>
-                        ${p.tag ? `<div style="font-size:8px;color:rgba(255,255,255,0.3);margin-top:3px;line-height:1.3;">${p.tag}</div>` : ''}
-                    </div>`;
-                }).join('')}
-            </div>
-
-            <div style="display:flex;gap:12px;justify-content:center;">
-                <button id="apologyClaimBtn" onclick="apologyPickClaim()" style="
-                    background:${selected.length === 2 ? 'linear-gradient(135deg,#ca8a04,#fbbf24)' : 'rgba(255,255,255,0.07)'};
-                    color:${selected.length === 2 ? '#000' : 'rgba(255,255,255,0.3)'};
-                    border:none;border-radius:8px;padding:14px 40px;
-                    font-size:15px;font-weight:900;cursor:${selected.length === 2 ? 'pointer' : 'not-allowed'};
-                    letter-spacing:0.5px;transition:all 0.2s;
-                    box-shadow:${selected.length === 2 ? '0 0 20px rgba(251,191,36,0.4)' : 'none'};
-                ">🎁 Claim Both</button>
-                <button onclick="document.getElementById('apologyPickerOverlay').remove()" style="
-                    background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.5);
-                    border:2px solid rgba(255,255,255,0.12);border-radius:8px;
-                    padding:14px 28px;font-size:13px;cursor:pointer;
-                ">Cancel</button>
-            </div>
-        `;
-    }
-
-    window.apologyPickToggle = function(key) {
-        const idx = selected.findIndex(s => s.key === key);
-        if (idx >= 0) {
-            selected.splice(idx, 1);
-        } else {
-            if (selected.length >= 2) return;
-            const pick = ALL_PICKS.find(p => p.key === key);
-            if (pick) selected.push(pick);
-        }
-        render();
-    };
-
-    window.apologyPickClaim = function() {
-        if (selected.length !== 2) return;
-        selected.forEach(p => {
-            
-            if (!unlockedCharacters.includes(p.key)) unlockedCharacters.push(p.key);
-            
-            if (MASTERY_DATA && MASTERY_DATA[p.key] && !unlockedMasteries.includes(p.key)) {
-                unlockedMasteries.push(p.key);
-                equippedMasteries.push(p.key);
-            }
-            
-            const relatedQuests = HONORED_QUESTS.filter(q =>
-                q.character && q.character.toLowerCase().replace(/ /g,'_') === p.key ||
-                q.character === p.name
-            );
-            relatedQuests.forEach(q => { if (!hqCompleted.includes(q.id)) hqCompleted.push(q.id); });
-            
-            if (p.key === 'hornet') {
-                const hornetKillTypes = ['normal','triangle','shielder','splitter','healer','bomber','charger','regen_e','berserker_e','phantom_e','leech','sniper_e','puller','mirror_e','timebomb','guardian','golem','dasher','boomerang','swarm_unit','magnet','webber','silencer','mimic','echo','void_rift'];
-                hornetKillTypes.forEach(t => { if ((enemyKillCounts[t]||0)<25) enemyKillCounts[t]=25; });
-                hornetNoDmgWave=Math.max(hornetNoDmgWave,100); hornetNoShopWins=Math.max(hornetNoShopWins,1);
-                localStorage.setItem('ballRPGHornetNoDmg', hornetNoDmgWave);
-                localStorage.setItem('ballRPGHornetNoShop', hornetNoShopWins);
-                localStorage.setItem('ballRPGEnemyKills', JSON.stringify(enemyKillCounts));
-            }
-            if (p.key === 'gojo' || p.key === 'the_strongest_today') {
-                gojoSukunaKills = Math.max(gojoSukunaKills, 20);
-                if (!unlockedMasteries.includes('gojo')) unlockedMasteries.push('gojo');
-                if (!equippedMasteries.includes('gojo')) equippedMasteries.push('gojo');
-            }
-            if (p.key === 'war_veteran') {
-                veteranWins = Math.max(veteranWins, 5);
-                if (!unlockedMasteries.includes('default')) unlockedMasteries.push('default');
-            }
-            if (p.key === 'last_architect') {
-                builderWallsBuilt = Math.max(builderWallsBuilt, 250);
-                if (!unlockedMasteries.includes('builder')) unlockedMasteries.push('builder');
-            }
-            if (p.key === 'coin_king') {
-                ghBestRun = Math.max(ghBestRun, 100000);
-                if (!unlockedMasteries.includes('goldhoarder')) unlockedMasteries.push('goldhoarder');
-            }
-        });
-        localStorage.setItem('ballRPGHQCompleted', JSON.stringify(hqCompleted));
-        savePersistentData();
-        updateMoneyDisplay();
-        renderHQPanel();
-        updateShopDisplay();
-        document.getElementById('apologyPickerOverlay').remove();
-        const names = selected.map(p => p.name).join(' & ');
-        floatMoneyText(`🎁 Unlocked: ${names}!`);
-        setTimeout(() => alert(`🎁 Sorry for the change!\n\nYou unlocked: ${names}\n\nThank you for sticking with us! 💛`), 100);
-    };
-
-    overlay.appendChild(box);
-    document.body.appendChild(overlay);
-    render();
-}
 
 const MASTERY_DATA = {
     default: {
@@ -12544,7 +12564,7 @@ document.addEventListener('DOMContentLoaded', () => {
     renderHQPanel();
     updateMoneyDisplay();
     updateMcSkinClass();
-    injectHiddenCode();
+    claimDailyReward();
     const hasPlayed = localStorage.getItem('ballRPGHasPlayed');
     if (!hasPlayed) {
         localStorage.setItem('ballRPGHasPlayed', '1');
@@ -12849,6 +12869,11 @@ const CHAR_MOBILE_BUTTONS = {
               lastArchitectMode = lastArchitectMode === 'robot' ? 'turret' : 'robot';
               floatMoneyText(lastArchitectMode === 'robot' ? '🤖 Robot Mode' : '🏛️ Turret Mode');
           }}
+    ],
+    luffy: [
+        { id:'luffyZ', label:'Z', color:'rgba(230,57,70,0.7)', border:'#e63946', onpress: ()=>{ if(gameRunning&&!gamePaused) luffyZAbility(); } },
+        { id:'luffyX', label:'X', color:'rgba(255,107,53,0.7)', border:'#ff6b35', onpress: ()=>{ if(gameRunning&&!gamePaused) luffyXAbility(); } },
+        { id:'luffyC', label:'C', color:'rgba(127,29,29,0.7)', border:'#7f1d1d', onpress: ()=>{ if(gameRunning&&!gamePaused) luffyCAbility(); } },
     ]
 };
 
@@ -12872,8 +12897,10 @@ function updateCharacterButtons() {
 
 const _origStartGame = startGame;
 startGame = function() { _origStartGame(); showMobileControls(true); };
-const _origRestartGame = restartGame;
-restartGame = function() { _origRestartGame(); showMobileControls(true); };
+const _origRestartGame = window.restartGame;
+window.restartGame = function() { if(_origRestartGame) _origRestartGame(); showMobileControls(true); };
+const _origLoadRun = window.loadRun;
+window.loadRun = function() { if(_origLoadRun) _origLoadRun(); showMobileControls(true); };
 const _origBackToMainMenu = backToMainMenu;
 backToMainMenu = function() { _origBackToMainMenu(); showMobileControls(false); handleOrientation(); };
 const _origPauseToMainMenu = pauseToMainMenu;
