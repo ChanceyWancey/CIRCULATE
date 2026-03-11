@@ -561,6 +561,10 @@
         .character-price { font-size: 13px; color: #22c55e; font-weight: bold; }
         .new-badge { position:absolute; top:6px; left:6px; background:linear-gradient(135deg,#f59e0b,#ef4444); color:#fff; font-size:8px; font-weight:900; padding:2px 6px; border-radius:4px; letter-spacing:1px; text-transform:uppercase; animation:newBadgePulse 1.5s ease-in-out infinite; z-index:10; }
         @keyframes newBadgePulse { 0%,100%{box-shadow:0 0 6px #f59e0b88;} 50%{box-shadow:0 0 14px #ef4444cc;} }
+        @keyframes mythicPulse {
+            0%,100% { box-shadow: 0 0 18px rgba(255,215,0,0.45), inset 0 0 12px rgba(255,215,0,0.06); border-color:#ffd700; }
+            50%      { box-shadow: 0 0 36px rgba(255,165,0,0.75), 0 0 60px rgba(255,215,0,0.2), inset 0 0 20px rgba(255,215,0,0.12); border-color:#ffec80; }
+        }
 
         #gameContainer {
             display: none; background: rgba(255,255,255,0.03); border-radius: 8px;
@@ -1474,7 +1478,7 @@
         </div>
 
         <div id="playMenuNewGame">
-            <div id="playMenuDivider"><span>— or —</span></div>
+            <div id="playMenuDivider"><span>- or -</span></div>
             <button id="playMenuStartBtn" onclick="startGame()">
                 <span id="playMenuStartIcon">⚔️</span>
                 <div>
@@ -1531,7 +1535,7 @@
         <p style="font-size:11px;color:rgba(255,255,255,0.35);margin:0 0 26px;font-family:monospace;">Back up your progress or restore from a file</p>
         <div onclick="exportSave()" style="background:rgba(22,163,74,0.12);border:1.5px solid rgba(22,163,74,0.5);border-radius:10px;padding:18px 20px;margin-bottom:14px;cursor:pointer;" onmouseover="this.style.background='rgba(22,163,74,0.22)';this.style.borderColor='rgba(22,163,74,0.85)'" onmouseout="this.style.background='rgba(22,163,74,0.12)';this.style.borderColor='rgba(22,163,74,0.5)'">
             <div style="font-size:15px;font-weight:bold;color:#4ade80;margin-bottom:5px;">📤 Export Save</div>
-            <div style="font-size:11px;color:rgba(255,255,255,0.45);line-height:1.6;">Downloads your save as a <code style="color:#86efac;">.bsave</code> file. Keep it somewhere safe — it contains your gold, characters, and unlocks.</div>
+            <div style="font-size:11px;color:rgba(255,255,255,0.45);line-height:1.6;">Downloads your save as a <code style="color:#86efac;">.bsave</code> file. Keep it somewhere safe - it contains your gold, characters, and unlocks.</div>
         </div>
         <div onclick="importSave()" style="background:rgba(3,105,161,0.12);border:1.5px solid rgba(3,105,161,0.5);border-radius:10px;padding:18px 20px;cursor:pointer;" onmouseover="this.style.background='rgba(3,105,161,0.22)';this.style.borderColor='rgba(3,105,161,0.85)'" onmouseout="this.style.background='rgba(3,105,161,0.12)';this.style.borderColor='rgba(3,105,161,0.5)'">
             <div style="font-size:15px;font-weight:bold;color:#7dd3fc;margin-bottom:5px;">📥 Import Save</div>
@@ -1545,67 +1549,73 @@
     <div style="background:linear-gradient(135deg,#0f172a,#0c1a2e);border:2px solid rgba(59,130,246,0.6);border-radius:14px;padding:36px 40px;max-width:520px;width:92%;max-height:82vh;overflow-y:auto;box-shadow:0 0 40px rgba(59,130,246,0.25);position:relative;">
         <button onclick="document.getElementById('updateLogModal').style.display='none'" style="position:absolute;top:12px;right:16px;background:none;border:none;color:rgba(255,255,255,0.4);font-size:20px;cursor:pointer;line-height:1;">✕</button>
         <h2 style="font-size:20px;color:#60a5fa;margin:0 0 4px;font-weight:bold;">📋 Update Log</h2>
-        <p style="font-size:11px;color:rgba(255,255,255,0.3);margin:0 0 24px;font-family:monospace;">CIRCULATE — patch notes</p>
+        <p style="font-size:11px;color:rgba(255,255,255,0.3);margin:0 0 24px;font-family:monospace;">CIRCULATE - patch notes</p>
         <div style="display:flex;flex-direction:column;gap:18px;">
             <div style="border-left:3px solid #22d3ee;padding-left:16px;">
                 <div style="font-size:12px;font-weight:bold;color:#67e8f9;margin-bottom:2px;">🔵 Latest Patch</div>
                 <div style="font-size:10px;color:rgba(255,255,255,0.3);margin-bottom:10px;font-family:monospace;">Visual Overhaul + Bug Fixes + UI Polish</div>
                 <ul style="font-size:12px;color:rgba(255,255,255,0.75);line-height:2;padding-left:16px;margin:0;">
-                    <li><b style="color:#f87171;">Bug Fix</b> — Fixed critical <b>ReferenceError: resetGame is not defined</b> on game start — caused by 35 functions being accidentally scoped inside <code style="color:#fca5a5;">specialAttack()</code> due to a missing closing brace on the switch statement</li>
-                    <li><b style="color:#86efac;">Enemies</b> — All enemy types completely <b>redesigned with unique sphere visuals</b> — each enemy now has a distinct gradient, color palette, and animated surface detail</li>
-                    <li><b style="color:#86efac;">Enemies</b> — <b>Shielder</b>: icy blue gradient sphere with animated shield arc</li>
-                    <li><b style="color:#86efac;">Enemies</b> — <b>Healer</b>: lush green sphere with pulsing outer ring and white cross</li>
-                    <li><b style="color:#86efac;">Enemies</b> — <b>Bomber</b>: hot orange-red sphere with animated fuse and glowing spark</li>
-                    <li><b style="color:#86efac;">Enemies</b> — <b>Sniper</b>: dark steel sphere with red crosshairs and blinking dot-sight</li>
-                    <li><b style="color:#86efac;">Enemies</b> — <b>Berserker</b>: red sphere that erupts glowing crack veins and spikes as HP drops</li>
-                    <li><b style="color:#86efac;">Enemies</b> — <b>Puller</b>: violet sphere with orbiting dot and concentric gravity rings</li>
-                    <li><b style="color:#86efac;">Enemies</b> — <b>Timebomb</b>: dark sphere with a clock arc countdown that flashes when critical</li>
-                    <li><b style="color:#86efac;">Enemies</b> — <b>Leech</b>: maroon sphere with blood vein lines and red tendril toward player</li>
-                    <li><b style="color:#86efac;">Enemies</b> — <b>Guardian</b>: golden sphere with a tilted orbiting ring</li>
-                    <li><b style="color:#86efac;">Enemies</b> — <b>Golem</b>: slate-grey sphere with stone crack and pebble surface marks</li>
-                    <li><b style="color:#86efac;">Enemies</b> — <b>Dasher</b>: cyan sphere with speed-blur streak lines</li>
-                    <li><b style="color:#86efac;">Enemies</b> — <b>Magnet</b>: grey-blue sphere with animated N/S pole field arcs</li>
-                    <li><b style="color:#86efac;">Enemies</b> — <b>Webber</b>: brown sphere with web ring and spokes pattern</li>
-                    <li><b style="color:#86efac;">Enemies</b> — <b>Silencer</b>: indigo sphere with pulsing sound bars and a red mute slash</li>
-                    <li><b style="color:#86efac;">Enemies</b> — <b>Mirror</b>: metallic silver sphere with animated chrome sheen sweep</li>
-                    <li><b style="color:#86efac;">Enemies</b> — <b>Boss</b>: massive crimson sphere with rotating dashed ring and pulsing glow</li>
-                    <li><b style="color:#86efac;">Enemies</b> — <b>Triangle</b> is unchanged — stays as a rotating triangle as intended</li>
-                    <li><b style="color:#fbbf24;">Balance</b> — <b>Shielder</b> now spawns starting at <b>Wave 20</b> (was Wave 8) — gives early game more breathing room</li>
-                    <li><b style="color:#a78bfa;">UI</b> — Added <b>loading screen</b> on startup with animated progress bar, percentage counter, and status messages</li>
-                    <li><b style="color:#a78bfa;">UI</b> — Main menu now <b>reveals after loading</b> — title types in with a blinking cursor, buttons cascade in with typing effects</li>
+                    <li><b style="color:#f87171;">Bug Fix</b> - Fixed critical <b>ReferenceError: resetGame is not defined</b> on game start - caused by 35 functions being accidentally scoped inside <code style="color:#fca5a5;">specialAttack()</code> due to a missing closing brace on the switch statement</li>
+                    <li><b style="color:#86efac;">Enemies</b> - All enemy types completely <b>redesigned with unique sphere visuals</b> - each enemy now has a distinct gradient, color palette, and animated surface detail</li>
+                    <li><b style="color:#86efac;">Enemies</b> - <b>Shielder</b>: icy blue gradient sphere with animated shield arc</li>
+                    <li><b style="color:#86efac;">Enemies</b> - <b>Healer</b>: lush green sphere with pulsing outer ring and white cross</li>
+                    <li><b style="color:#86efac;">Enemies</b> - <b>Bomber</b>: hot orange-red sphere with animated fuse and glowing spark</li>
+                    <li><b style="color:#86efac;">Enemies</b> - <b>Sniper</b>: dark steel sphere with red crosshairs and blinking dot-sight</li>
+                    <li><b style="color:#86efac;">Enemies</b> - <b>Berserker</b>: red sphere that erupts glowing crack veins and spikes as HP drops</li>
+                    <li><b style="color:#86efac;">Enemies</b> - <b>Puller</b>: violet sphere with orbiting dot and concentric gravity rings</li>
+                    <li><b style="color:#86efac;">Enemies</b> - <b>Timebomb</b>: dark sphere with a clock arc countdown that flashes when critical</li>
+                    <li><b style="color:#86efac;">Enemies</b> - <b>Leech</b>: maroon sphere with blood vein lines and red tendril toward player</li>
+                    <li><b style="color:#86efac;">Enemies</b> - <b>Guardian</b>: golden sphere with a tilted orbiting ring</li>
+                    <li><b style="color:#86efac;">Enemies</b> - <b>Golem</b>: slate-grey sphere with stone crack and pebble surface marks</li>
+                    <li><b style="color:#86efac;">Enemies</b> - <b>Dasher</b>: cyan sphere with speed-blur streak lines</li>
+                    <li><b style="color:#86efac;">Enemies</b> - <b>Magnet</b>: grey-blue sphere with animated N/S pole field arcs</li>
+                    <li><b style="color:#86efac;">Enemies</b> - <b>Webber</b>: brown sphere with web ring and spokes pattern</li>
+                    <li><b style="color:#86efac;">Enemies</b> - <b>Silencer</b>: indigo sphere with pulsing sound bars and a red mute slash</li>
+                    <li><b style="color:#86efac;">Enemies</b> - <b>Mirror</b>: metallic silver sphere with animated chrome sheen sweep</li>
+                    <li><b style="color:#86efac;">Enemies</b> - <b>Boss</b>: massive crimson sphere with rotating dashed ring and pulsing glow</li>
+                    <li><b style="color:#86efac;">Enemies</b> - <b>Triangle</b> is unchanged - stays as a rotating triangle as intended</li>
+                    <li><b style="color:#fbbf24;">Balance</b> - <b>Shielder</b> now spawns starting at <b>Wave 20</b> (was Wave 8) - gives early game more breathing room</li>
+                    <li><b style="color:#a78bfa;">UI</b> - Added <b>loading screen</b> on startup with animated progress bar, percentage counter, and status messages</li>
+                    <li><b style="color:#a78bfa;">UI</b> - Main menu now <b>reveals after loading</b> - title types in with a blinking cursor, buttons cascade in with typing effects</li>
+                    <li><b style="color:#ffd700;">Mythic</b> - New <b>✨ MYTHIC</b> rarity tier added to level up pool - ~1% base drop chance</li>
+                    <li><b style="color:#ffd700;">Mythic</b> - <b>ZA WARUDOOO</b> 🕰️: press <b>B</b> to permanently freeze all enemies in a 240×240 area - frozen enemies can't move or attack</li>
+                    <li><b style="color:#ffd700;">Mythic</b> - <b>☁️ Heaven biome</b> boosts ZA WARUDOOO drop chance to <b>~10%</b></li>
+                    <li><b style="color:#a78bfa;">Level Up</b> - Screen is now fully <b>randomised</b> - 40+ options across Common, Uncommon, Rare, Epic &amp; Mythic tiers</li>
+                    <li><b style="color:#86efac;">Wave Shop</b> - Ability pool expanded to <b>18 options</b>, passive pool to <b>21 options</b>, now shows 4+5 per roll</li>
+                    <li><b style="color:#67e8f9;">Performance</b> - Play-time tracking now uses real frame delta instead of a hardcoded 60fps assumption</li>
                 </ul>
             </div>
             <div style="border-left:3px solid #e63946;padding-left:16px;">
                 <div style="font-size:12px;font-weight:bold;color:#f87171;margin-bottom:2px;">🔴 Previous Patch</div>
-                <div style="font-size:10px;color:rgba(255,255,255,0.3);margin-bottom:10px;font-family:monospace;">Luffy — LIMITED CHARACTER</div>
+                <div style="font-size:10px;color:rgba(255,255,255,0.3);margin-bottom:10px;font-family:monospace;">Luffy - LIMITED CHARACTER</div>
                 <ul style="font-size:12px;color:rgba(255,255,255,0.75);line-height:2;padding-left:16px;margin:0;">
-                    <li><b style="color:#fca5a5;">Luffy</b> — NEW $1,000,000 <b>LIMITED</b> character (available until Mar 18)</li>
-                    <li><b style="color:#fca5a5;">Luffy</b> — Evolves through <b>5 Gears</b> every 60 seconds</li>
-                    <li><b style="color:#fca5a5;">Luffy</b> — <b>Observation Haki</b>: 35% dodge on all incoming hits</li>
-                    <li><b style="color:#fca5a5;">Luffy</b> — <b>R: Arm Haki</b> — 1.5x damage + 1.5x damage reduction (30s cd)</li>
-                    <li><b style="color:#fca5a5;">Luffy</b> — <b>Z/X/C</b> abilities change with each Gear</li>
-                    <li><b style="color:#fca5a5;">Luffy</b> — G4 is randomly <b>Bounce Man</b> or <b>Snake Man</b> (50/50)</li>
-                    <li><b style="color:#fca5a5;">Luffy</b> — G5 <b>Toon Force</b>: 30 DMG, 10 SPD, CoC stuns entire screen</li>
-                    <li><b style="color:#fb923c;">Bug Fix</b> — Resolved <b>restartGame</b> reference error on mobile</li>
+                    <li><b style="color:#fca5a5;">Luffy</b> - NEW $1,000,000 <b>LIMITED</b> character (available until Mar 18)</li>
+                    <li><b style="color:#fca5a5;">Luffy</b> - Evolves through <b>5 Gears</b> every 60 seconds</li>
+                    <li><b style="color:#fca5a5;">Luffy</b> - <b>Observation Haki</b>: 35% dodge on all incoming hits</li>
+                    <li><b style="color:#fca5a5;">Luffy</b> - <b>R: Arm Haki</b> - 1.5x damage + 1.5x damage reduction (30s cd)</li>
+                    <li><b style="color:#fca5a5;">Luffy</b> - <b>Z/X/C</b> abilities change with each Gear</li>
+                    <li><b style="color:#fca5a5;">Luffy</b> - G4 is randomly <b>Bounce Man</b> or <b>Snake Man</b> (50/50)</li>
+                    <li><b style="color:#fca5a5;">Luffy</b> - G5 <b>Toon Force</b>: 30 DMG, 10 SPD, CoC stuns entire screen</li>
+                    <li><b style="color:#fb923c;">Bug Fix</b> - Resolved <b>restartGame</b> reference error on mobile</li>
                 </ul>
             </div>
             <div style="border-left:3px solid #a78bfa;padding-left:16px;">
                 <div style="font-size:12px;font-weight:bold;color:#a78bfa;margin-bottom:2px;">🟣 Older Patch</div>
                 <div style="font-size:10px;color:rgba(255,255,255,0.3);margin-bottom:10px;font-family:monospace;">Megumi Rework + UI Polish</div>
                 <ul style="font-size:12px;color:rgba(255,255,255,0.75);line-height:2;padding-left:16px;margin:0;">
-                    <li><b style="color:#7dd3fc;">Megumi</b> — Mahoragah now requires <b>Wave 100</b> to activate</li>
-                    <li><b style="color:#7dd3fc;">Megumi</b> — Mahoragah speed set to <b>3</b> (was +5 on top of base)</li>
-                    <li><b style="color:#7dd3fc;">Megumi</b> — Mahoragah now grants <b>500 HP</b> on activation (reverts to 140 on end)</li>
-                    <li><b style="color:#7dd3fc;">Megumi</b> — Mahoragah now grants <b>60% damage reduction</b> (was +60% taken)</li>
-                    <li><b style="color:#7dd3fc;">Megumi</b> — Mahoragah visual changed to a <b>glowing white sphere</b></li>
-                    <li><b style="color:#7dd3fc;">Megumi</b> — Transformation animation now <b>syncs to the audio</b> length</li>
-                    <li><b style="color:#4ade80;">Run Saves</b> — pause and hit <b>💾 Save Run</b> to save your current wave & stats</li>
-                    <li><b style="color:#4ade80;">Run Saves</b> — <b>Continue Run</b> button appears on main menu when a save exists</li>
-                    <li><b style="color:#4ade80;">Run Saves</b> — save tracks wave, HP, gold, passives, biome, and character state</li>
-                    <li><b style="color:#4ade80;">Run Saves</b> — save is cleared on death (no reloading dead runs)</li>
-                    <li><b style="color:#e2e8f0;">HUD</b> — Wave, enemy count & gold text are now always <b>fully visible</b></li>
-                    <li><b style="color:#e2e8f0;">UI</b> — Save Manager replaces separate Export/Import buttons</li>
-                    <li><b style="color:#e2e8f0;">UI</b> — Update Log added to main menu</li>
+                    <li><b style="color:#7dd3fc;">Megumi</b> - Mahoragah now requires <b>Wave 100</b> to activate</li>
+                    <li><b style="color:#7dd3fc;">Megumi</b> - Mahoragah speed set to <b>3</b> (was +5 on top of base)</li>
+                    <li><b style="color:#7dd3fc;">Megumi</b> - Mahoragah now grants <b>500 HP</b> on activation (reverts to 140 on end)</li>
+                    <li><b style="color:#7dd3fc;">Megumi</b> - Mahoragah now grants <b>60% damage reduction</b> (was +60% taken)</li>
+                    <li><b style="color:#7dd3fc;">Megumi</b> - Mahoragah visual changed to a <b>glowing white sphere</b></li>
+                    <li><b style="color:#7dd3fc;">Megumi</b> - Transformation animation now <b>syncs to the audio</b> length</li>
+                    <li><b style="color:#4ade80;">Run Saves</b> - pause and hit <b>💾 Save Run</b> to save your current wave & stats</li>
+                    <li><b style="color:#4ade80;">Run Saves</b> - <b>Continue Run</b> button appears on main menu when a save exists</li>
+                    <li><b style="color:#4ade80;">Run Saves</b> - save tracks wave, HP, gold, passives, biome, and character state</li>
+                    <li><b style="color:#4ade80;">Run Saves</b> - save is cleared on death (no reloading dead runs)</li>
+                    <li><b style="color:#e2e8f0;">HUD</b> - Wave, enemy count & gold text are now always <b>fully visible</b></li>
+                    <li><b style="color:#e2e8f0;">UI</b> - Save Manager replaces separate Export/Import buttons</li>
+                    <li><b style="color:#e2e8f0;">UI</b> - Update Log added to main menu</li>
                 </ul>
             </div>
         </div>
@@ -2306,7 +2316,7 @@
             if (i < STEPS.length - 1) {
                 setTimeout(() => runStep(i + 1), STEP_DELAYS[i]);
             } else {
-                // Done — brief pause then reveal
+                // Done - brief pause then reveal
                 setTimeout(finishLoading, 650);
             }
         });
@@ -2360,7 +2370,7 @@
         fadeInEl(currency, 500);
         fadeInEl(codeRow,  500);
 
-        /* 5. Buttons — type each one sequentially */
+        /* 5. Buttons - type each one sequentially */
         const buttons = [...menu.querySelectorAll('button')].filter(btn => {
             // Skip buttons that are meant to be hidden
             if (btn.id === 'deleteRunSaveBtn') return false;
@@ -2420,7 +2430,7 @@
         runStep(0);
     }
 
-    /* fallback safety — if something goes wrong, always show the menu */
+    /* fallback safety - if something goes wrong, always show the menu */
     setTimeout(() => {
         const screen = document.getElementById('loadingScreen');
         if (screen && screen.style.display !== 'none') {
@@ -3027,6 +3037,24 @@ const SHOP_ABILITIES = [
     { id:'fullmana',  name:'Full Mana',       icon:'💧', desc:'Instantly restore all Mana.', cost:20,  tier:'cheap',    maxStack:99, onBuy: ()=>{ player.mana=player.maxMana; updateHUD(); } },
     { id:'megaburst', name:'Mega Burst',      icon:'🌟', desc:'Fire 24 bullets in all directions RIGHT NOW.', cost:50,  tier:'mid',      maxStack:99, onBuy: ()=>doMegaBurst() },
     { id:'berserker', name:'Berserker Rush',  icon:'😤', desc:'2x damage & 1.5x speed for 12 seconds.', cost:100, tier:'pricey',   maxStack:99, onBuy: ()=>doBerserker() },
+    { id:'shockwave_buy', name:'Shockwave',   icon:'💥', desc:'Instantly deal 50 dmg to all nearby enemies.', cost:65, tier:'mid', maxStack:99, onBuy: ()=>doShockwave() },
+    { id:'airstrike_buy', name:'Airstrike',   icon:'✈️', desc:'Call in 3 airstrikes on random enemies.', cost:80, tier:'pricey', maxStack:99, onBuy: ()=>doAirstrike() },
+    { id:'blackhole_buy', name:'Black Hole',  icon:'🌑', desc:'Pull all enemies to you for 3 seconds.', cost:90, tier:'pricey', maxStack:99, onBuy: ()=>doBlackhole() },
+    { id:'timeslow_buy',  name:'Time Slow',   icon:'⏱️', desc:'Slow all enemies by 70% for 8 seconds.', cost:110, tier:'pricey', maxStack:99, onBuy: ()=>doTimeSlow() },
+    { id:'goldboost',     name:'Gold Rush',   icon:'💰', desc:'Instantly gain +80 run gold.', cost:0, tier:'cheap', maxStack:99, onBuy: ()=>{ runGold+=80; updateHUD(); } },
+    { id:'speedburst',    name:'Speed Surge', icon:'⚡', desc:'Triple movement speed for 6 seconds.', cost:55, tier:'mid', maxStack:99, onBuy: ()=>{ const prev=player.speed; player.speed*=3; setTimeout(()=>{ player.speed=prev; },6000); } },
+    { id:'healthvamp',    name:'Drain Strike',icon:'🧛', desc:'Instantly drain 15 HP from every enemy on screen.', cost:75, tier:'mid', maxStack:99,
+      onBuy: ()=>{ let total=0; enemies.forEach(e=>{ const dmg=Math.min(e.health,15); e.health-=dmg; total+=dmg; if(e.health<=0){e.alive=false;player.kills++;gainExp(e.expValue);handleKill(e);} }); player.health=Math.min(player.maxHealth,player.health+total); updateHUD(); }
+    },
+    { id:'freezebomb',    name:'Freeze Bomb', icon:'❄️', desc:'Freeze all enemies solid for 3 seconds.', cost:85, tier:'pricey', maxStack:99,
+      onBuy: ()=>{ enemies.forEach(e=>{ e._frozenTimer=(e._frozenTimer||0)+180; e._frozenColor=e.color; e.color='#a5f3fc'; }); setTimeout(()=>enemies.forEach(e=>{ if(e._frozenColor){e.color=e._frozenColor;delete e._frozenColor;} }),3000); }
+    },
+    { id:'doubleshot',    name:'Double Shot', icon:'🔫', desc:'Every bullet fires a second twin bullet instantly.', cost:120, tier:'expensive', maxStack:2,
+      onBuy: ()=>{ passiveState.multishot = (passiveState.multishot||0)+1; }
+    },
+    { id:'manaburst',     name:'Mana Burst',  icon:'🌊', desc:'Converts 50 mana into a screen-wide 80-dmg explosion.', cost:0, tier:'mid', maxStack:99,
+      onBuy: ()=>{ if(player.mana>=50){ player.mana-=50; enemies.forEach(e=>{ e.health-=80; if(e.health<=0){e.alive=false;player.kills++;gainExp(e.expValue);handleKill(e);} }); for(let i=0;i<60;i++) particles.push(new Particle(player.x,player.y,'#8b5cf6')); updateHUD(); } else floatMoneyText('Not enough mana!'); }
+    },
 ];
 
 const SHOP_PASSIVES = [
@@ -3042,6 +3070,33 @@ const SHOP_PASSIVES = [
     { id:'ghostly',    name:'Ghost Form',      icon:'👻', desc:'20% chance to dodge any hit completely.', cost:120, tier:'pricey',   maxStack:3, stackDesc:'+20% dodge per stack (max 60%).' },
     { id:'goldmag',    name:'Gold Magnet',     icon:'💰', desc:'Earn +$1 extra per wave.', cost:20,  tier:'cheap',    maxStack:10 },
     { id:'overclock',  name:'Overclock',       icon:'⚙️', desc:'Fire 25% faster permanently.', cost:150, tier:'expensive', maxStack:3, stackDesc:'+25% fire rate per stack.' },
+    { id:'vampiric',   name:'Vampiric Aura',   icon:'🦇', desc:'Heal 3% of damage dealt as HP.', cost:80, tier:'pricey', maxStack:3, stackDesc:'+3% lifedrain per stack.',
+      onBuy: ()=>{ passiveState.vampiric = (passiveState.vampiric||0) + 0.03; }
+    },
+    { id:'ricochet',   name:'Ricochet',        icon:'🔄', desc:'Bullets bounce off walls once.', cost:65, tier:'mid', maxStack:2,
+      onBuy: ()=>{ passiveState.ricochet = (passiveState.ricochet||0) + 1; }
+    },
+    { id:'bulletsize', name:'Big Bullets',     icon:'🔵', desc:'Your bullets are 50% larger & pierce 1 enemy.', cost:90, tier:'pricey', maxStack:2,
+      onBuy: ()=>{ passiveState.bulletsize = (passiveState.bulletsize||0) + 0.5; }
+    },
+    { id:'goldonkill', name:'Treasure Hunter', icon:'🏺', desc:'Each kill has 30% chance to drop +3 gold.', cost:55, tier:'mid', maxStack:3, stackDesc:'+30% more drop chance per stack.',
+      onBuy: ()=>{ passiveState.goldonkill = (passiveState.goldonkill||0) + 0.30; }
+    },
+    { id:'ampfield',   name:'Amp Field',       icon:'📡', desc:'Enemies within 80px take 20% extra dmg from bullets.', cost:75, tier:'mid', maxStack:2,
+      onBuy: ()=>{ passiveState.ampfield = (passiveState.ampfield||0) + 0.20; }
+    },
+    { id:'hpshield',   name:'HP Shield',       icon:'🔰', desc:'Absorb 40 damage then recharge in 8s.', cost:110, tier:'pricey', maxStack:2,
+      onBuy: ()=>{ passiveState.hpshield = (passiveState.hpshield||0) + 40; passiveState.hpshieldMax = (passiveState.hpshieldMax||0) + 40; passiveState.hpshieldTimer = 0; }
+    },
+    { id:'coldtouch',  name:'Cold Touch',      icon:'🧊', desc:'Bullets slow enemies by 30% for 1.5s.', cost:85, tier:'pricey', maxStack:2,
+      onBuy: ()=>{ passiveState.coldtouch = (passiveState.coldtouch||0) + 1; }
+    },
+    { id:'soulharvest',name:'Soul Harvest',    icon:'💀', desc:'Each kill gives +1 permanent max HP (up to +50).', cost:130, tier:'expensive', maxStack:1,
+      onBuy: ()=>{ passiveState.soulharvest = true; passiveState.soulharvestCount = 0; }
+    },
+    { id:'momentum',   name:'Momentum',        icon:'🌀', desc:'Speed increases by 0.5 for each second you don\'t get hit (max +3).', cost:70, tier:'mid', maxStack:1,
+      onBuy: ()=>{ passiveState.momentum = true; passiveState.momentumBonus = 0; passiveState.momentumTimer = 0; }
+    },
 ];
 
 let passiveState = {
@@ -3052,6 +3107,13 @@ let passiveState = {
     berserkerActive: false, berserkerTimer: 0,
     timeslowActive: false, timeslowTimer: 0,
     regenTimer: 0,
+    // New passives
+    vampiric: 0, ricochet: 0, bulletsize: 0, goldonkill: 0,
+    ampfield: 0, hpshield: 0, hpshieldMax: 0, hpshieldTimer: 0,
+    coldtouch: 0, soulharvest: false, soulharvestCount: 0,
+    momentum: false, momentumBonus: 0, momentumTimer: 0,
+    // Mythic
+    zaWarudoUnlocked: false,
 };
 
 const BIOMES = [
@@ -3221,8 +3283,8 @@ function buildShopOffer() {
         shopCurrentOffer.abilities.forEach(item => { if (!item._patchedOnBuy && item.onBuy) { item._patchedOnBuy = true; } });
         shopCurrentOffer.passives.forEach(item => { if (!item._patchedOnBuy && item.onBuy) { item._patchedOnBuy = true; } });
     } else {
-        shopCurrentOffer.abilities = shuffle(SHOP_ABILITIES).slice(0,3);
-        shopCurrentOffer.passives  = shuffle(SHOP_PASSIVES).slice(0,4);
+        shopCurrentOffer.abilities = shuffle(SHOP_ABILITIES).slice(0,4);
+        shopCurrentOffer.passives  = shuffle(SHOP_PASSIVES).slice(0,5);
     }
 }
 
@@ -3379,6 +3441,48 @@ function tickAirstrikes(dt) {
         return true;
     });
 }
+
+// ─── ZA WARUDO ───────────────────────────────────────────────────────────────
+function zaWarudoActivate() {
+    const ZW = 120;
+    const zx = player.x, zy = player.y;
+    let frozen = 0;
+    enemies.forEach(e => {
+        if (!e.alive) return;
+        if (Math.abs(e.x - zx) <= ZW && Math.abs(e.y - zy) <= ZW) {
+            e._zaFrozen = true;
+            e._zaOrigColor = e.color;
+            e.color = '#a5f3fc';
+            frozen++;
+        }
+    });
+    const flash = document.createElement('div');
+    flash.style.cssText = 'position:fixed;inset:0;background:rgba(180,230,255,0.35);pointer-events:none;z-index:9998;transition:opacity 0.5s;';
+    document.body.appendChild(flash);
+    requestAnimationFrame(() => { flash.style.opacity = '0'; });
+    setTimeout(() => flash.remove(), 600);
+    floatMoneyText('🕰️ ZA WARUDOOO! ' + frozen + ' enemies frozen FOREVER!');
+    playSound(80, 0.4, 'sine'); playSound(120, 0.3, 'sine'); playSound(200, 0.2, 'sawtooth');
+}
+
+function drawZaFrozenLabels() {
+    if (!enemies.length) return;
+    const now = performance.now();
+    ctx.save();
+    ctx.font = 'bold 10px monospace';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'bottom';
+    enemies.forEach(e => {
+        if (!e.alive || !e._zaFrozen) return;
+        const alpha = 0.7 + Math.sin(now * 0.004) * 0.3;
+        ctx.fillStyle = 'rgba(165,243,252,' + alpha + ')';
+        ctx.shadowColor = '#67e8f9';
+        ctx.shadowBlur = _shadowsEnabled ? 6 : 0;
+        ctx.fillText('🕰️ frozen', e.x, e.y - e.radius - 3);
+    });
+    ctx.restore();
+}
+// ─────────────────────────────────────────────────────────────────────────────
 
 function doBlackhole() {
     passiveState.blackholeActive = true;
@@ -4395,6 +4499,23 @@ function tickPassives(dt) {
         passiveState.timeslowTimer -= dt;
         if(passiveState.timeslowTimer <= 0) passiveState.timeslowActive=false;
     }
+    // Momentum: build speed when not hit
+    if(passiveState.momentum) {
+        passiveState.momentumTimer = (passiveState.momentumTimer||0) + dt;
+        if(passiveState.momentumTimer >= 60) {
+            passiveState.momentumTimer = 0;
+            passiveState.momentumBonus = Math.min((passiveState.momentumBonus||0)+0.5, 3);
+        }
+    }
+    // HP Shield recharge
+    if(passiveState.hpshield !== undefined && passiveState.hpshield < (passiveState.hpshieldMax||0)) {
+        passiveState.hpshieldTimer = (passiveState.hpshieldTimer||0) + dt;
+        if(passiveState.hpshieldTimer >= 480) { // 8 seconds
+            passiveState.hpshield = passiveState.hpshieldMax;
+            passiveState.hpshieldTimer = 0;
+            floatMoneyText('🔰 Shield recharged!');
+        }
+    }
 }
 
 function fireWithPassives(baseAngle) {
@@ -4836,7 +4957,7 @@ class Enemy {
         }
 
         const ddx = tx - this.x, ddy = ty - this.y, ddist = Math.sqrt(ddx*ddx + ddy*ddy);
-        if(ddist > 0 && !this.isBoomerang && !this.isVoidRift && !this.isDasher) {
+        if(ddist > 0 && !this.isBoomerang && !this.isVoidRift && !this.isDasher && !this._zaFrozen) {
             this.x += (ddx/ddist) * this.speed * dt * slowMult * effectiveSlowMult;
             this.y += (ddy/ddist) * this.speed * dt * slowMult * effectiveSlowMult;
         }
@@ -4844,7 +4965,7 @@ class Enemy {
         const eRes = resolveCircleWall(this.x, this.y, this.radius);
         this.x = eRes.x; this.y = eRes.y;
 
-        if(distToPlayer < this.radius+player.radius && player.invulnerable<=0){
+        if(distToPlayer < this.radius+player.radius && player.invulnerable<=0 && !this._zaFrozen){
 
             if (this.isBomber) {
                 enemies.forEach(oe => {
@@ -4879,6 +5000,16 @@ class Enemy {
             }
             runTookDamage = true;
             megumiKillStreak = 0;
+            // Momentum: reset bonus on hit
+            if(passiveState.momentum) { passiveState.momentumBonus=0; passiveState.momentumTimer=0; }
+            // HP Shield: absorb first
+            if(passiveState.hpshield && passiveState.hpshield > 0) {
+                let absorbed = Math.min(passiveState.hpshield, this.damage);
+                passiveState.hpshield -= absorbed;
+                passiveState.hpshieldTimer = 0;
+                floatMoneyText(`🔰 Shield: -${absorbed}`);
+                player.invulnerable = 20; updateHUD(); return;
+            }
             let inDmg = applyDreamArmor(this.damage);
             inDmg = applyPassiveIncomingDamage(inDmg);
             if(passiveState.thorns>0){ this.health-=passiveState.thorns; if(this.health<=0){this.alive=false;player.kills++;gainExp(this.expValue);handleKill(this);} }
@@ -4915,7 +5046,7 @@ class Enemy {
         } else { ctx.shadowColor=this.color; ctx.fillStyle=this.color; }
 
         if (this.isTriangle) {
-            // ▲ TRIANGLE — stays as a triangle, always
+            // ▲ TRIANGLE - stays as a triangle, always
             this.rotation += 0.05;
             ctx.translate(this.x, this.y); ctx.rotate(this.rotation);
             ctx.beginPath(); const s=this.radius;
@@ -4923,7 +5054,7 @@ class Enemy {
             ctx.closePath(); ctx.fill();
 
         } else if (this.isShielder) {
-            // 🛡 SHIELDER — icy blue sphere with a glowing shield arc on the front face
+            // 🛡 SHIELDER - icy blue sphere with a glowing shield arc on the front face
             const sg = ctx.createRadialGradient(this.x-4,this.y-4,2, this.x,this.y,this.radius);
             sg.addColorStop(0,'#93c5fd'); sg.addColorStop(1,'#1d4ed8');
             ctx.fillStyle=sg;
@@ -4941,7 +5072,7 @@ class Enemy {
             ctx.stroke();
 
         } else if (this.isHealer) {
-            // 💚 HEALER — lush green sphere with white pulsing cross
+            // 💚 HEALER - lush green sphere with white pulsing cross
             this._healPulse = ((this._healPulse||0)+0.05)%(Math.PI*2);
             const hg = ctx.createRadialGradient(this.x-3,this.y-4,1, this.x,this.y,this.radius);
             hg.addColorStop(0,'#86efac'); hg.addColorStop(1,'#166534');
@@ -4957,7 +5088,7 @@ class Enemy {
             ctx.fillRect(this.x-2,this.y-8,4,16); ctx.fillRect(this.x-8,this.y-2,16,4);
 
         } else if (this.isBomber) {
-            // 🧨 BOMBER — hot angry sphere that pulses red-orange, with a lit fuse
+            // 🧨 BOMBER - hot angry sphere that pulses red-orange, with a lit fuse
             this.fuseFlash = (this.fuseFlash||0)+1;
             const fl = 0.85+0.15*Math.sin(this.fuseFlash*0.35);
             const dist = Math.hypot(player.x-this.x, player.y-this.y);
@@ -4976,7 +5107,7 @@ class Enemy {
             ctx.beginPath(); ctx.arc(this.x+5,this.y-this.radius-10,1.5+Math.random()*1.5,0,Math.PI*2); ctx.fill();
 
         } else if (this.isPhantomEnemy) {
-            // 👻 PHANTOM — translucent misty sphere with ghostly inner shimmer
+            // 👻 PHANTOM - translucent misty sphere with ghostly inner shimmer
             const pg = ctx.createRadialGradient(this.x-3,this.y-3,1, this.x,this.y,this.radius);
             pg.addColorStop(0,'rgba(200,180,255,0.85)'); pg.addColorStop(0.6,'rgba(120,80,200,0.5)'); pg.addColorStop(1,'rgba(60,20,120,0.2)');
             ctx.fillStyle=pg;
@@ -4988,7 +5119,7 @@ class Enemy {
             ctx.setLineDash([]);
 
         } else if (this.isSniperEnemy) {
-            // 🎯 SNIPER — dark steel-grey sphere with glowing red dot-sight crosshairs
+            // 🎯 SNIPER - dark steel-grey sphere with glowing red dot-sight crosshairs
             const snG = ctx.createRadialGradient(this.x-3,this.y-3,1, this.x,this.y,this.radius);
             snG.addColorStop(0,'#4b5563'); snG.addColorStop(1,'#111827');
             ctx.fillStyle=snG;
@@ -5012,14 +5143,14 @@ class Enemy {
             }
 
         } else if (this.isBerserker) {
-            // 😤 BERSERKER — deep red sphere that erupts spikes as health drops
+            // 😤 BERSERKER - deep red sphere that erupts spikes as health drops
             const rage = 1-(this.health/this.maxHealth);
             const bRed = Math.round(180+rage*75);
             const berG = ctx.createRadialGradient(this.x-3,this.y-4,2, this.x,this.y,this.radius);
             berG.addColorStop(0,`rgb(${bRed},60,60)`); berG.addColorStop(1,`rgb(${Math.round(100+rage*60)},10,10)`);
             ctx.fillStyle=berG; ctx.shadowBlur=_shadowsEnabled?(10+rage*20):0; ctx.shadowColor='#dc2626';
             ctx.beginPath(); ctx.arc(this.x,this.y,this.radius,0,Math.PI*2); ctx.fill();
-            // Rage veins — diagonal cracks across the sphere
+            // Rage veins - diagonal cracks across the sphere
             if(rage>0.15){
                 ctx.restore(); ctx.save(); ctx.globalAlpha=(this.drawAlpha||1)*(0.5+rage*0.5);
                 ctx.strokeStyle=`rgba(255,200,60,${0.4+rage*0.6})`; ctx.lineWidth=1+rage*2;
@@ -5045,7 +5176,7 @@ class Enemy {
             }
 
         } else if (this.isPuller) {
-            // 🌀 PULLER — deep violet sphere with pulsing gravity rings
+            // 🌀 PULLER - deep violet sphere with pulsing gravity rings
             this.pulseT=(this.pulseT||0)+1;
             const pulG = ctx.createRadialGradient(this.x-3,this.y-3,1, this.x,this.y,this.radius);
             pulG.addColorStop(0,'#a78bfa'); pulG.addColorStop(1,'#4c1d95');
@@ -5063,7 +5194,7 @@ class Enemy {
             }
 
         } else if (this.isRegen) {
-            // ♻️ REGEN — teal sphere with rotating healing arc bands
+            // ♻️ REGEN - teal sphere with rotating healing arc bands
             this._regenRot = ((this._regenRot||0)+0.02)%(Math.PI*2);
             const rgG = ctx.createRadialGradient(this.x-3,this.y-3,1, this.x,this.y,this.radius);
             rgG.addColorStop(0,'#5eead4'); rgG.addColorStop(1,'#065f46');
@@ -5076,7 +5207,7 @@ class Enemy {
             ctx.beginPath(); ctx.arc(this.x,this.y,this.radius+5,this._regenRot+Math.PI,this._regenRot+Math.PI*2.2); ctx.stroke();
 
         } else if (this.isSplitter || this.isSplitterMini) {
-            // 💥 SPLITTER — bold orange sphere with a glowing split-seam through the middle
+            // 💥 SPLITTER - bold orange sphere with a glowing split-seam through the middle
             const spG = ctx.createRadialGradient(this.x-3,this.y-3,1, this.x,this.y,this.radius);
             spG.addColorStop(0,'#fb923c'); spG.addColorStop(1,'#9a3412');
             ctx.fillStyle=spG;
@@ -5092,7 +5223,7 @@ class Enemy {
             ctx.beginPath(); ctx.moveTo(this.x-this.radius*0.7,this.y-this.radius*0.5); ctx.lineTo(this.x+this.radius*0.7,this.y+this.radius*0.5); ctx.stroke();
 
         } else if (this.isCharger) {
-            // ⚡ CHARGER — golden amber sphere that builds a wind-up arrow toward player
+            // ⚡ CHARGER - golden amber sphere that builds a wind-up arrow toward player
             const chG = ctx.createRadialGradient(this.x-3,this.y-3,1, this.x,this.y,this.radius);
             chG.addColorStop(0,'#fde68a'); chG.addColorStop(1,'#b45309');
             ctx.fillStyle=chG;
@@ -5114,7 +5245,7 @@ class Enemy {
             ctx.closePath(); ctx.fill();
 
         } else if (this.isTimeBomb) {
-            // 💣 TIMEBOMB — dark pulsing sphere with countdown, gets angrier as fuse burns
+            // 💣 TIMEBOMB - dark pulsing sphere with countdown, gets angrier as fuse burns
             const secsLeft=Math.ceil(this.fuseTimer/60);
             const urgency=Math.max(0,1-this.fuseTimer/600);
             const tbFlash = urgency > 0.7 ? (Math.sin(Date.now()*0.015)>0?1:0) : 0;
@@ -5133,7 +5264,7 @@ class Enemy {
             ctx.fillStyle='#fff'; ctx.fillText(`💣${secsLeft}s`,this.x,this.y+4);
 
         } else if (this.isLeech) {
-            // 🩸 LEECH — dark maroon sphere with pulsing blood vein and tendrils toward player
+            // 🩸 LEECH - dark maroon sphere with pulsing blood vein and tendrils toward player
             this._leechPulse = ((this._leechPulse||0)+0.07)%(Math.PI*2);
             const lcG = ctx.createRadialGradient(this.x-2,this.y-2,1, this.x,this.y,this.radius);
             lcG.addColorStop(0,'#b91c1c'); lcG.addColorStop(1,'#3b0a0a');
@@ -5159,7 +5290,7 @@ class Enemy {
             }
 
         } else if (this.isGuardian) {
-            // 🛡 GUARDIAN — heavy golden sphere with a thick orbiting ring
+            // 🛡 GUARDIAN - heavy golden sphere with a thick orbiting ring
             this._guardRot = ((this._guardRot||0)+0.03)%(Math.PI*2);
             const guG = ctx.createRadialGradient(this.x-4,this.y-4,2, this.x,this.y,this.radius);
             guG.addColorStop(0,'#fde68a'); guG.addColorStop(1,'#78350f');
@@ -5179,7 +5310,7 @@ class Enemy {
             }
 
         } else if (this.isGolem) {
-            // 🪨 GOLEM — chunky slate-grey sphere with stone crack lines
+            // 🪨 GOLEM - chunky slate-grey sphere with stone crack lines
             const goG = ctx.createRadialGradient(this.x-4,this.y-4,2, this.x,this.y,this.radius);
             goG.addColorStop(0,'#9ca3af'); goG.addColorStop(1,'#1f2937');
             ctx.fillStyle=goG;
@@ -5197,7 +5328,7 @@ class Enemy {
             [[4,-6,2],[-5,4,1.5]].forEach(([ox,oy,r])=>{ ctx.beginPath(); ctx.arc(this.x+ox,this.y+oy,r,0,Math.PI*2); ctx.fill(); });
 
         } else if (this.isDasher) {
-            // 💨 DASHER — vivid cyan sphere with speed-blur afterimage streaks
+            // 💨 DASHER - vivid cyan sphere with speed-blur afterimage streaks
             this._dashRot = ((this._dashRot||0)+0.12)%(Math.PI*2);
             const daG = ctx.createRadialGradient(this.x-3,this.y-3,1, this.x,this.y,this.radius);
             daG.addColorStop(0,'#67e8f9'); daG.addColorStop(1,'#0e7490');
@@ -5216,7 +5347,7 @@ class Enemy {
             }
 
         } else if (this.isBoomerang) {
-            // 🪃 BOOMERANG — lime-green sphere with a curved arc flight indicator
+            // 🪃 BOOMERANG - lime-green sphere with a curved arc flight indicator
             const boG = ctx.createRadialGradient(this.x-3,this.y-3,1, this.x,this.y,this.radius);
             boG.addColorStop(0,'#86efac'); boG.addColorStop(1,'#14532d');
             ctx.fillStyle=boG;
@@ -5228,7 +5359,7 @@ class Enemy {
             ctx.beginPath(); ctx.arc(this.x+Math.cos(ba+Math.PI/2)*8, this.y+Math.sin(ba+Math.PI/2)*8, this.radius+4, ba, ba+Math.PI*1.3); ctx.stroke();
 
         } else if (this.isSwarm || this.isSwarmUnit) {
-            // 🐝 SWARM — tiny yellow-amber sphere with vibrating dot
+            // 🐝 SWARM - tiny yellow-amber sphere with vibrating dot
             this._swarmV = ((this._swarmV||0)+0.3)%(Math.PI*2);
             const swG = ctx.createRadialGradient(this.x-1,this.y-1,0.5, this.x,this.y,this.radius);
             swG.addColorStop(0,'#fde68a'); swG.addColorStop(1,'#b45309');
@@ -5240,7 +5371,7 @@ class Enemy {
             ctx.beginPath(); ctx.arc(this.x+Math.sin(this._swarmV)*1.5, this.y+Math.cos(this._swarmV)*1.5, this.radius+1.5, 0, Math.PI*2); ctx.stroke();
 
         } else if (this.isMagnet) {
-            // 🧲 MAGNET — grey-blue sphere with polar field arcs
+            // 🧲 MAGNET - grey-blue sphere with polar field arcs
             this._magRot = ((this._magRot||0)+0.025)%(Math.PI*2);
             const mgG = ctx.createRadialGradient(this.x-3,this.y-3,1, this.x,this.y,this.radius);
             mgG.addColorStop(0,'#94a3b8'); mgG.addColorStop(0.5,'#475569'); mgG.addColorStop(1,'#1e3a5f');
@@ -5260,7 +5391,7 @@ class Enemy {
             ctx.restore();
 
         } else if (this.isWebber) {
-            // 🕸️ WEBBER — earthy brown sphere with web strands on the surface
+            // 🕸️ WEBBER - earthy brown sphere with web strands on the surface
             const wbG = ctx.createRadialGradient(this.x-2,this.y-2,1, this.x,this.y,this.radius);
             wbG.addColorStop(0,'#78350f'); wbG.addColorStop(1,'#1c0a00');
             ctx.fillStyle=wbG;
@@ -5277,7 +5408,7 @@ class Enemy {
             }
 
         } else if (this.isSilencer) {
-            // 🔇 SILENCER — dark indigo sphere with silenced sound wave bars
+            // 🔇 SILENCER - dark indigo sphere with silenced sound wave bars
             this._silPulse = ((this._silPulse||0)+0.06)%(Math.PI*2);
             const slG = ctx.createRadialGradient(this.x-3,this.y-3,1, this.x,this.y,this.radius);
             slG.addColorStop(0,'#6d28d9'); slG.addColorStop(1,'#0d0520');
@@ -5298,7 +5429,7 @@ class Enemy {
             ctx.beginPath(); ctx.moveTo(this.x-7,this.y-6); ctx.lineTo(this.x+7,this.y+6); ctx.stroke();
 
         } else if (this.isMirror) {
-            // 🪞 MIRROR — metallic silver sphere with a reflective sheen slash
+            // 🪞 MIRROR - metallic silver sphere with a reflective sheen slash
             this._mirrorSheen = ((this._mirrorSheen||0)+0.03)%(Math.PI*2);
             const mrG = ctx.createRadialGradient(this.x-4,this.y-4,1, this.x,this.y,this.radius);
             mrG.addColorStop(0,'#f1f5f9'); mrG.addColorStop(0.4,'#94a3b8'); mrG.addColorStop(1,'#0f172a');
@@ -5396,7 +5527,7 @@ class Enemy {
             ctx.fillStyle='#c4b5fd'; ctx.shadowBlur=_shadowsEnabled?20:0; ctx.shadowColor='#c4b5fd';
             ctx.beginPath(); ctx.arc(this.x,this.y,4+Math.sin(vt*3)*1.5,0,Math.PI*2); ctx.fill();
         } else if (this.isBoss) {
-            // 👑 BOSS — massive pulsing crimson sphere with rotating outer ring and crown label
+            // 👑 BOSS - massive pulsing crimson sphere with rotating outer ring and crown label
             this._bossRot = ((this._bossRot||0)+0.015)%(Math.PI*2);
             this._bossPulse = ((this._bossPulse||0)+0.04)%(Math.PI*2);
             const bossG = ctx.createRadialGradient(this.x-8,this.y-8,3, this.x,this.y,this.radius);
@@ -5421,7 +5552,7 @@ class Enemy {
             ctx.fillText('BOSS',this.x,this.y-this.radius-4);
 
         } else {
-            // ⚫ NORMAL ENEMY — vivid red sphere with radial gradient and subtle highlight
+            // ⚫ NORMAL ENEMY - vivid red sphere with radial gradient and subtle highlight
             this._normT = ((this._normT||0)+0.03)%(Math.PI*2);
             const normG = ctx.createRadialGradient(this.x-4,this.y-4,2, this.x,this.y,this.radius);
             normG.addColorStop(0,'#fca5a5'); normG.addColorStop(0.5,'#ef4444'); normG.addColorStop(1,'#7f1d1d');
@@ -5817,6 +5948,10 @@ function damageEnemy(e, dmg, srcX, srcY) {
         }
     }
     e.health -= dmg;
+    // Vampiric passive: heal % of damage dealt
+    if(passiveState.vampiric && dmg > 0) {
+        player.health = Math.min(player.health + dmg * passiveState.vampiric, player.maxHealth);
+    }
     return true;
 }
 
@@ -6204,7 +6339,7 @@ function spawnWave(){
                     enemies.push(su);
                 }
                 if (!seenEnemyTypes.includes('swarm_unit')) { seenEnemyTypes.push('swarm_unit'); savePersistentData(); }
-                return; // skip enemies.push(e) — don't add the placeholder
+                return; // skip enemies.push(e) - don't add the placeholder
             }
             if (isBountyEnemy) {
                 e.health = Math.round(e.health * 3); e.maxHealth = Math.round(e.maxHealth * 3); e.speed *= 1.2; e.damage = Math.round(e.damage * 1.5);
@@ -7479,7 +7614,7 @@ function specialAttack(){
             break;
         }
         case 'arm_haki': {
-            // Luffy R: Arm Haki — 30s cd, grants 1.5x dmg + 1.5x dmg reduction for 10s
+            // Luffy R: Arm Haki - 30s cd, grants 1.5x dmg + 1.5x dmg reduction for 10s
             if(luffyArmHakiCd > 0){ floatMoneyText(`⏳ Arm Haki: ${(luffyArmHakiCd/60).toFixed(1)}s`); return; }
             luffyArmHakiActive = 600; // 10s = 600 ticks
             luffyArmHakiCd = 1800;   // 30s = 1800 ticks
@@ -7571,7 +7706,7 @@ function luffyZAbility() {
             luffyZCd = 2400;
         }
     } else if(g === 4) {
-        // G5: Crumbs of Liberation — full HP regen
+        // G5: Crumbs of Liberation - full HP regen
         player.health = player.maxHealth;
         for(let i=0;i<80;i++) particles.push(new Particle(player.x,player.y,'#fbbf24'));
         floatMoneyText('✨ CRUMBS OF LIBERATION! FULL HEAL!');
@@ -7611,7 +7746,7 @@ function luffyXAbility() {
         floatMoneyText('🔕 No X in G4! Use Z or C.');
         return;
     } else if(g === 4) {
-        // G5 X: Wall Grab — pull closest wall toward player
+        // G5 X: Wall Grab - pull closest wall toward player
         if(walls.length === 0 && builderWalls.length === 0) { floatMoneyText('No walls to grab!'); return; }
         let closest = null, closestDist = Infinity;
         walls.forEach(w => {
@@ -7778,6 +7913,18 @@ function handleKill(e) {
         clearTimeout(sd._to);
         sd._to = setTimeout(()=>sd.style.opacity='0', 2000);
     }
+    // Soul Harvest passive
+    if(passiveState.soulharvest && (passiveState.soulharvestCount||0) < 50) {
+        passiveState.soulharvestCount = (passiveState.soulharvestCount||0) + 1;
+        player.maxHealth += 1;
+        player.health = Math.min(player.health + 1, player.maxHealth);
+    }
+    // Gold on Kill passive
+    if(passiveState.goldonkill && Math.random() < passiveState.goldonkill) {
+        runGold += 3;
+    }
+    // Momentum reset on kill (don't penalise)
+    // no reset on kill - momentum persists
     updateHUD();
 }
 
@@ -8127,6 +8274,175 @@ function applyGojoPhase() {
     updateHUD();
 }
 
+// ============================================================
+//  RANDOMISED LEVEL-UP POOL
+// ============================================================
+const LEVEL_UP_POOL = [
+    // ── Common stat boosts ──
+    { id:'hp_sm',    icon:'❤️',  label:'+30 Max Health',             rarity:'common',
+      canUse: sk => !sk.lockHpUpgrade,
+      apply: () => { player.maxHealth+=30; player.health=player.maxHealth; } },
+    { id:'hp_lg',    icon:'💖',  label:'+60 Max Health',             rarity:'rare',
+      canUse: sk => !sk.lockHpUpgrade,
+      apply: () => { player.maxHealth+=60; player.health=player.maxHealth; } },
+    { id:'hp_heal',  icon:'🏥',  label:'+20 Max Health + Full Heal', rarity:'common',
+      canUse: sk => !sk.lockHpUpgrade,
+      apply: () => { player.maxHealth+=20; player.health=player.maxHealth; } },
+    { id:'dmg_sm',   icon:'⚔️',  label:'+5 Damage',                 rarity:'common',
+      canUse: sk => !sk.isMachineGun && !sk.lockDmgUpgrade,
+      apply: () => { player.damage+=5; } },
+    { id:'dmg_lg',   icon:'🗡️',  label:'+12 Damage',                rarity:'rare',
+      canUse: sk => !sk.isMachineGun && !sk.lockDmgUpgrade,
+      apply: () => { player.damage+=12; } },
+    { id:'spd_sm',   icon:'💨',  label:'+1 Speed',                  rarity:'common',
+      canUse: ()=>true,
+      apply: () => { player.speed+=1; } },
+    { id:'spd_lg',   icon:'🌪️',  label:'+2 Speed',                  rarity:'rare',
+      canUse: ()=>true,
+      apply: () => { player.speed+=2; } },
+    { id:'mana_sm',  icon:'💧',  label:'+20 Max Mana',              rarity:'common',
+      canUse: sk => !sk.lockManaUpgrade,
+      apply: () => { player.maxMana+=20; player.mana=player.maxMana; } },
+    { id:'mana_lg',  icon:'🌊',  label:'+50 Max Mana',              rarity:'rare',
+      canUse: sk => !sk.lockManaUpgrade,
+      apply: () => { player.maxMana+=50; player.mana=player.maxMana; } },
+
+    // ── Combo boosts ──
+    { id:'tank',     icon:'🛡️',  label:'+25 HP + 15% Damage Reduction', rarity:'uncommon',
+      canUse: sk => !sk.lockHpUpgrade,
+      apply: () => { player.maxHealth+=25; player.health=Math.min(player.health+25,player.maxHealth); passiveState.armor=Math.min(passiveState.armor+0.15,0.60); } },
+    { id:'caster',   icon:'🔮',  label:'+30 Mana + +3 Damage',          rarity:'uncommon',
+      canUse: sk => !sk.lockManaUpgrade,
+      apply: () => { player.maxMana+=30; player.mana=player.maxMana; if(!sk||!sk.isMachineGun)player.damage+=3; } },
+    { id:'bruiser',  icon:'💪',  label:'+8 Damage + +1 Speed',          rarity:'uncommon',
+      canUse: sk => !sk.isMachineGun && !sk.lockDmgUpgrade,
+      apply: () => { player.damage+=8; player.speed+=1; } },
+    { id:'balanced', icon:'⚖️',  label:'+15 HP, +3 Dmg, +10 Mana',     rarity:'uncommon',
+      canUse: sk => !sk.lockHpUpgrade,
+      apply: () => { player.maxHealth+=15; player.health=Math.min(player.health+15,player.maxHealth); if(!sk||!sk.isMachineGun)player.damage+=3; player.maxMana+=10; player.mana=Math.min(player.mana+10,player.maxMana); } },
+    { id:'glass',    icon:'💥',  label:'+20 Damage, -30 Max HP',         rarity:'uncommon',
+      canUse: sk => !sk.isMachineGun && !sk.lockDmgUpgrade && player.maxHealth > 50,
+      apply: () => { player.damage+=20; player.maxHealth=Math.max(30,player.maxHealth-30); player.health=Math.min(player.health,player.maxHealth); } },
+    { id:'speedster',icon:'⚡',  label:'+3 Speed, -10 Max HP',           rarity:'uncommon',
+      canUse: sk => player.maxHealth > 50,
+      apply: () => { player.speed+=3; player.maxHealth=Math.max(30,player.maxHealth-10); player.health=Math.min(player.health,player.maxHealth); } },
+
+    // ── Passive unlocks ──
+    { id:'lu_lifesteal', icon:'🩸', label:'Lifesteal: +5 HP per kill',   rarity:'uncommon',
+      canUse: ()=>true,
+      apply: () => { passiveState.lifesteal+=5; } },
+    { id:'lu_regen',     icon:'💚', label:'Regeneration: +1.5 HP/sec',   rarity:'common',
+      canUse: ()=>true,
+      apply: () => { passiveState.regen+=1.5; } },
+    { id:'lu_manaflow',  icon:'🌊', label:'Mana Flow: +3 Mana/sec',      rarity:'common',
+      canUse: sk => !sk.lockManaUpgrade,
+      apply: () => { passiveState.manaflow+=3; } },
+    { id:'lu_crit',      icon:'⚡', label:'Critical Hit: +10% Crit',     rarity:'uncommon',
+      canUse: ()=>true,
+      apply: () => { passiveState.crit+=0.10; } },
+    { id:'lu_thorns',    icon:'🌵', label:'Thorns: +25 return dmg',      rarity:'uncommon',
+      canUse: ()=>true,
+      apply: () => { passiveState.thorns+=25; } },
+    { id:'lu_dodge',     icon:'👻', label:'Ghost Form: +20% Dodge',      rarity:'rare',
+      canUse: ()=>true,
+      apply: () => { passiveState.ghostly=Math.min(passiveState.ghostly+0.20,0.60); } },
+    { id:'lu_armor',     icon:'🛡️', label:'Iron Skin: +15% Damage Reduction', rarity:'uncommon',
+      canUse: ()=>true,
+      apply: () => { passiveState.armor=Math.min(passiveState.armor+0.15,0.60); } },
+    { id:'lu_multishot', icon:'🔱', label:'Multishot: +1 Extra Bullet',  rarity:'rare',
+      canUse: ()=>true,
+      apply: () => { passiveState.multishot+=1; } },
+    { id:'lu_explosive', icon:'💣', label:'Explosive Rounds: +20% Chance',rarity:'rare',
+      canUse: ()=>true,
+      apply: () => { passiveState.explosive+=0.20; } },
+    { id:'lu_overclock', icon:'⚙️', label:'Overclock: +25% Fire Rate',   rarity:'epic',
+      canUse: ()=>true,
+      apply: () => { passiveState.overclock+=1; } },
+    { id:'lu_magnet',    icon:'🧲', label:'Item Magnet: Wide pull range', rarity:'common',
+      canUse: ()=>true,
+      apply: () => { passiveState.magnet+=1; } },
+
+    // ── Special / Legendary ──
+    { id:'lu_goldgain',  icon:'🪙', label:'+60 Run Gold',               rarity:'uncommon',
+      canUse: ()=>true,
+      apply: () => { runGold+=60; updateHUD(); } },
+    { id:'lu_fullheal',  icon:'❤️‍🔥', label:'Full Restore (HP + Mana)',   rarity:'common',
+      canUse: ()=>true,
+      apply: () => { player.health=player.maxHealth; player.mana=player.maxMana; } },
+    { id:'lu_vampire',   icon:'🦇', label:'Vampiric: Heal 4% of damage dealt', rarity:'rare',
+      canUse: ()=>true,
+      apply: () => { passiveState.vampiric=(passiveState.vampiric||0)+0.04; } },
+    { id:'lu_momentum',  icon:'🌀', label:'Momentum: Speed scales off non-hit time', rarity:'rare',
+      canUse: ()=>!(passiveState.momentum),
+      apply: () => { passiveState.momentum=true; passiveState.momentumBonus=0; passiveState.momentumTimer=0; } },
+    { id:'lu_novaleak',  icon:'🔮', label:'Nova Leak: Every 5th shot explodes', rarity:'rare',
+      canUse: ()=>true,
+      apply: () => { passiveState.novaleak+=1; } },
+    { id:'lu_homing',    icon:'🎯', label:'Homing Shots: 15s guided bullets', rarity:'uncommon',
+      canUse: ()=>true,
+      apply: () => { passiveState.homingshot+=1; passiveState.homingTimer+=15*60; } },
+    { id:'lu_soulh',     icon:'💀', label:'Soul Harvest: +1 perm HP per kill', rarity:'epic',
+      canUse: ()=>!(passiveState.soulharvest),
+      apply: () => { passiveState.soulharvest=true; passiveState.soulharvestCount=0; } },
+    { id:'lu_megaburst', icon:'🌟', label:'Mega Burst NOW: 24 omni-bullets', rarity:'uncommon',
+      canUse: ()=>true,
+      apply: () => { doMegaBurst(); } },
+    { id:'lu_berserker', icon:'😤', label:'Berserker: 2x DMG 12s + +5 perm DMG', rarity:'rare',
+      canUse: sk => !sk.isMachineGun && !sk.lockDmgUpgrade,
+      apply: () => { doBerserker(); player.damage+=5; } },
+    { id:'lu_huge_hp',   icon:'💗', label:'+100 Max Health (Tanky!)',    rarity:'epic',
+      canUse: sk => !sk.lockHpUpgrade,
+      apply: () => { player.maxHealth+=100; player.health=player.maxHealth; } },
+    { id:'lu_huge_dmg',  icon:'🔥', label:'+25 Damage (Mighty!)',        rarity:'epic',
+      canUse: sk => !sk.isMachineGun && !sk.lockDmgUpgrade,
+      apply: () => { player.damage+=25; } },
+    { id:'lu_huge_spd',  icon:'🚀', label:'+4 Speed (Lightning!)',       rarity:'epic',
+      canUse: ()=>true,
+      apply: () => { player.speed+=4; } },
+    { id:'lu_triple',    icon:'🏹', label:'Triple Shot: 3-way bullets 20s', rarity:'rare',
+      canUse: ()=>true,
+      apply: () => { passiveState.trishot+=1; passiveState.trishotTimer+=20*60; } },
+    // ── MYTHIC ──
+    { id:'za_warudo',    icon:'🕰️', label:'ZA WARUDOOO - Press B to freeze all enemies in a 240×240 area forever', rarity:'mythic',
+      canUse: ()=>!passiveState.zaWarudoUnlocked,
+      apply: () => { passiveState.zaWarudoUnlocked=true; floatMoneyText('🕰️ ZA WARUDOOO! Press B to freeze time!'); } },
+];
+
+// rarity weights for pool selection
+const RARITY_WEIGHTS = { common:50, uncommon:28, rare:15, epic:5, mythic:1 };
+
+function _pickLevelUpOptions(sk, count=3) {
+    // In Heaven biome, mythic chance rises to ~10%
+    const inHeaven = typeof currentBiome !== 'undefined' && currentBiome && currentBiome.effect === 'heaven';
+    const weights = inHeaven
+        ? { common:50, uncommon:28, rare:15, epic:5, mythic:11 }
+        : RARITY_WEIGHTS;
+
+    const eligible = LEVEL_UP_POOL.filter(o => {
+        try { return o.canUse(sk); } catch(e){ return true; }
+    });
+    const weighted = [];
+    eligible.forEach(o => {
+        const w = weights[o.rarity] || 20;
+        for(let i=0;i<w;i++) weighted.push(o);
+    });
+    const seen = new Set();
+    const result = [];
+    const shuffled = [...weighted].sort(()=>Math.random()-0.5);
+    for(const o of shuffled) {
+        if(!seen.has(o.id)) { seen.add(o.id); result.push(o); }
+        if(result.length >= count) break;
+    }
+    if(result.length < count) {
+        const fallbacks = [{id:'lu_full_f',icon:'❤️‍🔥',label:'Full Restore',apply:()=>{player.health=player.maxHealth;player.mana=player.maxMana;}}];
+        for(const f of fallbacks) { if(result.length>=count) break; if(!seen.has(f.id)){seen.add(f.id);result.push(f);} }
+    }
+    return result;
+}
+
+const RARITY_COLORS = { common:'#94a3b8', uncommon:'#4ade80', rare:'#60a5fa', epic:'#c084fc', mythic:'#ffd700' };
+const RARITY_LABELS = { common:'COMMON', uncommon:'UNCOMMON', rare:'RARE', epic:'⭐ EPIC', mythic:'✨ MYTHIC' };
+
 function showLevelUp(){
     playSound(1200, 0.15, 'sine');
     playSound(1600, 0.1, 'sine');
@@ -8161,60 +8477,98 @@ function showLevelUp(){
         return;
     }
 
-    const dmgBtn = document.getElementById('damageUpgradeBtn');
-    const hpBtn = document.querySelector('.upgrade-btn[onclick*="health"]');
-    const manaBtn = document.querySelector('.upgrade-btn[onclick*="mana"]');
-    const isDice = currentCharacter === 'dice';
-    const isMG = CHARACTERS[currentCharacter].isMachineGun;
-    const sk = CHARACTERS[currentCharacter];
-
-    if (isMG || isDice || sk.lockDmgUpgrade) {
-        dmgBtn.classList.add('disabled-upgrade');
-        dmgBtn.textContent = isDice ? '🎲 Damage Locked (Dice!)' : isMG ? '🔒 Damage Locked (MG)' : '🔒 Damage Locked';
-        dmgBtn.onclick = () => {};
-    } else {
-        dmgBtn.classList.remove('disabled-upgrade');
-        dmgBtn.textContent = '⚔️ +5 Damage';
-        dmgBtn.onclick = () => upgrade('damage');
-    }
-
-    if (isDice) {
-        manaBtn.classList.add('disabled-upgrade');
-        manaBtn.textContent = '🎲 Mana Locked (Dice!)';
-        manaBtn.onclick = () => {};
-    } else {
-        manaBtn.classList.remove('disabled-upgrade');
-        manaBtn.textContent = '💧 +20 Max Mana';
-        manaBtn.onclick = () => upgrade('mana');
-    }
-
-    if (hpBtn) {
-        if (sk.lockHpUpgrade) {
-            hpBtn.classList.add('disabled-upgrade');
-            hpBtn.textContent = '🔒 HP Locked';
-            hpBtn.onclick = () => {};
+    // ── Generic randomised level up ──
+    const sk = CHARACTERS[currentCharacter] || {};
+    const opts = _pickLevelUpOptions(sk, 3);
+    const notice = document.getElementById('levelUpNotice');
+    notice.innerHTML = `
+        <h2>⬆️ LEVEL UP!</h2>
+        <p style="font-size:10px;margin-bottom:18px;color:rgba(255,255,255,0.5);">Choose your upgrade - Level ${player.level}</p>
+    `;
+    opts.forEach(opt => {
+        const rarityColor = RARITY_COLORS[opt.rarity] || '#94a3b8';
+        const rarityLabel = RARITY_LABELS[opt.rarity] || '';
+        const isMythic = opt.rarity === 'mythic';
+        const btn = document.createElement('button');
+        btn.className = 'upgrade-btn';
+        if (isMythic) {
+            btn.style.cssText = `
+                border: 2px solid #ffd700;
+                background: linear-gradient(135deg, rgba(255,215,0,0.08), rgba(255,165,0,0.12));
+                position:relative; text-align:left; padding-left:18px;
+                box-shadow: 0 0 18px rgba(255,215,0,0.45), inset 0 0 12px rgba(255,215,0,0.06);
+                animation: mythicPulse 1.4s ease-in-out infinite;
+            `;
         } else {
-            hpBtn.classList.remove('disabled-upgrade');
-            hpBtn.textContent = '❤️ +30 Max Health';
-            hpBtn.onclick = () => upgrade('health');
+            btn.style.cssText = `border-left: 4px solid ${rarityColor}; background: rgba(255,255,255,0.04); position:relative; text-align:left; padding-left:18px;`;
         }
-    }
-
-    document.getElementById('levelUpNotice').classList.add('show');
+        btn.innerHTML = `
+            <span style="position:absolute;top:7px;right:10px;font-size:8px;color:${rarityColor};font-weight:bold;letter-spacing:1px;${isMythic?'text-shadow:0 0 8px #ffd700;':''}">${rarityLabel}</span>
+            <span style="font-size:18px;margin-right:8px;">${opt.icon}</span>${opt.label}
+        `;
+        btn.onclick = () => {
+            document.querySelectorAll('#levelUpNotice .upgrade-btn').forEach(b => { b.style.pointerEvents='none'; b.style.opacity='0.5'; });
+            btn.style.opacity='1'; btn.style.borderColor='#fbbf24'; btn.style.background='rgba(251,191,36,0.1)';
+            setTimeout(() => {
+                try { opt.apply(); } catch(e){ console.warn('LevelUp apply error:', e); }
+                restoreLevelUpHTML();
+                document.getElementById('levelUpNotice').classList.remove('show');
+                resumeJackpotMusic();
+                gameRunning=true; updateHUD(); requestAnimationFrame(gameLoop);
+            }, 220);
+        };
+        notice.appendChild(btn);
+    });
+    notice.classList.add('show');
 }
+
+function rerollLevelUpOptions() {
+    const notice = document.getElementById('levelUpNotice');
+    const sk = CHARACTERS[currentCharacter] || {};
+    const opts = _pickLevelUpOptions(sk, 3);
+
+    // Clear everything except the heading
+    notice.innerHTML = `
+        <h2>⬆️ LEVEL UP!</h2>
+        <p style="font-size:10px;margin-bottom:18px;color:rgba(255,255,255,0.5);">Choose your upgrade - Level ${player.level}</p>
+    `;
+
+    opts.forEach(opt => {
+        const rarityColor = RARITY_COLORS[opt.rarity] || '#94a3b8';
+        const rarityLabel = RARITY_LABELS[opt.rarity] || '';
+        const isMythic = opt.rarity === 'mythic';
+        const btn = document.createElement('button');
+        btn.className = 'upgrade-btn';
+        if (isMythic) {
+            btn.style.cssText = `border: 2px solid #ffd700; background: linear-gradient(135deg, rgba(255,215,0,0.08), rgba(255,165,0,0.12)); position:relative; text-align:left; padding-left:18px; box-shadow: 0 0 18px rgba(255,215,0,0.45), inset 0 0 12px rgba(255,215,0,0.06); animation: mythicPulse 1.4s ease-in-out infinite;`;
+        } else {
+            btn.style.cssText = `border-left: 4px solid ${rarityColor}; background: rgba(255,255,255,0.04); position:relative; text-align:left; padding-left:18px;`;
+        }
+        btn.innerHTML = `
+            <span style="position:absolute;top:7px;right:10px;font-size:8px;color:${rarityColor};font-weight:bold;letter-spacing:1px;${isMythic?'text-shadow:0 0 8px #ffd700;':''}">${rarityLabel}</span>
+            <span style="font-size:18px;margin-right:8px;">${opt.icon}</span>${opt.label}
+        `;
+        btn.onclick = () => {
+            document.querySelectorAll('#levelUpNotice .upgrade-btn').forEach(b => { b.style.pointerEvents='none'; b.style.opacity='0.5'; });
+            btn.style.opacity='1'; btn.style.borderColor='#fbbf24'; btn.style.background='rgba(251,191,36,0.1)';
+            setTimeout(() => {
+                try { opt.apply(); } catch(e){ console.warn('LevelUp apply error:', e); }
+                restoreLevelUpHTML();
+                notice.classList.remove('show');
+                resumeJackpotMusic();
+                gameRunning=true; updateHUD(); requestAnimationFrame(gameLoop);
+            }, 220);
+        };
+        notice.appendChild(btn);
+    });
+}
+
 
 function restoreLevelUpHTML() {
     const notice = document.getElementById('levelUpNotice');
     notice.innerHTML = `
-        <h2>LEVEL UP!</h2>
+        <h2>⬆️ LEVEL UP!</h2>
         <p style="font-size:9px;margin-bottom:18px;">Choose an upgrade:</p>
-        <button class="upgrade-btn" onclick="upgrade('health')">❤️ +30 Max Health</button>
-        <button class="upgrade-btn" id="damageUpgradeBtn" onclick="upgrade('damage')">⚔️ +5 Damage</button>
-        <button class="upgrade-btn" onclick="upgrade('speed')">💨 +1 Speed</button>
-        <button class="upgrade-btn" onclick="upgrade('mana')">💧 +20 Max Mana</button>
-        <div style="margin-top:14px;">
-            <button onclick="fixButtons()" style="background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.35);border:1px dashed rgba(255,255,255,0.2);padding:6px 14px;border-radius:5px;cursor:pointer;font-size:11px;font-family:inherit;">🔧 Click this if buttons are not clickable</button>
-        </div>
     `;
 }
 
@@ -8519,7 +8873,7 @@ function navFindPath(sx, sy, ex, ey) {
     if (start.c === end.c && start.r === end.r) return null;
 
     const key = (c, r) => r * navCols + c;
-    // Octile distance heuristic — consistent & admissible for 8-directional movement
+    // Octile distance heuristic - consistent & admissible for 8-directional movement
     const D = 1, D2 = 1.414;
     const h = (c, r) => {
         const dx = Math.abs(c - end.c), dy = Math.abs(r - end.r);
@@ -8573,7 +8927,7 @@ function navFindPath(sx, sy, ex, ey) {
         closed.add(cur.k);
 
         if (cur.c === end.c && cur.r === end.r) {
-            // Reconstruct path — exclude start cell (enemy is already there)
+            // Reconstruct path - exclude start cell (enemy is already there)
             const path = [];
             let k = cur.k;
             while (cameFrom.has(k)) {
@@ -8623,7 +8977,7 @@ function navStringPull(waypoints, startX, startY) {
             if (!navRayBlocked(cx, cy, waypoints[j].wx, waypoints[j].wy)) {
                 furthest = j;
             }
-            // Don't break — a later waypoint might still be visible around the corner
+            // Don't break - a later waypoint might still be visible around the corner
         }
         result.push(waypoints[furthest]);
         cx = waypoints[furthest].wx;
@@ -9549,7 +9903,7 @@ function tickLuffy(dt) {
             floatMoneyText('🐍 Rapid Rifle ended!');
         }
     }
-    // Gear progression — 60s per gear
+    // Gear progression - 60s per gear
     if(luffyGear >= 4) return;
     luffyGearTimer += dt;
     if(luffyGearTimer >= LUFFY_GEAR_TIME) {
@@ -9779,7 +10133,6 @@ function gameLoop(ts){
     }
 
     drawWalls();
-    drawNavDebug();
 
     spawnIndicators = spawnIndicators.filter(ind => {
         if(ind.delay > 0) { ind.delay -= dt; return true; }
@@ -9803,8 +10156,10 @@ function gameLoop(ts){
         return true;
     });
 
-    runPlayTime += (16.667 / 1000);
-    if(Math.floor(runPlayTime) > Math.floor(runPlayTime - (16.667/1000))) {
+    const _ptDelta = rawDt / 1000;
+    const _ptPrev = runPlayTime;
+    runPlayTime += _ptDelta;
+    if(Math.floor(runPlayTime) > Math.floor(_ptPrev)) {
         totalPlayTimeSaved++;
         saveHQ();
         if(gameRunning) { checkHonored(); }
@@ -9959,7 +10314,7 @@ function gameLoop(ts){
             player._gridMoveTimer = 0;
         }
     } else {
-        if(mx||my){const m=Math.sqrt(mx*mx+my*my);const bSpd=passiveState.berserkerActive?1.5:1;const ghSpd=CHARACTERS[currentCharacter].isGoldHoarder?GH_SPEED_MULT:1;const biomeSpd=1+biomeSpeedBonus;const teSlow=player._theEnemySlowMult!==undefined?player._theEnemySlowMult:1;const webSlow=playerWebSlowTimer>0?0.4:1;player.x+=(mx/m)*player.speed*dt*bSpd*ghSpd*biomeSpd*teSlow*webSlow;player.y+=(my/m)*player.speed*dt*bSpd*ghSpd*biomeSpd*teSlow*webSlow;}
+        if(mx||my){const m=Math.sqrt(mx*mx+my*my);const bSpd=passiveState.berserkerActive?1.5:1;const ghSpd=CHARACTERS[currentCharacter].isGoldHoarder?GH_SPEED_MULT:1;const biomeSpd=1+biomeSpeedBonus;const teSlow=player._theEnemySlowMult!==undefined?player._theEnemySlowMult:1;const webSlow=playerWebSlowTimer>0?0.4:1;const momBonus=passiveState.momentum?(passiveState.momentumBonus||0):0;player.x+=(mx/m)*(player.speed+momBonus)*dt*bSpd*ghSpd*biomeSpd*teSlow*webSlow;player.y+=(my/m)*(player.speed+momBonus)*dt*bSpd*ghSpd*biomeSpd*teSlow*webSlow;}
     }
     player.x=Math.max(player.radius,Math.min(canvas.width-player.radius,player.x));
     player.y=Math.max(player.radius,Math.min(canvas.height-player.radius,player.y));
@@ -10398,6 +10753,7 @@ function gameLoop(ts){
         return proj.alive;
     });
     enemies=enemies.filter(e=>{if(!e.alive)return false;e.update(dt);if(e.alive)e.draw();return e.alive;});
+    drawZaFrozenLabels();
     tickSpecialEnemies(dt);
     updateTheEnemy(dt);
     
@@ -11208,8 +11564,8 @@ function applySettings() {
 
 const GFX_PRESETS = {
     high:   { particleCap: 350, shadows: true,  grid: true,  bgAlpha: 0.72, desc:'Full effects, good visuals.' },
-    medium: { particleCap: 120, shadows: false, grid: false, bgAlpha: 0.80, desc:'Balanced — no shadows/grid. Good for mid-range devices.' },
-    low:    { particleCap: 0,   shadows: false, grid: false, bgAlpha: 0.90, desc:'Performance mode — no particles or shadows. Best for waves 500+.' },
+    medium: { particleCap: 120, shadows: false, grid: false, bgAlpha: 0.80, desc:'Balanced - no shadows/grid. Good for mid-range devices.' },
+    low:    { particleCap: 0,   shadows: false, grid: false, bgAlpha: 0.90, desc:'Performance mode - no particles or shadows. Best for waves 500+.' },
 };
 
 function getGfx() { return GFX_PRESETS[settings.graphics] || GFX_PRESETS.high; }
@@ -11718,6 +12074,10 @@ document.addEventListener('keydown',e=>{
         if(k === 'z') luffyZAbility();
         if(k === 'x') luffyXAbility();
         if(k === 'c') luffyCAbility();
+    }
+    // ZA WARUDOOO - B key
+    if(k === 'b' && gameRunning && passiveState.zaWarudoUnlocked) {
+        zaWarudoActivate();
     }
 });
 document.addEventListener('keyup',e=>{
@@ -12262,9 +12622,9 @@ const CHAR_INFO = {
             { label:'R (hold 7s)', value:'MAHORAGAH (requires Wave 100+): invulnerable during summon, becomes white sphere, 4x DMG, 160px AoE on every hit (75% splash), speed drops to 3, HP surges to 500, 45s duration, 60% damage reduction. Speed & HP revert when Mahoragah fades.' },
             { label:'Unlock', value:'Complete all 5 Megumi quests' },
         ],
-        abilities:`<b>Divine Dogs:</b> Tap R (costs 35 CE) to summon three dogs — White, Black, and Shadow. They chase and bite enemies in melee (45% damage) or fire shadow projectiles at range (up to 280px). Each pack lasts 15 seconds.<br><br><b>Mahoragah (Wave 100+ Required):</b> Hold R for 7 full seconds — a charge bar fills above your character. Release early and the bar drains. Once fully charged, you are invulnerable while the summoning audio plays. Once transformed into a glowing white sphere: 4x damage, every projectile detonates a 160px AoE explosion for 75% of hit damage, speed drops to 3, max HP becomes 500 (topped up on transform), and you take 60% reduced damage. Lasts 45 seconds. When Mahoragah fades, speed returns to 6 and HP cap returns to 140.`,
-        playstyle:'Tap R to spam dogs and deal consistent DPS while building up CE. Survive to Wave 100, then look for a safe moment to hold R for 7 seconds — Mahoragah turns you into a screen-clearing white sphere. You move slower but hit like a freight train and take 60% less damage, making you extremely tanky during the form.',
-        tip:'🐺 Tip: You need Wave 100 before Mahoragah unlocks — use dogs aggressively to build CE while surviving early waves. Once Mahoragah is active, play around your slow speed (3) by staying near the centre and letting enemies come to you — the 160px AoE will clear them before they reach you.',
+        abilities:`<b>Divine Dogs:</b> Tap R (costs 35 CE) to summon three dogs - White, Black, and Shadow. They chase and bite enemies in melee (45% damage) or fire shadow projectiles at range (up to 280px). Each pack lasts 15 seconds.<br><br><b>Mahoragah (Wave 100+ Required):</b> Hold R for 7 full seconds - a charge bar fills above your character. Release early and the bar drains. Once fully charged, you are invulnerable while the summoning audio plays. Once transformed into a glowing white sphere: 4x damage, every projectile detonates a 160px AoE explosion for 75% of hit damage, speed drops to 3, max HP becomes 500 (topped up on transform), and you take 60% reduced damage. Lasts 45 seconds. When Mahoragah fades, speed returns to 6 and HP cap returns to 140.`,
+        playstyle:'Tap R to spam dogs and deal consistent DPS while building up CE. Survive to Wave 100, then look for a safe moment to hold R for 7 seconds - Mahoragah turns you into a screen-clearing white sphere. You move slower but hit like a freight train and take 60% less damage, making you extremely tanky during the form.',
+        tip:'🐺 Tip: You need Wave 100 before Mahoragah unlocks - use dogs aggressively to build CE while surviving early waves. Once Mahoragah is active, play around your slow speed (3) by staying near the centre and letting enemies come to you - the 160px AoE will clear them before they reach you.',
     },
 
     luffy: {
@@ -12281,20 +12641,20 @@ const CHAR_INFO = {
             { label:'Price', value:'$1,000,000 LIMITED' },
         ],
         abilities:`<b>Passive Observation Haki:</b> 35% dodge on every incoming hit. Non-kills get knocked back. G3+ hits apply 2x knockback + 2s freeze.<br><br>
-<b>R — Arm Haki (30s cd, 10s duration):</b> Black coating — 1.5x damage AND 1.5x damage reduction!<br><br>
+<b>R - Arm Haki (30s cd, 10s duration):</b> Black coating - 1.5x damage AND 1.5x damage reduction!<br><br>
 <b>Z per Gear:</b><br>
-🔴 <b>G1:</b> Guma Bazooka — 22.5 dmg, 2x KB (25s cd)<br>
-🩷 <b>G2:</b> Jet Headbutt — dash+hit 25 dmg 3x KB self-stun 2s (50s cd)<br>
-🟠 <b>G3:</b> Giant Battle Axe — 50% HP of all nearby (500 to bosses), 5s stun (40s cd)<br>
-🟣 <b>G4-BM:</b> Massive Pistol — 50 dmg slam closest enemy to wall + 3s stun (40s cd)<br>
-🟣 <b>G4-SM:</b> Rapid Rifle — 10 shots/s for 10 seconds (250 total dmg, 60s cd)<br>
-⭐ <b>G5:</b> Crumbs of Liberation — full HP regen (30s cd)<br><br>
+🔴 <b>G1:</b> Guma Bazooka - 22.5 dmg, 2x KB (25s cd)<br>
+🩷 <b>G2:</b> Jet Headbutt - dash+hit 25 dmg 3x KB self-stun 2s (50s cd)<br>
+🟠 <b>G3:</b> Giant Battle Axe - 50% HP of all nearby (500 to bosses), 5s stun (40s cd)<br>
+🟣 <b>G4-BM:</b> Massive Pistol - 50 dmg slam closest enemy to wall + 3s stun (40s cd)<br>
+🟣 <b>G4-SM:</b> Rapid Rifle - 10 shots/s for 10 seconds (250 total dmg, 60s cd)<br>
+⭐ <b>G5:</b> Crumbs of Liberation - full HP regen (30s cd)<br><br>
 <b>X per Gear:</b><br>
-🔴 <b>G1:</b> Gatling — 3x fire speed 0.5x dmg 5s (125 total, 20s cd)<br>
-🩷 <b>G2:</b> Jet Gatling — 6x fire speed 0.4x dmg 5s (200 total, 35s cd)<br>
-🟠 <b>G3:</b> Giant Bazooka — 20 dmg slam all to walls + 3s stun (30s cd)<br><br>
-<b>C — Conqueror's Haki (60s cd):</b> Freeze enemies in 360px for 5s. G5: entire screen perma-stunned!`,
-        playstyle:'An evolving fighter who gets dramatically stronger every 60 seconds. G1 is weak — survive! G2 doubles your speed. G3 staggers everything with knockback+stun. G4 is random: Bounce Man = massive knockback / breaks walls. Snake Man = insane rapid fire. G5 Toon Force is near-unstoppable: 30 DMG base, CoC stuns all, Z is a full heal.',
+🔴 <b>G1:</b> Gatling - 3x fire speed 0.5x dmg 5s (125 total, 20s cd)<br>
+🩷 <b>G2:</b> Jet Gatling - 6x fire speed 0.4x dmg 5s (200 total, 35s cd)<br>
+🟠 <b>G3:</b> Giant Bazooka - 20 dmg slam all to walls + 3s stun (30s cd)<br><br>
+<b>C - Conqueror's Haki (60s cd):</b> Freeze enemies in 360px for 5s. G5: entire screen perma-stunned!`,
+        playstyle:'An evolving fighter who gets dramatically stronger every 60 seconds. G1 is weak - survive! G2 doubles your speed. G3 staggers everything with knockback+stun. G4 is random: Bounce Man = massive knockback / breaks walls. Snake Man = insane rapid fire. G5 Toon Force is near-unstoppable: 30 DMG base, CoC stuns all, Z is a full heal.',
         tip:'⚓ Use Arm Haki R before every Z/X/C combo for maximum damage. CoC + Arm Haki at once is your strongest burst. At G5, X Wall Grab can squeeze enemies. Rapid Rifle in G4-SM shreds bosses!',
     },
 
@@ -12694,7 +13054,7 @@ function saveRun(slot) {
     if (!gameRunning && !gamePaused) return;
     const save = _buildSaveObject();
     localStorage.setItem(RUN_SLOT_KEYS[slot - 1], JSON.stringify(save));
-    floatMoneyText('💾 Saved to Slot ' + slot + ' — Wave ' + currentRound);
+    floatMoneyText('💾 Saved to Slot ' + slot + ' - Wave ' + currentRound);
     checkRunSave();
     closeSlotPicker();
 }
@@ -12703,7 +13063,7 @@ function loadRun(slot) {
     const save = getRunSlot(slot);
     if (!save) return;
 
-    // Silently switch to the saved character — the slot card already shows who it belongs to
+    // Silently switch to the saved character - the slot card already shows who it belongs to
     if (save.character !== currentCharacter) {
         currentCharacter = save.character;
         savePersistentData();
