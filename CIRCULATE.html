@@ -30,53 +30,6 @@
         }
         #fsBtn:hover { background: rgba(59,130,246,0.3); }
 
-        #loginScreen {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-        }
-        #loginContainer {
-            background: rgba(0,0,0,0.9);
-            border-radius: 8px;
-            padding: 60px;
-            text-align: center;
-            border: 3px solid rgba(59,130,246,0.5);
-            box-shadow: 0 0 50px rgba(59,130,246,0.3);
-            max-width: 400px;
-            width: 90%;
-        }
-        #loginContainer h1 {
-            font-size: 36px;
-            margin-bottom: 20px;
-            color: #3b82f6;
-            text-shadow: 3px 3px 0px #1e3a8a;
-            font-weight: bold;
-        }
-        #loginForm, #registerForm {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-        #loginForm input, #registerForm input {
-            background: rgba(255,255,255,0.08);
-            border: 2px solid rgba(255,255,255,0.2);
-            color: white;
-            padding: 12px 16px;
-            border-radius: 6px;
-            font-family: 'Arial', sans-serif;
-            font-size: 13px;
-            transition: all 0.2s;
-        }
-        #loginForm input:focus, #registerForm input:focus {
-            outline: none;
-            border-color: #3b82f6;
-            background: rgba(59,130,246,0.15);
-            box-shadow: 0 0 20px rgba(59,130,246,0.3);
-        }
-        #loginForm input::placeholder, #registerForm input::placeholder {
-            color: rgba(255,255,255,0.4);
-        }
 
         #mainMenu {
             background: rgba(0,0,0,0.9); border-radius: 8px; padding: 60px;
@@ -478,6 +431,7 @@
         #characterShop::-webkit-scrollbar-thumb { background: #3b82f6; border-radius: 4px; }
         #characterShop h2 { font-size: 28px; color: #3b82f6; margin-bottom: 30px; text-align: center; font-weight: bold; }
         .character-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; margin-bottom: 30px; }
+        .character-card { background: rgba(255,255,255,0.05); border: 2px solid rgba(255,255,255,0.15); border-radius: 10px; padding: 16px 12px 12px; cursor: pointer; transition: transform 0.15s, border-color 0.15s; text-align: center; position: relative; display: flex; flex-direction: column; }
         .character-card:hover { transform: scale(1.04); border-color: #3b82f6; }
         .character-card.selected { border-color: #22c55e; box-shadow: 0 0 20px rgba(34,197,94,0.4); }
         .character-card.locked { opacity: 0.5; cursor: not-allowed; }
@@ -1512,7 +1466,88 @@
     </div>
 </div>
 
-<!-- ===== LOADING SCREEN ===== -->
+<!-- ===== MODS MODAL ===== -->
+<div id="modsModal" style="display:none;position:fixed;inset:0;z-index:9100;background:rgba(0,0,0,0.88);justify-content:center;align-items:center;">
+    <div style="background:#0a1a0f;border:3px solid rgba(5,150,105,0.7);border-radius:14px;padding:32px 36px;max-width:780px;width:96%;max-height:90vh;overflow-y:auto;position:relative;box-shadow:0 0 60px rgba(5,150,105,0.3);scrollbar-width:none;">
+        <button onclick="closeModsMenu()" style="position:absolute;top:14px;right:18px;background:none;border:none;color:rgba(255,255,255,0.4);font-size:22px;cursor:pointer;line-height:1;">✕</button>
+        <h2 style="font-size:22px;color:#34d399;margin:0 0 4px;font-weight:bold;">🧩 Mods</h2>
+        <p style="font-size:11px;color:rgba(255,255,255,0.35);margin:0 0 22px;">Use AI to generate custom characters or enemies, then paste the code to install them.</p>
+
+        <!-- TABS -->
+        <div style="display:flex;gap:8px;margin-bottom:20px;">
+            <button onclick="modsTab('create')" id="modsTabCreate" style="padding:8px 18px;border-radius:6px;border:none;font-size:12px;font-weight:bold;font-family:inherit;cursor:pointer;background:#059669;color:white;border-bottom:3px solid #065f46;">✨ Create</button>
+            <button onclick="modsTab('install')" id="modsTabInstall" style="padding:8px 18px;border-radius:6px;border:none;font-size:12px;font-weight:bold;font-family:inherit;cursor:pointer;background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.6);border-bottom:3px solid transparent;">📦 Install Mod</button>
+            <button onclick="modsTab('manage')" id="modsTabManage" style="padding:8px 18px;border-radius:6px;border:none;font-size:12px;font-weight:bold;font-family:inherit;cursor:pointer;background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.6);border-bottom:3px solid transparent;">⚙️ Manage Mods</button>
+        </div>
+
+        <!-- CREATE TAB -->
+        <div id="modsTabCreateContent">
+            <div style="background:rgba(5,150,105,0.07);border:1px solid rgba(5,150,105,0.25);border-radius:10px;padding:18px 20px;margin-bottom:16px;">
+                <div style="font-size:13px;font-weight:bold;color:#34d399;margin-bottom:6px;">Create a Mod</div>
+                <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-bottom:14px;">Copy the prompt below and paste it into ChatGPT. Then paste the JSON you get back into the <b style="color:#34d399;">Install Mod</b> tab.</div>
+                <div style="display:flex;gap:10px;margin-bottom:14px;">
+                    <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;color:rgba(255,255,255,0.7);">
+                        <input type="radio" name="modType" value="character" checked onchange="refreshModPrompt()" style="accent-color:#34d399;"> Custom Character
+                    </label>
+                    <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;color:rgba(255,255,255,0.7);">
+                        <input type="radio" name="modType" value="enemy" onchange="refreshModPrompt()" style="accent-color:#34d399;"> Custom Enemy
+                    </label>
+                </div>
+
+                <!-- Customisation options (shown for both types) -->
+                <div id="modCharOptions" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:14px;margin-bottom:14px;">
+                    <div style="font-size:11px;font-weight:bold;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">✏️ Customise (optional)</div>
+                    <div id="modThemeRow" style="margin-bottom:10px;">
+                        <label style="font-size:11px;color:rgba(255,255,255,0.5);display:block;margin-bottom:4px;" id="modThemeLabel">Character concept / theme</label>
+                        <input id="modCustomTheme" type="text" placeholder='e.g. "ice wizard", "ninja", "friendly robot"'
+                            oninput="refreshModPrompt()"
+                            style="width:100%;background:#0d1117;border:1px solid rgba(255,255,255,0.15);color:#e2e8f0;border-radius:6px;padding:8px 10px;font-size:12px;font-family:inherit;outline:none;box-sizing:border-box;">
+                    </div>
+                    <div>
+                        <label style="font-size:11px;color:rgba(255,255,255,0.5);display:block;margin-bottom:4px;" id="modAbilityLabel">R special — describe what you want it to do</label>
+                        <textarea id="modCustomAbility" rows="3"
+                            placeholder='e.g. "freeze all enemies for 3 seconds", "fire 8 homing missiles", "teleport to the mouse cursor and deal damage nearby"'
+                            oninput="refreshModPrompt()"
+                            style="width:100%;background:#0d1117;border:1px solid rgba(255,255,255,0.15);color:#e2e8f0;border-radius:6px;padding:8px 10px;font-size:12px;font-family:inherit;outline:none;resize:vertical;box-sizing:border-box;"></textarea>
+                    </div>
+                </div>
+
+                <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;">
+                    <a href="https://chat.openai.com" target="_blank" style="background:#10a37f;color:white;padding:8px 18px;border-radius:6px;font-size:12px;font-weight:bold;font-family:inherit;text-decoration:none;border-bottom:3px solid #0d7a60;">↗ Open ChatGPT</a>
+                    <button onclick="copyModPrompt()" style="background:#1d4ed8;color:white;border:none;border-bottom:3px solid #1e3a8a;padding:8px 18px;border-radius:6px;font-size:12px;font-weight:bold;font-family:inherit;cursor:pointer;">📋 Copy Prompt</button>
+                </div>
+                <textarea id="modGeneratedCode" readonly style="width:100%;min-height:220px;background:#0d1117;border:1.5px solid rgba(5,150,105,0.4);color:#86efac;border-radius:8px;padding:12px;font-size:11px;font-family:monospace;resize:vertical;outline:none;box-sizing:border-box;"></textarea>
+            </div>
+            <!-- kept for compatibility -->
+            <div id="modGenerateResult" style="display:none;"></div>
+            <div id="modGenerateLoading" style="display:none;"></div>
+            <div id="modPromptInput" style="display:none;"></div>
+            <div id="modPromptHint" style="display:none;"></div>
+            <div id="modGenerateBtn" style="display:none;"></div>
+        </div>
+
+        <!-- INSTALL TAB -->
+        <div id="modsTabInstallContent" style="display:none;">
+            <div style="background:rgba(5,150,105,0.07);border:1px solid rgba(5,150,105,0.25);border-radius:10px;padding:18px 20px;">
+                <div style="font-size:13px;font-weight:bold;color:#34d399;margin-bottom:8px;">Paste mod code here</div>
+                <div style="font-size:11px;color:rgba(255,255,255,0.35);margin-bottom:12px;">Paste the JSON code you got from the AI (or the Create tab) to install it as a mod.</div>
+                <textarea id="modInstallInput" placeholder='Paste mod JSON code here...' style="width:100%;min-height:160px;background:#0d1117;border:1.5px solid rgba(5,150,105,0.35);color:#86efac;border-radius:8px;padding:12px;font-size:11px;font-family:monospace;resize:vertical;outline:none;box-sizing:border-box;"></textarea>
+                <div style="display:flex;gap:8px;margin-top:12px;align-items:center;">
+                    <button onclick="installModFromInput()" style="background:#059669;color:white;border:none;border-bottom:3px solid #065f46;padding:10px 24px;border-radius:7px;font-size:13px;font-weight:bold;font-family:inherit;cursor:pointer;">📦 Install Mod</button>
+                    <div id="modInstallStatus" style="font-size:12px;color:rgba(255,255,255,0.4);"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MANAGE TAB -->
+        <div id="modsTabManageContent" style="display:none;">
+            <div id="modsManageList"></div>
+            <div id="modsManageEmpty" style="text-align:center;padding:40px 0;color:rgba(255,255,255,0.25);font-size:13px;">No mods installed yet. Use the Create or Install tab to add one.</div>
+        </div>
+    </div>
+</div>
+
+
 <div id="loadingScreen">
     <div id="loadingInner">
         <div id="loadingTitle">⚔️ CIRCULATE ⚔️</div>
@@ -1540,6 +1575,7 @@
     </div>
     <div style="margin-top: 8px; display: flex; gap: 8px; justify-content: center;">
         <button class="menu-btn" onclick="openBestiary()" style="background:#dc2626;border-bottom-color:#991b1b;min-width:120px;padding:10px 16px;font-size:12px;">📖 Learn About the Enemies</button>
+        <button class="menu-btn" onclick="openModsMenu()" style="background:#059669;border-bottom-color:#065f46;min-width:120px;padding:10px 16px;font-size:12px;">🧩 Mods</button>
         <button class="menu-btn" onclick="openCredits()" style="background:#7c3aed;border-bottom-color:#4c1d95;min-width:120px;padding:10px 16px;font-size:12px;">🎖️ Credits</button>
     </div>
     <input type="file" id="importFileInput" accept=".bsave,.jackpot" style="display:none;" onchange="handleImportFile(event)">
@@ -2347,6 +2383,7 @@
     /* ---------- fade out loading screen, then reveal menu ---------- */
     function finishLoading() {
         const screen = document.getElementById('loadingScreen');
+        if (!screen) { revealMenu(); return; }
         screen.style.opacity = '0';
         setTimeout(() => {
             screen.style.display = 'none';
@@ -2357,6 +2394,7 @@
     /* ---------- reveal the main menu with typing effects ---------- */
     function revealMenu() {
         const menu = document.getElementById('mainMenu');
+        if (!menu) return;
 
         /* 1. Fade in the menu container */
         menu.style.transition = 'opacity 0.4s ease';
@@ -3358,6 +3396,7 @@ function openWaveShop(wave) {
     buildShopOffer();
     document.getElementById('shopWaveLabel').textContent = `Wave ${wave} survived! Spend your run gold wisely.`;
     const el = document.getElementById('waveShop');
+    if (!el) return;
     el.style.display = 'block';
     renderShop();
     setTimeout(()=>el.classList.add('show'), 10);
@@ -4758,7 +4797,9 @@ function updateBiomeColors() {
 
 function showBiomeIndicator() {
     const indicator = document.getElementById('biomeIndicator');
-    if(document.getElementById('gameContainer').style.display === 'block') {
+    const gc = document.getElementById('gameContainer');
+    if (!indicator || !gc) return;
+    if(gc.style.display === 'block') {
         indicator.style.display = 'block';
     }
 }
@@ -6330,7 +6371,12 @@ function spawnWave(){
             if(currentRound >= 32) typePool.push('echo');
             if(currentRound >= 38) typePool.push('void_rift');
             if(currentRound >= 35) typePool.push('mirror_e');
+            // Add eligible mod enemies to the pool
+            const modEnemyIds = getModEnemiesForPool();
+            modEnemyIds.forEach(id => typePool.push(id));
             const type = typePool[Math.floor(Math.random()*typePool.length)];
+            // If a mod enemy was selected, spawn it and skip normal construction
+            if (modEnemyIds.includes(type)) { spawnModEnemy(type); return; }
             const e=new Enemy(spawnX,spawnY,type);const stats=getEnemyStats(type);
             e.health=stats.health;e.maxHealth=stats.health;e.speed=stats.speed;e.damage=stats.damage;
 
@@ -6461,7 +6507,6 @@ function updateTheEnemy(dt) {
 
     
     const darkness = document.getElementById('theEnemyDarkness');
-    const hf = document.getElementById('theEnemyHeartflash');
     if (darkness) darkness.style.opacity = (theEnemyHorror * 0.82).toFixed(3);
     theEnemyCamZoom = 1 + theEnemyHorror * 1.8;
 
@@ -7653,6 +7698,29 @@ function specialAttack(){
             for(let i=0;i<60;i++) particles.push(new Particle(player.x,player.y,'#1a1a1a'));
             floatMoneyText('🖤 ARM HAKI! 1.5x DMG + 1.5x DEF! 10s!');
             playSound(80,0.15,'sawtooth'); playSound(160,0.1,'sine');
+            break;
+        }
+        case 'mod_custom': {
+            if (sk._isModChar && sk._abilityCode) {
+                try {
+                    const _modFn = new Function(
+                        'player','enemies','particles','Particle','Projectile',
+                        'projectiles','canvas','floatMoneyText','damageEnemy',
+                        'gainExp','handleKill','updateHUD','playSound',
+                        'applyPassiveDamageBoost','mousePos',
+                        sk._abilityCode
+                    );
+                    _modFn(
+                        player, enemies, particles, Particle, Projectile,
+                        projectiles, canvas, floatMoneyText, damageEnemy,
+                        gainExp, handleKill, updateHUD, playSound,
+                        applyPassiveDamageBoost, mousePos
+                    );
+                } catch(err) {
+                    floatMoneyText('\u26a0\ufe0f Ability error: ' + err.message);
+                    console.error('Mod ability error:', err);
+                }
+            }
             break;
         }
     } // close switch
@@ -9416,6 +9484,13 @@ function resetGame(){
     rougeSquareTileShield = false;
     rougeSquareGoldBonus = 1;
     rougeSquareSawDmgMult = 1;
+    // Apply mod character stats if current character is a mod
+    if (CHARACTERS[currentCharacter] && CHARACTERS[currentCharacter]._isModChar) {
+        const mc = CHARACTERS[currentCharacter];
+        player.maxHealth = mc._startHP; player.health = mc._startHP;
+        player.speed = mc._startSpeed;
+        player.damage = mc._startDamage;
+    }
     document.getElementById('deathFeed').innerHTML='';updateHUD();
 }
 
@@ -10784,6 +10859,7 @@ function gameLoop(ts){
         return proj.alive;
     });
     enemies=enemies.filter(e=>{if(!e.alive)return false;e.update(dt);if(e.alive)e.draw();return e.alive;});
+    tickModEnemies(dt);
     drawZaFrozenLabels();
     tickSpecialEnemies(dt);
     updateTheEnemy(dt);
@@ -12041,6 +12117,8 @@ function applyDarkwoodVisionEffect() {
 
 document.addEventListener('keydown',e=>{
     if(listeningFor) return;
+    const tag = document.activeElement && document.activeElement.tagName;
+    if(tag === 'INPUT' || tag === 'TEXTAREA') return;
     const k = e.key.toLowerCase();
     keys[k] = true;
     if((k === binds.pause || k === 'escape' || k === 'p') && (gameRunning || gamePaused) && !shopOpen) {
@@ -12112,6 +12190,8 @@ document.addEventListener('keydown',e=>{
     }
 });
 document.addEventListener('keyup',e=>{
+    const tag = document.activeElement && document.activeElement.tagName;
+    if(tag === 'INPUT' || tag === 'TEXTAREA') return;
     keys[e.key.toLowerCase()]=false;
     if(e.key.toLowerCase() === 'f') fKeyHeld = false;
     if(e.key.toLowerCase() === binds.special && currentCharacter === 'megumi') {
@@ -12229,6 +12309,7 @@ function startInteractiveTutorial(){
     tutorialActive = true;
     tutorialStep = 0;
     const overlay = document.getElementById('tutorialOverlay');
+    if (!overlay) return;
     overlay.style.display = 'flex';
     applyTutorialStep();
 }
@@ -12895,6 +12976,12 @@ function updateShopDisplay(){
     document.querySelectorAll('.character-card').forEach(card => {
         card.classList.remove('selected', 'locked');
         card.style.opacity = '';
+    });
+
+    // Handle mod character card selected state
+    document.querySelectorAll('[data-mod-char]').forEach(card => {
+        const charId = card.id.replace('Character', '');
+        if (charId === currentCharacter) card.classList.add('selected');
     });
 
     Object.entries(characterIds).forEach(([skinName, cardId]) => {
@@ -13653,15 +13740,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-document.addEventListener('DOMContentLoaded', () => {
-    const codeInput = document.getElementById('codeInput');
-    if (codeInput) {
-        codeInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') submitCode();
-        });
-    }
-});
-
 const MASTERY_DATA = {
     default: {
         name:'War Veteran',
@@ -14281,9 +14359,488 @@ _creditsSlideAudio.volume = 0.3;
 const CREDITS_SLIDE_DURATION = 16000; 
 let _creditsStopTimer = null;
 
+// ===================== MODS SYSTEM =====================
+let _installedMods = JSON.parse(localStorage.getItem('circulateMods') || '[]');
+
+function saveModsToStorage() {
+    localStorage.setItem('circulateMods', JSON.stringify(_installedMods));
+}
+
+function openModsMenu() {
+    modsTab('create');
+    document.getElementById('modsModal').style.display = 'flex';
+    refreshModPrompt();
+}
+
+function closeModsMenu() {
+    document.getElementById('modsModal').style.display = 'none';
+}
+
+function modsTab(tab) {
+    ['create','install','manage'].forEach(t => {
+        const tabId = 'modsTab' + t.charAt(0).toUpperCase() + t.slice(1);
+        const btn = document.getElementById(tabId);
+        const content = document.getElementById(tabId + 'Content');
+        if (btn) {
+            btn.style.background = t === tab ? '#059669' : 'rgba(255,255,255,0.07)';
+            btn.style.color = t === tab ? 'white' : 'rgba(255,255,255,0.6)';
+            btn.style.borderBottomColor = t === tab ? '#065f46' : 'transparent';
+        }
+        if (content) content.style.display = t === tab ? 'block' : 'none';
+    });
+    if (tab === 'manage') renderModsManageList();
+    if (tab === 'create') refreshModPrompt();
+}
+
+function getModPromptText(type, customTheme, customAbility) {
+    if (type === 'character') {
+        return `You are a mod generator for CIRCULATE — a top-down bullet-hell arena survival game where the player controls a colored ball fighting endless waves of enemies on a walled canvas. Characters each have a unique visual identity, stat profile, and one signature ability bound to the R key (and optionally a passive or toggle on the E key).
+
+GAME CONTEXT YOU MUST UNDERSTAND:
+- The player ball moves with WASD and aims/shoots toward the mouse cursor.
+- Each wave spawns more and harder enemies. Surviving longer is the core loop.
+- Mana regenerates over time and is spent on the R ability.
+- The base fire rate is ~200ms. Speed 3 is average; 5 feels fast, 1.5 feels sluggish.
+- 100 HP is the standard. Tank has 500 HP. Scout has 60 HP.
+- Damage 10 is weak, 20 is standard, 50+ is high-cost specialist.
+- Characters are bought with persistent gold earned across runs.
+
+EXISTING CHARACTERS FOR REFERENCE (do NOT duplicate these):
+• Scout – 60 HP, speed 5.5, damage 8. Passive: dodge chance. R: Triple Shot burst.
+• Tank – 500 HP, speed 2, damage 50. No ranged attack. R: Ground Slam shockwave.
+• Cyborg – 100 HP, speed 3.5, dual fire modes (Rapid/Heavy toggled with E). R: 360° Laser Sweep.
+• Gambler – 100 HP. R: Domain Expansion (safe zone + jackpot system for ULTRA REGEN buff).
+• Boxer – Melee only, no projectiles. R: Massive punch.
+• Architect – 100 HP. R: Summons turrets or roaming robots (mode toggled with E).
+• One Punch – 11 HP, 10 billion damage. R: Omnipotent (full heal + kill all enemies instantly).
+
+YOUR TASK: Generate a single creative custom CHARACTER as a JSON object with EXACTLY these fields:
+- id: unique snake_case string (e.g. "void_monk")
+- name: display name (e.g. "Void Monk")
+- color: hex color of the player ball (e.g. "#7c3aed")
+- shadow: slightly darker hex for the drop shadow (e.g. "#4c1d95")
+- projColor: hex color of the projectiles this character fires (e.g. "#c4b5fd")
+- hp: max health — balance relative to speed/damage (e.g. 120)
+- speed: movement speed 1–6 (e.g. 3.2)
+- damage: base projectile damage 5–30, or 0 if melee/no projectiles (e.g. 14)
+- ability: a short internal id string for the R ability (e.g. "shadow_burst") — this is for flavor only, use any snake_case name
+- manaCost: mana cost to activate R ability, 0–80 (e.g. 35)
+- cdMax: cooldown in frames at 60fps after the ability fires, 0 = no cooldown (e.g. 300)
+- desc: 1–2 sentence flavor description of the character's identity and playstyle
+- abilityDesc: 2–4 sentence mechanical description of EXACTLY what the R ability does, written clearly so a player knows what to expect (include damage numbers, durations, area of effect, etc.)
+- icon: single emoji representing the character (e.g. "🌑")
+- unlockCost: persistent gold cost to unlock in the shop, 0 = free (e.g. 2500)
+- abilityCode: JavaScript function body string that runs when R is pressed (see below)
+- isCustomMod: true
+- type: "character"
+- infoStats: array of {label, value} objects shown in the INFO panel (2–6 entries, e.g. [{"label":"HP","value":"120"},{"label":"Fire Rate","value":"200ms"},{"label":"Mana Cost","value":"35"}])
+- infoAbilities: HTML string for the INFO panel abilities section — use <b> for headers, <br> for line breaks. Describe ALL abilities in detail including damage numbers, durations, and effects.
+- infoPlaystyle: 1–2 sentence plain-text description of how to play this character effectively.
+- infoTip: A single practical tip starting with 💡 Tip:
+
+ABILITY CODE INSTRUCTIONS (abilityCode field):
+Write a JavaScript function BODY (no function declaration — just the code inside) that implements the R ability.
+The following variables are available to use directly:
+  player        — { x, y, health, maxHealth, mana, maxMana, speed, damage, radius, kills }
+  enemies       — array of live Enemy objects with { x, y, health, maxHealth, speed, damage, radius, alive, frozen }
+  particles     — array you can push new Particle(x, y, '#hexcolor') into for visual effects
+  Particle      — constructor: new Particle(x, y, colorHexString)
+  Projectile    — constructor: new Projectile(x, y, angle, damage, colorHex, isSpecial)
+  projectiles   — array you can push new Projectile(...) into
+  canvas        — { width, height }
+  floatMoneyText(str) — show a floating message on screen (e.g. '💥 BLAST!')
+  damageEnemy(enemy, amount, sourceX, sourceY) — deal damage to an enemy
+  gainExp(amount) — grant player XP
+  handleKill(enemy) — call after setting enemy.alive=false to register the kill
+  updateHUD()   — refresh the HUD display
+  playSound(frequency, volume, type) — play a beep. type: 'sine','square','sawtooth'
+  applyPassiveDamageBoost(baseDmg) — returns damage after passive modifiers
+  mousePos      — { x, y } — current mouse/aim position
+
+EXAMPLE abilityCode values:
+  Shockwave blast: "enemies.forEach(e=>{const d=Math.hypot(e.x-player.x,e.y-player.y);if(d<200){damageEnemy(e,player.damage*3,player.x,player.y);if(e.health<=0&&e.alive){e.alive=false;player.kills++;gainExp(e.expValue||10);handleKill(e);}}});for(let i=0;i<60;i++)particles.push(new Particle(player.x,player.y,'#a78bfa'));floatMoneyText('💜 VOID BURST!');playSound(200,0.12,'sine');"
+  Speed burst: "const prev=player.speed;player.speed*=2.5;setTimeout(()=>{player.speed=prev;},4000);for(let i=0;i<40;i++)particles.push(new Particle(player.x,player.y,'#facc15'));floatMoneyText('⚡ SPEED SURGE! 4s!');playSound(440,0.1,'square');"
+  Freeze all: "enemies.forEach(e=>{e.frozen=240;for(let i=0;i<6;i++)particles.push(new Particle(e.x,e.y,'#bfdbfe'));});floatMoneyText('❄️ DEEP FREEZE! 4s!');playSound(300,0.08,'sine');"
+
+Keep the abilityCode compact (one line or a few semicolon-separated statements). Use the examples as a guide for style.
+Set ability: "mod_custom" when you provide abilityCode.
+
+DESIGN GUIDELINES:
+- Be creative and thematic — tie the ability to the character's visual identity.
+- Balance the character: high HP = lower speed or damage; high damage = lower HP or higher mana cost.
+- The ability should feel impactful and fun: area attacks, buffs, summons, transformations, and utility all work.
+- Avoid copying existing characters. Invent something genuinely new.
+- abilityDesc must describe concrete game effects (not vague flavor text).
+- Always include abilityCode — this is what actually makes the ability work in-game.
+${customTheme ? `\nUSER REQUEST — CHARACTER THEME: "${customTheme}"\nBase the character's name, color, icon, and desc around this theme.` : ''}${customAbility ? `\nUSER REQUEST — R SPECIAL ABILITY: "${customAbility}"\nImplement this as the R ability. Set abilityDesc and abilityCode to match this behaviour exactly. Be faithful to what the user described.` : ''}
+
+Return ONLY a single valid JSON object. No markdown, no code fences, no explanation, no preamble. Just the raw JSON.`;
+    } else {
+        return `You are a mod generator for CIRCULATE — a top-down bullet-hell arena survival game. The player (a colored ball) fights waves of enemies on a rectangular walled canvas. Enemies spawn from the edges and attack the player. Waves get harder over time — later waves have stronger, faster, and more numerous enemies.
+
+GAME CONTEXT YOU MUST UNDERSTAND:
+- Enemies move across a 2D canvas and deal damage by touching the player (contact damage per tick at ~60fps).
+- HP 200 is a standard normal enemy. HP 10,000 is a boss. HP 150 is a fast fragile threat.
+- Speed 2 is average. Speed 3.5 is fast and threatening. Speed 5+ is extremely dangerous.
+- Radius 15px is a standard enemy circle. Radius 10px is small/fast. Radius 30px is a large elite.
+- Contact damage ~10/tick is standard. Bosses deal ~20/tick. Fragile fast enemies deal ~6–8/tick.
+- "round" controls earliest wave appearance: round 1 = spawns immediately, round 5+ = mid-game threat, round 15+ = late-game elite.
+
+EXISTING ENEMY TYPES FOR REFERENCE (do NOT duplicate these):
+• Normal – basic chaser, red circle, speed ~2.5, 200 HP, 10 dmg, radius 15.
+• Triangle – faster fragile purple triangle, speed 3.5, 150 HP, 12 dmg, radius 12.
+• Boss – massive red circle, 10,000 HP, speed 1.5, 20 dmg, radius 30.
+• Shielder – has a rotating front shield that blocks projectiles, chases player.
+• Splitter – splits into 2 mini-splitters on death.
+• Healer – slowly heals nearby enemies over time.
+• Bomber – proximity fuse, explodes for AoE damage when near player.
+• Phantom – phases in and out of visibility; nearly invisible while phasing.
+• Sniper – stays at range and fires slow high-damage projectiles at player.
+• Berserker – speeds up drastically as its HP drops.
+• Puller – emits a gravity pulse that drags the player toward it.
+• Charger – winds up then launches a high-speed charge dash at the player.
+• TimeBomb – slow-moving, explodes in a large AoE after a long fuse timer.
+• Leech – attaches to the player and drains HP over time.
+• Guardian – orbits and protects a nearby weaker enemy, intercepting bullets.
+• Golem – very large, very slow, very tanky. Faces the player and barely moves.
+• Dasher – repeatedly dashes toward the player with afterimage trail.
+• Magnet – pulls the player's bullets off-course toward itself.
+• Webber – fires sticky webs that slow player movement.
+• Silencer – disables the player's ability to use R while it is alive.
+• Mimic – disguises itself as a pickup item until the player gets close.
+• Echo – periodically creates a ghost copy of itself that also attacks.
+• Void Rift – stationary; continuously spawns small weaker enemies.
+• Swarm – tiny, spawns in massive groups of 10+, individually very weak.
+
+BEHAVIOR TYPES:
+- "chase": directly pursues the player at all times (most common)
+- "strafe": circles around the player while slowly closing distance
+- "ranged": keeps distance and fires projectiles at the player
+- "stationary": does not move, but may have other effects (spawning, pulsing, etc.)
+
+YOUR TASK: Generate a single creative custom ENEMY as a JSON object with EXACTLY these fields:
+- id: unique snake_case string (e.g. "crystal_wraith")
+- name: display name (e.g. "Crystal Wraith")
+- color: hex color of the enemy circle (e.g. "#67e8f9")
+- hp: base health on wave 1 — scales with later waves automatically (e.g. 280)
+- speed: movement speed 1–5 (e.g. 2.2)
+- damage: contact damage per tick at 60fps (e.g. 8)
+- radius: visual size in pixels, 10–30 (e.g. 16)
+- round: earliest wave number this enemy can appear (e.g. 6)
+- behavior: one of "chase", "strafe", "ranged", "stationary"
+- desc: 2–3 sentence bestiary-style description explaining what makes this enemy dangerous and how a player should react to it
+- icon: single emoji representing this enemy (e.g. "🔷")
+- abilityCode: (optional) JavaScript function body that runs on a timer as the enemy's special ability (see below)
+- abilityCooldownSeconds: (optional) how many seconds between each ability trigger (e.g. 3.5). Default is 4.
+- isCustomMod: true
+- type: "enemy"
+
+ABILITY CODE INSTRUCTIONS (abilityCode field — optional but encouraged):
+Write a JavaScript function BODY (no function declaration) for a repeating ability the enemy uses in combat.
+The following variables are available:
+  enemy         — this enemy object: { x, y, health, maxHealth, speed, damage, radius, color, alive }
+  player        — { x, y, health, maxHealth, speed, damage, radius }
+  enemies       — all live enemies on screen
+  particles     — push new Particle(x, y, '#hexcolor') for effects
+  Particle      — constructor
+  Projectile    — constructor: new Projectile(x, y, angle, damage, colorHex, isSpecial)
+  projectiles   — push new Projectile(...) to fire a shot at the player
+  canvas        — { width, height }
+  floatMoneyText(str) — show floating text on screen
+  damageEnemy(e, amount, sx, sy) — damage another enemy
+  playSound(freq, vol, type)    — 'sine', 'square', 'sawtooth'
+  mousePos      — { x, y }
+
+EXAMPLE abilityCode values:
+  Fire a shot at the player: "const angle=Math.atan2(player.y-enemy.y,player.x-enemy.x);const p=new Projectile(enemy.x,enemy.y,angle,enemy.damage*2,enemy.color,false);p.speed=5;projectiles.push(p);for(let i=0;i<8;i++)particles.push(new Particle(enemy.x,enemy.y,enemy.color));playSound(300,0.06,'sine');"
+  Heal itself: "enemy.health=Math.min(enemy.maxHealth,enemy.health+20);for(let i=0;i<12;i++)particles.push(new Particle(enemy.x+(Math.random()-.5)*30,enemy.y+(Math.random()-.5)*30,'#4ade80'));floatMoneyText('💚 '+enemy.name+' healed!');"
+  Explode nearby enemies away: "const blast=80;enemies.forEach(other=>{if(other===enemy||!other.alive)return;const d=Math.hypot(other.x-enemy.x,other.y-enemy.y);if(d<blast){const a=Math.atan2(other.y-enemy.y,other.x-enemy.x);other.x+=Math.cos(a)*40;other.y+=Math.sin(a)*40;}});for(let i=0;i<20;i++)particles.push(new Particle(enemy.x,enemy.y,'#f97316'));playSound(180,0.08,'square');"
+  Dash toward player: "const angle=Math.atan2(player.y-enemy.y,player.x-enemy.x);enemy.x+=Math.cos(angle)*120;enemy.y+=Math.sin(angle)*120;for(let i=0;i<15;i++)particles.push(new Particle(enemy.x,enemy.y,enemy.color));playSound(400,0.07,'sawtooth');"
+
+DESIGN GUIDELINES:
+- Invent a genuinely unique threat that fills a different niche from existing enemies.
+- The desc should give the player tactical information — what is the danger and how do you counter it?
+- Balance stats appropriately: if high HP, reduce speed; if very fast, reduce HP and radius.
+- "round" should reflect difficulty — easy enemies appear early, elite/boss-tier appear after round 10+.
+- Be creative with flavor: name, color, and icon should form a cohesive visual identity.
+- If you include abilityCode, set abilityCooldownSeconds to a sensible value (2–8 seconds).
+${customTheme ? `\nUSER REQUEST — ENEMY THEME: "${customTheme}"\nBase the enemy's name, color, icon, and desc around this theme.` : ''}${customAbility ? `\nUSER REQUEST — SPECIAL ABILITY: "${customAbility}"\nImplement this as the abilityCode. Be faithful to what the user described.` : ''}
+
+Return ONLY a single valid JSON object. No markdown, no code fences, no explanation, no preamble. Just the raw JSON.`;
+    }
+}
+
+function refreshModPrompt() {
+    const type = document.querySelector('input[name="modType"]:checked').value;
+    const isChar = type === 'character';
+    const themeLabel = document.getElementById('modThemeLabel');
+    const abilityLabel = document.getElementById('modAbilityLabel');
+    const themeInput = document.getElementById('modCustomTheme');
+    const abilityInput = document.getElementById('modCustomAbility');
+    if (themeLabel) themeLabel.textContent = isChar ? 'Character concept / theme' : 'Enemy concept / theme';
+    if (abilityLabel) abilityLabel.textContent = isChar ? 'R special — describe what you want it to do' : 'Special ability — describe what the enemy does periodically';
+    if (themeInput) themeInput.placeholder = isChar ? '"ice wizard", "ninja", "friendly robot"' : '"ancient tree spirit", "shadow clone", "electric jellyfish"';
+    if (abilityInput) abilityInput.placeholder = isChar
+        ? '"freeze all enemies for 3 seconds", "fire 8 homing missiles", "teleport to the mouse cursor"'
+        : '"fires 3 shots at the player every 4s", "heals itself 20 HP every 5s", "dashes toward player"';
+    const theme = (themeInput?.value || '').trim();
+    const ability = (abilityInput?.value || '').trim();
+    document.getElementById('modGeneratedCode').value = getModPromptText(type, theme, ability);
+}
+
+function updateModPromptHint() { refreshModPrompt(); }
+function buildModPrompt() { refreshModPrompt(); }
+
+function copyModPrompt() {
+    const text = document.getElementById('modGeneratedCode').value;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(() => floatMoneyText('📋 Prompt copied!')).catch(() => copyModPromptFallback(text));
+    } else {
+        copyModPromptFallback(text);
+    }
+}
+function copyModPromptFallback(text) {
+    const ta = document.getElementById('modGeneratedCode');
+    ta.select();
+    ta.setSelectionRange(0, 99999);
+    try {
+        document.execCommand('copy');
+        floatMoneyText('📋 Prompt copied!');
+    } catch(e) {
+        floatMoneyText('⚠️ Press Ctrl+A then Ctrl+C to copy!');
+    }
+}
+
+function installGeneratedMod() {
+    const code = document.getElementById('modGeneratedCode').value;
+    tryInstallMod(code);
+}
+
+function installModFromInput() {
+    const code = document.getElementById('modInstallInput').value.trim();
+    tryInstallMod(code);
+}
+
+function tryInstallMod(raw) {
+    const status = document.getElementById('modInstallStatus');
+    try {
+        const mod = JSON.parse(raw.replace(/```json|```/g, '').trim());
+        if (!mod.id || !mod.name) throw new Error('Missing required fields (id, name)');
+
+        // Check for duplicate
+        const existing = _installedMods.findIndex(m => m.id === mod.id);
+        if (existing >= 0) {
+            _installedMods[existing] = { ...mod, enabled: _installedMods[existing].enabled ?? true };
+            floatMoneyText(`🔄 Mod "${mod.name}" updated!`);
+        } else {
+            _installedMods.push({ ...mod, enabled: true });
+            floatMoneyText(`✅ Mod "${mod.name}" installed!`);
+        }
+        saveModsToStorage();
+        applyActiveMods();
+        if (status) { status.textContent = `✅ "${mod.name}" installed!`; status.style.color = '#34d399'; }
+        document.getElementById('modInstallInput').value = '';
+        setTimeout(() => modsTab('manage'), 600);
+    } catch(e) {
+        if (status) { status.textContent = '❌ Invalid mod code. Make sure it\'s valid JSON.'; status.style.color = '#f87171'; }
+        floatMoneyText('❌ Invalid mod code!');
+    }
+}
+
+function renderModsManageList() {
+    const list = document.getElementById('modsManageList');
+    const empty = document.getElementById('modsManageEmpty');
+    if (_installedMods.length === 0) {
+        list.innerHTML = '';
+        empty.style.display = 'block';
+        return;
+    }
+    empty.style.display = 'none';
+    list.innerHTML = _installedMods.map((mod, i) => `
+        <div style="background:rgba(255,255,255,0.04);border:1.5px solid ${mod.enabled ? 'rgba(5,150,105,0.4)' : 'rgba(255,255,255,0.08)'};border-radius:10px;padding:14px 18px;margin-bottom:10px;display:flex;align-items:center;gap:14px;">
+            <div style="font-size:26px;flex-shrink:0;">${mod.icon || '🧩'}</div>
+            <div style="flex:1;min-width:0;">
+                <div style="font-size:13px;font-weight:bold;color:${mod.enabled ? '#34d399' : 'rgba(255,255,255,0.4)'};">${mod.name} <span style="font-size:9px;color:rgba(255,255,255,0.25);background:rgba(255,255,255,0.07);padding:2px 6px;border-radius:8px;margin-left:4px;">${mod.isCustomMod ? (mod.type === 'character' ? 'CHARACTER' : 'ENEMY') : 'MOD'}</span></div>
+                <div style="font-size:10px;color:rgba(255,255,255,0.4);margin-top:3px;font-family:monospace;">${mod.desc || ''}</div>
+            </div>
+            <div style="display:flex;gap:6px;flex-shrink:0;">
+                <button onclick="toggleMod(${i})" style="background:${mod.enabled ? 'rgba(5,150,105,0.2)' : 'rgba(255,255,255,0.07)'};color:${mod.enabled ? '#34d399' : 'rgba(255,255,255,0.4)'};border:1px solid ${mod.enabled ? 'rgba(5,150,105,0.5)' : 'rgba(255,255,255,0.15)'};padding:6px 12px;border-radius:6px;cursor:pointer;font-size:11px;font-weight:bold;font-family:inherit;">${mod.enabled ? '✅ On' : '⭕ Off'}</button>
+                <button onclick="exportMod(${i})" style="background:rgba(29,78,216,0.15);color:#93c5fd;border:1px solid rgba(29,78,216,0.3);padding:6px 10px;border-radius:6px;cursor:pointer;font-size:11px;font-family:inherit;" title="Copy mod code">📋</button>
+                <button onclick="deleteMod(${i})" style="background:rgba(220,38,38,0.1);color:#f87171;border:1px solid rgba(220,38,38,0.3);padding:6px 10px;border-radius:6px;cursor:pointer;font-size:13px;font-family:inherit;" title="Delete mod">🗑</button>
+            </div>
+        </div>
+    `).join('');
+}
+
+function toggleMod(i) {
+    _installedMods[i].enabled = !_installedMods[i].enabled;
+    saveModsToStorage();
+    applyActiveMods();
+    renderModsManageList();
+    floatMoneyText(_installedMods[i].enabled ? `✅ ${_installedMods[i].name} enabled` : `⭕ ${_installedMods[i].name} disabled`);
+}
+
+function exportMod(i) {
+    const code = JSON.stringify(_installedMods[i], null, 2);
+    navigator.clipboard.writeText(code).then(() => floatMoneyText('📋 Mod code copied!'));
+}
+
+function deleteMod(i) {
+    const name = _installedMods[i].name;
+    _installedMods.splice(i, 1);
+    saveModsToStorage();
+    applyActiveMods();
+    renderModsManageList();
+    floatMoneyText(`🗑️ "${name}" deleted`);
+}
+
+function applyActiveMods() {
+    // Remove previously applied mod characters from CHARACTERS
+    Object.keys(CHARACTERS).forEach(k => { if (CHARACTERS[k]._isModChar) delete CHARACTERS[k]; });
+
+    // Remove old mod character cards from the UI
+    document.querySelectorAll('[data-mod-char]').forEach(el => el.remove());
+
+    // Apply enabled character mods
+    _installedMods.forEach(mod => {
+        if (!mod.enabled || !mod.isCustomMod) return;
+
+        if (mod.type === 'character') {
+            // Register in CHARACTERS data
+            CHARACTERS[mod.id] = {
+                name: mod.name,
+                color: mod.color || '#ef4444',
+                shadow: mod.shadow || '#7f1d1d',
+                projColor: mod.projColor || mod.color || '#f87171',
+                ability: mod.abilityCode ? 'mod_custom' : (mod.ability || 'none'),
+                manaCost: mod.manaCost || 0,
+                cdMax: mod.cdMax || 0,
+                _startHP: mod.hp || 100,
+                _startSpeed: mod.speed || 3,
+                _startDamage: mod.damage || 10,
+                _isModChar: true,
+                _abilityCode: mod.abilityCode || null,
+                icon: mod.icon || '🧩',
+                desc: mod.desc || '',
+                abilityDesc: mod.abilityDesc || '',
+                unlockCost: mod.unlockCost || 0,
+            };
+
+            // Auto-unlock mod characters
+            if (!unlockedCharacters.includes(mod.id)) {
+                unlockedCharacters.push(mod.id);
+                localStorage.setItem('ballRPGCharacters', JSON.stringify(unlockedCharacters));
+            }
+
+            // Register in CHAR_INFO so the INFO modal works
+            CHAR_INFO[mod.id] = {
+                name: mod.name,
+                tag: 'Custom Mod · ' + (mod.unlockCost ? '$' + mod.unlockCost : 'Free'),
+                icon: mod.icon || '🧩',
+                iconBg: 'linear-gradient(135deg,' + (mod.shadow || '#065f46') + ',' + (mod.color || '#34d399') + ')',
+                iconGlow: mod.color || '#34d399',
+                stats: (mod.infoStats && Array.isArray(mod.infoStats)) ? mod.infoStats : [
+                    { label: 'HP',     value: String(mod.hp || 100) },
+                    { label: 'Speed',  value: String(mod.speed || 3) },
+                    { label: 'Damage', value: String(mod.damage || 10) },
+                    { label: 'Mana Cost', value: String(mod.manaCost || 0) },
+                    { label: 'Cooldown', value: mod.cdMax ? Math.round(mod.cdMax / 60) + 's' : 'None' },
+                ],
+                abilities: mod.infoAbilities || ('<b>R: ' + (mod.ability || 'None') + '</b><br>' + (mod.abilityDesc || 'No ability description provided.')),
+                playstyle: mod.infoPlaystyle || mod.desc || '',
+                tip: mod.infoTip || ('💡 Custom mod character — ' + mod.name),
+            };
+
+            // Inject card into the existing character grid so it matches all other cards
+            const grid = document.querySelector('.character-grid');
+            if (grid) {
+                const card = document.createElement('div');
+                card.className = 'character-card';
+                card.id = mod.id + 'Character';
+                card.setAttribute('data-mod-char', '1');
+                const accentColor = mod.color || '#34d399';
+                const bgColor = mod.shadow || '#065f46';
+                card.style.borderColor = accentColor + '88';
+                card.onclick = () => selectCharacter(mod.id);
+                // Truncate desc to ~60 chars so the card stays the same size as built-in cards
+                const shortDesc = (mod.desc || '').length > 60 ? (mod.desc.slice(0, 57) + '…') : (mod.desc || '');
+                card.innerHTML = '<div class="character-preview" style="background:linear-gradient(135deg,' + bgColor + ',' + accentColor + ');box-shadow:0 0 20px ' + accentColor + '99;display:flex;align-items:center;justify-content:center;font-size:28px;">' + (mod.icon||'🧩') + '</div>'
+                    + '<div class="character-name" style="color:' + accentColor + ';">' + mod.name + ' <span style="font-size:8px;background:rgba(52,211,153,0.15);color:#34d399;padding:1px 4px;border-radius:3px;vertical-align:middle;">MOD</span></div>'
+                    + '<div class="character-ability">' + (mod.hp||100) + ' HP \u2022 Spd ' + (mod.speed||3) + ' \u2022 ' + (mod.damage||10) + ' DMG<br>' + shortDesc + '</div>'
+                    + '<div class="character-price" style="color:#34d399;margin-top:auto;">MOD \u2014 FREE</div>'
+                    + '<button class="info-btn" onclick="event.stopPropagation();showCharInfo(\'' + mod.id + '\')">INFO</button>';
+                grid.appendChild(card);
+            }
+        }
+        // Enemy mods are handled at spawn time via getModEnemiesForPool() / spawnModEnemy()
+    });
+
+    // Refresh shop display if open
+    if (typeof updateShopDisplay === 'function' && document.getElementById('characterShop')?.style.display !== 'none') {
+        updateShopDisplay();
+    }
+}
+
+function getModEnemiesForPool() {
+    return _installedMods.filter(m => m.enabled && m.isCustomMod && m.type === 'enemy' && m.round && currentRound >= m.round).map(m => m.id);
+}
+
+function spawnModEnemy(id) {
+    const mod = _installedMods.find(m => m.id === id);
+    if (!mod) return;
+    const side = Math.floor(Math.random()*4); let x,y;
+    if(side===0){x=Math.random()*canvas.width;y=-30;}
+    else if(side===1){x=canvas.width+30;y=Math.random()*canvas.height;}
+    else if(side===2){x=Math.random()*canvas.width;y=canvas.height+30;}
+    else{x=-30;y=Math.random()*canvas.height;}
+    const e = new Enemy(x, y, 'normal');
+    const em = getEndlessMult();
+    e.health = Math.round((mod.hp || 200) * em);
+    e.maxHealth = e.health;
+    e.speed = mod.speed || 2;
+    e.damage = Math.round((mod.damage || 10) * em);
+    e.radius = mod.radius || 15;
+    e.color = mod.color || '#ef4444';
+    e.name = mod.name;
+    e._isModEnemy = true;
+    e._modAbilityCode = mod.abilityCode || null;
+    e._modAbilityCooldown = 0;
+    e._modAbilityInterval = Math.round((mod.abilityCooldownSeconds || 4) * 60);
+    enemies.push(e);
+}
+
+function tickModEnemies(dt) {
+    enemies.forEach(e => {
+        if (!e._isModEnemy || !e._modAbilityCode || !e.alive) return;
+        e._modAbilityCooldown -= dt;
+        if (e._modAbilityCooldown > 0) return;
+        e._modAbilityCooldown = e._modAbilityInterval;
+        try {
+            const _fn = new Function(
+                'enemy','player','enemies','particles','Particle','Projectile',
+                'projectiles','canvas','floatMoneyText','damageEnemy',
+                'gainExp','handleKill','updateHUD','playSound','mousePos',
+                e._modAbilityCode
+            );
+            _fn(
+                e, player, enemies, particles, Particle, Projectile,
+                projectiles, canvas, floatMoneyText, damageEnemy,
+                gainExp, handleKill, updateHUD, playSound, mousePos
+            );
+        } catch(err) {
+            console.error('Mod enemy ability error:', err);
+        }
+    });
+}
+
+// Apply mods on load
+applyActiveMods();
+// ===================== END MODS SYSTEM =====================
+
 function openCredits() {
     const modal = document.getElementById('creditsModal');
     const box   = document.getElementById('creditsBox');
+    if (!modal || !box) return;
     modal.style.display = 'flex';
     box.style.animation = 'none';
     box.offsetHeight;
@@ -14302,12 +14859,12 @@ function openCredits() {
 }
 
 function closeCredits() {
-    
     clearTimeout(_creditsStopTimer);
     _creditsSlideAudio.pause();
     _creditsSlideAudio.currentTime = 0;
 
     const box = document.getElementById('creditsBox');
+    if (!box) return;
     box.style.animation = 'creditsSlideOut 0.3s ease-in forwards';
     setTimeout(() => {
         document.getElementById('creditsModal').style.display = 'none';
@@ -14325,7 +14882,8 @@ function setInputMode(touch) {
     _usingTouch = touch;
     const mc = document.getElementById('mobileControls');
     const pb = document.getElementById('mobBtnPause');
-    const inGame = document.getElementById('gameContainer').style.display === 'block';
+    const gc = document.getElementById('gameContainer');
+    const inGame = gc ? gc.style.display === 'block' : false;
     if (mc) mc.style.display = (touch && inGame) ? 'block' : 'none';
     if (pb) pb.style.display = (touch && inGame) ? 'flex' : 'none';
     handleOrientation();
@@ -14337,8 +14895,10 @@ const isMobile = () => navigator.maxTouchPoints > 0 || 'ontouchstart' in window;
 
 function handleOrientation() {
     const portrait = window.innerHeight > window.innerWidth;
-    const inGame   = document.getElementById('gameContainer').style.display === 'block';
+    const gameContainer = document.getElementById('gameContainer');
+    const inGame   = gameContainer ? gameContainer.style.display === 'block' : false;
     const overlay  = document.getElementById('portraitOverlay');
+    if (!overlay) return;
     if (portrait && inGame && _usingTouch) {
         overlay.style.display = 'flex';
     } else {
