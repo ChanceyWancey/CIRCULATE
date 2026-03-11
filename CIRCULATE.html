@@ -210,6 +210,20 @@
         #playMenuStartIcon { font-size: 28px; flex-shrink: 0; }
         #playMenuStartLabel { font-size: 15px; font-weight: bold; color: #93c5fd; margin-bottom: 3px; }
         #playMenuStartSub { font-size: 11px; color: rgba(255,255,255,0.4); font-family: monospace; }
+        #playMenuEndlessBtn {
+            width: 100%; background: linear-gradient(135deg,rgba(220,38,38,0.18),rgba(153,27,27,0.25));
+            border: 2px solid rgba(220,38,38,0.5); color: white;
+            border-radius: 10px; padding: 18px 22px; cursor: pointer;
+            display: flex; align-items: center; gap: 16px; text-align: left;
+            transition: all 0.2s; font-family: inherit; margin-top: 10px;
+        }
+        #playMenuEndlessBtn:hover {
+            background: linear-gradient(135deg,rgba(220,38,38,0.28),rgba(153,27,27,0.38));
+            border-color: rgba(220,38,38,0.8);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 20px rgba(220,38,38,0.25);
+        }
+        #playMenuEndlessBtn:active { transform: translateY(1px); }
 
         /* Save slot picker (shown in pause menu) */
         #slotPickerOverlay {
@@ -1486,6 +1500,13 @@
                     <div id="playMenuStartSub">Begin a fresh run with your selected character</div>
                 </div>
             </button>
+            <button id="playMenuEndlessBtn" onclick="startEndlessMode()">
+                <span style="font-size:28px;flex-shrink:0;">🔴</span>
+                <div>
+                    <div style="font-size:15px;font-weight:bold;color:#fca5a5;margin-bottom:3px;">Starts New Endless Run?</div>
+                    <div style="font-size:11px;color:rgba(255,255,255,0.4);font-family:monospace;">Enemies get 3x stronger every 100 waves. How far can you go?</div>
+                </div>
+            </button>
         </div>
     </div>
 </div>
@@ -2700,6 +2721,7 @@ const SKIN_URLS = {
 };
 
 let currentRound = 0, roundTimer = 0, killStreak = 0, sessionMoney = 0;
+let endlessMode = false;
 
 const PRICES = {
     default:0, goldhoarder:0, vampire:100, builder:100,
@@ -5857,34 +5879,36 @@ function getSpawnInterval(){
 }
 function getEnemyStats(type){
     const d=getDifficulty();
-    if(type==='boss')return{health:10000+d*2000,speed:1.5+d*0.1,damage:20+d*5};
-    if(type==='triangle')return{health:150,speed:3.5,damage:12};
-    if(type==='shielder')    return{health:350+d*80, speed:1.8+d*0.1, damage:15+d*3};
-    if(type==='splitter')    return{health:280+d*70, speed:2.5+d*0.1, damage:12+d*2};
-    if(type==='splitter_mini')return{health:120+d*30, speed:3.5+d*0.1, damage:8+d*1};
-    if(type==='healer')      return{health:200+d*50, speed:1.6+d*0.1, damage:5+d*1};
-    if(type==='bomber')      return{health:150+d*40, speed:3.2+d*0.2, damage:35+d*5};
-    if(type==='phantom_e')   return{health:250+d*60, speed:2.8+d*0.15,damage:15+d*3};
-    if(type==='sniper_e')    return{health:180+d*40, speed:1.8+d*0.1, damage:25+d*5};
-    if(type==='berserker_e') return{health:320+d*80, speed:2.0+d*0.1, damage:12+d*3};
-    if(type==='puller')      return{health:500+d*120,speed:0.9+d*0.05,damage:18+d*4};
-    if(type==='regen_e')     return{health:450+d*100,speed:1.8+d*0.1, damage:14+d*3};
-    if(type==='charger')   return{health:280+d*70, speed:2.0+d*0.1, damage:22+d*5};
-    if(type==='mirror_e')  return{health:200+d*50, speed:2.2+d*0.1, damage:13+d*3};
-    if(type==='timebomb')  return{health:999999,   speed:0.5,        damage:40+d*8};
-    if(type==='leech')     return{health:160+d*40, speed:3.0+d*0.15, damage:6+d*1};
-    if(type==='guardian')  return{health:700+d*150,speed:1.5+d*0.08, damage:20+d*4};
-    if(type==='golem')     return{health:600+d*120,speed:1.2+d*0.05, damage:18+d*4};
-    if(type==='dasher')    return{health:220+d*50, speed:2.2+d*0.1,  damage:14+d*3};
-    if(type==='boomerang') return{health:180+d*40, speed:4.5,        damage:16+d*3};
-    if(type==='swarm')     return{health:50+d*10,  speed:4.5+d*0.2,  damage:8+d*2};
-    if(type==='swarm_unit')return{health:40+d*8,   speed:5.0+d*0.2,  damage:7+d*1};
-    if(type==='magnet')    return{health:280+d*60, speed:1.5+d*0.08, damage:12+d*2};
-    if(type==='webber')    return{health:200+d*45, speed:2.0+d*0.1,  damage:10+d*2};
-    if(type==='silencer')  return{health:240+d*55, speed:2.8+d*0.12, damage:12+d*2};
-    if(type==='mimic')     return{health:180+d*40, speed:3.5+d*0.15, damage:20+d*4};
-    if(type==='echo')      return{health:260+d*60, speed:1.8+d*0.08, damage:15+d*3};
-    if(type==='void_rift') return{health:400+d*80, speed:0,          damage:8+d*2};
+    const em=getEndlessMult();
+    const eSpd=(s)=>Math.min(s*Math.pow(em,0.25),12);
+    if(type==='boss')return{health:Math.round((10000+d*2000)*em),speed:eSpd(1.5+d*0.1),damage:Math.round((20+d*5)*em)};
+    if(type==='triangle')return{health:Math.round(150*em),speed:eSpd(3.5),damage:Math.round(12*em)};
+    if(type==='shielder')    return{health:Math.round((350+d*80)*em), speed:eSpd(1.8+d*0.1), damage:Math.round((15+d*3)*em)};
+    if(type==='splitter')    return{health:Math.round((280+d*70)*em), speed:eSpd(2.5+d*0.1), damage:Math.round((12+d*2)*em)};
+    if(type==='splitter_mini')return{health:Math.round((120+d*30)*em), speed:eSpd(3.5+d*0.1), damage:Math.round((8+d*1)*em)};
+    if(type==='healer')      return{health:Math.round((200+d*50)*em), speed:eSpd(1.6+d*0.1), damage:Math.round((5+d*1)*em)};
+    if(type==='bomber')      return{health:Math.round((150+d*40)*em), speed:eSpd(3.2+d*0.2), damage:Math.round((35+d*5)*em)};
+    if(type==='phantom_e')   return{health:Math.round((250+d*60)*em), speed:eSpd(2.8+d*0.15),damage:Math.round((15+d*3)*em)};
+    if(type==='sniper_e')    return{health:Math.round((180+d*40)*em), speed:eSpd(1.8+d*0.1), damage:Math.round((25+d*5)*em)};
+    if(type==='berserker_e') return{health:Math.round((320+d*80)*em), speed:eSpd(2.0+d*0.1), damage:Math.round((12+d*3)*em)};
+    if(type==='puller')      return{health:Math.round((500+d*120)*em),speed:eSpd(0.9+d*0.05),damage:Math.round((18+d*4)*em)};
+    if(type==='regen_e')     return{health:Math.round((450+d*100)*em),speed:eSpd(1.8+d*0.1), damage:Math.round((14+d*3)*em)};
+    if(type==='charger')   return{health:Math.round((280+d*70)*em), speed:eSpd(2.0+d*0.1), damage:Math.round((22+d*5)*em)};
+    if(type==='mirror_e')  return{health:Math.round((200+d*50)*em), speed:eSpd(2.2+d*0.1), damage:Math.round((13+d*3)*em)};
+    if(type==='timebomb')  return{health:999999,   speed:eSpd(0.5),        damage:Math.round((40+d*8)*em)};
+    if(type==='leech')     return{health:Math.round((160+d*40)*em), speed:eSpd(3.0+d*0.15), damage:Math.round((6+d*1)*em)};
+    if(type==='guardian')  return{health:Math.round((700+d*150)*em),speed:eSpd(1.5+d*0.08), damage:Math.round((20+d*4)*em)};
+    if(type==='golem')     return{health:Math.round((600+d*120)*em),speed:eSpd(1.2+d*0.05), damage:Math.round((18+d*4)*em)};
+    if(type==='dasher')    return{health:Math.round((220+d*50)*em), speed:eSpd(2.2+d*0.1),  damage:Math.round((14+d*3)*em)};
+    if(type==='boomerang') return{health:Math.round((180+d*40)*em), speed:eSpd(4.5),        damage:Math.round((16+d*3)*em)};
+    if(type==='swarm')     return{health:Math.round((50+d*10)*em),  speed:eSpd(4.5+d*0.2),  damage:Math.round((8+d*2)*em)};
+    if(type==='swarm_unit')return{health:Math.round((40+d*8)*em),   speed:eSpd(5.0+d*0.2),  damage:Math.round((7+d*1)*em)};
+    if(type==='magnet')    return{health:Math.round((280+d*60)*em), speed:eSpd(1.5+d*0.08), damage:Math.round((12+d*2)*em)};
+    if(type==='webber')    return{health:Math.round((200+d*45)*em), speed:eSpd(2.0+d*0.1),  damage:Math.round((10+d*2)*em)};
+    if(type==='silencer')  return{health:Math.round((240+d*55)*em), speed:eSpd(2.8+d*0.12), damage:Math.round((12+d*2)*em)};
+    if(type==='mimic')     return{health:Math.round((180+d*40)*em), speed:eSpd(3.5+d*0.15), damage:Math.round((20+d*4)*em)};
+    if(type==='echo')      return{health:Math.round((260+d*60)*em), speed:eSpd(1.8+d*0.08), damage:Math.round((15+d*3)*em)};
+    if(type==='void_rift') return{health:Math.round((400+d*80)*em), speed:0,                damage:Math.round((8+d*2)*em)};
 
     let healthMult = 1, speedMult = 1, damageMult = 1;
     if(currentRound>=50 && currentRound<500) {
@@ -5911,10 +5935,15 @@ function getEnemyStats(type){
     }
 
     return{
-        health:Math.round((200+d*80)*healthMult),
-        speed:Math.min(2+Math.random()+d*0.15,6)*speedMult,
-        damage:Math.round((10+d*3)*damageMult)
+        health:Math.round((200+d*80)*healthMult*em),
+        speed:Math.min((2+Math.random()+d*0.15)*speedMult*Math.pow(em,0.25), 12),
+        damage:Math.round((10+d*3)*damageMult*em)
     };
+}
+
+function getEndlessMult() {
+    if (!endlessMode || currentRound < 100) return 1;
+    return Math.pow(3, Math.floor(currentRound / 100));
 }
 
 function shieldBlocks(e, srcX, srcY) {
@@ -10451,7 +10480,7 @@ function gameLoop(ts){
     ctx.textAlign='right';
     ctx.shadowColor = biomeColors.uiColor;
     ctx.shadowBlur = _shadowsEnabled ? 10 : 0;
-    ctx.fillText(`Wave ${currentRound} • Tier ${diff+1}`,canvas.width-12,22);
+    ctx.fillText(`Wave ${currentRound} • Tier ${diff+1}${endlessMode ? (currentRound>=100 ? ' ♾️ ×'+Math.pow(3,Math.floor(currentRound/100)).toFixed(0) : ' ♾️ ENDLESS') : ''}`,canvas.width-12,22);
     const sc=getSpawnCount();ctx.font='bold 11px Arial';ctx.fillStyle='rgba(255,255,255,0.85)';
     ctx.shadowColor = 'rgba(0,0,0,0.6)';ctx.shadowBlur = _shadowsEnabled ? 4 : 0;
     ctx.fillText(`${sc} enemy${sc>1?'s':''}/wave`,canvas.width-12,40);
@@ -12727,6 +12756,7 @@ function backToMenu(){
     hideSlotMachine();
     renderHQPanel();document.getElementById('tutorial').style.display='none';document.getElementById('characterShop').style.display='none';document.getElementById('questsPage').style.display='none';document.getElementById('moneyPopup').classList.remove('show');document.getElementById('mainMenu').style.display='block';updateMoneyDisplay();}
 function startGame(){
+    endlessMode = false;
     document.getElementById('mainMenu').style.display='none';
     document.getElementById('playMenu').style.display='none';
     document.getElementById('gameContainer').style.display='block';
@@ -12741,6 +12771,10 @@ function startGame(){
     mainTheme.currentTime = 0;
     fadeInMainTheme(1200);
     requestAnimationFrame(gameLoop);
+}
+function startEndlessMode(){
+    endlessMode = true;
+    startGame();
 }
 function backToMainMenu(){stopJackpotMusic();stopMainTheme();hideSlotMachine();document.getElementById('gameOver').style.display='none';document.getElementById('gameContainer').style.display='none';document.body.classList.remove('game-active');skinOverlay.style.display='none';document.getElementById('playMenu').style.display='none';document.getElementById('mainMenu').style.display='block';updateMoneyDisplay();const darkBM=document.getElementById('theEnemyDarkness');if(darkBM){darkBM.style.opacity='0';darkBM.style.display='none';}const cBM=document.getElementById('gameCanvas');if(cBM){cBM.style.transform='';}checkRunSave();}
 function updateMoneyDisplay(){document.getElementById('totalMoney').textContent=totalMoney;document.getElementById('shopMoney').textContent=totalMoney;}
@@ -13046,6 +13080,7 @@ function _buildSaveObject() {
         megumiKillStreak, megumiStreakReached,
         yujiSukunaFingers, yujiIsSukuna,
         glassCannAdrenaline, overloadCharges, gojoPhase,
+        endlessMode,
         ts: Date.now()
     };
 }
@@ -13109,6 +13144,7 @@ function loadRun(slot) {
     glassCannAdrenaline      = save.glassCannAdrenaline      || 0;
     overloadCharges          = save.overloadCharges          || 0;
     gojoPhase                = save.gojoPhase                || 0;
+    endlessMode              = save.endlessMode              || false;
     if (currentCharacter === 'gojo' || currentCharacter === 'the_strongest_today') applyGojoPhase();
 
     updateBiome(); updateBiomeColors(); showBiomeIndicator();
@@ -13172,6 +13208,22 @@ function renderPlayMenu() {
         const save  = getRunSlot(s);
         const slot  = document.createElement('div');
         slot.className = 'play-slot ' + (save ? 'occupied' : 'empty');
+        if (save && save.endlessMode) {
+            slot.style.background = 'rgba(220,38,38,0.08)';
+            slot.style.borderColor = 'rgba(220,38,38,0.35)';
+        }
+        slot.addEventListener('mouseenter', () => {
+            if (save && save.endlessMode) {
+                slot.style.background = 'rgba(220,38,38,0.16)';
+                slot.style.borderColor = 'rgba(220,38,38,0.65)';
+            }
+        });
+        slot.addEventListener('mouseleave', () => {
+            if (save && save.endlessMode) {
+                slot.style.background = 'rgba(220,38,38,0.08)';
+                slot.style.borderColor = 'rgba(220,38,38,0.35)';
+            }
+        });
 
         const slotNum = document.createElement('div');
         slotNum.className = 'play-slot-num';
@@ -13195,7 +13247,7 @@ function renderPlayMenu() {
             const info = document.createElement('div');
             info.className = 'play-slot-info';
             info.innerHTML = `
-                <div class="play-slot-title" style="color:${col}">${charName}</div>
+                <div class="play-slot-title" style="color:${col}">${charName}${save.endlessMode ? ' <span style="color:#fca5a5;font-size:10px;">♾️ ENDLESS</span>' : ''}</div>
                 <div class="play-slot-meta">
                     <span>🌊 Wave ${save.round || 0}</span>
                     <span>❤️ ${hp}/${maxHp}</span>
