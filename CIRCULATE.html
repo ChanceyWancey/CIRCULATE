@@ -92,6 +92,80 @@
         .menu-btn:hover { transform: translateY(-2px); background: #2563eb; }
         .menu-btn:active { transform: translateY(2px); border-bottom-width: 1px; }
         .currency-display { font-size: 20px; color: #fbbf24; margin: 20px 0; font-weight: bold; }
+
+        /* ===== LOADING SCREEN ===== */
+        #loadingScreen {
+            position: fixed; inset: 0; z-index: 99999;
+            background: linear-gradient(135deg, #0a0a1a 0%, #0d1526 50%, #0a1020 100%);
+            display: flex; align-items: center; justify-content: center;
+            transition: opacity 0.7s ease;
+        }
+        #loadingInner {
+            text-align: center; width: min(480px, 88vw);
+        }
+        #loadingTitle {
+            font-size: clamp(28px, 5vw, 48px);
+            font-weight: bold;
+            color: #3b82f6;
+            text-shadow: 0 0 30px rgba(59,130,246,0.6), 3px 3px 0px #1e3a8a;
+            margin-bottom: 48px;
+            letter-spacing: 1px;
+            animation: loadTitlePulse 2.5s ease-in-out infinite;
+        }
+        @keyframes loadTitlePulse {
+            0%,100% { text-shadow: 0 0 30px rgba(59,130,246,0.6), 3px 3px 0px #1e3a8a; }
+            50%      { text-shadow: 0 0 50px rgba(59,130,246,0.9), 3px 3px 0px #1e3a8a; }
+        }
+        #loadingMsg {
+            font-size: 13px; color: rgba(148,163,184,0.85);
+            font-family: 'Courier New', monospace;
+            letter-spacing: 0.5px;
+            height: 20px; margin-bottom: 20px;
+            transition: opacity 0.25s ease;
+        }
+        #loadingBarTrack {
+            width: 100%; height: 8px;
+            background: rgba(255,255,255,0.07);
+            border-radius: 4px;
+            overflow: hidden;
+            border: 1px solid rgba(59,130,246,0.2);
+        }
+        #loadingBarFill {
+            height: 100%; width: 0%;
+            background: linear-gradient(90deg, #1d4ed8, #3b82f6, #60a5fa);
+            border-radius: 4px;
+            transition: width 0.15s ease-out;
+            box-shadow: 0 0 12px rgba(59,130,246,0.5);
+            position: relative;
+        }
+        #loadingBarFill::after {
+            content: '';
+            position: absolute; top: 0; right: 0; bottom: 0;
+            width: 40px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.35));
+            border-radius: 4px;
+        }
+        #loadingPct {
+            font-size: 12px; color: rgba(96,165,250,0.7);
+            font-family: 'Courier New', monospace;
+            margin-top: 10px; letter-spacing: 1px;
+        }
+
+        /* ===== MENU REVEAL ANIMATIONS ===== */
+        .menu-reveal {
+            opacity: 0;
+            transition: opacity 0.35s ease;
+        }
+        #menuTitle.typing-active::after {
+            content: '|';
+            color: #3b82f6;
+            animation: menuCursorBlink 0.6s step-end infinite;
+            font-weight: 300;
+        }
+        @keyframes menuCursorBlink {
+            0%,100% { opacity: 1; }
+            50%      { opacity: 0; }
+        }
         #questsPage {
             display: none;
             background: rgba(0,0,0,0.95);
@@ -1236,9 +1310,22 @@
     </div>
 </div>
 
+
+<!-- ===== LOADING SCREEN ===== -->
+<div id="loadingScreen">
+    <div id="loadingInner">
+        <div id="loadingTitle">⚔️ CIRCULATE ⚔️</div>
+        <div id="loadingMsg">Preparing...</div>
+        <div id="loadingBarTrack">
+            <div id="loadingBarFill"></div>
+        </div>
+        <div id="loadingPct">0%</div>
+    </div>
+</div>
+
 <div id="mainMenu">
     <p style="font-family: 'Press Start 2P', monospace; font-size: 14px; color: #fbbf24; margin: 0 0 15px 0; opacity: 0.7;">The One Piece Is REAL?1</p>
-    <h1>⚔️ CIRCULATE ⚔️</h1>
+    <h1 id="menuTitle">⚔️ CIRCULATE ⚔️</h1>
     <div class="currency-display">💰 $<span id="totalMoney">0</span></div>
     <button class="menu-btn" onclick="showCharacterShop()">Characters</button>
     <button id="deleteRunSaveBtn" onclick="deleteRunSave()" style="display:none;background:rgba(220,38,38,0.12);border:1px solid rgba(220,38,38,0.35);color:rgba(255,120,120,0.7);font-size:10px;padding:4px 14px;border-radius:5px;cursor:pointer;margin-bottom:3px;font-family:inherit;">🗑️ Delete Run Save</button>
@@ -1285,8 +1372,36 @@
         <h2 style="font-size:20px;color:#60a5fa;margin:0 0 4px;font-weight:bold;">📋 Update Log</h2>
         <p style="font-size:11px;color:rgba(255,255,255,0.3);margin:0 0 24px;font-family:monospace;">CIRCULATE — patch notes</p>
         <div style="display:flex;flex-direction:column;gap:18px;">
+            <div style="border-left:3px solid #22d3ee;padding-left:16px;">
+                <div style="font-size:12px;font-weight:bold;color:#67e8f9;margin-bottom:2px;">🔵 Latest Patch</div>
+                <div style="font-size:10px;color:rgba(255,255,255,0.3);margin-bottom:10px;font-family:monospace;">Visual Overhaul + Bug Fixes + UI Polish</div>
+                <ul style="font-size:12px;color:rgba(255,255,255,0.75);line-height:2;padding-left:16px;margin:0;">
+                    <li><b style="color:#f87171;">Bug Fix</b> — Fixed critical <b>ReferenceError: resetGame is not defined</b> on game start — caused by 35 functions being accidentally scoped inside <code style="color:#fca5a5;">specialAttack()</code> due to a missing closing brace on the switch statement</li>
+                    <li><b style="color:#86efac;">Enemies</b> — All enemy types completely <b>redesigned with unique sphere visuals</b> — each enemy now has a distinct gradient, color palette, and animated surface detail</li>
+                    <li><b style="color:#86efac;">Enemies</b> — <b>Shielder</b>: icy blue gradient sphere with animated shield arc</li>
+                    <li><b style="color:#86efac;">Enemies</b> — <b>Healer</b>: lush green sphere with pulsing outer ring and white cross</li>
+                    <li><b style="color:#86efac;">Enemies</b> — <b>Bomber</b>: hot orange-red sphere with animated fuse and glowing spark</li>
+                    <li><b style="color:#86efac;">Enemies</b> — <b>Sniper</b>: dark steel sphere with red crosshairs and blinking dot-sight</li>
+                    <li><b style="color:#86efac;">Enemies</b> — <b>Berserker</b>: red sphere that erupts glowing crack veins and spikes as HP drops</li>
+                    <li><b style="color:#86efac;">Enemies</b> — <b>Puller</b>: violet sphere with orbiting dot and concentric gravity rings</li>
+                    <li><b style="color:#86efac;">Enemies</b> — <b>Timebomb</b>: dark sphere with a clock arc countdown that flashes when critical</li>
+                    <li><b style="color:#86efac;">Enemies</b> — <b>Leech</b>: maroon sphere with blood vein lines and red tendril toward player</li>
+                    <li><b style="color:#86efac;">Enemies</b> — <b>Guardian</b>: golden sphere with a tilted orbiting ring</li>
+                    <li><b style="color:#86efac;">Enemies</b> — <b>Golem</b>: slate-grey sphere with stone crack and pebble surface marks</li>
+                    <li><b style="color:#86efac;">Enemies</b> — <b>Dasher</b>: cyan sphere with speed-blur streak lines</li>
+                    <li><b style="color:#86efac;">Enemies</b> — <b>Magnet</b>: grey-blue sphere with animated N/S pole field arcs</li>
+                    <li><b style="color:#86efac;">Enemies</b> — <b>Webber</b>: brown sphere with web ring and spokes pattern</li>
+                    <li><b style="color:#86efac;">Enemies</b> — <b>Silencer</b>: indigo sphere with pulsing sound bars and a red mute slash</li>
+                    <li><b style="color:#86efac;">Enemies</b> — <b>Mirror</b>: metallic silver sphere with animated chrome sheen sweep</li>
+                    <li><b style="color:#86efac;">Enemies</b> — <b>Boss</b>: massive crimson sphere with rotating dashed ring and pulsing glow</li>
+                    <li><b style="color:#86efac;">Enemies</b> — <b>Triangle</b> is unchanged — stays as a rotating triangle as intended</li>
+                    <li><b style="color:#fbbf24;">Balance</b> — <b>Shielder</b> now spawns starting at <b>Wave 20</b> (was Wave 8) — gives early game more breathing room</li>
+                    <li><b style="color:#a78bfa;">UI</b> — Added <b>loading screen</b> on startup with animated progress bar, percentage counter, and status messages</li>
+                    <li><b style="color:#a78bfa;">UI</b> — Main menu now <b>reveals after loading</b> — title types in with a blinking cursor, buttons cascade in with typing effects</li>
+                </ul>
+            </div>
             <div style="border-left:3px solid #e63946;padding-left:16px;">
-                <div style="font-size:12px;font-weight:bold;color:#f87171;margin-bottom:2px;">🔴 Latest Patch</div>
+                <div style="font-size:12px;font-weight:bold;color:#f87171;margin-bottom:2px;">🔴 Previous Patch</div>
                 <div style="font-size:10px;color:rgba(255,255,255,0.3);margin-bottom:10px;font-family:monospace;">Luffy — LIMITED CHARACTER</div>
                 <ul style="font-size:12px;color:rgba(255,255,255,0.75);line-height:2;padding-left:16px;margin:0;">
                     <li><b style="color:#fca5a5;">Luffy</b> — NEW $1,000,000 <b>LIMITED</b> character (available until Mar 18)</li>
@@ -1300,7 +1415,7 @@
                 </ul>
             </div>
             <div style="border-left:3px solid #a78bfa;padding-left:16px;">
-                <div style="font-size:12px;font-weight:bold;color:#a78bfa;margin-bottom:2px;">🟣 Previous Patch</div>
+                <div style="font-size:12px;font-weight:bold;color:#a78bfa;margin-bottom:2px;">🟣 Older Patch</div>
                 <div style="font-size:10px;color:rgba(255,255,255,0.3);margin-bottom:10px;font-family:monospace;">Megumi Rework + UI Polish</div>
                 <ul style="font-size:12px;color:rgba(255,255,255,0.75);line-height:2;padding-left:16px;margin:0;">
                     <li><b style="color:#7dd3fc;">Megumi</b> — Mahoragah now requires <b>Wave 100</b> to activate</li>
@@ -1934,6 +2049,215 @@
         <button onclick="fixButtons()" style="background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.35);border:1px dashed rgba(255,255,255,0.2);padding:6px 14px;border-radius:5px;cursor:pointer;font-size:11px;font-family:inherit;">🔧 Click this if buttons are not clickable</button>
     </div>
 </div>
+
+
+<script>
+/* ===== LOADING SCREEN + MENU REVEAL ===== */
+(function () {
+
+    /* ---------- loading sequence config ---------- */
+    const STEPS = [
+        { msg: 'Initializing game engine...',    target: 8  },
+        { msg: 'Loading character assets...',    target: 22 },
+        { msg: 'Generating enemy types...',      target: 38 },
+        { msg: 'Building wave pools...',         target: 52 },
+        { msg: 'Calibrating weapons...',         target: 67 },
+        { msg: 'Syncing world data...',          target: 79 },
+        { msg: 'Applying patches...',            target: 91 },
+        { msg: 'Almost there...',                target: 97 },
+        { msg: 'Ready!',                         target: 100 },
+    ];
+    const STEP_DELAYS = [180, 340, 320, 380, 290, 350, 260, 420, 0];
+
+    /* ---------- typing helpers ---------- */
+    function typeElement(el, text, speedMs, onDone) {
+        const chars = [...text]; // unicode-safe split
+        let i = 0;
+        el.textContent = '';
+        function next() {
+            if (i < chars.length) {
+                el.textContent += chars[i++];
+                setTimeout(next, speedMs);
+            } else {
+                if (onDone) onDone();
+            }
+        }
+        next();
+    }
+
+    /* ---------- loading bar animation ---------- */
+    let pct = 0;
+    function animatePct(target, duration, onDone) {
+        const from      = pct;
+        const startTime = performance.now();
+        const fill      = document.getElementById('loadingBarFill');
+        const pctEl     = document.getElementById('loadingPct');
+        function step(now) {
+            const t      = Math.min(1, (now - startTime) / duration);
+            const eased  = t < 0.5 ? 2*t*t : -1 + (4 - 2*t)*t;
+            pct          = Math.round(from + (target - from) * eased);
+            if (fill)  fill.style.width  = pct + '%';
+            if (pctEl) pctEl.textContent = pct + '%';
+            if (t < 1) { requestAnimationFrame(step); }
+            else { pct = target; if (onDone) onDone(); }
+        }
+        requestAnimationFrame(step);
+    }
+
+    function setMsg(text) {
+        const el = document.getElementById('loadingMsg');
+        if (!el) return;
+        el.style.opacity = '0';
+        setTimeout(() => { el.textContent = text; el.style.opacity = '1'; }, 200);
+    }
+
+    /* ---------- run through all loading steps ---------- */
+    function runStep(i) {
+        if (i >= STEPS.length) return;
+        const { msg, target } = STEPS[i];
+        const duration = 200 + Math.random() * 280;
+        setMsg(msg);
+        animatePct(target, duration, () => {
+            if (i < STEPS.length - 1) {
+                setTimeout(() => runStep(i + 1), STEP_DELAYS[i]);
+            } else {
+                // Done — brief pause then reveal
+                setTimeout(finishLoading, 650);
+            }
+        });
+    }
+
+    /* ---------- fade out loading screen, then reveal menu ---------- */
+    function finishLoading() {
+        const screen = document.getElementById('loadingScreen');
+        screen.style.opacity = '0';
+        setTimeout(() => {
+            screen.style.display = 'none';
+            revealMenu();
+        }, 700);
+    }
+
+    /* ---------- reveal the main menu with typing effects ---------- */
+    function revealMenu() {
+        const menu = document.getElementById('mainMenu');
+
+        /* 1. Fade in the menu container */
+        menu.style.transition = 'opacity 0.4s ease';
+        menu.style.opacity    = '1';
+
+        /* 2. Type in the title with a blinking cursor */
+        const h1 = document.getElementById('menuTitle');
+        if (h1) {
+            const titleText = h1.dataset.original || h1.textContent;
+            h1.dataset.original = titleText;
+            h1.classList.add('typing-active');
+            typeElement(h1, titleText, 75, () => {
+                h1.classList.remove('typing-active');
+            });
+        }
+
+        /* 3. Collect all visible reveal targets */
+        const subtitle = menu.querySelector('p:first-of-type');
+        const currency = menu.querySelector('.currency-display');
+        const codeRow  = menu.querySelector('div:last-of-type'); // bottom input row
+
+        /* Helper: fade an element in after a delay */
+        function fadeInEl(el, delayMs) {
+            if (!el) return;
+            setTimeout(() => {
+                el.style.transition = 'opacity 0.4s ease';
+                el.style.opacity    = '1';
+            }, delayMs);
+        }
+
+        /* 4. Fade in non-button elements */
+        fadeInEl(subtitle, 300);
+        fadeInEl(currency, 500);
+        fadeInEl(codeRow,  500);
+
+        /* 5. Buttons — type each one sequentially */
+        const buttons = [...menu.querySelectorAll('button')].filter(btn => {
+            // Skip buttons that are meant to be hidden
+            if (btn.id === 'deleteRunSaveBtn') return false;
+            if (btn.id === 'continueRunBtn')   return false;
+            return true;
+        });
+
+        let delay = 550; // start after title has a head-start
+        buttons.forEach((btn) => {
+            const originalText = btn.dataset.original || btn.textContent;
+            btn.dataset.original = originalText;
+
+            setTimeout(() => {
+                btn.style.transition = 'opacity 0.25s ease';
+                btn.style.opacity    = '1';
+                // slight pause so the button is visible for a beat before typing
+                setTimeout(() => {
+                    typeElement(btn, originalText, 28, null);
+                }, 120);
+            }, delay);
+
+            // stagger: base gap + a bit extra for longer labels
+            delay += 160 + Math.min([...originalText].length * 4, 120);
+        });
+    }
+
+    /* ---------- setup: hide everything before page renders ---------- */
+    function setup() {
+        const menu = document.getElementById('mainMenu');
+        if (!menu) return;
+
+        /* hide the whole menu container (loading screen covers it anyway) */
+        menu.style.opacity = '0';
+
+        /* save and blank every element we'll type or fade in */
+        const h1 = document.getElementById('menuTitle');
+        if (h1) { h1.dataset.original = h1.textContent; h1.textContent = ''; }
+
+        const subtitle = menu.querySelector('p:first-of-type');
+        if (subtitle) subtitle.style.opacity = '0';
+
+        const currency = menu.querySelector('.currency-display');
+        if (currency) currency.style.opacity = '0';
+
+        const codeRow = menu.querySelector('div:last-of-type');
+        if (codeRow) codeRow.style.opacity = '0';
+
+        // blank all button labels
+        menu.querySelectorAll('button').forEach(btn => {
+            if (btn.id === 'deleteRunSaveBtn' || btn.id === 'continueRunBtn') return;
+            btn.dataset.original = btn.textContent;
+            btn.textContent      = '';
+            btn.style.opacity    = '0';
+        });
+
+        /* kick off the loading sequence */
+        runStep(0);
+    }
+
+    /* fallback safety — if something goes wrong, always show the menu */
+    setTimeout(() => {
+        const screen = document.getElementById('loadingScreen');
+        if (screen && screen.style.display !== 'none') {
+            screen.style.display = 'none';
+            const menu = document.getElementById('mainMenu');
+            if (menu) { menu.style.opacity = '1'; }
+            // restore all button texts
+            document.querySelectorAll('[data-original]').forEach(el => {
+                if (el.dataset.original) el.textContent = el.dataset.original;
+                el.style.opacity = '1';
+            });
+        }
+    }, 12000);
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', setup);
+    } else {
+        setup();
+    }
+
+})();
+</script>
 
 <script>
 
@@ -4406,147 +4730,406 @@ class Enemy {
         } else { ctx.shadowColor=this.color; ctx.fillStyle=this.color; }
 
         if (this.isTriangle) {
+            // ▲ TRIANGLE — stays as a triangle, always
             this.rotation += 0.05;
             ctx.translate(this.x, this.y); ctx.rotate(this.rotation);
             ctx.beginPath(); const s=this.radius;
             ctx.moveTo(0,-s); ctx.lineTo(s*0.866,s*0.5); ctx.lineTo(-s*0.866,s*0.5);
             ctx.closePath(); ctx.fill();
+
         } else if (this.isShielder) {
+            // 🛡 SHIELDER — icy blue sphere with a glowing shield arc on the front face
+            const sg = ctx.createRadialGradient(this.x-4,this.y-4,2, this.x,this.y,this.radius);
+            sg.addColorStop(0,'#93c5fd'); sg.addColorStop(1,'#1d4ed8');
+            ctx.fillStyle=sg;
             ctx.beginPath(); ctx.arc(this.x,this.y,this.radius,0,Math.PI*2); ctx.fill();
-            ctx.restore(); ctx.save();
-            ctx.globalAlpha = (this.drawAlpha||1);
+            // Inner hex pattern
+            ctx.restore(); ctx.save(); ctx.globalAlpha=(this.drawAlpha||1)*0.4;
+            ctx.strokeStyle='#bfdbfe'; ctx.lineWidth=1;
+            ctx.beginPath(); ctx.arc(this.x,this.y,this.radius*0.55,0,Math.PI*2); ctx.stroke();
+            // Shield arc
+            ctx.restore(); ctx.save(); ctx.globalAlpha=(this.drawAlpha||1);
             ctx.strokeStyle='#60a5fa'; ctx.lineWidth=5;
             ctx.shadowBlur = _shadowsEnabled ? 18 : 0; ctx.shadowColor='#3b82f6';
             ctx.beginPath();
             ctx.arc(this.x, this.y, this.radius+6, this.shieldFacing-0.9, this.shieldFacing+0.9);
             ctx.stroke();
-        } else if (this.isHealer) {
-            ctx.beginPath(); ctx.arc(this.x,this.y,this.radius,0,Math.PI*2); ctx.fill();
 
+        } else if (this.isHealer) {
+            // 💚 HEALER — lush green sphere with white pulsing cross
+            this._healPulse = ((this._healPulse||0)+0.05)%(Math.PI*2);
+            const hg = ctx.createRadialGradient(this.x-3,this.y-4,1, this.x,this.y,this.radius);
+            hg.addColorStop(0,'#86efac'); hg.addColorStop(1,'#166534');
+            ctx.fillStyle=hg;
+            ctx.beginPath(); ctx.arc(this.x,this.y,this.radius,0,Math.PI*2); ctx.fill();
+            // Pulsing outer ring
+            ctx.restore(); ctx.save(); ctx.globalAlpha=(this.drawAlpha||1)*(0.4+0.25*Math.sin(this._healPulse));
+            ctx.strokeStyle='#4ade80'; ctx.lineWidth=2; ctx.shadowBlur=_shadowsEnabled?12:0; ctx.shadowColor='#4ade80';
+            ctx.beginPath(); ctx.arc(this.x,this.y,this.radius+4+Math.sin(this._healPulse)*2,0,Math.PI*2); ctx.stroke();
+            // Cross
             ctx.restore(); ctx.save(); ctx.globalAlpha=(this.drawAlpha||1);
             ctx.fillStyle='#fff'; ctx.shadowBlur=0;
             ctx.fillRect(this.x-2,this.y-8,4,16); ctx.fillRect(this.x-8,this.y-2,16,4);
-        } else if (this.isBomber) {
 
+        } else if (this.isBomber) {
+            // 🧨 BOMBER — hot angry sphere that pulses red-orange, with a lit fuse
             this.fuseFlash = (this.fuseFlash||0)+1;
-            const fl = 0.7+0.3*Math.sin(this.fuseFlash*0.3);
+            const fl = 0.85+0.15*Math.sin(this.fuseFlash*0.35);
             const dist = Math.hypot(player.x-this.x, player.y-this.y);
             const rage = Math.max(0, 1 - dist/300);
-            ctx.shadowBlur = _shadowsEnabled ? 20+rage*25 : 0; ctx.shadowColor='#f59e0b';
-            ctx.fillStyle = `rgb(${Math.round(239+rage*16)},${Math.round(68*(1-rage*0.5))},16)`;
+            const bg = ctx.createRadialGradient(this.x-4,this.y-4,2, this.x,this.y,this.radius);
+            bg.addColorStop(0,`rgb(255,${Math.round(180*(1-rage*0.7))},80)`);
+            bg.addColorStop(1,`rgb(${Math.round(180+rage*75)},${Math.round(40*(1-rage))},10)`);
+            ctx.fillStyle=bg; ctx.shadowBlur=_shadowsEnabled?20+rage*25:0; ctx.shadowColor='#f59e0b';
             ctx.beginPath(); ctx.arc(this.x,this.y,this.radius*fl,0,Math.PI*2); ctx.fill();
-
+            // Fuse
             ctx.restore(); ctx.save(); ctx.globalAlpha=(this.drawAlpha||1);
-            ctx.strokeStyle='#fbbf24'; ctx.lineWidth=2;
+            ctx.strokeStyle='#fbbf24'; ctx.lineWidth=2; ctx.lineCap='round';
             ctx.beginPath(); ctx.moveTo(this.x,this.y-this.radius); ctx.lineTo(this.x+5,this.y-this.radius-10); ctx.stroke();
+            // Spark
+            ctx.fillStyle='#fff'; ctx.shadowBlur=_shadowsEnabled?8:0; ctx.shadowColor='#fff';
+            ctx.beginPath(); ctx.arc(this.x+5,this.y-this.radius-10,1.5+Math.random()*1.5,0,Math.PI*2); ctx.fill();
+
         } else if (this.isPhantomEnemy) {
+            // 👻 PHANTOM — translucent misty sphere with ghostly inner shimmer
+            const pg = ctx.createRadialGradient(this.x-3,this.y-3,1, this.x,this.y,this.radius);
+            pg.addColorStop(0,'rgba(200,180,255,0.85)'); pg.addColorStop(0.6,'rgba(120,80,200,0.5)'); pg.addColorStop(1,'rgba(60,20,120,0.2)');
+            ctx.fillStyle=pg;
             ctx.beginPath(); ctx.arc(this.x,this.y,this.radius,0,Math.PI*2); ctx.fill();
+            // Wispy ring
+            ctx.restore(); ctx.save(); ctx.globalAlpha=(this.drawAlpha||1)*0.3;
+            ctx.strokeStyle='#c4b5fd'; ctx.lineWidth=1.5; ctx.setLineDash([3,5]);
+            ctx.beginPath(); ctx.arc(this.x,this.y,this.radius+4,0,Math.PI*2); ctx.stroke();
+            ctx.setLineDash([]);
+
         } else if (this.isSniperEnemy) {
+            // 🎯 SNIPER — dark steel-grey sphere with glowing red dot-sight crosshairs
+            const snG = ctx.createRadialGradient(this.x-3,this.y-3,1, this.x,this.y,this.radius);
+            snG.addColorStop(0,'#4b5563'); snG.addColorStop(1,'#111827');
+            ctx.fillStyle=snG;
             ctx.beginPath(); ctx.arc(this.x,this.y,this.radius,0,Math.PI*2); ctx.fill();
+            // Crosshair lines
+            ctx.restore(); ctx.save(); ctx.globalAlpha=(this.drawAlpha||1)*0.8;
+            ctx.strokeStyle='#ef4444'; ctx.lineWidth=1.5; ctx.shadowBlur=_shadowsEnabled?6:0; ctx.shadowColor='#ef4444';
+            const cr=this.radius*0.45;
+            ctx.beginPath(); ctx.moveTo(this.x-cr,this.y); ctx.lineTo(this.x+cr,this.y); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(this.x,this.y-cr); ctx.lineTo(this.x,this.y+cr); ctx.stroke();
+            ctx.beginPath(); ctx.arc(this.x,this.y,cr*0.6,0,Math.PI*2); ctx.stroke();
+            // Red dot center
+            ctx.fillStyle='#ef4444'; ctx.shadowBlur=_shadowsEnabled?10:0;
+            ctx.beginPath(); ctx.arc(this.x,this.y,2.5,0,Math.PI*2); ctx.fill();
+            // Laser line to player
             if (this.isVisible !== false) {
-                ctx.restore(); ctx.save(); ctx.globalAlpha=(this.drawAlpha||1)*0.35;
+                ctx.restore(); ctx.save(); ctx.globalAlpha=(this.drawAlpha||1)*0.3;
                 ctx.strokeStyle='#ef4444'; ctx.lineWidth=1; ctx.setLineDash([4,4]);
                 ctx.beginPath(); ctx.moveTo(this.x,this.y); ctx.lineTo(player.x,player.y); ctx.stroke();
                 ctx.setLineDash([]);
             }
-        } else if (this.isBerserker) {
-            ctx.beginPath(); ctx.arc(this.x,this.y,this.radius,0,Math.PI*2); ctx.fill();
 
+        } else if (this.isBerserker) {
+            // 😤 BERSERKER — deep red sphere that erupts spikes as health drops
             const rage = 1-(this.health/this.maxHealth);
-            if (rage > 0.2) {
-                ctx.restore(); ctx.save(); ctx.globalAlpha=(this.drawAlpha||1);
-                ctx.strokeStyle=this.color||'#dc2626'; ctx.lineWidth=2+rage*3;
+            const bRed = Math.round(180+rage*75);
+            const berG = ctx.createRadialGradient(this.x-3,this.y-4,2, this.x,this.y,this.radius);
+            berG.addColorStop(0,`rgb(${bRed},60,60)`); berG.addColorStop(1,`rgb(${Math.round(100+rage*60)},10,10)`);
+            ctx.fillStyle=berG; ctx.shadowBlur=_shadowsEnabled?(10+rage*20):0; ctx.shadowColor='#dc2626';
+            ctx.beginPath(); ctx.arc(this.x,this.y,this.radius,0,Math.PI*2); ctx.fill();
+            // Rage veins — diagonal cracks across the sphere
+            if(rage>0.15){
+                ctx.restore(); ctx.save(); ctx.globalAlpha=(this.drawAlpha||1)*(0.5+rage*0.5);
+                ctx.strokeStyle=`rgba(255,200,60,${0.4+rage*0.6})`; ctx.lineWidth=1+rage*2;
+                ctx.shadowBlur=_shadowsEnabled?rage*12:0; ctx.shadowColor='#fbbf24';
+                for(let i=0;i<4;i++){
+                    const a=(Math.PI*2/4)*i+this.rotation;
+                    const r1=this.radius*0.25, r2=this.radius*(0.7+rage*0.3);
+                    ctx.beginPath();
+                    ctx.moveTo(this.x+Math.cos(a)*r1, this.y+Math.sin(a)*r1);
+                    ctx.lineTo(this.x+Math.cos(a+0.3)*r2, this.y+Math.sin(a+0.3)*r2);
+                    ctx.stroke();
+                }
+                // Spikes on surface
+                ctx.strokeStyle=`rgba(255,80,40,${0.6+rage*0.4})`; ctx.lineWidth=2+rage*3;
                 for(let i=0;i<6;i++){
                     const a=(Math.PI*2/6)*i+this.rotation;
                     ctx.beginPath();
-                    ctx.moveTo(this.x+Math.cos(a)*(this.radius-2),this.y+Math.sin(a)*(this.radius-2));
-                    ctx.lineTo(this.x+Math.cos(a)*(this.radius+4+rage*8),this.y+Math.sin(a)*(this.radius+4+rage*8));
+                    ctx.moveTo(this.x+Math.cos(a)*(this.radius-1),this.y+Math.sin(a)*(this.radius-1));
+                    ctx.lineTo(this.x+Math.cos(a)*(this.radius+4+rage*9),this.y+Math.sin(a)*(this.radius+4+rage*9));
                     ctx.stroke();
                 }
                 this.rotation+=0.04*rage;
             }
-        } else if (this.isPuller) {
 
+        } else if (this.isPuller) {
+            // 🌀 PULLER — deep violet sphere with pulsing gravity rings
+            this.pulseT=(this.pulseT||0)+1;
+            const pulG = ctx.createRadialGradient(this.x-3,this.y-3,1, this.x,this.y,this.radius);
+            pulG.addColorStop(0,'#a78bfa'); pulG.addColorStop(1,'#4c1d95');
+            ctx.fillStyle=pulG;
             ctx.beginPath(); ctx.arc(this.x,this.y,this.radius,0,Math.PI*2); ctx.fill();
-            ctx.restore(); ctx.save(); ctx.globalAlpha=(this.drawAlpha||1)*0.5;
+            // Spinning inner dot
+            ctx.restore(); ctx.save(); ctx.globalAlpha=(this.drawAlpha||1)*0.7;
+            ctx.fillStyle='#ede9fe'; ctx.shadowBlur=_shadowsEnabled?8:0; ctx.shadowColor='#c4b5fd';
+            ctx.beginPath(); ctx.arc(this.x+Math.cos(this.pulseT*0.08)*this.radius*0.4, this.y+Math.sin(this.pulseT*0.08)*this.radius*0.4, 3, 0, Math.PI*2); ctx.fill();
+            // Gravity rings
             ctx.strokeStyle='#7c3aed'; ctx.lineWidth=1.5;
             for(let r=1;r<=3;r++){
-                ctx.globalAlpha = (this.drawAlpha||1)*(0.15+0.1*Math.sin((this.pulseT||0)*0.05+r));
+                ctx.globalAlpha = (this.drawAlpha||1)*(0.18+0.12*Math.sin(this.pulseT*0.05+r));
                 ctx.beginPath(); ctx.arc(this.x,this.y,this.radius+r*22,0,Math.PI*2); ctx.stroke();
             }
+
         } else if (this.isRegen) {
+            // ♻️ REGEN — teal sphere with rotating healing arc bands
+            this._regenRot = ((this._regenRot||0)+0.02)%(Math.PI*2);
+            const rgG = ctx.createRadialGradient(this.x-3,this.y-3,1, this.x,this.y,this.radius);
+            rgG.addColorStop(0,'#5eead4'); rgG.addColorStop(1,'#065f46');
+            ctx.fillStyle=rgG;
             ctx.beginPath(); ctx.arc(this.x,this.y,this.radius,0,Math.PI*2); ctx.fill();
-
-            ctx.restore(); ctx.save(); ctx.globalAlpha=(this.drawAlpha||1)*0.6;
-            ctx.strokeStyle='#10b981'; ctx.lineWidth=2; ctx.shadowBlur = _shadowsEnabled ? 10 : 0; ctx.shadowColor='#10b981';
-            ctx.beginPath(); ctx.arc(this.x,this.y,this.radius+5,0,Math.PI*2); ctx.stroke();
-        } else if (this.isSplitter || this.isSplitterMini) {
-            ctx.beginPath(); ctx.arc(this.x,this.y,this.radius,0,Math.PI*2); ctx.fill();
-
+            // Rotating arcs
             ctx.restore(); ctx.save(); ctx.globalAlpha=(this.drawAlpha||1)*0.7;
-            ctx.strokeStyle='#fbbf24'; ctx.lineWidth=1.5;
-            ctx.beginPath(); ctx.moveTo(this.x-this.radius*0.5,this.y); ctx.lineTo(this.x+this.radius*0.5,this.y); ctx.stroke();
-        } else if (this.isCharger) {
-            ctx.beginPath(); ctx.arc(this.x,this.y,this.radius,0,Math.PI*2); ctx.fill();
+            ctx.strokeStyle='#10b981'; ctx.lineWidth=2; ctx.shadowBlur=_shadowsEnabled?10:0; ctx.shadowColor='#10b981';
+            ctx.beginPath(); ctx.arc(this.x,this.y,this.radius+5,this._regenRot,this._regenRot+Math.PI*1.2); ctx.stroke();
+            ctx.beginPath(); ctx.arc(this.x,this.y,this.radius+5,this._regenRot+Math.PI,this._regenRot+Math.PI*2.2); ctx.stroke();
 
+        } else if (this.isSplitter || this.isSplitterMini) {
+            // 💥 SPLITTER — bold orange sphere with a glowing split-seam through the middle
+            const spG = ctx.createRadialGradient(this.x-3,this.y-3,1, this.x,this.y,this.radius);
+            spG.addColorStop(0,'#fb923c'); spG.addColorStop(1,'#9a3412');
+            ctx.fillStyle=spG;
+            ctx.beginPath(); ctx.arc(this.x,this.y,this.radius,0,Math.PI*2); ctx.fill();
+            // Glowing equator crack
+            ctx.restore(); ctx.save(); ctx.globalAlpha=(this.drawAlpha||1)*0.85;
+            ctx.strokeStyle='#fef08a'; ctx.lineWidth= this.isSplitterMini ? 1.5 : 2.5;
+            ctx.shadowBlur=_shadowsEnabled?14:0; ctx.shadowColor='#facc15';
+            ctx.beginPath(); ctx.moveTo(this.x-this.radius,this.y); ctx.lineTo(this.x+this.radius,this.y); ctx.stroke();
+            // Second diagonal crack
+            ctx.globalAlpha=(this.drawAlpha||1)*0.5;
+            ctx.lineWidth=1;
+            ctx.beginPath(); ctx.moveTo(this.x-this.radius*0.7,this.y-this.radius*0.5); ctx.lineTo(this.x+this.radius*0.7,this.y+this.radius*0.5); ctx.stroke();
+
+        } else if (this.isCharger) {
+            // ⚡ CHARGER — golden amber sphere that builds a wind-up arrow toward player
+            const chG = ctx.createRadialGradient(this.x-3,this.y-3,1, this.x,this.y,this.radius);
+            chG.addColorStop(0,'#fde68a'); chG.addColorStop(1,'#b45309');
+            ctx.fillStyle=chG;
+            ctx.beginPath(); ctx.arc(this.x,this.y,this.radius,0,Math.PI*2); ctx.fill();
+            // Chevron wind-up arrow
             ctx.restore(); ctx.save(); ctx.globalAlpha=(this.drawAlpha||1);
             const ca=Math.atan2(player.y-this.y,player.x-this.x);
             const wind=this.charging?0:(1-(this.chargeTimer/90));
-            ctx.fillStyle=`rgba(251,191,36,${0.5+wind*0.5})`;
-            ctx.shadowBlur = _shadowsEnabled ? wind*15 : 0; ctx.shadowColor='#f59e0b';
+            ctx.shadowBlur=_shadowsEnabled?wind*18:0; ctx.shadowColor='#f59e0b';
             ctx.translate(this.x,this.y); ctx.rotate(ca);
-            ctx.beginPath(); ctx.moveTo(this.radius,0); ctx.lineTo(this.radius+8+wind*10,0);
-            ctx.lineWidth=3+wind*3; ctx.strokeStyle=`rgba(251,191,36,${0.5+wind*0.5})`; ctx.stroke();
+            // Arrow shaft + head
+            ctx.strokeStyle=`rgba(251,191,36,${0.5+wind*0.5})`; ctx.lineWidth=3+wind*3; ctx.lineCap='round';
+            ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(this.radius+8+wind*12,0); ctx.stroke();
+            ctx.fillStyle=`rgba(253,224,71,${0.6+wind*0.4})`;
+            ctx.beginPath();
+            ctx.moveTo(this.radius+10+wind*12,0);
+            ctx.lineTo(this.radius+4+wind*6,-4-wind*4);
+            ctx.lineTo(this.radius+4+wind*6, 4+wind*4);
+            ctx.closePath(); ctx.fill();
+
         } else if (this.isTimeBomb) {
+            // 💣 TIMEBOMB — dark pulsing sphere with countdown, gets angrier as fuse burns
             const secsLeft=Math.ceil(this.fuseTimer/60);
             const urgency=Math.max(0,1-this.fuseTimer/600);
-            ctx.fillStyle=`rgb(${Math.round(180+urgency*75)},${Math.round(40*(1-urgency))},20)`;
-            ctx.shadowColor='#ef4444'; ctx.shadowBlur = _shadowsEnabled ? 10+urgency*30 : 0;
+            const tbFlash = urgency > 0.7 ? (Math.sin(Date.now()*0.015)>0?1:0) : 0;
+            const tbG = ctx.createRadialGradient(this.x-4,this.y-4,2, this.x,this.y,this.radius);
+            tbG.addColorStop(0,`rgb(${Math.round(200+urgency*55+tbFlash*55)},${Math.round(60*(1-urgency))},${Math.round(20*(1-urgency))})`);
+            tbG.addColorStop(1,'#1a0505');
+            ctx.fillStyle=tbG; ctx.shadowColor='#ef4444'; ctx.shadowBlur=_shadowsEnabled?10+urgency*30:0;
             ctx.beginPath(); ctx.arc(this.x,this.y,this.radius*(1+urgency*0.15),0,Math.PI*2); ctx.fill();
+            // Clock ring
+            ctx.restore(); ctx.save(); ctx.globalAlpha=(this.drawAlpha||1)*(0.5+urgency*0.5);
+            ctx.strokeStyle='#fca5a5'; ctx.lineWidth=2;
+            ctx.beginPath(); ctx.arc(this.x,this.y,this.radius-3, -Math.PI/2, -Math.PI/2+(Math.PI*2*(1-urgency))); ctx.stroke();
+            // Countdown text
             ctx.restore(); ctx.save(); ctx.globalAlpha=(this.drawAlpha||1);
             ctx.font=`bold ${10+Math.round(urgency*4)}px Arial`; ctx.textAlign='center';
             ctx.fillStyle='#fff'; ctx.fillText(`💣${secsLeft}s`,this.x,this.y+4);
-        } else if (this.isLeech) {
-            ctx.beginPath(); ctx.arc(this.x,this.y,this.radius,0,Math.PI*2); ctx.fill();
 
+        } else if (this.isLeech) {
+            // 🩸 LEECH — dark maroon sphere with pulsing blood vein and tendrils toward player
+            this._leechPulse = ((this._leechPulse||0)+0.07)%(Math.PI*2);
+            const lcG = ctx.createRadialGradient(this.x-2,this.y-2,1, this.x,this.y,this.radius);
+            lcG.addColorStop(0,'#b91c1c'); lcG.addColorStop(1,'#3b0a0a');
+            ctx.fillStyle=lcG;
+            ctx.beginPath(); ctx.arc(this.x,this.y,this.radius,0,Math.PI*2); ctx.fill();
+            // Vein lines on surface
+            ctx.restore(); ctx.save(); ctx.globalAlpha=(this.drawAlpha||1)*0.55;
+            ctx.strokeStyle='#f87171'; ctx.lineWidth=1; ctx.lineCap='round';
+            for(let v=0;v<3;v++){
+                const va=v*(Math.PI*2/3)+this._leechPulse*0.3;
+                ctx.beginPath();
+                ctx.moveTo(this.x,this.y);
+                ctx.quadraticCurveTo(this.x+Math.cos(va)*this.radius*0.6+Math.sin(this._leechPulse+v)*4, this.y+Math.sin(va)*this.radius*0.6, this.x+Math.cos(va)*this.radius*0.9, this.y+Math.sin(va)*this.radius*0.9);
+                ctx.stroke();
+            }
+            // Tendril to player if close
             const ld=Math.hypot(player.x-this.x,player.y-this.y);
             if(ld<80){
-                ctx.restore(); ctx.save(); ctx.globalAlpha=(this.drawAlpha||1)*0.5;
+                ctx.restore(); ctx.save(); ctx.globalAlpha=(this.drawAlpha||1)*0.6;
                 ctx.strokeStyle='#dc2626'; ctx.lineWidth=2;
                 ctx.beginPath(); ctx.moveTo(this.x,this.y);
                 ctx.quadraticCurveTo(this.x+(player.x-this.x)*0.4+Math.sin(Date.now()*0.01)*15,this.y+(player.y-this.y)*0.4,player.x,player.y); ctx.stroke();
             }
-        } else if (this.isGuardian) {
 
+        } else if (this.isGuardian) {
+            // 🛡 GUARDIAN — heavy golden sphere with a thick orbiting ring
+            this._guardRot = ((this._guardRot||0)+0.03)%(Math.PI*2);
+            const guG = ctx.createRadialGradient(this.x-4,this.y-4,2, this.x,this.y,this.radius);
+            guG.addColorStop(0,'#fde68a'); guG.addColorStop(1,'#78350f');
+            ctx.fillStyle=guG;
             ctx.beginPath(); ctx.arc(this.x,this.y,this.radius,0,Math.PI*2); ctx.fill();
-            ctx.restore(); ctx.save(); ctx.globalAlpha=(this.drawAlpha||1)*0.7;
-            ctx.strokeStyle='#fbbf24'; ctx.lineWidth=3; ctx.shadowBlur = _shadowsEnabled ? 16 : 0; ctx.shadowColor='#fbbf24';
-            ctx.beginPath(); ctx.arc(this.x,this.y,this.radius+5,0,Math.PI*2); ctx.stroke();
+            // Orbiting ring
+            ctx.restore(); ctx.save(); ctx.globalAlpha=(this.drawAlpha||1)*0.8;
+            ctx.strokeStyle='#fbbf24'; ctx.lineWidth=3.5; ctx.shadowBlur=_shadowsEnabled?16:0; ctx.shadowColor='#fbbf24';
+            ctx.save(); ctx.translate(this.x,this.y); ctx.rotate(this._guardRot);
+            ctx.scale(1,0.35);
+            ctx.beginPath(); ctx.arc(0,0,this.radius+6,0,Math.PI*2); ctx.restore(); ctx.stroke();
             if(this.guardTarget&&this.guardTarget.alive){
                 ctx.globalAlpha=(this.drawAlpha||1)*0.25;
                 ctx.strokeStyle='#fbbf24'; ctx.lineWidth=1; ctx.setLineDash([3,3]);
                 ctx.beginPath(); ctx.moveTo(this.x,this.y); ctx.lineTo(this.guardTarget.x,this.guardTarget.y); ctx.stroke();
                 ctx.setLineDash([]);
             }
+
         } else if (this.isGolem) {
+            // 🪨 GOLEM — chunky slate-grey sphere with stone crack lines
+            const goG = ctx.createRadialGradient(this.x-4,this.y-4,2, this.x,this.y,this.radius);
+            goG.addColorStop(0,'#9ca3af'); goG.addColorStop(1,'#1f2937');
+            ctx.fillStyle=goG;
             ctx.beginPath(); ctx.arc(this.x,this.y,this.radius,0,Math.PI*2); ctx.fill();
+            // Stone crack pattern
+            ctx.restore(); ctx.save(); ctx.globalAlpha=(this.drawAlpha||1)*0.55;
+            ctx.strokeStyle='#374151'; ctx.lineWidth=1.5; ctx.lineCap='round';
+            const cracks=[[0,-8,5,0,2,8],[-6,2,0,0,6,-4],[-4,-5,-8,3,4,5]];
+            cracks.forEach(([x1,y1,x2,y2,x3,y3])=>{
+                ctx.beginPath(); ctx.moveTo(this.x+x1,this.y+y1); ctx.lineTo(this.x+x2,this.y+y2); ctx.lineTo(this.x+x3,this.y+y3); ctx.stroke();
+            });
+            // Highlight pebble marks
+            ctx.globalAlpha=(this.drawAlpha||1)*0.3;
+            ctx.fillStyle='#d1d5db';
+            [[4,-6,2],[-5,4,1.5]].forEach(([ox,oy,r])=>{ ctx.beginPath(); ctx.arc(this.x+ox,this.y+oy,r,0,Math.PI*2); ctx.fill(); });
 
         } else if (this.isDasher) {
+            // 💨 DASHER — vivid cyan sphere with speed-blur afterimage streaks
+            this._dashRot = ((this._dashRot||0)+0.12)%(Math.PI*2);
+            const daG = ctx.createRadialGradient(this.x-3,this.y-3,1, this.x,this.y,this.radius);
+            daG.addColorStop(0,'#67e8f9'); daG.addColorStop(1,'#0e7490');
+            ctx.fillStyle=daG; ctx.shadowBlur=_shadowsEnabled?14:0; ctx.shadowColor='#22d3ee';
             ctx.beginPath(); ctx.arc(this.x,this.y,this.radius,0,Math.PI*2); ctx.fill();
+            // Speed lines
+            ctx.restore(); ctx.save(); ctx.globalAlpha=(this.drawAlpha||1)*0.6;
+            ctx.strokeStyle='#a5f3fc'; ctx.lineWidth=1.5; ctx.lineCap='round';
+            const ang = Math.atan2(player.y-this.y,player.x-this.x)+Math.PI;
+            for(let s=0;s<3;s++){
+                const sa=ang+(s-1)*0.35;
+                const dist=10+s*5;
+                ctx.globalAlpha=(this.drawAlpha||1)*(0.5-s*0.12);
+                ctx.beginPath(); ctx.moveTo(this.x+Math.cos(sa)*this.radius, this.y+Math.sin(sa)*this.radius);
+                ctx.lineTo(this.x+Math.cos(sa)*(this.radius+dist), this.y+Math.sin(sa)*(this.radius+dist)); ctx.stroke();
+            }
 
         } else if (this.isBoomerang) {
+            // 🪃 BOOMERANG — lime-green sphere with a curved arc flight indicator
+            const boG = ctx.createRadialGradient(this.x-3,this.y-3,1, this.x,this.y,this.radius);
+            boG.addColorStop(0,'#86efac'); boG.addColorStop(1,'#14532d');
+            ctx.fillStyle=boG;
             ctx.beginPath(); ctx.arc(this.x,this.y,this.radius,0,Math.PI*2); ctx.fill();
+            // Curved arc line hint
+            ctx.restore(); ctx.save(); ctx.globalAlpha=(this.drawAlpha||1)*0.55;
+            ctx.strokeStyle='#bbf7d0'; ctx.lineWidth=2; ctx.shadowBlur=_shadowsEnabled?8:0; ctx.shadowColor='#4ade80';
+            const ba=this.boomAngle||0;
+            ctx.beginPath(); ctx.arc(this.x+Math.cos(ba+Math.PI/2)*8, this.y+Math.sin(ba+Math.PI/2)*8, this.radius+4, ba, ba+Math.PI*1.3); ctx.stroke();
 
-        } else if (this.isSwarmUnit) {
+        } else if (this.isSwarm || this.isSwarmUnit) {
+            // 🐝 SWARM — tiny yellow-amber sphere with vibrating dot
+            this._swarmV = ((this._swarmV||0)+0.3)%(Math.PI*2);
+            const swG = ctx.createRadialGradient(this.x-1,this.y-1,0.5, this.x,this.y,this.radius);
+            swG.addColorStop(0,'#fde68a'); swG.addColorStop(1,'#b45309');
+            ctx.fillStyle=swG; ctx.shadowBlur=_shadowsEnabled?6:0; ctx.shadowColor='#fbbf24';
             ctx.beginPath(); ctx.arc(this.x,this.y,this.radius,0,Math.PI*2); ctx.fill();
+            // Buzz shimmer
+            ctx.restore(); ctx.save(); ctx.globalAlpha=(this.drawAlpha||1)*0.4;
+            ctx.strokeStyle='#fef9c3'; ctx.lineWidth=1;
+            ctx.beginPath(); ctx.arc(this.x+Math.sin(this._swarmV)*1.5, this.y+Math.cos(this._swarmV)*1.5, this.radius+1.5, 0, Math.PI*2); ctx.stroke();
+
         } else if (this.isMagnet) {
+            // 🧲 MAGNET — grey-blue sphere with polar field arcs
+            this._magRot = ((this._magRot||0)+0.025)%(Math.PI*2);
+            const mgG = ctx.createRadialGradient(this.x-3,this.y-3,1, this.x,this.y,this.radius);
+            mgG.addColorStop(0,'#94a3b8'); mgG.addColorStop(0.5,'#475569'); mgG.addColorStop(1,'#1e3a5f');
+            ctx.fillStyle=mgG;
             ctx.beginPath(); ctx.arc(this.x,this.y,this.radius,0,Math.PI*2); ctx.fill();
+            // Field arc lines (N/S poles)
+            ctx.restore(); ctx.save(); ctx.globalAlpha=(this.drawAlpha||1)*0.6;
+            ctx.save(); ctx.translate(this.x,this.y); ctx.rotate(this._magRot);
+            for(let p=0;p<2;p++){
+                const sign=p?1:-1;
+                ctx.strokeStyle=p?'#3b82f6':'#ef4444'; ctx.lineWidth=1.5;
+                ctx.shadowBlur=_shadowsEnabled?8:0; ctx.shadowColor=p?'#3b82f6':'#ef4444';
+                for(let l=1;l<=2;l++){
+                    ctx.beginPath(); ctx.arc(sign*(this.radius*0.4),0,this.radius*0.35*l,-Math.PI*0.7*sign,Math.PI*0.7*sign); ctx.stroke();
+                }
+            }
+            ctx.restore();
 
         } else if (this.isWebber) {
+            // 🕸️ WEBBER — earthy brown sphere with web strands on the surface
+            const wbG = ctx.createRadialGradient(this.x-2,this.y-2,1, this.x,this.y,this.radius);
+            wbG.addColorStop(0,'#78350f'); wbG.addColorStop(1,'#1c0a00');
+            ctx.fillStyle=wbG;
             ctx.beginPath(); ctx.arc(this.x,this.y,this.radius,0,Math.PI*2); ctx.fill();
+            // Web rings + spokes
+            ctx.restore(); ctx.save(); ctx.globalAlpha=(this.drawAlpha||1)*0.55;
+            ctx.strokeStyle='#d4a373'; ctx.lineWidth=0.8;
+            for(let r=1;r<=2;r++){
+                ctx.beginPath(); ctx.arc(this.x,this.y,this.radius*(0.35*r),0,Math.PI*2); ctx.stroke();
+            }
+            for(let s=0;s<6;s++){
+                const a=(Math.PI*2/6)*s;
+                ctx.beginPath(); ctx.moveTo(this.x,this.y); ctx.lineTo(this.x+Math.cos(a)*this.radius,this.y+Math.sin(a)*this.radius); ctx.stroke();
+            }
 
         } else if (this.isSilencer) {
+            // 🔇 SILENCER — dark indigo sphere with silenced sound wave bars
+            this._silPulse = ((this._silPulse||0)+0.06)%(Math.PI*2);
+            const slG = ctx.createRadialGradient(this.x-3,this.y-3,1, this.x,this.y,this.radius);
+            slG.addColorStop(0,'#6d28d9'); slG.addColorStop(1,'#0d0520');
+            ctx.fillStyle=slG;
             ctx.beginPath(); ctx.arc(this.x,this.y,this.radius,0,Math.PI*2); ctx.fill();
+            // Struck-through sound wave symbol
+            ctx.restore(); ctx.save(); ctx.globalAlpha=(this.drawAlpha||1)*0.75;
+            ctx.strokeStyle='#a78bfa'; ctx.lineWidth=1.5; ctx.lineCap='round';
+            for(let b=0;b<3;b++){
+                const bx=this.x-5+b*5;
+                const h=2+(1-Math.abs(b-1))*3;
+                ctx.globalAlpha=(this.drawAlpha||1)*(0.3+0.45*Math.sin(this._silPulse+b));
+                ctx.beginPath(); ctx.moveTo(bx,this.y-h); ctx.lineTo(bx,this.y+h); ctx.stroke();
+            }
+            // Slash through
+            ctx.globalAlpha=(this.drawAlpha||1)*0.7;
+            ctx.strokeStyle='#ef4444'; ctx.lineWidth=1.5;
+            ctx.beginPath(); ctx.moveTo(this.x-7,this.y-6); ctx.lineTo(this.x+7,this.y+6); ctx.stroke();
+
+        } else if (this.isMirror) {
+            // 🪞 MIRROR — metallic silver sphere with a reflective sheen slash
+            this._mirrorSheen = ((this._mirrorSheen||0)+0.03)%(Math.PI*2);
+            const mrG = ctx.createRadialGradient(this.x-4,this.y-4,1, this.x,this.y,this.radius);
+            mrG.addColorStop(0,'#f1f5f9'); mrG.addColorStop(0.4,'#94a3b8'); mrG.addColorStop(1,'#0f172a');
+            ctx.fillStyle=mrG;
+            ctx.beginPath(); ctx.arc(this.x,this.y,this.radius,0,Math.PI*2); ctx.fill();
+            // Animated sheen highlight bar
+            ctx.restore(); ctx.save(); ctx.globalAlpha=(this.drawAlpha||1)*0.6;
+            ctx.save(); ctx.translate(this.x,this.y); ctx.rotate(this._mirrorSheen);
+            ctx.clip_SAFE = () => { ctx.beginPath(); ctx.arc(0,0,this.radius,0,Math.PI*2); ctx.clip(); };
+            ctx.beginPath(); ctx.arc(0,0,this.radius,0,Math.PI*2); ctx.clip();
+            ctx.fillStyle='rgba(255,255,255,0.35)';
+            ctx.fillRect(-2,-this.radius,4,this.radius*2); ctx.restore();
+            // Thin chrome edge
+            ctx.restore(); ctx.save(); ctx.globalAlpha=(this.drawAlpha||1)*0.5;
+            ctx.strokeStyle='#cbd5e1'; ctx.lineWidth=1.5;
+            ctx.beginPath(); ctx.arc(this.x,this.y,this.radius-1,0,Math.PI*2); ctx.stroke();
 
         } else if (this.isMimic) {
             if (!this.mimicRevealed) {
@@ -4627,17 +5210,46 @@ class Enemy {
             ctx.restore(); ctx.save(); ctx.globalAlpha=(this.drawAlpha||1)*0.9;
             ctx.fillStyle='#c4b5fd'; ctx.shadowBlur=_shadowsEnabled?20:0; ctx.shadowColor='#c4b5fd';
             ctx.beginPath(); ctx.arc(this.x,this.y,4+Math.sin(vt*3)*1.5,0,Math.PI*2); ctx.fill();
-        } else if (this.isMirror) {
+        } else if (this.isBoss) {
+            // 👑 BOSS — massive pulsing crimson sphere with rotating outer ring and crown label
+            this._bossRot = ((this._bossRot||0)+0.015)%(Math.PI*2);
+            this._bossPulse = ((this._bossPulse||0)+0.04)%(Math.PI*2);
+            const bossG = ctx.createRadialGradient(this.x-8,this.y-8,3, this.x,this.y,this.radius);
+            bossG.addColorStop(0,'#f87171'); bossG.addColorStop(0.5,'#b91c1c'); bossG.addColorStop(1,'#450a0a');
+            ctx.fillStyle=bossG; ctx.shadowBlur=_shadowsEnabled?30:0; ctx.shadowColor='#dc2626';
             ctx.beginPath(); ctx.arc(this.x,this.y,this.radius,0,Math.PI*2); ctx.fill();
+            // Rotating dashed ring
+            ctx.restore(); ctx.save(); ctx.globalAlpha=(this.drawAlpha||1)*0.7;
+            ctx.strokeStyle='#fca5a5'; ctx.lineWidth=2.5; ctx.setLineDash([6,4]);
+            ctx.shadowBlur=_shadowsEnabled?12:0; ctx.shadowColor='#ef4444';
+            ctx.save(); ctx.translate(this.x,this.y); ctx.rotate(this._bossRot);
+            ctx.beginPath(); ctx.arc(0,0,this.radius+8,0,Math.PI*2); ctx.restore(); ctx.stroke();
+            ctx.setLineDash([]);
+            // Pulsing outer glow ring
+            ctx.globalAlpha=(this.drawAlpha||1)*(0.25+0.15*Math.sin(this._bossPulse));
+            ctx.lineWidth=4; ctx.strokeStyle='#ef4444';
+            ctx.beginPath(); ctx.arc(this.x,this.y,this.radius+14+Math.sin(this._bossPulse)*3,0,Math.PI*2); ctx.stroke();
+            // BOSS label
+            ctx.restore(); ctx.save();
+            ctx.fillStyle='#fbbf24'; ctx.font='bold 10px Arial'; ctx.textAlign='center';
+            ctx.shadowBlur=_shadowsEnabled?8:0; ctx.shadowColor='#fbbf24';
+            ctx.fillText('BOSS',this.x,this.y-this.radius-4);
 
         } else {
+            // ⚫ NORMAL ENEMY — vivid red sphere with radial gradient and subtle highlight
+            this._normT = ((this._normT||0)+0.03)%(Math.PI*2);
+            const normG = ctx.createRadialGradient(this.x-4,this.y-4,2, this.x,this.y,this.radius);
+            normG.addColorStop(0,'#fca5a5'); normG.addColorStop(0.5,'#ef4444'); normG.addColorStop(1,'#7f1d1d');
+            ctx.fillStyle=normG;
             ctx.beginPath(); ctx.arc(this.x,this.y,this.radius,0,Math.PI*2); ctx.fill();
+            // Subtle specular highlight
+            ctx.restore(); ctx.save(); ctx.globalAlpha=(this.drawAlpha||1)*0.5;
+            ctx.fillStyle='rgba(255,255,255,0.6)';
+            ctx.beginPath(); ctx.ellipse(this.x-4, this.y-4, this.radius*0.3, this.radius*0.2, -0.5, 0, Math.PI*2); ctx.fill();
         }
 
         if (this.isBoss) {
-            ctx.restore(); ctx.save();
-            ctx.fillStyle='#fbbf24'; ctx.font='bold 10px Arial'; ctx.textAlign='center';
-            ctx.fillText('BOSS',this.x,this.y-this.radius-4);
+            // Boss label already drawn above in its branch
         }
         ctx.restore();
 
@@ -5343,7 +5955,7 @@ function spawnWave(){
 
             let typePool = ['normal'];
             if(triangleEnemyUnlocked) typePool.push('triangle','triangle');
-            if(currentRound >= 8)  typePool.push('shielder');
+            if(currentRound >= 20) typePool.push('shielder');
             if(currentRound >= 10) typePool.push('splitter');
             if(currentRound >= 12) typePool.push('healer');
             if(currentRound >= 14) typePool.push('bomber');
