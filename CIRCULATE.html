@@ -3041,7 +3041,7 @@ const SHOP_ABILITIES = [
     { id:'airstrike_buy', name:'Airstrike',   icon:'✈️', desc:'Call in 3 airstrikes on random enemies.', cost:80, tier:'pricey', maxStack:99, onBuy: ()=>doAirstrike() },
     { id:'blackhole_buy', name:'Black Hole',  icon:'🌑', desc:'Pull all enemies to you for 3 seconds.', cost:90, tier:'pricey', maxStack:99, onBuy: ()=>doBlackhole() },
     { id:'timeslow_buy',  name:'Time Slow',   icon:'⏱️', desc:'Slow all enemies by 70% for 8 seconds.', cost:110, tier:'pricey', maxStack:99, onBuy: ()=>doTimeSlow() },
-    { id:'goldboost',     name:'Gold Rush',   icon:'💰', desc:'Instantly gain +80 run gold.', cost:0, tier:'cheap', maxStack:99, onBuy: ()=>{ runGold+=80; updateHUD(); } },
+    { id:'goldboost',     name:'Gold Rush',   icon:'💰', desc:'Instantly gain +40 run gold.', cost:0, tier:'cheap', maxStack:99, onBuy: ()=>{ runGold+=40; updateHUD(); } },
     { id:'speedburst',    name:'Speed Surge', icon:'⚡', desc:'Triple movement speed for 6 seconds.', cost:55, tier:'mid', maxStack:99, onBuy: ()=>{ const prev=player.speed; player.speed*=3; setTimeout(()=>{ player.speed=prev; },6000); } },
     { id:'healthvamp',    name:'Drain Strike',icon:'🧛', desc:'Instantly drain 15 HP from every enemy on screen.', cost:75, tier:'mid', maxStack:99,
       onBuy: ()=>{ let total=0; enemies.forEach(e=>{ const dmg=Math.min(e.health,15); e.health-=dmg; total+=dmg; if(e.health<=0){e.alive=false;player.kills++;gainExp(e.expValue);handleKill(e);} }); player.health=Math.min(player.maxHealth,player.health+total); updateHUD(); }
@@ -3244,8 +3244,8 @@ const RS_SHOP_ABILITIES = [
         updateHUD(); floatMoneyText('🧪 +50 HP!');
       }
     },
-    { id:'rs_gold_rush', name:'Gold Rush', icon:'🪙', desc:'Earn $80 bonus gold right now.', cost:20, tier:'cheap', maxStack:99,
-      onBuy: () => { runGold += 80; updateHUD(); floatMoneyText('🪙 +$80 Gold Rush!'); }
+    { id:'rs_gold_rush', name:'Gold Rush', icon:'🪙', desc:'Earn $40 bonus gold right now.', cost:20, tier:'cheap', maxStack:99,
+      onBuy: () => { runGold += 40; updateHUD(); floatMoneyText('🪙 +$40 Gold Rush!'); }
     },
 ];
 
@@ -4565,7 +4565,7 @@ function earnRunGold(amount) {
     const mult = CHARACTERS[currentCharacter].isGoldHoarder ? (CHARACTERS[currentCharacter].isCoinKing ? 10 : GH_GOLD_MULT) : 1;
     const rsBonus = (currentCharacter === 'rouge_square') ? (rougeSquareGoldBonus || 1) : 1;
     const gojoMult = (currentCharacter === 'gojo') ? 8 : 1;
-    const earned = (amount + passiveState.goldmag) * mult * rsBonus * gojoMult;
+    const earned = Math.floor(((amount + passiveState.goldmag) * mult * rsBonus * gojoMult) / 2);
     runGold += earned;
     if(currentCharacter === 'gojo') gojoRunGoldEarned += earned;
     document.getElementById('hudMoney').textContent = '💰' + runGold + ' (gold)';
@@ -7921,7 +7921,7 @@ function handleKill(e) {
     }
     // Gold on Kill passive
     if(passiveState.goldonkill && Math.random() < passiveState.goldonkill) {
-        runGold += 3;
+        runGold += 1;
     }
     // Momentum reset on kill (don't penalise)
     // no reset on kill - momentum persists
