@@ -6692,9 +6692,10 @@ function specialAttack(){
             playSound(80,0.15,'sawtooth'); playSound(160,0.1,'sine');
             break;
         }
+    } // close switch
     for(let i=0;i<15;i++)particles.push(new Particle(player.x,player.y,sk.color));
     updateHUD();
-}
+} // close specialAttack
 
 // ===== LUFFY ABILITIES =====
 function luffyKnockback(e, mult, sourceX, sourceY) {
@@ -8685,8 +8686,6 @@ function tickVeteran(dt) {
         for(let i=0;i<100;i++) particles.push(new Particle(player.x, player.y, t.color));
         for(let r=20;r<120;r+=20) for(let a=0;a<Math.PI*2;a+=0.3) particles.push(new Particle(player.x+Math.cos(a)*r, player.y+Math.sin(a)*r, t.projColor));
     }
-}
-
 }
 
 function tickLuffy(dt) {
