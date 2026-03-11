@@ -4634,32 +4634,39 @@ function earnRunGold(amount) {
 }
 
 function earnMoney(amount, reason) {
-    const mult = CHARACTERS[currentCharacter].isGoldHoarder ? (CHARACTERS[currentCharacter].isCoinKing ? 10 : GH_GOLD_MULT) : 1;
-    const actual = amount * mult;
-    // Mod characters only earn run gold, never persistent gold
-    if (CHARACTERS[currentCharacter]._isModChar) {
-        runGold += actual;
+    try {
+        const char = CHARACTERS[currentCharacter];
+        const mult = char?.isGoldHoarder ? (char?.isCoinKing ? 10 : GH_GOLD_MULT) : 1;
+        const actual = amount * mult;
+        // Mod characters only earn run gold, never persistent gold
+        if (char?._isModChar) {
+            runGold += actual;
+            document.getElementById('hudMoney').textContent = '💰' + runGold + ' (gold)';
+            floatMoneyText('+$' + actual + (reason ? ' (' + reason + ')' : ''));
+            return;
+        }
+        totalMoney += actual;
+        sessionMoney += actual;
+        if (char?.isGoldHoarder && currentCharacter === 'goldhoarder') {
+            if (sessionMoney > ghBestRun) {
+                ghBestRun = sessionMoney;
+                if (ghBestRun >= 100000 && !unlockedMasteries.includes('goldhoarder')) {
+                    unlockedMasteries.push('goldhoarder');
+                    savePersistentData();
+                    floatMoneyText('💰 COIN KING MASTERY UNLOCKED! Equip it in the character menu!');
+                }
+                updateMasteryCardButtons();
+            }
+        }
+        savePersistentData();
+        updateMoneyDisplay();
         document.getElementById('hudMoney').textContent = '💰' + runGold + ' (gold)';
         floatMoneyText('+$' + actual + (reason ? ' (' + reason + ')' : ''));
-        return;
+    } catch(e) {
+        // Never let an error here silently eat the player's money
+        console.error('earnMoney error:', e);
+        try { savePersistentData(); } catch(_) {}
     }
-    totalMoney += actual;
-    sessionMoney += actual;
-    if (CHARACTERS[currentCharacter].isGoldHoarder && currentCharacter === 'goldhoarder') {
-        if (sessionMoney > ghBestRun) {
-            ghBestRun = sessionMoney;
-            if (ghBestRun >= 100000 && !unlockedMasteries.includes('goldhoarder')) {
-                unlockedMasteries.push('goldhoarder');
-                savePersistentData();
-                floatMoneyText('💰 COIN KING MASTERY UNLOCKED! Equip it in the character menu!');
-            }
-            updateMasteryCardButtons();
-        }
-    }
-    savePersistentData();
-    updateMoneyDisplay();
-    document.getElementById('hudMoney').textContent = '💰' + runGold + ' (gold)';
-    floatMoneyText('+$' + actual + (reason ? ' (' + reason + ')' : ''));
 }
 
 let floatingTexts = [];
@@ -8887,8 +8894,13 @@ function endGame(sukunaKilled=false){
     const roundBonus = currentRound;
     const total = roundBonus + milestoneBonus;
     if(milestoneBonus > 0) floatMoneyText(`+$${milestoneBonus} milestone bonus!`);
-    if (!CHARACTERS[currentCharacter]?._isModChar) {
-        totalMoney += total; sessionMoney += total; savePersistentData();
+    try {
+        if (!CHARACTERS[currentCharacter]?._isModChar) {
+            totalMoney += total; sessionMoney += total;
+        }
+    } finally {
+        savePersistentData();
+        updateMoneyDisplay();
     }
     document.getElementById('gameOver').style.display='block';
     document.getElementById('finalLevel').textContent=player.level;
@@ -13085,22 +13097,38 @@ function selectCharacter(name){
     updateMcSkinClass();
 }
 function savePersistentData(){
-    localStorage.setItem('ballRPGMoney',totalMoney);
-    localStorage.setItem('ballRPGCharacters',JSON.stringify(unlockedCharacters));
-    localStorage.setItem('ballRPGCurrentCharacter',currentCharacter);
-    localStorage.setItem('ballRPGUsedCodes',JSON.stringify(usedCodes));
-    localStorage.setItem('ballRPGMasteries',JSON.stringify(unlockedMasteries));
-    localStorage.setItem('ballRPGEquippedMasteries',JSON.stringify(equippedMasteries));
-    localStorage.setItem('ballRPGVeteranWins', veteranWins);
-    localStorage.setItem('ballRPGBuilderWallsBuilt', builderWallsBuilt);
-    localStorage.setItem('ballRPGGhBestRun', ghBestRun);
-    localStorage.setItem('ballRPGGojoSukunaKills', gojoSukunaKills);
-    localStorage.setItem('ballRPGAchievements', JSON.stringify(unlockedAchievements));
-    localStorage.setItem('ballRPGAchievDates', JSON.stringify(achievementDates));
-    localStorage.setItem('ballRPGSeenEnemies', JSON.stringify(seenEnemyTypes));
-    localStorage.setItem('ballRPGEnemyKills',  JSON.stringify(enemyKillCounts));
-    localStorage.setItem('ballRPGHornetNoDmg', hornetNoDmgWave);
-    localStorage.setItem('ballRPGHornetNoShop', hornetNoShopWins);
+    const data = {
+        ballRPGMoney: totalMoney,
+        ballRPGCharacters: JSON.stringify(unlockedCharacters),
+        ballRPGCurrentCharacter: currentCharacter,
+        ballRPGUsedCodes: JSON.stringify(usedCodes),
+        ballRPGMasteries: JSON.stringify(unlockedMasteries),
+        ballRPGEquippedMasteries: JSON.stringify(equippedMasteries),
+        ballRPGVeteranWins: veteranWins,
+        ballRPGBuilderWallsBuilt: builderWallsBuilt,
+        ballRPGGhBestRun: ghBestRun,
+        ballRPGGojoSukunaKills: gojoSukunaKills,
+        ballRPGAchievements: JSON.stringify(unlockedAchievements),
+        ballRPGAchievDates: JSON.stringify(achievementDates),
+        ballRPGSeenEnemies: JSON.stringify(seenEnemyTypes),
+        ballRPGEnemyKills: JSON.stringify(enemyKillCounts),
+        ballRPGHornetNoDmg: hornetNoDmgWave,
+        ballRPGHornetNoShop: hornetNoShopWins,
+    };
+    try {
+        for (const [key, val] of Object.entries(data)) {
+            localStorage.setItem(key, val);
+        }
+    } catch(e) {
+        // localStorage quota exceeded — free up run saves to make room, then retry
+        console.warn('savePersistentData: localStorage full, clearing run saves to protect money');
+        try { RUN_SLOT_KEYS.forEach(k => localStorage.removeItem(k)); } catch(_) {}
+        try {
+            for (const [key, val] of Object.entries(data)) {
+                try { localStorage.setItem(key, val); } catch(_) {}
+            }
+        } catch(_) {}
+    }
 }
 
 function unlockAchievement(id) {
