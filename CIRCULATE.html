@@ -4636,6 +4636,13 @@ function earnRunGold(amount) {
 function earnMoney(amount, reason) {
     const mult = CHARACTERS[currentCharacter].isGoldHoarder ? (CHARACTERS[currentCharacter].isCoinKing ? 10 : GH_GOLD_MULT) : 1;
     const actual = amount * mult;
+    // Mod characters only earn run gold, never persistent gold
+    if (CHARACTERS[currentCharacter]._isModChar) {
+        runGold += actual;
+        document.getElementById('hudMoney').textContent = '💰' + runGold + ' (gold)';
+        floatMoneyText('+$' + actual + (reason ? ' (' + reason + ')' : ''));
+        return;
+    }
     totalMoney += actual;
     sessionMoney += actual;
     if (CHARACTERS[currentCharacter].isGoldHoarder && currentCharacter === 'goldhoarder') {
@@ -8880,7 +8887,9 @@ function endGame(sukunaKilled=false){
     const roundBonus = currentRound;
     const total = roundBonus + milestoneBonus;
     if(milestoneBonus > 0) floatMoneyText(`+$${milestoneBonus} milestone bonus!`);
-    totalMoney += total; sessionMoney += total; savePersistentData();
+    if (!CHARACTERS[currentCharacter]?._isModChar) {
+        totalMoney += total; sessionMoney += total; savePersistentData();
+    }
     document.getElementById('gameOver').style.display='block';
     document.getElementById('finalLevel').textContent=player.level;
     document.getElementById('finalKills').textContent=player.kills;
