@@ -1503,8 +1503,14 @@
                             oninput="refreshModPrompt()"
                             style="width:100%;background:#0d1117;border:1px solid rgba(255,255,255,0.15);color:#e2e8f0;border-radius:6px;padding:8px 10px;font-size:12px;font-family:inherit;outline:none;box-sizing:border-box;">
                     </div>
+                    <div id="modPassiveRow" style="margin-bottom:10px;">
+                        <label style="font-size:11px;color:rgba(255,255,255,0.5);display:block;margin-bottom:4px;" id="modPassiveLabel">Passives — always-on traits (optional, 1–3)</label>
+                        <input id="modCustomPassive" type="text" placeholder='e.g. "heal on kill, pierce shots, 20% dodge chance"'
+                            oninput="refreshModPrompt()"
+                            style="width:100%;background:#0d1117;border:1px solid rgba(255,255,255,0.15);color:#e2e8f0;border-radius:6px;padding:8px 10px;font-size:12px;font-family:inherit;outline:none;box-sizing:border-box;">
+                    </div>
                     <div>
-                        <label style="font-size:11px;color:rgba(255,255,255,0.5);display:block;margin-bottom:4px;" id="modAbilityLabel">R special — describe what you want it to do</label>
+                        <label style="font-size:11px;color:rgba(255,255,255,0.5);display:block;margin-bottom:4px;" id="modAbilityLabel">Active ability — describe what you want it to do</label>
                         <textarea id="modCustomAbility" rows="3"
                             placeholder='e.g. "freeze all enemies for 3 seconds", "fire 8 homing missiles", "teleport to the mouse cursor and deal damage nearby"'
                             oninput="refreshModPrompt()"
@@ -1738,7 +1744,7 @@
         <div class="character-card selected" onclick="selectCharacter('default')">
             <div class="character-preview" style="background:#3b82f6;box-shadow:0 0 20px rgba(59,130,246,.8);"></div>
             <div class="character-name">The Veteran</div>
-            <div class="character-ability">Evolves every 30s!<br>R: Adaptive Strike<br>changes with each tier</div>
+            <div class="character-ability" data-ability-key>[ABILITY]: Adaptive Strike<br>Changes with each tier!<br>PASSIVE: Evolves every 30s<br>gaining new stats &amp; traits</div>
             <div class="character-price">FREE</div>
             <button class="info-btn" onclick="event.stopPropagation();showCharInfo('default')">INFO</button>
             <button class="mastery-btn" onclick="event.stopPropagation();showMastery('default')">🏅 MASTERY</button>
@@ -1746,7 +1752,7 @@
         <div class="character-card" onclick="selectCharacter('goldhoarder')" id="goldhoarderCharacter">
             <div class="character-preview" style="background:linear-gradient(135deg,#ca8a04,#713f12);box-shadow:0 0 20px rgba(234,179,8,.9);"></div>
             <div class="character-name">Gold Hoarder</div>
-            <div class="character-ability">5x GOLD from everything!<br>R: Gold Rush converts<br>enemies to coins<br>Terrible at combat</div>
+            <div class="character-ability" data-ability-key>PASSIVE: 5x Gold from all sources<br>Enemies drop coins on death<br>[ABILITY]: Gold Rush — converts<br>nearby enemies into coins!</div>
             <div class="character-price">FREE</div>
             <button class="info-btn" onclick="event.stopPropagation();showCharInfo('goldhoarder')">INFO</button>
             <button class="mastery-btn" onclick="event.stopPropagation();showMastery('goldhoarder')">🏅 MASTERY</button>
@@ -1755,14 +1761,14 @@
         <div class="character-card" onclick="selectCharacter('vampire')" id="vampireCharacter">
             <div class="character-preview" style="background:linear-gradient(135deg,#7f1d1d,#450a0a);box-shadow:0 0 20px rgba(185,28,28,.8);"></div>
             <div class="character-name">Vampire</div>
-            <div class="character-ability">PASSIVE: Heal 8 HP<br>on every kill<br>No special ability</div>
+            <div class="character-ability">PASSIVE: Heal 8 HP on every kill<br>PASSIVE: 10% lifesteal on all damage<br>PASSIVE: +15% movement speed<br>No ability — pure passive power</div>
             <div class="character-price">$100</div>
             <button class="info-btn" onclick="event.stopPropagation();showCharInfo('vampire')">INFO</button>
         </div>
         <div class="character-card" onclick="selectCharacter('builder')" id="builderCharacter">
             <div class="character-preview" style="background:linear-gradient(135deg,#8b5a2b,#d2691e);box-shadow:0 0 20px rgba(160,82,45,.9);"></div>
             <div class="character-name">The Builder</div>
-            <div class="character-ability">E: Move nearby walls!<br>Shift+Click: Build new<br>walls for defense<br>R: Reinforce strengthen walls</div>
+            <div class="character-ability" data-ability-key>E: Move nearby walls around<br>Shift+Click: Build a new wall<br>[ABILITY]: Reinforce — strengthens<br>all walls &amp; boosts their HP</div>
             <div class="character-price">$100</div>
             <button class="info-btn" onclick="event.stopPropagation();showCharInfo('builder')">INFO</button>
             <button class="mastery-btn" onclick="event.stopPropagation();showMastery('builder')">🏅 MASTERY</button>
@@ -1771,7 +1777,7 @@
         <div class="character-card" onclick="selectCharacter('phantom')" id="phantomCharacter">
             <div class="character-preview" style="background:linear-gradient(135deg,#0ea5e9,#1e1b4b);box-shadow:0 0 22px rgba(125,211,252,.8);"></div>
             <div class="character-name">Phantom</div>
-            <div class="character-ability">PASSIVE: Ethereal shots<br>pierce through walls!<br>R: Ghost Walk phase<br>through walls + speed</div>
+            <div class="character-ability" data-ability-key>PASSIVE: Shots phase through walls<br>PASSIVE: 15% dodge chance<br>[ABILITY]: Ghost Walk — phase<br>through walls + burst of speed</div>
             <div class="character-price">$250</div>
             <button class="info-btn" onclick="event.stopPropagation();showCharInfo('phantom')">INFO</button>
         </div>
@@ -1779,14 +1785,14 @@
         <div class="character-card" onclick="selectCharacter('boxer')" id="boxerCharacter">
             <div class="character-preview" style="background:linear-gradient(135deg,#dc2626,#7f1d1d);box-shadow:0 0 20px rgba(220,38,38,.9);"></div>
             <div class="character-name">Boxer</div>
-            <div class="character-ability">High damage up close!<br>R: Power Dash dash<br>into enemies with damage</div>
+            <div class="character-ability" data-ability-key>PASSIVE: Melee range — 2x damage<br>PASSIVE: Kills restore 5 HP<br>[ABILITY]: Power Dash — charge<br>through enemies dealing damage</div>
             <div class="character-price">$500</div>
             <button class="info-btn" onclick="event.stopPropagation();showCharInfo('boxer')">INFO</button>
         </div>
         <div class="character-card" onclick="selectCharacter('fire')" id="fireCharacter">
             <div class="character-preview" style="background:linear-gradient(135deg,#ff4500,#7f1d1d);box-shadow:0 0 20px rgba(255,69,0,.9);"></div>
             <div class="character-name">Fire Ball</div>
-            <div class="character-ability">Shots leave BURNING<br>ground! R: Inferno<br>ignites all enemies</div>
+            <div class="character-ability" data-ability-key>PASSIVE: Shots leave burning<br>ground that damages enemies<br>PASSIVE: +10% fire damage bonus<br>[ABILITY]: Inferno — ignites ALL enemies</div>
             <div class="character-price">$500</div>
             <button class="info-btn" onclick="event.stopPropagation();showCharInfo('fire')">INFO</button>
         </div>
@@ -1794,7 +1800,7 @@
         <div class="character-card" onclick="selectCharacter('druid')" id="druidCharacter">
             <div class="character-preview" style="background:linear-gradient(135deg,#15803d,#052e16);box-shadow:0 0 22px rgba(74,222,128,.8);"></div>
             <div class="character-name">Druid</div>
-            <div class="character-ability">Shots ROOT enemies<br>in place for 1.5s!<br>R: Heal Mushrooms<br>spawn HP recovery pods</div>
+            <div class="character-ability" data-ability-key>PASSIVE: Shots ROOT enemies<br>in place for 1.5 seconds!<br>PASSIVE: Nature's touch heals<br>[ABILITY]: Heal Mushrooms — spawn<br>HP recovery pods around you</div>
             <div class="character-price">$750</div>
             <button class="info-btn" onclick="event.stopPropagation();showCharInfo('druid')">INFO</button>
         </div>
@@ -1802,7 +1808,7 @@
         <div class="character-card" onclick="selectCharacter('ice')" id="iceCharacter">
             <div class="character-preview" style="background:linear-gradient(135deg,#e0f7ff,#06b6d4);box-shadow:0 0 20px rgba(103,232,249,.9);"></div>
             <div class="character-name">Ice Ball</div>
-            <div class="character-ability">Fast pierce shots!<br>SHATTER frozen enemies<br>R: Blizzard freeze+slow</div>
+            <div class="character-ability" data-ability-key>PASSIVE: Shots slow &amp; freeze enemies<br>PASSIVE: Frozen enemies shatter<br>for massive bonus damage!<br>[ABILITY]: Blizzard — mass freeze + slow</div>
             <div class="character-price">$1000</div>
             <button class="info-btn" onclick="event.stopPropagation();showCharInfo('ice')">INFO</button>
         </div>
@@ -1810,7 +1816,7 @@
         <div class="character-card" onclick="selectCharacter('pyromancer')" id="pyromancerCharacter">
             <div class="character-preview" style="background:linear-gradient(135deg,#c2410c,#431407);box-shadow:0 0 22px rgba(251,146,60,.9);"></div>
             <div class="character-name">Pyromancer</div>
-            <div class="character-ability">Hold FIRE to charge<br>bigger shots! More<br>charge = more dmg!<br>R: Meteor Strike</div>
+            <div class="character-ability" data-ability-key>PASSIVE: Hold fire to charge shots<br>More charge = more damage!<br>PASSIVE: Charged shots pierce enemies<br>[ABILITY]: Meteor Strike — giant<br>flaming rock smashes a target area</div>
             <div class="character-price">$1500</div>
             <button class="info-btn" onclick="event.stopPropagation();showCharInfo('pyromancer')">INFO</button>
         </div>
@@ -1819,7 +1825,7 @@
             <span class="new-badge">NEW</span>
             <div class="character-preview" style="background:linear-gradient(135deg,#14532d,#4ade80);box-shadow:0 0 22px rgba(74,222,128,.8);"></div>
             <div class="character-name" style="color:#86efac;">Tank</div>
-            <div class="character-ability">500 HP! Can't shoot!<br>Touch enemies to deal<br>50 contact damage!<br>R: Ground Slam AOE stun</div>
+            <div class="character-ability" data-ability-key>500 HP — built to take hits!<br>PASSIVE: Melee contact deals 50 dmg<br>PASSIVE: 25% damage reduction<br>[ABILITY]: Ground Slam — AoE stun<br>&amp; knock back all nearby enemies</div>
             <div class="character-price">$2000</div>
             <button class="info-btn" onclick="event.stopPropagation();showCharInfo('tank')">INFO</button>
         </div>
@@ -1827,7 +1833,7 @@
         <div class="character-card" onclick="selectCharacter('electric')" id="electricCharacter">
             <div class="character-preview" style="background:linear-gradient(135deg,#facc15,#7c3aed);box-shadow:0 0 20px rgba(168,85,247,.9);"></div>
             <div class="character-name">Tesla</div>
-            <div class="character-ability">Shots auto-chain to<br>nearby enemies!<br>R: Overload next 8<br>shots hit EVERYTHING</div>
+            <div class="character-ability" data-ability-key>PASSIVE: Shots chain-lightning<br>to up to 3 nearby enemies!<br>PASSIVE: Chained hits deal 50% dmg<br>[ABILITY]: Overload — next 8 shots<br>chain to EVERY enemy on screen</div>
             <div class="character-price">$2500</div>
             <button class="info-btn" onclick="event.stopPropagation();showCharInfo('electric')">INFO</button>
         </div>
@@ -1835,7 +1841,7 @@
             <span class="new-badge">NEW</span>
             <div class="character-preview" style="background:linear-gradient(135deg,#713f12,#facc15);box-shadow:0 0 22px rgba(250,204,21,.9);"></div>
             <div class="character-name" style="color:#fde047;">Speedrunner</div>
-            <div class="character-ability">Damage scales with<br>how fast you move!<br>Stand still = 1 dmg<br>R: Sprint Burst 3s turbo</div>
+            <div class="character-ability" data-ability-key>PASSIVE: Damage scales with speed!<br>PASSIVE: Stand still = 1 dmg<br>PASSIVE: Full speed = max dmg<br>[ABILITY]: Sprint Burst — 3s turbo<br>speed + damage boost</div>
             <div class="character-price">$2500</div>
             <button class="info-btn" onclick="event.stopPropagation();showCharInfo('speedrunner')">INFO</button>
         </div>
@@ -1843,7 +1849,7 @@
         <div class="character-card" onclick="selectCharacter('cyborg')" id="cyborgCharacter">
             <div class="character-preview" style="background:linear-gradient(135deg,#0ea5e9,#4c1d95);box-shadow:0 0 22px rgba(14,165,233,.9);"></div>
             <div class="character-name">Cyborg</div>
-            <div class="character-ability">E: Toggle RAPID mode<br>(fast weak) vs HEAVY<br>(slow powerful)<br>R: 360° Laser Sweep</div>
+            <div class="character-ability" data-ability-key>E: Toggle RAPID mode (fast, weak)<br>vs HEAVY mode (slow, powerful)<br>PASSIVE: Mode swap boosts next shot<br>[ABILITY]: 360° Laser Sweep —<br>full-circle beam hits all around you</div>
             <div class="character-price">$3000</div>
             <button class="info-btn" onclick="event.stopPropagation();showCharInfo('cyborg')">INFO</button>
         </div>
@@ -1852,7 +1858,7 @@
             <span class="new-badge">NEW</span>
             <div class="character-preview" style="background:linear-gradient(135deg,#164e63,#22d3ee);box-shadow:0 0 22px rgba(34,211,238,.9);"></div>
             <div class="character-name" style="color:#67e8f9;">Glass Cannon</div>
-            <div class="character-ability">1 HP dies to anything!<br>150 DAMAGE per shot!<br>Kills stack Adrenaline<br>R: None</div>
+            <div class="character-ability">1 HP — one hit = dead!<br>PASSIVE: 150 DMG per shot<br>PASSIVE: Kills stack Adrenaline<br>(each stack = +5% fire rate)<br>No ability — pure offense</div>
             <div class="character-price">$3500</div>
             <button class="info-btn" onclick="event.stopPropagation();showCharInfo('glass_cannon')">INFO</button>
         </div>
@@ -1861,7 +1867,7 @@
             <span class="new-badge">NEW</span>
             <div class="character-preview" style="background:linear-gradient(135deg,#2e1065,#7c3aed);box-shadow:0 0 22px rgba(139,92,246,.9);"></div>
             <div class="character-name" style="color:#c4b5fd;">Necromancer</div>
-            <div class="character-ability">30% chance to raise<br>killed enemies as allies!<br>R: Soul Burst minions<br>explode dealing 3x dmg</div>
+            <div class="character-ability" data-ability-key>PASSIVE: 30% chance to raise killed<br>enemies as allied minions!<br>PASSIVE: Minions fight for you<br>[ABILITY]: Soul Burst — all your<br>minions explode for 3x damage</div>
             <div class="character-price">$4000</div>
             <button class="info-btn" onclick="event.stopPropagation();showCharInfo('necromancer')">INFO</button>
         </div>
@@ -1869,7 +1875,7 @@
         <div class="character-card" onclick="selectCharacter('timewizard')" id="timewizardCharacter">
             <div class="character-preview" style="background:linear-gradient(135deg,#7c3aed,#1e1b4b);box-shadow:0 0 22px rgba(167,139,250,.9);"></div>
             <div class="character-name">Time Wizard</div>
-            <div class="character-ability">Shots echo TWICE after<br>hitting! R: Rewind<br>restore your HP to<br>a saved snapshot</div>
+            <div class="character-ability" data-ability-key>PASSIVE: Shots echo TWICE after<br>hitting — 3 hits per bullet!<br>PASSIVE: Auto-saves HP snapshot<br>[ABILITY]: Rewind — restore HP<br>to your last saved snapshot</div>
             <div class="character-price">$4500</div>
             <button class="info-btn" onclick="event.stopPropagation();showCharInfo('timewizard')">INFO</button>
         </div>
@@ -1879,7 +1885,7 @@
                 <img src="https://minotar.net/helm/8af6c50833d54861b5c2dce1c16c6fae/512.png" style="width:64px;height:64px;image-rendering:pixelated;" onerror="this.style.display='none'"/>
             </div>
             <div class="character-name">Wemmbu</div>
-            <div class="character-ability">Shoots 3-shot burst!<br>Turret ability<br>Machine gun passive</div>
+            <div class="character-ability" data-ability-key>PASSIVE: Fires a 3-shot burst<br>PASSIVE: Machine gun mode —<br>extremely high fire rate!<br>[ABILITY]: Deploy Turret — places<br>an auto-firing turret</div>
             <div class="character-price">$5000</div>
             <button class="info-btn" onclick="event.stopPropagation();showCharInfo('wemmbu')">INFO</button>
         </div>
@@ -1888,7 +1894,7 @@
                 <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSU8qswuWvs5n8CSTMft-2QFR9Y54APiJ3q1g&s" style="width:64px;height:64px;object-fit:cover;border-radius:4px;" onerror="this.style.display='none'"/>
             </div>
             <div class="character-name">Eggchan</div>
-            <div class="character-ability">PASSIVE: 3-shot spread<br>+ chain lightning!<br>R: Veteran Burst</div>
+            <div class="character-ability" data-ability-key>PASSIVE: Fires a 3-shot spread<br>PASSIVE: Shots chain lightning<br>to up to 2 nearby enemies!<br>[ABILITY]: Veteran Burst —<br>rapid-fire burst of arrows</div>
             <div class="character-price">$5000</div>
             <button class="info-btn" onclick="event.stopPropagation();showCharInfo('eggchan')">INFO</button>
         </div>
@@ -1896,28 +1902,28 @@
         <div class="character-card" onclick="selectCharacter('war_veteran')" id="warVeteranCharacter" style="display:none;border-color:rgba(251,191,36,0.4);">
             <div class="character-preview" style="background:linear-gradient(135deg,#1e3a8a,#60a5fa);box-shadow:0 0 22px rgba(96,165,250,.85);"></div>
             <div class="character-name" style="color:#fbbf24;">War Veteran</div>
-            <div class="character-ability">20 DMG • Speed 6 • TP Dash<br>Promotes every 45s!<br>R: Ranked Bombardment<br>changes per rank</div>
+            <div class="character-ability" data-ability-key>20 DMG • Speed 6 • TP Dash<br>PASSIVE: Promotes every 45s —<br>gaining new traits per rank!<br>[ABILITY]: Ranked Bombardment —<br>changes power per rank</div>
             <div class="character-price" style="color:#fbbf24;">🎖️ Veteran Mastery</div>
             <button class="info-btn" onclick="event.stopPropagation();showCharInfo('war_veteran')">INFO</button>
         </div>
         <div class="character-card" onclick="selectCharacter('prime_veteran')" id="primeVeteranCharacter" style="display:none;">
             <div class="character-preview" style="background:linear-gradient(135deg,#1e3a8a,#3b82f6);box-shadow:0 0 20px rgba(59,130,246,0.8);"></div>
             <div class="character-name">Prime Veteran</div>
-            <div class="character-ability">The original.<br>Evolves every 30s.<br>R: Veteran Burst</div>
+            <div class="character-ability" data-ability-key>The original Veteran — perfected.<br>PASSIVE: Evolves every 30s<br>gaining stats &amp; new traits<br>[ABILITY]: Veteran Burst —<br>rapid omni-directional barrage</div>
             <div class="character-price" id="primeVetMainPrice">UNLOCKED ✅</div>
             <button class="info-btn" onclick="event.stopPropagation();showCharInfo('prime_veteran')">INFO</button>
         </div>
         <div class="character-card" onclick="selectCharacter('last_architect')" id="lastArchitectCharacter" style="display:none;border-color:rgba(167,139,250,0.4);">
             <div class="character-preview" style="background:linear-gradient(135deg,#4c1d95,#a78bfa);box-shadow:0 0 22px rgba(167,139,250,.85);"></div>
             <div class="character-name" style="color:#c4b5fd;">The Last Architect</div>
-            <div class="character-ability">15 DMG • Speed 6 • No Dash<br>Shift+Click: Toggle Mode<br>R: Ancient Construction<br>Summon Robot or Turret</div>
+            <div class="character-ability" data-ability-key>15 DMG • Speed 6 • No Dash<br>Shift+Click: Toggle build mode<br>PASSIVE: Structures deal AoE dmg<br>[ABILITY]: Ancient Construction —<br>summon a Robot or a Turret</div>
             <div class="character-price" style="color:#c4b5fd;">🏛️ Builder Mastery</div>
             <button class="info-btn" onclick="event.stopPropagation();showCharInfo('last_architect')">INFO</button>
         </div>
         <div class="character-card" onclick="selectCharacter('coin_king')" id="coinKingCharacter" style="display:none;border-color:rgba(251,191,36,0.5);">
             <div class="character-preview" style="background:linear-gradient(135deg,#92400e,#fbbf24);box-shadow:0 0 22px rgba(251,191,36,.9);"></div>
             <div class="character-name" style="color:#fbbf24;">The Coin King</div>
-            <div class="character-ability">12 DMG • Speed 4.5 • No Dash<br>10x Gold Multiplier!<br>Kills heal 3 HP<br>R: Gold Shower coin blitz</div>
+            <div class="character-ability" data-ability-key>12 DMG • Speed 4.5 • No Dash<br>PASSIVE: 10x Gold Multiplier<br>PASSIVE: Kills heal 3 HP<br>[ABILITY]: Gold Shower —<br>coin blitz rains gold on enemies</div>
             <div class="character-price" style="color:#fbbf24;">💰 Gold Hoarder Mastery</div>
             <button class="info-btn" onclick="event.stopPropagation();showCharInfo('coin_king')">INFO</button>
         </div>
@@ -1925,7 +1931,7 @@
         <div class="character-card" onclick="selectCharacter('megumi')" id="megumiCharacter" style="display:none;border-color:rgba(125,211,252,0.5);background:linear-gradient(135deg,rgba(15,23,42,0.4),rgba(99,102,241,0.1));">
             <div class="character-preview" style="background:linear-gradient(135deg,#0f172a,#1e3a8a);box-shadow:0 0 22px rgba(125,211,252,.7);border-radius:50%;"></div>
             <div class="character-name" style="color:#7dd3fc;">Megumi Fushiguro</div>
-            <div class="character-ability">30 DMG · Speed 6<br>🐺 R tap: 3 Divine Dogs (35 CE)<br>Hold R 7s: MAHORAGAH (Wave 100+)<br>White sphere · Speed 3 · 500 HP<br>4x DMG + AoE, 60% dmg reduced!</div>
+            <div class="character-ability" data-ability-key>30 DMG · Speed 6<br>PASSIVE: CE fuels all abilities<br>[ABILITY] tap: 3 Divine Dogs (35 CE)<br>Hold [ABILITY] 7s: MAHORAGAH<br>(Wave 100+ · 500 HP · 4x DMG · AoE)</div>
             <div class="character-price" style="color:#7dd3fc;">🐺 Quest Unlock</div>
             <button class="info-btn" onclick="event.stopPropagation();showCharInfo('megumi')">INFO</button>
         </div>
@@ -1933,7 +1939,7 @@
         <div class="character-card limited-card" onclick="selectCharacter('dice')" id="diceCharacter">
             <div class="character-preview" style="background:linear-gradient(135deg,#f97316,#ea580c);box-shadow:0 0 20px rgba(249,115,22,.9);"></div>
             <div class="character-name">Dice</div>
-            <div class="character-ability">EVERYTHING is random!<br>Speed, HP, dmg<br>all randomized each run<br>R: Random ability</div>
+            <div class="character-ability" data-ability-key>PASSIVE: Speed, HP, &amp; DMG<br>all randomized each run!<br>PASSIVE: Stats re-roll on wave clear<br>[ABILITY]: Random Ability —<br>rolls a random powerful effect</div>
             <div class="character-price">$2345</div>
             <div class="limited-timer" id="diceTimer"></div>
             <button class="info-btn" onclick="event.stopPropagation();showCharInfo('dice')">INFO</button>
@@ -1941,7 +1947,7 @@
         <div class="character-card limited-card" onclick="selectCharacter('yuji_itadori')" id="yujiCharacter">
             <div class="character-preview" style="background:linear-gradient(135deg,#e84d4d,#7f1d1d);box-shadow:0 0 22px rgba(232,77,77,.9);"></div>
             <div class="character-name" style="color:#fca5a5;">Yuji Itadori</div>
-            <div class="character-ability">Collect Sukuna Fingers!<br>20 fingers → Transform<br>into Sukuna forever!<br>Malevolent Shrine</div>
+            <div class="character-ability" data-ability-key>PASSIVE: Collect Sukuna Fingers!<br>PASSIVE: 20 fingers → Transform<br>into Sukuna permanently!<br>[ABILITY]: Malevolent Shrine —<br>massive AoE slash attack</div>
             <div class="character-price">$28000</div>
             <div class="limited-timer" id="yujiTimer"></div>
             <button class="info-btn" onclick="event.stopPropagation();showCharInfo('yuji_itadori')">INFO</button>
@@ -1949,7 +1955,7 @@
         <div class="character-card limited-card" onclick="selectCharacter('hakari_v2')" id="hakariCharacter">
             <div class="character-preview" style="background:linear-gradient(135deg,#ec4899,#7c3aed);box-shadow:0 0 22px rgba(236,72,153,.9);"></div>
             <div class="character-name" style="color:#f9a8d4;">Hakari</div>
-            <div class="character-ability">R: Domain Expansion!<br>Roll for JACKPOT (10%)<br>Hit: 4min immortality<br>+ 50x damage!</div>
+            <div class="character-ability" data-ability-key>PASSIVE: Hits build Lucky Meter<br>PASSIVE: Near-misses charge Domain<br>[ABILITY]: Domain Expansion!<br>10% JACKPOT: 4min immortality<br>+ 50x damage on hit!</div>
             <div class="character-price">$35000</div>
             <div class="limited-timer" id="hakariTimer"></div>
             <button class="info-btn" onclick="event.stopPropagation();showCharInfo('hakari_v2')">INFO</button>
@@ -1957,7 +1963,7 @@
         <div class="character-card limited-card" onclick="selectCharacter('character10b')" id="character10bCharacter">
             <div class="character-preview" style="background:linear-gradient(135deg,#0284c7,#00aa00);box-shadow:0 0 22px rgba(2,132,199,.9);"></div>
             <div class="character-name" style="color:#7dd3fc;">Character</div>
-            <div class="character-ability">11 HP ultra fragile<br>10 BILLION damage!<br>R: Omnipotent instant<br>kill EVERYTHING</div>
+            <div class="character-ability" data-ability-key>11 HP — ultra fragile!<br>PASSIVE: 10 BILLION damage per shot<br>PASSIVE: Invincibility frames on kill<br>[ABILITY]: Omnipotent —<br>instantly kills EVERYTHING on screen</div>
             <div class="character-price">$50000</div>
             <div class="limited-timer" id="character10bTimer"></div>
             <button class="info-btn" onclick="event.stopPropagation();showCharInfo('character10b')">INFO</button>
@@ -1965,7 +1971,7 @@
         <div class="character-card limited-card" onclick="selectCharacter('luffy')" id="luffyCharacter" style="border-color:#3b82f6;box-shadow:0 0 20px rgba(59,130,246,0.6),inset 0 0 15px rgba(59,130,246,0.2);animation:luffyGlow 2s ease-in-out infinite;">
             <div class="character-preview" style="background:linear-gradient(135deg,#7f1d1d,#e63946);box-shadow:0 0 22px rgba(230,57,70,.9);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:32px;"></div>
             <div class="character-name" style="color:#fca5a5;">Luffy</div>
-            <div class="character-ability" style="color:#fca5a5;">10 DMG • 85 HP • Speed 4.5<br>G1→G2→G3→G4→G5!<br>Obs. Haki: 35% dodge<br>R: Arm Haki · Z/X/C per Gear</div>
+            <div class="character-ability" data-ability-key style="color:#fca5a5;">10 DMG • 85 HP • Speed 4.5<br>PASSIVE: Obs. Haki — 35% dodge<br>PASSIVE: Auto-promotes G1→G5!<br>[ABILITY]: Arm Haki · Z/X/C vary per Gear<br>G5: Gear 5 — reality bending power!</div>
             <div class="character-price" style="color:#fca5a5;">$1,000,000</div>
             <div class="limited-timer" id="luffyTimer" style="background:rgba(59,130,246,0.85);border-color:#3b82f6;color:#fff;"></div>
             <button class="info-btn" onclick="event.stopPropagation();showCharInfo('luffy')" style="border-color:rgba(230,57,70,0.5);color:#fca5a5;">INFO</button>
@@ -1973,7 +1979,7 @@
         <div class="character-card limited-card" onclick="selectCharacter('rouge_square')" id="rougeSquareCharacter">
             <div class="character-preview" style="background:linear-gradient(135deg,#1e1b4b,#4444ff);box-shadow:0 0 22px rgba(68,68,255,.9);"></div>
             <div class="character-name" style="color:#8888ff;">Rouge Square</div>
-            <div class="character-ability">From the Roguelike Dungeon!<br>Moves on a grid. Square body.<br>Saw Blades orbit you & deal damage.<br>R: Dungeon Shop freeze enemies & buy upgrades</div>
+            <div class="character-ability" data-ability-key>PASSIVE: Moves on a grid — square body<br>PASSIVE: Saw Blades orbit you<br>dealing damage to nearby enemies!<br>[ABILITY]: Dungeon Shop — freeze enemies<br>&amp; open the upgrade shop</div>
             <div class="character-price">$250000</div>
             <div class="limited-timer" id="rougeSquareTimer"></div>
             <button class="info-btn" onclick="event.stopPropagation();showCharInfo('rouge_square')">INFO</button>
@@ -2231,6 +2237,16 @@
     <div class="settings-section">
         <h3>🎮 Keybinds</h3>
         <div id="keybindRows"></div>
+    </div>
+
+    <div class="settings-section">
+        <h3>⬆️ Passives Per Level Up</h3>
+        <p style="font-size:11px;color:rgba(255,255,255,0.45);margin-bottom:8px;">How many upgrades you pick each time you level up.</p>
+        <div style="display:flex;gap:8px;margin-bottom:4px;">
+            <button id="ppl1" onclick="setPassivesPerLevel(1)" style="flex:1;padding:8px 4px;font-size:11px;font-weight:bold;border-radius:6px;border:2px solid #3b82f6;background:rgba(59,130,246,0.2);color:white;cursor:pointer;transition:all 0.15s;">1 Pick</button>
+            <button id="ppl2" onclick="setPassivesPerLevel(2)" style="flex:1;padding:8px 4px;font-size:11px;font-weight:bold;border-radius:6px;border:2px solid rgba(255,255,255,0.2);background:rgba(255,255,255,0.05);color:white;cursor:pointer;transition:all 0.15s;">2 Picks</button>
+            <button id="ppl3" onclick="setPassivesPerLevel(3)" style="flex:1;padding:8px 4px;font-size:11px;font-weight:bold;border-radius:6px;border:2px solid rgba(255,255,255,0.2);background:rgba(255,255,255,0.05);color:white;cursor:pointer;transition:all 0.15s;">3 Picks</button>
+        </div>
     </div>
 
     <div class="settings-section">
@@ -4577,6 +4593,17 @@ function tickPassives(dt) {
             passiveState.hpshieldTimer = 0;
             floatMoneyText('🔰 Shield recharged!');
         }
+    }
+    // Run mod character passiveCode every frame
+    const _psk = CHARACTERS[currentCharacter];
+    if(_psk && _psk._isModChar && _psk._passiveFn) {
+        try {
+            _psk._passiveFn(
+                player, enemies, particles, Particle, Projectile,
+                projectiles, canvas, floatMoneyText, damageEnemy,
+                gainExp, handleKill, updateHUD, playSound, passiveState, mousePos, dt
+            );
+        } catch(err) { /* silent — passive errors shouldn't crash the loop */ }
     }
 }
 
@@ -8592,50 +8619,62 @@ function showLevelUp(){
 
     // ── Generic randomised level up ──
     const sk = CHARACTERS[currentCharacter] || {};
-    const opts = _pickLevelUpOptions(sk, 3);
+    const picksAllowed = (settings && settings.passivesPerLevel > 1) ? settings.passivesPerLevel : 1;
+    const poolSize = picksAllowed + 2; // show 2 extra choices beyond how many you can pick
+    const opts = _pickLevelUpOptions(sk, Math.max(3, poolSize));
+    let picksLeft = picksAllowed;
     const notice = document.getElementById('levelUpNotice');
-    notice.innerHTML = `
-        <h2>⬆️ LEVEL UP!</h2>
-        <p style="font-size:10px;margin-bottom:18px;color:rgba(255,255,255,0.5);">Choose your upgrade - Level ${player.level}</p>
-    `;
-    opts.forEach(opt => {
-        const rarityColor = RARITY_COLORS[opt.rarity] || '#94a3b8';
-        const rarityLabel = RARITY_LABELS[opt.rarity] || '';
-        const isMythic = opt.rarity === 'mythic';
-        const btn = document.createElement('button');
-        btn.className = 'upgrade-btn';
-        if (isMythic) {
-            btn.style.cssText = `
-                border: 2px solid #ffd700;
-                background: linear-gradient(135deg, rgba(255,215,0,0.08), rgba(255,165,0,0.12));
-                position:relative; text-align:left; padding-left:18px;
-                box-shadow: 0 0 18px rgba(255,215,0,0.45), inset 0 0 12px rgba(255,215,0,0.06);
-                animation: mythicPulse 1.4s ease-in-out infinite;
-            `;
-        } else {
-            btn.style.cssText = `border-left: 4px solid ${rarityColor}; background: rgba(255,255,255,0.04); position:relative; text-align:left; padding-left:18px;`;
-        }
-        btn.innerHTML = `
-            <span style="position:absolute;top:7px;right:10px;font-size:8px;color:${rarityColor};font-weight:bold;letter-spacing:1px;${isMythic?'text-shadow:0 0 8px #ffd700;':''}">${rarityLabel}</span>
-            <span style="font-size:18px;margin-right:8px;">${opt.icon}</span>${opt.label}
-        `;
-        btn.onclick = () => {
-            document.querySelectorAll('#levelUpNotice .upgrade-btn').forEach(b => { b.style.pointerEvents='none'; b.style.opacity='0.5'; });
-            btn.style.opacity='1'; btn.style.borderColor='#fbbf24'; btn.style.background='rgba(251,191,36,0.1)';
-            setTimeout(() => {
-                try { opt.apply(); } catch(e){ console.warn('LevelUp apply error:', e); }
-                restoreLevelUpHTML();
-                document.getElementById('levelUpNotice').classList.remove('show');
-                resumeJackpotMusic();
-                gameRunning=true; updateHUD(); requestAnimationFrame(gameLoop);
-            }, 220);
-        };
-        notice.appendChild(btn);
-    });
-    notice.classList.add('show');
-}
 
-function rerollLevelUpOptions() {
+    function renderLevelUpUI() {
+        notice.innerHTML = `
+            <h2>⬆️ LEVEL UP!</h2>
+            <p style="font-size:10px;margin-bottom:6px;color:rgba(255,255,255,0.5);">Level ${player.level}</p>
+            ${picksLeft > 0 ? `<p style="font-size:12px;margin-bottom:14px;color:#fbbf24;font-weight:bold;">✨ Pick ${picksLeft} upgrade${picksLeft>1?'s':''}</p>` : ''}
+        `;
+        opts.forEach(opt => {
+            if (opt._taken) return;
+            const rarityColor = RARITY_COLORS[opt.rarity] || '#94a3b8';
+            const rarityLabel = RARITY_LABELS[opt.rarity] || '';
+            const isMythic = opt.rarity === 'mythic';
+            const btn = document.createElement('button');
+            btn.className = 'upgrade-btn';
+            if (isMythic) {
+                btn.style.cssText = `border: 2px solid #ffd700; background: linear-gradient(135deg, rgba(255,215,0,0.08), rgba(255,165,0,0.12)); position:relative; text-align:left; padding-left:18px; box-shadow: 0 0 18px rgba(255,215,0,0.45), inset 0 0 12px rgba(255,215,0,0.06); animation: mythicPulse 1.4s ease-in-out infinite;`;
+            } else {
+                btn.style.cssText = `border-left: 4px solid ${rarityColor}; background: rgba(255,255,255,0.04); position:relative; text-align:left; padding-left:18px;`;
+            }
+            btn.innerHTML = `
+                <span style="position:absolute;top:7px;right:10px;font-size:8px;color:${rarityColor};font-weight:bold;letter-spacing:1px;${isMythic?'text-shadow:0 0 8px #ffd700;':''}">${rarityLabel}</span>
+                <span style="font-size:18px;margin-right:8px;">${opt.icon}</span>${opt.label}
+            `;
+            btn.onclick = () => {
+                if (picksLeft <= 0) return;
+                opt._taken = true;
+                picksLeft--;
+                btn.style.pointerEvents = 'none';
+                btn.style.opacity = '0.4';
+                btn.style.borderColor = '#fbbf24';
+                btn.style.background = 'rgba(251,191,36,0.08)';
+                try { opt.apply(); } catch(e){ console.warn('LevelUp apply error:', e); }
+                if (picksLeft <= 0) {
+                    setTimeout(() => {
+                        opts.forEach(o => delete o._taken);
+                        restoreLevelUpHTML();
+                        notice.classList.remove('show');
+                        resumeJackpotMusic();
+                        gameRunning=true; updateHUD(); requestAnimationFrame(gameLoop);
+                    }, 280);
+                } else {
+                    // Re-render remaining choices with updated counter
+                    setTimeout(() => renderLevelUpUI(), 60);
+                }
+            };
+            notice.appendChild(btn);
+        });
+    }
+    renderLevelUpUI();
+    notice.classList.add('show');
+} {
     const notice = document.getElementById('levelUpNotice');
     const sk = CHARACTERS[currentCharacter] || {};
     const opts = _pickLevelUpOptions(sk, 3);
@@ -11638,7 +11677,7 @@ const DEFAULT_BINDS = {
 const BIND_LABELS = {
     moveUp: '⬆ Move Up', moveDown: '⬇ Move Down',
     moveLeft: '⬅ Move Left', moveRight: '➡ Move Right',
-    dash: '💨 Dash', special: '✨ Special (R)', pause: '⏸ Pause',
+    dash: '💨 Dash', special: '✨ Ability (any key)', pause: '⏸ Pause',
 };
 
 const DEFAULT_SETTINGS = {
@@ -11650,6 +11689,7 @@ const DEFAULT_SETTINGS = {
     graphics: 'high',
     soundVolume: 0.5,
     musicVolume: 0.55,
+    passivesPerLevel: 1,
 };
 
 let binds = { ...DEFAULT_BINDS };
@@ -11673,6 +11713,12 @@ function saveSettings() {
     localStorage.setItem('ballSurvivalSettings', JSON.stringify(settings));
 }
 
+function setPassivesPerLevel(n) {
+    settings.passivesPerLevel = n;
+    saveSettings();
+    applySettings();
+}
+
 function applySettings() {
     document.getElementById('toggleShake').checked    = settings.screenShake;
     document.getElementById('toggleParticles').checked= settings.particles;
@@ -11688,6 +11734,13 @@ function applySettings() {
     document.getElementById('deathFeed').style.display = settings.deathFeed ? 'flex' : 'none';
     applyGraphicsButtons(settings.graphics || 'high');
     applyMusicVolume();
+    const ppl = settings.passivesPerLevel || 1;
+    ['ppl1','ppl2','ppl3'].forEach(id => {
+        const el = document.getElementById(id);
+        if(el) { const v=parseInt(id.replace('ppl',''));
+            el.style.borderColor = v===ppl?'#3b82f6':'rgba(255,255,255,0.2)';
+            el.style.background  = v===ppl?'rgba(59,130,246,0.25)':'rgba(255,255,255,0.05)'; }
+    });
 }
 
 const GFX_PRESETS = {
@@ -12204,6 +12257,21 @@ document.addEventListener('keydown',e=>{
         if(k === 'z') luffyZAbility();
         if(k === 'x') luffyXAbility();
         if(k === 'c') luffyCAbility();
+    }
+    // Mod character extra keys (z, x, c, q, e, f, g, h, etc.)
+    const _modSk = CHARACTERS[currentCharacter];
+    if(gameRunning && _modSk && _modSk._isModChar && _modSk._extraKeyFns && _modSk._extraKeyFns[k]) {
+        try {
+            _modSk._extraKeyFns[k](
+                player, enemies, particles, Particle, Projectile,
+                projectiles, canvas, floatMoneyText, damageEnemy,
+                gainExp, handleKill, updateHUD, playSound,
+                applyPassiveDamageBoost, mousePos, passiveState
+            );
+        } catch(err) {
+            floatMoneyText('⚠️ Extra key [' + k.toUpperCase() + '] error: ' + err.message);
+            console.error('Mod extra key runtime error:', err);
+        }
     }
     // ZA WARUDOOO - B key
     if(k === 'b' && gameRunning && passiveState.zaWarudoUnlocked) {
@@ -14429,27 +14497,30 @@ function modsTab(tab) {
     if (tab === 'create') refreshModPrompt();
 }
 
-function getModPromptText(type, customTheme, customAbility) {
+function getModPromptText(type, customTheme, customAbility, customPassive) {
     if (type === 'character') {
-        return `You are a mod generator for CIRCULATE — a top-down bullet-hell arena survival game where the player controls a colored ball fighting endless waves of enemies on a walled canvas. Characters each have a unique visual identity, stat profile, and one signature ability bound to the R key (and optionally a passive or toggle on the E key).
+        return `You are a mod generator for CIRCULATE — a top-down bullet-hell arena survival game where the player controls a colored ball fighting endless waves of enemies on a walled canvas. Characters each have a unique visual identity, stat profile, one active ability (bound to whatever key the player has set as their Ability key — do NOT hardcode "R"), and 1–3 passive traits that are always active.
 
 GAME CONTEXT YOU MUST UNDERSTAND:
 - The player ball moves with WASD and aims/shoots toward the mouse cursor.
 - Each wave spawns more and harder enemies. Surviving longer is the core loop.
-- Mana regenerates over time and is spent on the R ability.
+- Mana regenerates over time and is spent on the active ability.
 - The base fire rate is ~200ms. Speed 3 is average; 5 feels fast, 1.5 feels sluggish.
-- 100 HP is the standard. Tank has 500 HP. Scout has 60 HP.
+- 100 HP is the standard. Tank has 500 HP. Glass Cannon has 1 HP.
 - Damage 10 is weak, 20 is standard, 50+ is high-cost specialist.
 - Characters are bought with persistent gold earned across runs.
+- PASSIVES are always-on effects — e.g. lifesteal, speed aura, pierce shots, kill-heal, damage reflection, dodge chance, etc. They are part of the core identity of a character and run every frame or on-hit/on-kill via passiveCode.
+- The ABILITY KEY is whatever the player has bound — never say "press R". Say "press your Ability key" or just describe the effect.
 
 EXISTING CHARACTERS FOR REFERENCE (do NOT duplicate these):
-• Scout – 60 HP, speed 5.5, damage 8. Passive: dodge chance. R: Triple Shot burst.
-• Tank – 500 HP, speed 2, damage 50. No ranged attack. R: Ground Slam shockwave.
-• Cyborg – 100 HP, speed 3.5, dual fire modes (Rapid/Heavy toggled with E). R: 360° Laser Sweep.
-• Gambler – 100 HP. R: Domain Expansion (safe zone + jackpot system for ULTRA REGEN buff).
-• Boxer – Melee only, no projectiles. R: Massive punch.
-• Architect – 100 HP. R: Summons turrets or roaming robots (mode toggled with E).
-• One Punch – 11 HP, 10 billion damage. R: Omnipotent (full heal + kill all enemies instantly).
+• Vampire – Passive: heal 8 HP on kill + 10% lifesteal. No active ability.
+• Phantom – Passive: pierce shots through walls, 15% dodge. Ability: Ghost Walk (phase through walls + speed burst).
+• Druid – Passive: shots root enemies for 1.5s. Ability: spawn heal mushrooms.
+• Tank – Passive: 25% damage reduction, melee contact deals 50 dmg. Ability: Ground Slam AoE stun.
+• Necromancer – Passive: 30% raise-dead on kill. Ability: Soul Burst (minions explode).
+• Glass Cannon – Passive: 150 dmg/shot, kills stack Adrenaline (+5% fire rate per stack). No ability.
+• Speedrunner – Passive: damage scales with movement speed. Ability: Sprint Burst (3s turbo).
+• Cyborg – Passive: mode-swap bonus shot. Ability: 360° Laser Sweep. E key toggles Rapid/Heavy mode.
 
 YOUR TASK: Generate a single creative custom CHARACTER as a JSON object with EXACTLY these fields:
 - id: unique snake_case string (e.g. "void_monk")
@@ -14460,56 +14531,70 @@ YOUR TASK: Generate a single creative custom CHARACTER as a JSON object with EXA
 - hp: max health — balance relative to speed/damage (e.g. 120)
 - speed: movement speed 1–6 (e.g. 3.2)
 - damage: base projectile damage 5–30, or 0 if melee/no projectiles (e.g. 14)
-- ability: a short internal id string for the R ability (e.g. "shadow_burst") — this is for flavor only, use any snake_case name
-- manaCost: mana cost to activate R ability, 0–80 (e.g. 35)
+- ability: a short internal id string for the active ability (e.g. "shadow_burst") — flavor only, any snake_case name
+- manaCost: mana cost to activate ability, 0–80 (e.g. 35)
 - cdMax: cooldown in frames at 60fps after the ability fires, 0 = no cooldown (e.g. 300)
 - desc: 1–2 sentence flavor description of the character's identity and playstyle
-- abilityDesc: 2–4 sentence mechanical description of EXACTLY what the R ability does, written clearly so a player knows what to expect (include damage numbers, durations, area of effect, etc.)
+- passiveDesc: array of 1–3 short strings, each describing one passive trait (e.g. ["Heal 5 HP on every kill", "20% dodge chance", "Shots pierce through enemies"])
+- abilityDesc: 2–4 sentence mechanical description of EXACTLY what the active ability does (include damage, duration, area, etc.). Do NOT mention "R key" — say "Activating this ability..." or just describe the effect.
 - icon: single emoji representing the character (e.g. "🌑")
 - unlockCost: persistent gold cost to unlock in the shop, 0 = free (e.g. 2500)
-- abilityCode: JavaScript function body string that runs when R is pressed (see below)
+- passiveCode: JavaScript function body string that runs every game frame (or on kill/on hit) to implement passive effects. Leave as "" if passives are purely stat-based (e.g. just HP/speed differences with no per-frame logic needed).
+- abilityCode: JavaScript function body string that runs when the player presses their Ability key (see below)
 - isCustomMod: true
 - type: "character"
 - infoStats: array of {label, value} objects shown in the INFO panel (2–6 entries, e.g. [{"label":"HP","value":"120"},{"label":"Fire Rate","value":"200ms"},{"label":"Mana Cost","value":"35"}])
-- infoAbilities: HTML string for the INFO panel abilities section — use <b> for headers, <br> for line breaks. Describe ALL abilities in detail including damage numbers, durations, and effects.
+- infoAbilities: HTML string for the INFO panel — use <b>PASSIVE:</b> and <b>ABILITY:</b> and (if applicable) <b>Z / X / C keys:</b> headers, <br> for line breaks. List ALL passives first, then the active ability, then extra keys if any.
 - infoPlaystyle: 1–2 sentence plain-text description of how to play this character effectively.
 - infoTip: A single practical tip starting with 💡 Tip:
 
+EXTRA KEYS (extraKeys field — optional but encouraged for complex characters):
+You can give the character additional abilities bound to letter keys (z, x, c, q, e, f, g, etc.) using the extraKeys object.
+Format: { "z": "...JS code...", "x": "...JS code...", "c": "...JS code..." }
+Each value is a JavaScript function body that runs when that key is pressed.
+These are REAL keybinds that work in-game — the game engine dispatches them automatically.
+Available variables (same as abilityCode, plus passiveState).
+
+EXAMPLE extraKeys:
+  Three elemental strikes:
+  "extraKeys": {
+    "z": "enemies.forEach(e=>{if(Math.hypot(e.x-player.x,e.y-player.y)<130)damageEnemy(e,player.damage*4,player.x,player.y)});for(let i=0;i<30;i++)particles.push(new Particle(player.x,player.y,'#f97316'));floatMoneyText('🔥 Ember Strike!');playSound(280,0.08,'sawtooth');",
+    "x": "enemies.forEach(e=>{if(Math.hypot(e.x-player.x,e.y-player.y)<130){e.frozen=180;for(let i=0;i<8;i++)particles.push(new Particle(e.x,e.y,'#bae6fd'));}});floatMoneyText('❄️ Frost Nova!');playSound(200,0.07,'sine');",
+    "c": "const pv=player.speed;player.speed*=2;setTimeout(()=>player.speed=pv,1800);for(let i=0;i<25;i++)particles.push(new Particle(player.x,player.y,'#86efac'));floatMoneyText('💨 Wind Step!');playSound(500,0.06,'square');"
+  }
+
+RULES for extraKeys:
+- Refer to them by their letter in all text fields (e.g. "Z: Ember Strike", "X: Frost Nova") — never say "R key" for extra keys.
+- List extra key descriptions under a <b>EXTRA KEYS:</b> section in infoAbilities.
+- Only add extra keys when the character concept genuinely benefits from multiple inputs (stance switching, element cycling, resource management, etc.).
+
+PASSIVE CODE INSTRUCTIONS (passiveCode field):
+Write a JavaScript function BODY that runs every game frame to implement always-on effects.
+Available variables: player, enemies, particles, Particle, Projectile, projectiles, canvas, floatMoneyText, damageEnemy, gainExp, handleKill, updateHUD, playSound, passiveState, mousePos, dt.
+Use player._modPassive = player._modPassive || {} to store per-character frame state.
+
+EXAMPLE passiveCode values:
+  Regeneration: "player._modPassive=player._modPassive||{};player._modPassive.t=(player._modPassive.t||0)+1;if(player._modPassive.t>=120){player._modPassive.t=0;player.health=Math.min(player.maxHealth,player.health+3);updateHUD();}"
+  Speed aura particles: "if(Math.random()<0.15)particles.push(new Particle(player.x+(Math.random()-.5)*20,player.y+(Math.random()-.5)*20,'#facc15'));"
+  Lifesteal: "passiveState.vampiric=Math.max(passiveState.vampiric||0,0.08);"
+
 ABILITY CODE INSTRUCTIONS (abilityCode field):
-Write a JavaScript function BODY (no function declaration — just the code inside) that implements the R ability.
-The following variables are available to use directly:
-  player        — { x, y, health, maxHealth, mana, maxMana, speed, damage, radius, kills }
-  enemies       — array of live Enemy objects with { x, y, health, maxHealth, speed, damage, radius, alive, frozen }
-  particles     — array you can push new Particle(x, y, '#hexcolor') into for visual effects
-  Particle      — constructor: new Particle(x, y, colorHexString)
-  Projectile    — constructor: new Projectile(x, y, angle, damage, colorHex, isSpecial)
-  projectiles   — array you can push new Projectile(...) into
-  canvas        — { width, height }
-  floatMoneyText(str) — show a floating message on screen (e.g. '💥 BLAST!')
-  damageEnemy(enemy, amount, sourceX, sourceY) — deal damage to an enemy
-  gainExp(amount) — grant player XP
-  handleKill(enemy) — call after setting enemy.alive=false to register the kill
-  updateHUD()   — refresh the HUD display
-  playSound(frequency, volume, type) — play a beep. type: 'sine','square','sawtooth'
-  applyPassiveDamageBoost(baseDmg) — returns damage after passive modifiers
-  mousePos      — { x, y } — current mouse/aim position
+Write a JavaScript function BODY (no function declaration) that runs when the player presses their Ability key.
+Available variables: player, enemies, particles, Particle, Projectile, projectiles, canvas, floatMoneyText, damageEnemy, gainExp, handleKill, updateHUD, playSound, applyPassiveDamageBoost, mousePos.
 
 EXAMPLE abilityCode values:
   Shockwave blast: "enemies.forEach(e=>{const d=Math.hypot(e.x-player.x,e.y-player.y);if(d<200){damageEnemy(e,player.damage*3,player.x,player.y);if(e.health<=0&&e.alive){e.alive=false;player.kills++;gainExp(e.expValue||10);handleKill(e);}}});for(let i=0;i<60;i++)particles.push(new Particle(player.x,player.y,'#a78bfa'));floatMoneyText('💜 VOID BURST!');playSound(200,0.12,'sine');"
   Speed burst: "const prev=player.speed;player.speed*=2.5;setTimeout(()=>{player.speed=prev;},4000);for(let i=0;i<40;i++)particles.push(new Particle(player.x,player.y,'#facc15'));floatMoneyText('⚡ SPEED SURGE! 4s!');playSound(440,0.1,'square');"
   Freeze all: "enemies.forEach(e=>{e.frozen=240;for(let i=0;i<6;i++)particles.push(new Particle(e.x,e.y,'#bfdbfe'));});floatMoneyText('❄️ DEEP FREEZE! 4s!');playSound(300,0.08,'sine');"
 
-Keep the abilityCode compact (one line or a few semicolon-separated statements). Use the examples as a guide for style.
-Set ability: "mod_custom" when you provide abilityCode.
+Keep code compact (one line or a few semicolon-separated statements). Set ability: "mod_custom" when you provide abilityCode.
 
 DESIGN GUIDELINES:
-- Be creative and thematic — tie the ability to the character's visual identity.
-- Balance the character: high HP = lower speed or damage; high damage = lower HP or higher mana cost.
-- The ability should feel impactful and fun: area attacks, buffs, summons, transformations, and utility all work.
-- Avoid copying existing characters. Invent something genuinely new.
-- abilityDesc must describe concrete game effects (not vague flavor text).
-- Always include abilityCode — this is what actually makes the ability work in-game.
-${customTheme ? `\nUSER REQUEST — CHARACTER THEME: "${customTheme}"\nBase the character's name, color, icon, and desc around this theme.` : ''}${customAbility ? `\nUSER REQUEST — R SPECIAL ABILITY: "${customAbility}"\nImplement this as the R ability. Set abilityDesc and abilityCode to match this behaviour exactly. Be faithful to what the user described.` : ''}
+- Every character MUST have at least 1 meaningful passive. Describe them in passiveDesc and implement in passiveCode (or use passiveState fields for stat-based passives).
+- Do NOT write "R key", "press R", or any hardcoded key name in any text field — say "Ability", "Z key", "X key", etc. as appropriate.
+- abilityDesc, passiveDesc, and infoAbilities must all describe concrete mechanics, not vague flavor.
+- Always include abilityCode. passiveCode can be "" if passives are purely stat-based. extraKeys is optional.
+${customTheme ? `\nUSER REQUEST — CHARACTER THEME: "${customTheme}"\nBase the character's name, color, icon, and desc around this theme.` : ''}${customPassive ? `\nUSER REQUEST — PASSIVES: "${customPassive}"\nImplement these as the character's passive traits. Reflect them faithfully in passiveDesc and passiveCode.` : ''}${customAbility ? `\nUSER REQUEST — ACTIVE ABILITY: "${customAbility}"\nImplement this as the active ability. Set abilityDesc and abilityCode to match this behaviour exactly. Be faithful to what the user described.` : ''}
 
 Return ONLY a single valid JSON object. No markdown, no code fences, no explanation, no preamble. Just the raw JSON.`;
     } else {
@@ -14612,17 +14697,22 @@ function refreshModPrompt() {
     const isChar = type === 'character';
     const themeLabel = document.getElementById('modThemeLabel');
     const abilityLabel = document.getElementById('modAbilityLabel');
+    const passiveLabel = document.getElementById('modPassiveLabel');
+    const passiveRow = document.getElementById('modPassiveRow');
     const themeInput = document.getElementById('modCustomTheme');
     const abilityInput = document.getElementById('modCustomAbility');
+    const passiveInput = document.getElementById('modCustomPassive');
     if (themeLabel) themeLabel.textContent = isChar ? 'Character concept / theme' : 'Enemy concept / theme';
-    if (abilityLabel) abilityLabel.textContent = isChar ? 'R special — describe what you want it to do' : 'Special ability — describe what the enemy does periodically';
+    if (abilityLabel) abilityLabel.textContent = isChar ? 'Active ability — describe what you want it to do' : 'Special ability — describe what the enemy does periodically';
+    if (passiveRow) passiveRow.style.display = isChar ? 'block' : 'none';
     if (themeInput) themeInput.placeholder = isChar ? '"ice wizard", "ninja", "friendly robot"' : '"ancient tree spirit", "shadow clone", "electric jellyfish"';
     if (abilityInput) abilityInput.placeholder = isChar
         ? '"freeze all enemies for 3 seconds", "fire 8 homing missiles", "teleport to the mouse cursor"'
         : '"fires 3 shots at the player every 4s", "heals itself 20 HP every 5s", "dashes toward player"';
     const theme = (themeInput?.value || '').trim();
     const ability = (abilityInput?.value || '').trim();
-    document.getElementById('modGeneratedCode').value = getModPromptText(type, theme, ability);
+    const passive = isChar ? (passiveInput?.value || '').trim() : '';
+    document.getElementById('modGeneratedCode').value = getModPromptText(type, theme, ability, passive);
 }
 
 function updateModPromptHint() { refreshModPrompt(); }
@@ -14757,11 +14847,48 @@ function applyActiveMods() {
                 _startDamage: mod.damage || 10,
                 _isModChar: true,
                 _abilityCode: mod.abilityCode || null,
+                _passiveCode: mod.passiveCode || null,
+                _extraKeys: mod.extraKeys || null,
                 icon: mod.icon || '🧩',
                 desc: mod.desc || '',
                 abilityDesc: mod.abilityDesc || '',
+                passiveDesc: mod.passiveDesc || [],
                 unlockCost: mod.unlockCost || 0,
             };
+
+            // Pre-compile extra key functions so we don't call new Function on every keypress
+            const _ch = CHARACTERS[mod.id];
+            _ch._extraKeyFns = {};
+            if (mod.extraKeys && typeof mod.extraKeys === 'object') {
+                const _argNames = ['player','enemies','particles','Particle','Projectile',
+                    'projectiles','canvas','floatMoneyText','damageEnemy',
+                    'gainExp','handleKill','updateHUD','playSound',
+                    'applyPassiveDamageBoost','mousePos','passiveState'];
+                Object.entries(mod.extraKeys).forEach(([key, code]) => {
+                    if (!code || typeof code !== 'string') return;
+                    try {
+                        _ch._extraKeyFns[key.toLowerCase()] = new Function(..._argNames, code);
+                    } catch(err) {
+                        console.warn('Mod "' + mod.name + '" extra key [' + key + '] failed to compile:', err.message);
+                        floatMoneyText('⚠️ Mod key [' + key.toUpperCase() + '] syntax error: ' + err.message);
+                    }
+                });
+            }
+
+            // Pre-compile passiveCode function
+            _ch._passiveFn = null;
+            if (mod.passiveCode && typeof mod.passiveCode === 'string' && mod.passiveCode.trim()) {
+                try {
+                    _ch._passiveFn = new Function(
+                        'player','enemies','particles','Particle','Projectile',
+                        'projectiles','canvas','floatMoneyText','damageEnemy',
+                        'gainExp','handleKill','updateHUD','playSound','passiveState','mousePos','dt',
+                        mod.passiveCode
+                    );
+                } catch(err) {
+                    console.warn('Mod "' + mod.name + '" passiveCode failed to compile:', err.message);
+                }
+            }
 
             // Auto-unlock mod characters
             if (!unlockedCharacters.includes(mod.id)) {
