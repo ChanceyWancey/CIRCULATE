@@ -15770,9 +15770,19 @@ function installModFromInput() {
 
 function tryInstallMod(raw) {
     const status = document.getElementById('modInstallStatus');
+    // Helper: strip markdown link format [text](url) → url
+    function cleanUrl(str) {
+        if (!str || typeof str !== 'string') return str;
+        str = str.trim();
+        const mdMatch = str.match(/^\[.*?\]\((.+?)\)$/);
+        return mdMatch ? mdMatch[1].trim() : str;
+    }
     try {
         const mod = JSON.parse(raw.replace(/```json|```/g, '').trim());
         if (!mod.id || !mod.name) throw new Error('Missing required fields (id, name)');
+        // Clean any markdown-formatted URLs the AI may have returned
+        if (mod.imageUrl) mod.imageUrl = cleanUrl(mod.imageUrl);
+        if (mod.musicUrl) mod.musicUrl = cleanUrl(mod.musicUrl);
 
         // Check for duplicate
         const existing = _installedMods.findIndex(m => m.id === mod.id);
@@ -16163,11 +16173,13 @@ function removeModImage() {
 function restoreModImages() {
     const imgs = getModImages();
     Object.entries(imgs).forEach(([id, url]) => {
-        SKIN_URLS[id] = url;
-        if (CHARACTERS[id]) { CHARACTERS[id].useImg = true; CHARACTERS[id]._modImgUrl = url; }
+        // Strip any markdown link format that may have been stored previously
+        const cleanedUrl = (url && typeof url === 'string') ? url.trim().replace(/^\[.*?\]\((.+?)\)$/, '$1').trim() : url;
+        SKIN_URLS[id] = cleanedUrl;
+        if (CHARACTERS[id]) { CHARACTERS[id].useImg = true; CHARACTERS[id]._modImgUrl = cleanedUrl; }
         // For enemies, store on mod object so spawnModEnemy can use it
         const mod = _installedMods.find(m => m.id === id);
-        if (mod) mod._imgUrl = url;
+        if (mod) mod._imgUrl = cleanedUrl;
     });
 }
 // ===== END MOD IMAGE SYSTEM =====
