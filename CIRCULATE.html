@@ -1478,6 +1478,7 @@
             <button onclick="modsTab('create')" id="modsTabCreate" style="padding:8px 18px;border-radius:6px;border:none;font-size:12px;font-weight:bold;font-family:inherit;cursor:pointer;background:#059669;color:white;border-bottom:3px solid #065f46;">✨ Create</button>
             <button onclick="modsTab('install')" id="modsTabInstall" style="padding:8px 18px;border-radius:6px;border:none;font-size:12px;font-weight:bold;font-family:inherit;cursor:pointer;background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.6);border-bottom:3px solid transparent;">📦 Install Mod</button>
             <button onclick="modsTab('manage')" id="modsTabManage" style="padding:8px 18px;border-radius:6px;border:none;font-size:12px;font-weight:bold;font-family:inherit;cursor:pointer;background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.6);border-bottom:3px solid transparent;">⚙️ Manage Mods</button>
+            <button onclick="modsTab('guide')" id="modsTabGuide" style="padding:8px 18px;border-radius:6px;border:none;font-size:12px;font-weight:bold;font-family:inherit;cursor:pointer;background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.6);border-bottom:3px solid transparent;">📖 Guide</button>
             <button onclick="modsTab('errors')" id="modsTabErrors" style="padding:8px 18px;border-radius:6px;border:none;font-size:12px;font-weight:bold;font-family:inherit;cursor:pointer;background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.6);border-bottom:3px solid transparent;">🐛 Errors <span id="modsErrorBadge" style="display:none;background:#ef4444;color:white;font-size:9px;padding:1px 5px;border-radius:8px;margin-left:3px;vertical-align:middle;">0</span></button>
         </div>
 
@@ -1717,6 +1718,84 @@
         <div id="modsTabManageContent" style="display:none;">
             <div id="modsManageList"></div>
             <div id="modsManageEmpty" style="text-align:center;padding:40px 0;color:rgba(255,255,255,0.25);font-size:13px;">No mods installed yet. Use the Create or Install tab to add one.</div>
+        </div>
+
+        <!-- GUIDE TAB -->
+        <div id="modsTabGuideContent" style="display:none;">
+            <div style="font-size:13px;font-weight:bold;color:#a78bfa;margin-bottom:16px;">📖 What Mods Can (and Can't) Do</div>
+
+            <!-- CAN DO -->
+            <div style="background:rgba(34,197,94,0.06);border:1.5px solid rgba(34,197,94,0.25);border-radius:10px;padding:16px 18px;margin-bottom:14px;">
+                <div style="font-size:12px;font-weight:bold;color:#4ade80;margin-bottom:12px;">✅ What mods CAN do</div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px 18px;">
+                    <div style="font-size:11px;color:rgba(255,255,255,0.65);padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.05);">🧑 Add a fully playable character with custom stats</div>
+                    <div style="font-size:11px;color:rgba(255,255,255,0.65);padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.05);">👾 Add a new enemy type that spawns in waves</div>
+                    <div style="font-size:11px;color:rgba(255,255,255,0.65);padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.05);">⚡ Give a character an active ability (R key)</div>
+                    <div style="font-size:11px;color:rgba(255,255,255,0.65);padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.05);">🔑 Add extra key bindings (Z, X, C, etc.)</div>
+                    <div style="font-size:11px;color:rgba(255,255,255,0.65);padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.05);">✨ Always-on passive effects (auras, lifesteal, regen)</div>
+                    <div style="font-size:11px;color:rgba(255,255,255,0.65);padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.05);">🔫 Fire projectiles in any direction or pattern</div>
+                    <div style="font-size:11px;color:rgba(255,255,255,0.65);padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.05);">❄️ Freeze or ignite enemies</div>
+                    <div style="font-size:11px;color:rgba(255,255,255,0.65);padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.05);">💥 Deal AoE damage in a radius around the player</div>
+                    <div style="font-size:11px;color:rgba(255,255,255,0.65);padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.05);">💚 Heal the player or grant i-frames</div>
+                    <div style="font-size:11px;color:rgba(255,255,255,0.65);padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.05);">✨ Teleport the player (blink to cursor, random warp)</div>
+                    <div style="font-size:11px;color:rgba(255,255,255,0.65);padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.05);">🎆 Spawn particle effects with custom colours</div>
+                    <div style="font-size:11px;color:rgba(255,255,255,0.65);padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.05);">💨 Temporarily boost speed or damage</div>
+                    <div style="font-size:11px;color:rgba(255,255,255,0.65);padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.05);">🔔 Show floating notifications on screen</div>
+                    <div style="font-size:11px;color:rgba(255,255,255,0.65);padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.05);">🔊 Play simple beep/tone sound effects</div>
+                    <div style="font-size:11px;color:rgba(255,255,255,0.65);padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.05);">📊 Use any existing stat upgrade from level-ups</div>
+                    <div style="font-size:11px;color:rgba(255,255,255,0.65);padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.05);">🎲 Scale effects based on wave number or player stats</div>
+                </div>
+            </div>
+
+            <!-- CAN'T DO -->
+            <div style="background:rgba(239,68,68,0.06);border:1.5px solid rgba(239,68,68,0.25);border-radius:10px;padding:16px 18px;margin-bottom:14px;">
+                <div style="font-size:12px;font-weight:bold;color:#f87171;margin-bottom:12px;">❌ What mods CANNOT do</div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px 18px;">
+                    <div style="font-size:11px;color:rgba(255,255,255,0.55);padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.05);">🖼️ Add new HUD bars, menus, or custom UI panels</div>
+                    <div style="font-size:11px;color:rgba(255,255,255,0.55);padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.05);">🎵 Add custom music or audio files</div>
+                    <div style="font-size:11px;color:rgba(255,255,255,0.55);padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.05);">🏪 Add new wave shop or level-up upgrades</div>
+                    <div style="font-size:11px;color:rgba(255,255,255,0.55);padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.05);">🗺️ Change the arena layout or add new walls</div>
+                    <div style="font-size:11px;color:rgba(255,255,255,0.55);padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.05);">⚙️ Change how auto-fire or aiming works</div>
+                    <div style="font-size:11px;color:rgba(255,255,255,0.55);padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.05);">🌊 Control which waves enemies spawn in (only earliest wave)</div>
+                    <div style="font-size:11px;color:rgba(255,255,255,0.55);padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.05);">🔒 Unlock other characters or grant gold</div>
+                    <div style="font-size:11px;color:rgba(255,255,255,0.55);padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.05);">💾 Save custom data between runs (resets on death)</div>
+                    <div style="font-size:11px;color:rgba(255,255,255,0.55);padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.05);">🖼️ Use custom sprites or images for characters</div>
+                    <div style="font-size:11px;color:rgba(255,255,255,0.55);padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.05);">🔷 Custom projectile shapes (bullets are always circles)</div>
+                    <div style="font-size:11px;color:rgba(255,255,255,0.55);padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.05);">📡 Fetch data from the internet during gameplay</div>
+                    <div style="font-size:11px;color:rgba(255,255,255,0.55);padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.05);">🤝 Interact with other installed mods directly</div>
+                </div>
+            </div>
+
+            <!-- GOOD TO KNOW -->
+            <div style="background:rgba(251,191,36,0.06);border:1.5px solid rgba(251,191,36,0.2);border-radius:10px;padding:16px 18px;">
+                <div style="font-size:12px;font-weight:bold;color:#fbbf24;margin-bottom:12px;">💡 Good to know</div>
+                <div style="display:flex;flex-direction:column;gap:8px;">
+                    <div style="display:flex;gap:10px;align-items:flex-start;">
+                        <span style="font-size:14px;flex-shrink:0;">🔄</span>
+                        <span style="font-size:11px;color:rgba(255,255,255,0.6);">Passive effects reset when you start a new run. Anything stored in <code style="color:#86efac;font-size:10px;">player._modPassive</code> goes away on death or restart.</span>
+                    </div>
+                    <div style="display:flex;gap:10px;align-items:flex-start;">
+                        <span style="font-size:14px;flex-shrink:0;">⚡</span>
+                        <span style="font-size:11px;color:rgba(255,255,255,0.6);">Passive code runs 60 times per second. Heavy logic (like looping all enemies) should be gated behind a timer — don't do it every single frame or it will slow the game down.</span>
+                    </div>
+                    <div style="display:flex;gap:10px;align-items:flex-start;">
+                        <span style="font-size:14px;flex-shrink:0;">🛡️</span>
+                        <span style="font-size:11px;color:rgba(255,255,255,0.6);">Mod characters get all the same level-up upgrades (damage, speed, HP, mana) as normal characters. There's no way to disable this.</span>
+                    </div>
+                    <div style="display:flex;gap:10px;align-items:flex-start;">
+                        <span style="font-size:14px;flex-shrink:0;">🐛</span>
+                        <span style="font-size:11px;color:rgba(255,255,255,0.6);">If your ability does nothing when you press R, check the <b style="color:#f87171;">🐛 Errors</b> tab — it'll show exactly what went wrong. Copy the error and paste it back into ChatGPT to get a fix.</span>
+                    </div>
+                    <div style="display:flex;gap:10px;align-items:flex-start;">
+                        <span style="font-size:14px;flex-shrink:0;">🎲</span>
+                        <span style="font-size:11px;color:rgba(255,255,255,0.6);">Mod enemies scale with wave number just like normal enemies — their HP and damage multiply as waves go on, so even a weak enemy mod gets scary in the late game.</span>
+                    </div>
+                    <div style="display:flex;gap:10px;align-items:flex-start;">
+                        <span style="font-size:14px;flex-shrink:0;">📦</span>
+                        <span style="font-size:11px;color:rgba(255,255,255,0.6);">You can install multiple mods at once. Characters show up in the character select screen with a <b style="color:#34d399;">MOD</b> badge. Enemies get added to the spawn pool alongside normal enemies.</span>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- ERRORS TAB -->
@@ -3365,6 +3444,9 @@ let passiveState = {
     berserkerActive: false, berserkerTimer: 0,
     timeslowActive: false, timeslowTimer: 0,
     regenTimer: 0,
+    trishotTimer: 0, homingTimer: 0,
+    blackholeActive: false, blackholeTimer: 0,
+    novaHitCount: 0,
     // New passives
     vampiric: 0, ricochet: 0, bulletsize: 0, goldonkill: 0,
     ampfield: 0, hpshield: 0, hpshieldMax: 0, hpshieldTimer: 0,
@@ -4781,10 +4863,13 @@ function tickPassives(dt) {
         try {
             _psk._passiveFn(
                 player, enemies, particles, Particle, Projectile,
-                projectiles, canvas, floatMoneyText, damageEnemy,
-                gainExp, handleKill, updateHUD, playSound, passiveState, mousePos, dt
+                projectiles, canvas, ctx, floatMoneyText, damageEnemy,
+                gainExp, handleKill, updateHUD, playSound, passiveState, mousePos, dt, currentRound
             );
-        } catch(err) { /* silent — passive errors shouldn't crash the loop */ }
+        } catch(err) {
+            console.warn('Mod passive error:', err);
+            logModError(_psk.name, currentCharacter, 'runtime', 'passiveCode: ' + err.message, _psk._passiveCode || '');
+        }
     }
 }
 
@@ -7928,23 +8013,23 @@ function specialAttack(){
                     if (sk._abilityFn) {
                         sk._abilityFn(
                             player, enemies, particles, Particle, Projectile,
-                            projectiles, canvas, floatMoneyText, damageEnemy,
+                            projectiles, canvas, ctx, floatMoneyText, damageEnemy,
                             gainExp, handleKill, updateHUD, playSound,
-                            applyPassiveDamageBoost, mousePos
+                            applyPassiveDamageBoost, mousePos, passiveState, currentRound
                         );
                     } else {
                         // Fallback: compile on-demand (older mods before pre-compile)
                         const _modFn = new Function(
                             'player','enemies','particles','Particle','Projectile',
-                            'projectiles','canvas','floatMoneyText','damageEnemy',
+                            'projectiles','canvas','ctx','floatMoneyText','damageEnemy',
                             'gainExp','handleKill','updateHUD','playSound',
-                            'applyPassiveDamageBoost','mousePos',
+                            'applyPassiveDamageBoost','mousePos','passiveState','currentRound',
                             sk._abilityCode
                         );
                         _modFn(player, enemies, particles, Particle, Projectile,
-                            projectiles, canvas, floatMoneyText, damageEnemy,
+                            projectiles, canvas, ctx, floatMoneyText, damageEnemy,
                             gainExp, handleKill, updateHUD, playSound,
-                            applyPassiveDamageBoost, mousePos);
+                            applyPassiveDamageBoost, mousePos, passiveState, currentRound);
                     }
                 } catch(err) {
                     floatMoneyText('\u26a0\ufe0f Ability error: ' + err.message);
@@ -12454,9 +12539,9 @@ document.addEventListener('keydown',e=>{
         try {
             _modSk._extraKeyFns[k](
                 player, enemies, particles, Particle, Projectile,
-                projectiles, canvas, floatMoneyText, damageEnemy,
+                projectiles, canvas, ctx, floatMoneyText, damageEnemy,
                 gainExp, handleKill, updateHUD, playSound,
-                applyPassiveDamageBoost, mousePos, passiveState
+                applyPassiveDamageBoost, mousePos, passiveState, currentRound
             );
         } catch(err) {
             floatMoneyText('⚠️ Extra key [' + k.toUpperCase() + '] error: ' + err.message);
@@ -14673,14 +14758,14 @@ function closeModsMenu() {
 }
 
 function modsTab(tab) {
-    ['create','install','manage','errors'].forEach(t => {
+    ['create','install','manage','guide','errors'].forEach(t => {
         const tabId = 'modsTab' + t.charAt(0).toUpperCase() + t.slice(1);
         const btn = document.getElementById(tabId);
         const content = document.getElementById(tabId + 'Content');
         const isActive = t === tab;
         if (btn) {
-            const activeColors = { create:'#059669', install:'#1d4ed8', manage:'#7c3aed', errors:'#dc2626' };
-            const activeBorder = { create:'#065f46', install:'#1e3a8a', manage:'#4c1d95', errors:'#991b1b' };
+            const activeColors = { create:'#059669', install:'#1d4ed8', manage:'#7c3aed', guide:'#7c3aed', errors:'#dc2626' };
+            const activeBorder = { create:'#065f46', install:'#1e3a8a', manage:'#4c1d95', guide:'#4c1d95', errors:'#991b1b' };
             btn.style.background = isActive ? (activeColors[t] || '#059669') : 'rgba(255,255,255,0.07)';
             btn.style.color = isActive ? 'white' : 'rgba(255,255,255,0.6)';
             btn.style.borderBottomColor = isActive ? (activeBorder[t] || '#065f46') : 'transparent';
@@ -14851,7 +14936,7 @@ YOUR TASK: Generate a single creative custom CHARACTER as a JSON object with EXA
 - speed: movement speed 1–5 (e.g. 3)
 - damage: base shot damage (e.g. 18)
 - manaCost: mana cost per ability use (e.g. 30)
-- cdMax: cooldown in frames at 60fps (e.g. 180 = 3s)
+- cdMax: cooldown in frames at 60fps (e.g. 180 = 3s, 300 = 5s, 600 = 10s). Use 0 for mana-gated only.
 - unlockCost: gold cost (e.g. 2500)
 - passiveDesc: array of 1–3 strings describing always-on traits (e.g. ["Shots pierce walls", "15% dodge chance"])
 - passiveCode: JavaScript function body that runs every frame for passive effects (or "" if stat-only)
@@ -14865,30 +14950,134 @@ YOUR TASK: Generate a single creative custom CHARACTER as a JSON object with EXA
 - isCustomMod: true
 - type: "character"
 
-EXTRA KEYS (extraKeys field — optional):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+GAME API — read this carefully before writing any code
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+PLAYER OBJECT (read/write these fields):
+  player.x, player.y          — position (canvas coords)
+  player.health               — current HP (never set above player.maxHealth)
+  player.maxHealth            — maximum HP
+  player.mana                 — current mana (never set above player.maxMana)
+  player.maxMana              — maximum mana
+  player.damage               — base shot damage
+  player.speed                — movement speed
+  player.invulnerable         — frames of i-frames remaining (set to 180 = 3s invulnerable)
+  player.specialCooldown      — frames until ability is ready again (set by cdMax automatically)
+  player.radius               — collision radius (default 20)
+  player._modPassive          — use this object for persistent mod state (initialize it yourself)
+
+ENEMY FIELDS (readable on each enemy in the enemies array):
+  e.x, e.y, e.health, e.maxHealth, e.damage, e.speed, e.radius, e.color, e.alive
+  e.frozen = N               — freeze enemy for N frames (120 = 2s, 240 = 4s)
+  e.burning = N              — set on fire for N frames (deals tick damage over time)
+
+PROJECTILE: new Projectile(x, y, angle, damage, color, isSpecial=false)
+  — angle is in radians. isSpecial=true makes it glow. After creation: p.speed = 12 (default), p.homing = true (optional)
+  — push to projectiles[] to fire it
+
+PARTICLE: new Particle(x, y, color)
+  — bursts outward from x,y in the given color. Push to particles[] to spawn it.
+  — Spawn 15–60 for a visual impact. They auto-fade.
+
+FUNCTIONS AVAILABLE:
+  damageEnemy(e, dmg, srcX, srcY)   — deal damage to enemy e. Handles shields/armor/lifesteal. Returns true if hit.
+  floatMoneyText(text)               — show a floating notification (emoji + text works great, e.g. '⚡ THUNDER CLAP!')
+  playSound(frequency, duration, type)  — e.g. playSound(220, 0.3, 'sine'). Types: 'sine','square','sawtooth','triangle'
+  applyPassiveDamageBoost(dmg)       — apply crit/berserker/etc bonuses to a damage value before using it
+  updateHUD()                        — refresh the UI after changing player stats
+  gainExp(amount)                    — grant the player EXP
+  handleKill(e)                      — call this after manually killing an enemy (drops orbs, fires events)
+
+USEFUL PATTERNS:
+  Heal player:   player.health = Math.min(player.maxHealth, player.health + 50); updateHUD();
+  Give i-frames: player.invulnerable = 180;
+  Freeze all:    enemies.forEach(e => { e.frozen = 300; });
+  Radial damage: enemies.forEach(e => { if(Math.hypot(e.x-player.x,e.y-player.y)<250) damageEnemy(e, player.damage*4, player.x, player.y); });
+  Fire ring:     for(let i=0;i<12;i++){const a=(Math.PI*2/12)*i;const p=new Projectile(player.x,player.y,a,applyPassiveDamageBoost(player.damage*2),color,true);projectiles.push(p);}
+  Teleport to mouse: player.x=mousePos.x; player.y=mousePos.y; for(let i=0;i<30;i++) particles.push(new Particle(player.x,player.y,'#a78bfa'));
+  Per-character timer: player._modPassive=player._modPassive||{}; player._modPassive.t=(player._modPassive.t||0)+1;
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+EXTRA KEYS (extraKeys field — optional)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 Format: { "z": "...JS code...", "x": "...JS code..." } — any letter key works.
-Each value is a JS function body run when that key is pressed. Same variables as abilityCode, plus passiveState.
+Each value is a JS function body run when that key is pressed. Same variables as abilityCode.
 Label them by letter in infoAbilities (e.g. "Z: Fire Strike"). Never say "R key" for extra keys.
 
-PASSIVE CODE (passiveCode field):
-JS function body running every frame. Variables: player, enemies, particles, Particle, Projectile, projectiles, canvas, floatMoneyText, damageEnemy, gainExp, handleKill, updateHUD, playSound, passiveState, mousePos, dt.
-Use player._modPassive = player._modPassive || {} for per-character state.
-Examples:
-  Regen: "player._modPassive=player._modPassive||{};player._modPassive.t=(player._modPassive.t||0)+1;if(player._modPassive.t>=120){player._modPassive.t=0;player.health=Math.min(player.maxHealth,player.health+3);updateHUD();}"
-  Particles: "if(Math.random()<0.15)particles.push(new Particle(player.x+(Math.random()-.5)*20,player.y+(Math.random()-.5)*20,'#facc15'));"
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PASSIVE CODE (passiveCode field)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Runs every frame (~60fps). Variables: player, enemies, particles, Particle, Projectile, projectiles, canvas, ctx, floatMoneyText, damageEnemy, gainExp, handleKill, updateHUD, playSound, passiveState, mousePos, dt, currentRound.
+Always guard with: player._modPassive = player._modPassive || {}
+dt is the frame delta (usually 1). Use it for timers: player._modPassive.t = (player._modPassive.t||0) + dt;
 
-ABILITY CODE (abilityCode field):
-JS function body run when ability key is pressed. Variables: player, enemies, particles, Particle, Projectile, projectiles, canvas, floatMoneyText, damageEnemy, gainExp, handleKill, updateHUD, playSound, applyPassiveDamageBoost, mousePos.
 Examples:
-  Shockwave: "enemies.forEach(e=>{const d=Math.hypot(e.x-player.x,e.y-player.y);if(d<200){damageEnemy(e,player.damage*3,player.x,player.y);}});for(let i=0;i<60;i++)particles.push(new Particle(player.x,player.y,'#a78bfa'));floatMoneyText('💜 VOID BURST!');playSound(200,0.12,'sine');"
-  Freeze: "enemies.forEach(e=>{e.frozen=240;for(let i=0;i<6;i++)particles.push(new Particle(e.x,e.y,'#bfdbfe'));});floatMoneyText('❄️ DEEP FREEZE!');playSound(300,0.08,'sine');"
+  Slow regen (3 HP every 2s): "player._modPassive=player._modPassive||{};player._modPassive.t=(player._modPassive.t||0)+dt;if(player._modPassive.t>=120){player._modPassive.t=0;player.health=Math.min(player.maxHealth,player.health+3);updateHUD();}"
+  Aura damage (nearby enemies take 2 dmg/s): "player._modPassive=player._modPassive||{};player._modPassive.t=(player._modPassive.t||0)+dt;if(player._modPassive.t>=60){player._modPassive.t=0;enemies.forEach(e=>{if(Math.hypot(e.x-player.x,e.y-player.y)<100)damageEnemy(e,2,player.x,player.y);});}"
+  Trailing particles: "if(Math.random()<0.2)particles.push(new Particle(player.x+(Math.random()-.5)*10,player.y+(Math.random()-.5)*10,'#facc15'));"
 
-DESIGN GUIDELINES:
-- Every character MUST have at least 1 meaningful passive.
-- Never write "R key", "press R", or any hardcoded key name — say "Ability", "Z key", "X key" etc.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ABILITY CODE (abilityCode field)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Runs once when the ability key is pressed (after mana/cooldown checks pass automatically).
+Variables: player, enemies, particles, Particle, Projectile, projectiles, canvas, ctx, floatMoneyText, damageEnemy, gainExp, handleKill, updateHUD, playSound, applyPassiveDamageBoost, mousePos, passiveState, currentRound.
+IMPORTANT: Do NOT check mana or cooldown in abilityCode — the game handles that. Just write the effect.
+
+Working examples:
+  Shockwave burst: "const col='#a78bfa';enemies.forEach(e=>{const d=Math.hypot(e.x-player.x,e.y-player.y);if(d<220){damageEnemy(e,applyPassiveDamageBoost(player.damage*4),player.x,player.y);e.frozen=120;}});for(let r=40;r<=220;r+=40)for(let a=0;a<Math.PI*2;a+=0.3)particles.push(new Particle(player.x+Math.cos(a)*r,player.y+Math.sin(a)*r,col));floatMoneyText('💜 VOID BURST!');playSound(180,0.3,'sine');updateHUD();"
+  Fire ring (12 projectiles): "const col='#f97316';for(let i=0;i<12;i++){const a=(Math.PI*2/12)*i;const p=new Projectile(player.x,player.y,a,applyPassiveDamageBoost(player.damage*2),col,true);p.speed=10;projectiles.push(p);}for(let i=0;i<40;i++)particles.push(new Particle(player.x,player.y,col));floatMoneyText('🔥 FIRE RING!');playSound(300,0.2,'sawtooth');"
+  Freeze all enemies: "enemies.forEach(e=>{e.frozen=300;for(let i=0;i<8;i++)particles.push(new Particle(e.x,e.y,'#bfdbfe'));});floatMoneyText('❄️ DEEP FREEZE!');playSound(300,0.2,'sine');"
+  Teleport blink to cursor + i-frames: "const px=player.x,py=player.y;player.x=mousePos.x;player.y=mousePos.y;player.invulnerable=120;for(let i=0;i<30;i++){particles.push(new Particle(px+(Math.random()-.5)*30,py+(Math.random()-.5)*30,'#818cf8'));particles.push(new Particle(player.x+(Math.random()-.5)*30,player.y+(Math.random()-.5)*30,'#c7d2fe'));}floatMoneyText('✨ BLINK!');playSound(600,0.15,'sine');updateHUD();"
+  Heal burst: "const heal=Math.round(player.maxHealth*0.35);player.health=Math.min(player.maxHealth,player.health+heal);for(let i=0;i<50;i++)particles.push(new Particle(player.x+(Math.random()-.5)*60,player.y+(Math.random()-.5)*60,'#4ade80'));floatMoneyText('💚 HEALED +'+heal+'!');playSound(440,0.2,'sine');updateHUD();"
+  Aimed shot barrage: "const a=Math.atan2(mousePos.y-player.y,mousePos.x-player.x);for(let i=0;i<8;i++){setTimeout(()=>{if(!player)return;const spread=(Math.random()-.5)*0.3;const p=new Projectile(player.x,player.y,a+spread,applyPassiveDamageBoost(player.damage*3),'#facc15',true);p.speed=16;projectiles.push(p);},i*60);}floatMoneyText('⚡ BARRAGE!');playSound(500,0.15,'square');"
+  Speed buff + damage boost: "player._modPassive=player._modPassive||{};const _spd=player.speed;player.speed*=2;player._modPassive._dmgMult=2;setTimeout(()=>{player.speed=_spd;player._modPassive._dmgMult=1;},3000);for(let i=0;i<30;i++)particles.push(new Particle(player.x,player.y,'#fbbf24'));floatMoneyText('⚡ OVERDRIVE! 3s!');playSound(440,0.2,'square');updateHUD();"
+  Summon orbiting projectiles: "player._modPassive=player._modPassive||{};player._modPassive.orbs=(player._modPassive.orbs||0)+3;floatMoneyText('🔮 +3 ORBS!');playSound(350,0.15,'sine');"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+⚠️  CRITICAL JavaScript RULES — VIOLATIONS BREAK THE CHARACTER ⚠️
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+These are the most common mistakes that silently break mods. Every single one must be followed:
+
+1. ALWAYS use * for multiplication. NEVER omit it.
+   ✅ CORRECT:   player.damage * 2    Math.PI * 2    player.damage * 1.5
+   ❌ BROKEN:    player.damage2       Math.PI2       player.damage1.5
+   (JS will treat "damage2" as a property name → undefined → NaN damage → nothing happens)
+
+2. ALWAYS use * between a variable and a parenthesis.
+   ✅ CORRECT:   (Math.PI * 2 / 12) * i
+   ❌ BROKEN:    (Math.PI*2/12)i
+   (missing * before i is a syntax error → entire passive crashes silently)
+
+3. NEVER store damage in a temp var then set player.damage to an undefined property.
+   ✅ CORRECT:   const _saved=player.damage; player.damage*=2; setTimeout(()=>{player.damage=_saved;},200);
+   ❌ BROKEN:    player._modPassive.tmpDmg2   (this property doesn't exist → NaN)
+
+4. Counting shots fired: projectiles.length can DECREASE (dead shots removed).
+   Use this pattern to count shots added each frame:
+   "player._modPassive=player._modPassive||{};const _cur=projectiles.length;const _added=Math.max(0,_cur-(player._modPassive._plen||_cur));player._modPassive._plen=_cur;player._modPassive.shots=(player._modPassive.shots||0)+_added;if(player._modPassive.shots%5===0&&_added>0){/* 5th shot effect here */}"
+
+5. Do NOT use Math.floor, Math.ceil, Math.round on already-integer loop variables.
+   ✅ CORRECT:   for(let i=0;i<12;i++){const a=(Math.PI*2/12)*i;
+   ❌ BROKEN:    for(let i=0;i<12;i++){const a=(Math.PI2/12)i;
+
+6. All code must be a SINGLE LINE. Use semicolons, not newlines.
+   setTimeout callbacks are OK but keep the entire string one line.
+
+7. Arrow functions inside strings need semicolons, not line breaks:
+   ✅ CORRECT:   enemies.forEach(e=>{if(e.alive)damageEnemy(e,10,player.x,player.y);});
+   ❌ BROKEN:    enemies.forEach(e=>{ [newline] if(e.alive) [newline] ... })
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+DESIGN GUIDELINES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+- Every character MUST have at least 1 meaningful passive AND a working abilityCode.
+- Never write "R key", "press R", or any hardcoded key name — say "Ability key" or just describe the effect.
 - Balance: high HP → lower speed or damage; high damage → higher mana cost or lower HP.
-- Keep all code compact (single line or semicolon-separated statements).
-- Always include abilityCode. passiveCode can be "" for stat-only passives.${userRequests}
+- Keep all code as single-line semicolon-separated JS. No newlines inside JSON strings.
+- Always wrap any use of player._modPassive with a guard: player._modPassive = player._modPassive || {}
+- Use floatMoneyText to give clear feedback whenever the ability fires — players need to see it working.
+- Before finalizing the JSON, mentally trace the abilityCode: does it do something visible and correct every time the key is pressed with enough mana? Check every multiplication operator is present.${userRequests}
 
 Return ONLY a single valid JSON object. No markdown, no code fences, no explanation, no preamble. Just the raw JSON.`;
     } else {
@@ -14947,7 +15136,7 @@ YOUR TASK: Generate a single creative custom ENEMY as a JSON object with EXACTLY
 - isCustomMod: true
 - type: "enemy"
 
-ABILITY CODE VARIABLES (if used): enemy, player, enemies, particles, Particle, Projectile, projectiles, canvas, floatMoneyText, damageEnemy, playSound, mousePos
+ABILITY CODE VARIABLES (if used): enemy, player, enemies, particles, Particle, Projectile, projectiles, canvas, ctx, floatMoneyText, damageEnemy, playSound, mousePos, currentRound
 Examples:
   Fire shot: "const a=Math.atan2(player.y-enemy.y,player.x-enemy.x);const p=new Projectile(enemy.x,enemy.y,a,enemy.damage*2,enemy.color,false);p.speed=5;projectiles.push(p);for(let i=0;i<8;i++)particles.push(new Particle(enemy.x,enemy.y,enemy.color));playSound(300,0.06,'sine');"
   Heal self: "enemy.health=Math.min(enemy.maxHealth,enemy.health+20);for(let i=0;i<12;i++)particles.push(new Particle(enemy.x+(Math.random()-.5)*30,enemy.y+(Math.random()-.5)*30,'#4ade80'));floatMoneyText('💚 '+enemy.name+' healed!');"
@@ -15181,9 +15370,9 @@ function applyActiveMods() {
             _ch._extraKeyFns = {};
             if (mod.extraKeys && typeof mod.extraKeys === 'object') {
                 const _argNames = ['player','enemies','particles','Particle','Projectile',
-                    'projectiles','canvas','floatMoneyText','damageEnemy',
+                    'projectiles','canvas','ctx','floatMoneyText','damageEnemy',
                     'gainExp','handleKill','updateHUD','playSound',
-                    'applyPassiveDamageBoost','mousePos','passiveState'];
+                    'applyPassiveDamageBoost','mousePos','passiveState','currentRound'];
                 Object.entries(mod.extraKeys).forEach(([key, code]) => {
                     if (!code || typeof code !== 'string') return;
                     try {
@@ -15202,9 +15391,9 @@ function applyActiveMods() {
                 try {
                     _ch._abilityFn = new Function(
                         'player','enemies','particles','Particle','Projectile',
-                        'projectiles','canvas','floatMoneyText','damageEnemy',
+                        'projectiles','canvas','ctx','floatMoneyText','damageEnemy',
                         'gainExp','handleKill','updateHUD','playSound',
-                        'applyPassiveDamageBoost','mousePos',
+                        'applyPassiveDamageBoost','mousePos','passiveState','currentRound',
                         mod.abilityCode
                     );
                 } catch(err) {
@@ -15217,8 +15406,8 @@ function applyActiveMods() {
                 try {
                     _ch._passiveFn = new Function(
                         'player','enemies','particles','Particle','Projectile',
-                        'projectiles','canvas','floatMoneyText','damageEnemy',
-                        'gainExp','handleKill','updateHUD','playSound','passiveState','mousePos','dt',
+                        'projectiles','canvas','ctx','floatMoneyText','damageEnemy',
+                        'gainExp','handleKill','updateHUD','playSound','passiveState','mousePos','dt','currentRound',
                         mod.passiveCode
                     );
                 } catch(err) {
@@ -15304,32 +15493,43 @@ function spawnModEnemy(id) {
     e.color = mod.color || '#ef4444';
     e.name = mod.name;
     e._isModEnemy = true;
+    e._modId = mod.id;
     e._modAbilityCode = mod.abilityCode || null;
     e._modAbilityCooldown = 0;
     e._modAbilityInterval = Math.round((mod.abilityCooldownSeconds || 4) * 60);
+    // Pre-compile ability function once at spawn time
+    e._modAbilityFn = null;
+    if (mod.abilityCode && typeof mod.abilityCode === 'string' && mod.abilityCode.trim()) {
+        try {
+            e._modAbilityFn = new Function(
+                'enemy','player','enemies','particles','Particle','Projectile',
+                'projectiles','canvas','ctx','floatMoneyText','damageEnemy',
+                'gainExp','handleKill','updateHUD','playSound','mousePos','currentRound',
+                mod.abilityCode
+            );
+        } catch(err) {
+            console.error('Mod enemy "' + mod.name + '" abilityCode failed to compile:', err.message);
+            logModError(mod.name, mod.id, 'compile', 'enemy abilityCode: ' + err.message, mod.abilityCode);
+        }
+    }
     enemies.push(e);
 }
 
 function tickModEnemies(dt) {
     enemies.forEach(e => {
-        if (!e._isModEnemy || !e._modAbilityCode || !e.alive) return;
+        if (!e._isModEnemy || !e._modAbilityFn || !e.alive) return;
         e._modAbilityCooldown -= dt;
         if (e._modAbilityCooldown > 0) return;
         e._modAbilityCooldown = e._modAbilityInterval;
         try {
-            const _fn = new Function(
-                'enemy','player','enemies','particles','Particle','Projectile',
-                'projectiles','canvas','floatMoneyText','damageEnemy',
-                'gainExp','handleKill','updateHUD','playSound','mousePos',
-                e._modAbilityCode
-            );
-            _fn(
+            e._modAbilityFn(
                 e, player, enemies, particles, Particle, Projectile,
-                projectiles, canvas, floatMoneyText, damageEnemy,
-                gainExp, handleKill, updateHUD, playSound, mousePos
+                projectiles, canvas, ctx, floatMoneyText, damageEnemy,
+                gainExp, handleKill, updateHUD, playSound, mousePos, currentRound
             );
         } catch(err) {
-            console.error('Mod enemy ability error:', err);
+            console.error('Mod enemy ability runtime error:', err);
+            logModError(e.name, e._modId || '?', 'runtime', 'enemy abilityCode: ' + err.message, e._modAbilityCode || '');
         }
     });
 }
