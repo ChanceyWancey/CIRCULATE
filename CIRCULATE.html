@@ -13465,15 +13465,9 @@ function updateShopDisplay(){
     const pvCard = document.getElementById('primeVeteranCharacter');
     if (pvCard) {
         const pvUnlocked = unlockedCharacters.includes('prime_veteran');
-        pvCard.style.display = '';
+        pvCard.style.display = pvUnlocked ? '' : 'none';
         pvCard.classList.remove('selected', 'locked');
-        if (!pvUnlocked) {
-            pvCard.classList.add('locked');
-            const priceEl = pvCard.querySelector('.character-price');
-            if (priceEl) priceEl.textContent = '🔒 Import OG Save';
-        } else {
-            if (currentCharacter === 'prime_veteran') pvCard.classList.add('selected');
-        }
+        if (pvUnlocked && currentCharacter === 'prime_veteran') pvCard.classList.add('selected');
     }
     const laCard = document.getElementById('lastArchitectCharacter');
     if (laCard) {
@@ -13500,28 +13494,16 @@ function updateShopDisplay(){
     const gojoCard = document.getElementById('gojoCharacter');
     if (gojoCard) {
         const gojoUnlocked = unlockedCharacters.includes('gojo');
-        gojoCard.style.display = '';
+        gojoCard.style.display = gojoUnlocked ? '' : 'none';
         gojoCard.classList.remove('selected', 'locked');
-        if (!gojoUnlocked) {
-            gojoCard.classList.add('locked');
-            const priceEl = gojoCard.querySelector('.character-price');
-            if (priceEl) priceEl.textContent = '🔒 Complete HQ Quests';
-        } else {
-            if (currentCharacter === 'gojo') gojoCard.classList.add('selected');
-        }
+        if (gojoUnlocked && currentCharacter === 'gojo') gojoCard.classList.add('selected');
     }
     const hornetCard = document.getElementById('hornetCharacter');
     if (hornetCard) {
         const hornetUnlocked = unlockedCharacters.includes('hornet');
-        hornetCard.style.display = '';
+        hornetCard.style.display = hornetUnlocked ? '' : 'none';
         hornetCard.classList.remove('selected', 'locked');
-        if (!hornetUnlocked) {
-            hornetCard.classList.add('locked');
-            const priceEl = hornetCard.querySelector('.character-price');
-            if (priceEl) priceEl.textContent = '🔒 Complete HQ Quests';
-        } else {
-            if (currentCharacter === 'hornet') hornetCard.classList.add('selected');
-        }
+        if (hornetUnlocked && currentCharacter === 'hornet') hornetCard.classList.add('selected');
     }
     const tstCard = document.getElementById('theStrongestTodayCharacter');
     if (tstCard) {
@@ -13538,15 +13520,9 @@ function updateShopDisplay(){
     if (megumiCard) {
         const megumiQuestsDone = HONORED_QUESTS.filter(q => q.character === 'Megumi Fushiguro').length > 0 &&
             HONORED_QUESTS.filter(q => q.character === 'Megumi Fushiguro').every(q => hqCompleted.includes(q.id));
-        megumiCard.style.display = '';
+        megumiCard.style.display = megumiQuestsDone ? '' : 'none';
         megumiCard.classList.remove('selected','locked');
-        if (!megumiQuestsDone) {
-            megumiCard.classList.add('locked');
-            const priceEl = megumiCard.querySelector('.character-price');
-            if (priceEl) priceEl.textContent = '🔒 Complete Megumi HQ Quests';
-        } else {
-            if (currentCharacter === 'megumi') megumiCard.classList.add('selected');
-        }
+        if (megumiQuestsDone && currentCharacter === 'megumi') megumiCard.classList.add('selected');
     }
 
     document.querySelectorAll('.character-card').forEach(card => {
