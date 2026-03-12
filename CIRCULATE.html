@@ -1474,10 +1474,11 @@
         <p style="font-size:11px;color:rgba(255,255,255,0.35);margin:0 0 22px;">Use AI to generate custom characters or enemies, then paste the code to install them.</p>
 
         <!-- TABS -->
-        <div style="display:flex;gap:8px;margin-bottom:20px;">
+        <div style="display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;">
             <button onclick="modsTab('create')" id="modsTabCreate" style="padding:8px 18px;border-radius:6px;border:none;font-size:12px;font-weight:bold;font-family:inherit;cursor:pointer;background:#059669;color:white;border-bottom:3px solid #065f46;">✨ Create</button>
             <button onclick="modsTab('install')" id="modsTabInstall" style="padding:8px 18px;border-radius:6px;border:none;font-size:12px;font-weight:bold;font-family:inherit;cursor:pointer;background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.6);border-bottom:3px solid transparent;">📦 Install Mod</button>
             <button onclick="modsTab('manage')" id="modsTabManage" style="padding:8px 18px;border-radius:6px;border:none;font-size:12px;font-weight:bold;font-family:inherit;cursor:pointer;background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.6);border-bottom:3px solid transparent;">⚙️ Manage Mods</button>
+            <button onclick="modsTab('errors')" id="modsTabErrors" style="padding:8px 18px;border-radius:6px;border:none;font-size:12px;font-weight:bold;font-family:inherit;cursor:pointer;background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.6);border-bottom:3px solid transparent;">🐛 Errors <span id="modsErrorBadge" style="display:none;background:#ef4444;color:white;font-size:9px;padding:1px 5px;border-radius:8px;margin-left:3px;vertical-align:middle;">0</span></button>
         </div>
 
         <!-- CREATE TAB -->
@@ -1549,6 +1550,19 @@
         <div id="modsTabManageContent" style="display:none;">
             <div id="modsManageList"></div>
             <div id="modsManageEmpty" style="text-align:center;padding:40px 0;color:rgba(255,255,255,0.25);font-size:13px;">No mods installed yet. Use the Create or Install tab to add one.</div>
+        </div>
+
+        <!-- ERRORS TAB -->
+        <div id="modsTabErrorsContent" style="display:none;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+                <div>
+                    <div style="font-size:13px;font-weight:bold;color:#f87171;">🐛 Mod Error Log</div>
+                    <div style="font-size:11px;color:rgba(255,255,255,0.35);margin-top:3px;">Errors from all mod characters and enemies. Copy and send back to ChatGPT to fix.</div>
+                </div>
+                <button onclick="clearModErrors()" style="background:rgba(220,38,38,0.12);color:#f87171;border:1px solid rgba(220,38,38,0.3);padding:6px 12px;border-radius:6px;cursor:pointer;font-size:11px;font-weight:bold;font-family:inherit;flex-shrink:0;">🗑 Clear All</button>
+            </div>
+            <div id="modsErrorList"></div>
+            <div id="modsErrorEmpty" style="text-align:center;padding:40px 0;color:rgba(255,255,255,0.25);font-size:13px;">✅ No errors logged yet. Errors from mod code will appear here.</div>
         </div>
     </div>
 </div>
@@ -7742,24 +7756,33 @@ function specialAttack(){
             break;
         }
         case 'mod_custom': {
-            if (sk._isModChar && sk._abilityCode) {
+            if (sk._isModChar && (sk._abilityFn || sk._abilityCode)) {
                 try {
-                    const _modFn = new Function(
-                        'player','enemies','particles','Particle','Projectile',
-                        'projectiles','canvas','floatMoneyText','damageEnemy',
-                        'gainExp','handleKill','updateHUD','playSound',
-                        'applyPassiveDamageBoost','mousePos',
-                        sk._abilityCode
-                    );
-                    _modFn(
-                        player, enemies, particles, Particle, Projectile,
-                        projectiles, canvas, floatMoneyText, damageEnemy,
-                        gainExp, handleKill, updateHUD, playSound,
-                        applyPassiveDamageBoost, mousePos
-                    );
+                    if (sk._abilityFn) {
+                        sk._abilityFn(
+                            player, enemies, particles, Particle, Projectile,
+                            projectiles, canvas, floatMoneyText, damageEnemy,
+                            gainExp, handleKill, updateHUD, playSound,
+                            applyPassiveDamageBoost, mousePos
+                        );
+                    } else {
+                        // Fallback: compile on-demand (older mods before pre-compile)
+                        const _modFn = new Function(
+                            'player','enemies','particles','Particle','Projectile',
+                            'projectiles','canvas','floatMoneyText','damageEnemy',
+                            'gainExp','handleKill','updateHUD','playSound',
+                            'applyPassiveDamageBoost','mousePos',
+                            sk._abilityCode
+                        );
+                        _modFn(player, enemies, particles, Particle, Projectile,
+                            projectiles, canvas, floatMoneyText, damageEnemy,
+                            gainExp, handleKill, updateHUD, playSound,
+                            applyPassiveDamageBoost, mousePos);
+                    }
                 } catch(err) {
                     floatMoneyText('\u26a0\ufe0f Ability error: ' + err.message);
                     console.error('Mod ability error:', err);
+                    logModError(sk.name, currentCharacter, 'runtime', 'abilityCode: ' + err.message, sk._abilityCode || '');
                 }
             }
             break;
@@ -12271,6 +12294,7 @@ document.addEventListener('keydown',e=>{
         } catch(err) {
             floatMoneyText('⚠️ Extra key [' + k.toUpperCase() + '] error: ' + err.message);
             console.error('Mod extra key runtime error:', err);
+            logModError(_modSk.name, currentCharacter, 'runtime', 'Extra key [' + k.toUpperCase() + ']: ' + err.message, _modSk._extraKeys ? _modSk._extraKeys[k] : '');
         }
     }
     // ZA WARUDOOO - B key
@@ -14482,19 +14506,132 @@ function closeModsMenu() {
 }
 
 function modsTab(tab) {
-    ['create','install','manage'].forEach(t => {
+    ['create','install','manage','errors'].forEach(t => {
         const tabId = 'modsTab' + t.charAt(0).toUpperCase() + t.slice(1);
         const btn = document.getElementById(tabId);
         const content = document.getElementById(tabId + 'Content');
+        const isActive = t === tab;
         if (btn) {
-            btn.style.background = t === tab ? '#059669' : 'rgba(255,255,255,0.07)';
-            btn.style.color = t === tab ? 'white' : 'rgba(255,255,255,0.6)';
-            btn.style.borderBottomColor = t === tab ? '#065f46' : 'transparent';
+            const activeColors = { create:'#059669', install:'#1d4ed8', manage:'#7c3aed', errors:'#dc2626' };
+            const activeBorder = { create:'#065f46', install:'#1e3a8a', manage:'#4c1d95', errors:'#991b1b' };
+            btn.style.background = isActive ? (activeColors[t] || '#059669') : 'rgba(255,255,255,0.07)';
+            btn.style.color = isActive ? 'white' : 'rgba(255,255,255,0.6)';
+            btn.style.borderBottomColor = isActive ? (activeBorder[t] || '#065f46') : 'transparent';
         }
-        if (content) content.style.display = t === tab ? 'block' : 'none';
+        if (content) content.style.display = isActive ? 'block' : 'none';
     });
     if (tab === 'manage') renderModsManageList();
     if (tab === 'create') refreshModPrompt();
+    if (tab === 'errors') renderModErrors();
+}
+
+// ===== MOD ERROR LOG =====
+let _modErrors = [];
+
+function logModError(modName, modId, context, message, code) {
+    const entry = {
+        id: modId || '?',
+        name: modName || 'Unknown Mod',
+        context: context || 'runtime',
+        message: String(message),
+        code: code || '',
+        time: new Date().toLocaleTimeString()
+    };
+    // Avoid exact duplicates in a row
+    const last = _modErrors[_modErrors.length - 1];
+    if (last && last.name === entry.name && last.context === entry.context && last.message === entry.message) return;
+    _modErrors.push(entry);
+    if (_modErrors.length > 100) _modErrors.shift();
+    // Update badge
+    const badge = document.getElementById('modsErrorBadge');
+    if (badge) { badge.style.display = 'inline'; badge.textContent = _modErrors.length; }
+    // If errors tab is open, re-render live
+    const errContent = document.getElementById('modsTabErrorsContent');
+    if (errContent && errContent.style.display !== 'none') renderModErrors();
+}
+
+function renderModErrors() {
+    const list = document.getElementById('modsErrorList');
+    const empty = document.getElementById('modsErrorEmpty');
+    if (!list) return;
+    if (_modErrors.length === 0) {
+        list.innerHTML = '';
+        if (empty) empty.style.display = 'block';
+        return;
+    }
+    if (empty) empty.style.display = 'none';
+    list.innerHTML = [..._modErrors].reverse().map((e, ri) => {
+        const i = _modErrors.length - 1 - ri;
+        const ctxColor = { compile:'#fbbf24', runtime:'#f87171', install:'#fb923c' }[e.context] || '#f87171';
+        const ctxLabel = { compile:'COMPILE', runtime:'RUNTIME', install:'INSTALL' }[e.context] || e.context.toUpperCase();
+        const copyText = `MOD: ${e.name} (${e.id})\nCONTEXT: ${ctxLabel}\nERROR: ${e.message}${e.code ? '\nCODE:\n' + e.code : ''}`;
+        return `
+        <div style="background:rgba(220,38,38,0.07);border:1.5px solid rgba(220,38,38,0.25);border-radius:10px;padding:14px 16px;margin-bottom:10px;">
+            <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:8px;">
+                <div style="flex:1;min-width:0;">
+                    <span style="font-size:10px;font-weight:bold;color:${ctxColor};background:rgba(0,0,0,0.3);padding:2px 7px;border-radius:5px;margin-right:7px;">${ctxLabel}</span>
+                    <span style="font-size:13px;font-weight:bold;color:#fca5a5;">${e.name}</span>
+                    <span style="font-size:10px;color:rgba(255,255,255,0.3);margin-left:6px;font-family:monospace;">${e.id}</span>
+                    <span style="float:right;font-size:10px;color:rgba(255,255,255,0.25);font-family:monospace;">${e.time}</span>
+                </div>
+            </div>
+            <div style="font-size:11px;color:#fca5a5;font-family:monospace;background:rgba(0,0,0,0.3);border-radius:6px;padding:8px 10px;margin-bottom:8px;word-break:break-all;">⚠️ ${e.message}</div>
+            ${e.code ? `<div style="font-size:10px;color:rgba(255,255,255,0.35);font-family:monospace;background:rgba(0,0,0,0.2);border-radius:6px;padding:6px 10px;margin-bottom:8px;max-height:80px;overflow-y:auto;word-break:break-all;">${e.code.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>` : ''}
+            <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                <button onclick="copyModError(${i})" style="background:rgba(29,78,216,0.15);color:#93c5fd;border:1px solid rgba(29,78,216,0.3);padding:5px 12px;border-radius:6px;cursor:pointer;font-size:11px;font-weight:bold;font-family:inherit;">📋 Copy Error</button>
+                <button onclick="copyModErrorFix(${i})" style="background:rgba(5,150,105,0.15);color:#34d399;border:1px solid rgba(5,150,105,0.3);padding:5px 12px;border-radius:6px;cursor:pointer;font-size:11px;font-weight:bold;font-family:inherit;">🤖 Copy Fix Prompt</button>
+                <button onclick="_modErrors.splice(${_modErrors.length - 1 - ri},1);renderModErrors();updateModErrorBadge();" style="background:rgba(220,38,38,0.1);color:#f87171;border:1px solid rgba(220,38,38,0.25);padding:5px 8px;border-radius:6px;cursor:pointer;font-size:11px;font-family:inherit;" title="Dismiss">✕</button>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+function updateModErrorBadge() {
+    const badge = document.getElementById('modsErrorBadge');
+    if (!badge) return;
+    if (_modErrors.length === 0) { badge.style.display = 'none'; }
+    else { badge.style.display = 'inline'; badge.textContent = _modErrors.length; }
+}
+
+function clearModErrors() {
+    _modErrors = [];
+    updateModErrorBadge();
+    renderModErrors();
+    floatMoneyText('🗑️ Error log cleared');
+}
+
+function copyModError(i) {
+    const e = _modErrors[i];
+    if (!e) return;
+    const text = `MOD: ${e.name} (${e.id})\nCONTEXT: ${e.context.toUpperCase()}\nERROR: ${e.message}${e.code ? '\n\nFAILED CODE:\n' + e.code : ''}`;
+    navigator.clipboard.writeText(text).then(()=>floatMoneyText('📋 Error copied!')).catch(()=>{
+        const ta = document.createElement('textarea'); ta.value = text;
+        document.body.appendChild(ta); ta.select(); document.execCommand('copy');
+        document.body.removeChild(ta); floatMoneyText('📋 Error copied!');
+    });
+}
+
+function copyModErrorFix(i) {
+    const e = _modErrors[i];
+    if (!e) return;
+    const mod = _installedMods.find(m => m.id === e.id);
+    const modJson = mod ? JSON.stringify(mod, null, 2) : '(mod JSON not available)';
+    const text = `I have a mod for the game CIRCULATE that has an error. Please fix it and return the complete corrected JSON.
+
+MOD NAME: ${e.name}
+ERROR TYPE: ${e.context.toUpperCase()}
+ERROR MESSAGE: ${e.message}
+${e.code ? `\nFAILED CODE SECTION:\n${e.code}` : ''}
+
+FULL MOD JSON:
+${modJson}
+
+Please fix the error in the JSON above and return the complete corrected JSON object. Return ONLY the raw JSON, no markdown, no code fences, no explanation.`;
+    navigator.clipboard.writeText(text).then(()=>floatMoneyText('🤖 Fix prompt copied!')).catch(()=>{
+        const ta = document.createElement('textarea'); ta.value = text;
+        document.body.appendChild(ta); ta.select(); document.execCommand('copy');
+        document.body.removeChild(ta); floatMoneyText('🤖 Fix prompt copied!');
+    });
 }
 
 function getModPromptText(type, customTheme, customAbility, customPassive) {
@@ -14771,6 +14908,7 @@ function tryInstallMod(raw) {
     } catch(e) {
         if (status) { status.textContent = '❌ Invalid mod code. Make sure it\'s valid JSON.'; status.style.color = '#f87171'; }
         floatMoneyText('❌ Invalid mod code!');
+        logModError('Unknown Mod', '?', 'install', 'JSON parse failed: ' + e.message, raw.slice(0, 300));
     }
 }
 
@@ -14871,11 +15009,27 @@ function applyActiveMods() {
                     } catch(err) {
                         console.warn('Mod "' + mod.name + '" extra key [' + key + '] failed to compile:', err.message);
                         floatMoneyText('⚠️ Mod key [' + key.toUpperCase() + '] syntax error: ' + err.message);
+                        logModError(mod.name, mod.id, 'compile', 'Extra key [' + key.toUpperCase() + ']: ' + err.message, code);
                     }
                 });
             }
 
-            // Pre-compile passiveCode function
+            // Pre-compile abilityCode function
+            _ch._abilityFn = null;
+            if (mod.abilityCode && typeof mod.abilityCode === 'string' && mod.abilityCode.trim()) {
+                try {
+                    _ch._abilityFn = new Function(
+                        'player','enemies','particles','Particle','Projectile',
+                        'projectiles','canvas','floatMoneyText','damageEnemy',
+                        'gainExp','handleKill','updateHUD','playSound',
+                        'applyPassiveDamageBoost','mousePos',
+                        mod.abilityCode
+                    );
+                } catch(err) {
+                    console.warn('Mod "' + mod.name + '" abilityCode failed to compile:', err.message);
+                    logModError(mod.name, mod.id, 'compile', 'abilityCode: ' + err.message, mod.abilityCode);
+                }
+            }
             _ch._passiveFn = null;
             if (mod.passiveCode && typeof mod.passiveCode === 'string' && mod.passiveCode.trim()) {
                 try {
@@ -14887,6 +15041,7 @@ function applyActiveMods() {
                     );
                 } catch(err) {
                     console.warn('Mod "' + mod.name + '" passiveCode failed to compile:', err.message);
+                    logModError(mod.name, mod.id, 'compile', 'passiveCode: ' + err.message, mod.passiveCode);
                 }
             }
 
