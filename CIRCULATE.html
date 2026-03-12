@@ -2461,7 +2461,7 @@
     <div class="slot-odds">- 10% JACKPOT EACH ROLL -</div>
 </div>
 
-<div id="theEnemyDarkness" style="display:none;position:fixed;inset:0;background:#000;opacity:0;pointer-events:none;z-index:8000;transition:opacity 0.8s;"></div>
+
 
 <div id="gameContainer">
     <div id="gameWrapper">
@@ -2555,6 +2555,35 @@
     <button class="restart-btn" onclick="backToMainMenu()" style="background:#6b7280;border-bottom:4px solid #374151;">Main Menu</button>
     <div style="margin-top:14px;">
         <button onclick="fixButtons()" style="background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.35);border:1px dashed rgba(255,255,255,0.2);padding:6px 14px;border-radius:5px;cursor:pointer;font-size:11px;font-family:inherit;">🔧 Click this if buttons are not clickable</button>
+    </div>
+</div>
+
+<!-- YOU WIN SCREEN -->
+<div id="youWinScreen" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.95);z-index:2000;flex-direction:column;align-items:center;justify-content:center;text-align:center;font-family:inherit;">
+    <div style="background:linear-gradient(135deg,rgba(5,150,105,0.15),rgba(251,191,36,0.1));border:3px solid #fbbf24;border-radius:18px;padding:48px 52px;max-width:460px;width:90%;box-shadow:0 0 60px rgba(251,191,36,0.35);">
+        <div style="font-size:52px;margin-bottom:8px;">🏆</div>
+        <h2 style="font-size:36px;font-weight:900;color:#fbbf24;margin:0 0 6px;letter-spacing:2px;text-shadow:0 0 30px rgba(251,191,36,0.6);">YOU WIN!</h2>
+        <div style="font-size:13px;color:rgba(255,255,255,0.5);margin-bottom:28px;letter-spacing:1px;">WAVE 1000 CLEARED</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:28px;">
+            <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:14px;">
+                <div style="font-size:10px;color:rgba(255,255,255,0.4);margin-bottom:4px;letter-spacing:0.5px;">WAVE</div>
+                <div style="font-size:24px;font-weight:bold;color:#34d399;" id="ywWave">1000</div>
+            </div>
+            <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:14px;">
+                <div style="font-size:10px;color:rgba(255,255,255,0.4);margin-bottom:4px;letter-spacing:0.5px;">KILLS</div>
+                <div style="font-size:24px;font-weight:bold;color:#f87171;" id="ywKills">0</div>
+            </div>
+            <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:14px;">
+                <div style="font-size:10px;color:rgba(255,255,255,0.4);margin-bottom:4px;letter-spacing:0.5px;">LEVEL</div>
+                <div style="font-size:24px;font-weight:bold;color:#60a5fa;" id="ywLevel">1</div>
+            </div>
+            <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:14px;">
+                <div style="font-size:10px;color:rgba(255,255,255,0.4);margin-bottom:4px;letter-spacing:0.5px;">GOLD EARNED</div>
+                <div style="font-size:24px;font-weight:bold;color:#fbbf24;">$<span id="ywGold">0</span></div>
+            </div>
+        </div>
+        <button onclick="restartGame();document.getElementById('youWinScreen').style.display='none';" style="background:#059669;color:white;border:none;border-bottom:4px solid #065f46;padding:13px 32px;font-size:15px;font-weight:bold;font-family:inherit;border-radius:8px;cursor:pointer;margin:6px;width:100%;">▶ Play Again</button>
+        <button onclick="backToMainMenu()" style="background:#374151;color:rgba(255,255,255,0.7);border:none;border-bottom:3px solid #1f2937;padding:11px 24px;font-size:14px;font-family:inherit;border-radius:8px;cursor:pointer;margin:6px;width:100%;">🏠 Main Menu</button>
     </div>
 </div>
 
@@ -2717,6 +2746,7 @@
     function gatherImageUrls() {
         const urls = [
             'https://minotar.net/helm/8af6c50833d54861b5c2dce1c16c6fae/512.png',
+            'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSU8qswuWvs5n8CSTMft-2QFR9Y54APiJ3q1g&s',
             'https://res.cloudinary.com/dz1dungk5/image/upload/v1772727788/f0e95622d20a747e93f5403e5193b155_vhmhmy.ico',
         ];
         // Mod images stored in localStorage
@@ -2763,38 +2793,63 @@
 
     /* --- the real loading sequence --- */
     async function runRealLoader() {
-        // Phase 1: init (0→15%)
+        // Phase 1: init (0→12%)
         setMsg('Initializing engine...');
         warmCanvas();
-        setPct(10);
-        await delay(120);
-        setPct(15);
+        setPct(8);
+        await delay(100);
+        setPct(12);
 
-        // Phase 2: audio buffering (15→30%)
+        // Phase 2: read save data (12→22%)
+        setMsg('Loading save data...');
+        try {
+            // Trigger localStorage reads up front so they're warm
+            ['ballRPGMoney','ballRPGUnlocked','ballRPGCurrentChar','ballRPGMods','modImages','charMusicMap','ballRPGSettings'].forEach(k => localStorage.getItem(k));
+        } catch(e) {}
+        await animateTo(22, 300);
+
+        // Phase 3: load installed mods (22→35%)
+        setMsg('Preparing mods...');
+        try {
+            const mods = JSON.parse(localStorage.getItem('ballRPGMods') || '[]');
+            setMsg(`Preparing mods... (${mods.length} installed)`);
+        } catch(e) {}
+        await animateTo(35, 350);
+
+        // Phase 4: audio buffering (35→48%)
         setMsg('Buffering audio...');
         primeAudio();
-        await animateTo(30, 400);
+        await animateTo(48, 450);
 
-        // Phase 3: preload images (30→85%)
+        // Phase 5: preload images (48→88%)
         setMsg('Loading images...');
         const imgUrls = gatherImageUrls();
         if (imgUrls.length > 0) {
-            const baseP = 30, rangeP = 55;
+            const baseP = 48, rangeP = 40;
             await preloadImages(imgUrls, (done, total) => {
+                setMsg(`Loading images... (${done}/${total})`);
                 setPct(Math.round(baseP + (done / total) * rangeP));
             });
         } else {
-            await animateTo(85, 500);
+            await animateTo(88, 500);
         }
 
-        // Phase 4: localStorage data (85→95%)
-        setMsg('Restoring save data...');
-        await animateTo(95, 300);
+        // Phase 6: warm up font rendering (88→95%)
+        setMsg('Warming up renderer...');
+        try {
+            const c = document.getElementById('gameCanvas');
+            if (c) {
+                const ctx = c.getContext('2d');
+                ctx.font = 'bold 14px Arial'; ctx.fillText('', 0, 0);
+                ctx.font = 'bold 18px Arial'; ctx.fillText('', 0, 0);
+            }
+        } catch(e) {}
+        await animateTo(95, 200);
 
-        // Phase 5: finalize (95→100%)
+        // Phase 7: finalize (95→100%)
         setMsg('Ready!');
         await animateTo(100, 200);
-        await delay(400);
+        await delay(380);
         finishLoading();
     }
 
@@ -6955,136 +7010,6 @@ function circleRect(cx, cy, cr, rx, ry, rw, rh) {
     return dx * dx + dy * dy < cr * cr;
 }
 
-let theEnemyActive = false;
-let theEnemyData = null;
-let theEnemyElapsed = 0;
-let theEnemyHorror = 0;
-
-function spawnTheEnemy() {
-    theEnemyActive = true;
-    theEnemyElapsed = 120; 
-    theEnemyHorror = 1;
-    theEnemyCamZoom = 1 + 1.8; 
-    player._theEnemySlowMult = 0.25 / (player.speed || 5);
-
-    const darkEl = document.getElementById('theEnemyDarkness');
-    if (darkEl) { darkEl.style.display = 'block'; darkEl.style.opacity = '0.82'; }
-
-    
-    enemies.forEach(e => { e.alive = false; });
-    enemies = [];
-    bossBullets = [];
-    currentBoss = null;
-    walls = []; generateWalls();
-    theEnemyData = {
-        x: canvas.width / 2,
-        y: 60,
-        radius: 14,
-        speed: 0.27,
-        color: '#cc0000',
-        alive: true,
-        pulseT: 0,
-        stepTimer: 0,
-    };
-    floatMoneyText('>:[ IT HAS ARRIVED');
-    playSound(55, 0.4, 'sawtooth');
-    setTimeout(() => playSound(45, 0.3, 'sawtooth'), 400);
-}
-
-function updateTheEnemy(dt) {
-    if (!theEnemyActive || !theEnemyData || !theEnemyData.alive) return;
-    theEnemyElapsed += dt / 60;
-    theEnemyHorror = Math.min(theEnemyElapsed / 120, 1);
-
-    const te = theEnemyData;
-    te.pulseT += dt;
-
-    
-    enemies.forEach(e => { e.alive = false; });
-    enemies = [];
-
-    
-    const dx = player.x - te.x, dy = player.y - te.y;
-    const dist = Math.hypot(dx, dy);
-    if (dist > 0) {
-        te.x += (dx / dist) * te.speed;
-        te.y += (dy / dist) * te.speed;
-    }
-    te.x = Math.max(te.radius, Math.min(canvas.width - te.radius, te.x));
-    te.y = Math.max(te.radius, Math.min(canvas.height - te.radius, te.y));
-
-    
-    te.stepTimer -= dt;
-    if (te.stepTimer <= 0) {
-        te.stepTimer = Math.max(60 - theEnemyHorror*40, 20);
-        playSound(40 + Math.random()*20, 0.04, 'sine');
-    }
-
-    
-    player._theEnemySlowMult = 0.25 / (player.speed || 5);
-
-    
-    const darkness = document.getElementById('theEnemyDarkness');
-    if (darkness) darkness.style.opacity = (theEnemyHorror * 0.82).toFixed(3);
-    theEnemyCamZoom = 1 + theEnemyHorror * 1.8;
-
-    
-    if (dist < te.radius + player.radius + 2) {
-        theEnemyActive = false;
-        player._theEnemySlowMult = 1;
-        theEnemyCamZoom = 1;
-        if (darkness) darkness.style.opacity = '0';
-        endGame();
-    }
-}
-
-let theEnemyCamZoom = 1;
-
-function drawTheEnemy(ctx) {
-    if (!theEnemyActive || !theEnemyData) return;
-    const te = theEnemyData;
-
-    
-    ctx.save();
-    ctx.shadowBlur = _shadowsEnabled ? 30 + theEnemyHorror * 60 : 0;
-    ctx.shadowColor = '#ff0000';
-    ctx.globalAlpha = 0.12 + theEnemyHorror * 0.18;
-    ctx.fillStyle = '#8b0000';
-    ctx.beginPath();
-    ctx.arc(te.x, te.y, te.radius * 2.5 * (1 + Math.sin(te.pulseT*0.05)*0.05), 0, Math.PI*2);
-    ctx.fill();
-    ctx.restore();
-
-    
-    ctx.save();
-    ctx.fillStyle = 'rgba(20,0,0,0.3)';
-    ctx.beginPath(); ctx.arc(te.x, te.y, te.radius, 0, Math.PI*2); ctx.fill();
-
-    
-    ctx.font = `bold ${te.radius * 1.6}px VT323, "Courier New", monospace`;
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.shadowBlur = _shadowsEnabled ? 20 + theEnemyHorror * 40 : 0;
-    ctx.shadowColor = '#ff0000';
-    ctx.fillStyle = `rgb(${180 + Math.floor(theEnemyHorror*75)},${Math.floor(30 - theEnemyHorror*20)},${Math.floor(30 - theEnemyHorror*20)})`;
-    ctx.fillText('>:[', te.x, te.y);
-    ctx.restore();
-
-    
-    if (theEnemyHorror > 0.3) {
-        const msgs = ['it is getting closer','you cannot run','there is no escape','it sees you','it has always seen you'];
-        const msgIdx = Math.min(Math.floor(theEnemyHorror * 5) - 1, msgs.length-1);
-        if (msgIdx >= 0) {
-            ctx.save();
-            ctx.globalAlpha = (theEnemyHorror - 0.3) * 0.3;
-            ctx.font = '10px Courier New, monospace';
-            ctx.fillStyle = '#8b0000';
-            ctx.textAlign = 'center';
-            ctx.fillText(msgs[msgIdx], canvas.width/2, canvas.height - 20);
-            ctx.restore();
-        }
-    }
-}
 
 function spawnSukunaBoss() {
     sukunaBossActive = true;
@@ -8555,7 +8480,6 @@ function handleKill(e) {
 }
 
 function gainExp(amount){
-    if (theEnemyActive) return; 
     playSound(800, 0.08, 'sine');
     player.exp+=amount;
     if(player.exp>=expToNextLevel){
@@ -9399,6 +9323,38 @@ function updateSkinOverlay(ts) {
     skinOverlay.style.border    = `2px solid ${sk.shadow}`;
 }
 
+function triggerYouWin() {
+    if (currentCharacter === 'default') {
+        veteranWins++;
+        if (veteranWins >= 5 && !unlockedMasteries.includes('default')) {
+            unlockedMasteries.push('default');
+            floatMoneyText('🎖️ WAR VETERAN MASTERY UNLOCKED!');
+        } else if (veteranWins < 5) {
+            floatMoneyText(`🎖️ Veteran wins: ${veteranWins}/5 to unlock War Veteran Mastery`);
+        }
+        updateMasteryCardButtons();
+        savePersistentData();
+    }
+    const milestoneBonus = Math.floor(1000/50)*25;
+    try {
+        if (!CHARACTERS[currentCharacter]?._isModChar && !hasActiveCharMods()) {
+            totalMoney += milestoneBonus + 1000; sessionMoney += milestoneBonus + 1000;
+        }
+    } finally { savePersistentData(); updateMoneyDisplay(); }
+    gameRunning = false;
+    skinOverlay.style.display = 'none';
+    stopJackpotMusic(); stopCharMusicAudio(); stopMainTheme();
+    document.getElementById('youWinScreen').style.display = 'flex';
+    document.getElementById('ywWave').textContent = currentRound;
+    document.getElementById('ywKills').textContent = player.kills;
+    document.getElementById('ywLevel').textContent = player.level;
+    document.getElementById('ywGold').textContent = sessionMoney;
+    if (typeof RUN_SLOT_KEYS !== 'undefined') RUN_SLOT_KEYS.forEach(k => localStorage.removeItem(k));
+    else localStorage.removeItem('ballRPGRunSave');
+    // Celebration particles
+    for(let i=0;i<120;i++) setTimeout(()=>particles.push(new Particle(Math.random()*canvas.width,Math.random()*canvas.height,'#fbbf24')),Math.random()*1200);
+}
+
 function endGame(sukunaKilled=false){
     if (!runTookDamage && currentRound >= 100) { hornetNoDmgWave = Math.max(hornetNoDmgWave, currentRound); savePersistentData(); }
     if (runShopPurchases === 0 && currentRound >= 5) { hornetNoShopWins++; savePersistentData(); }
@@ -9984,7 +9940,7 @@ function resetGame(){
     currentBoss=null; bossBullets=[]; miniTriangles=[]; bossSpawned=false; triangleEnemyUnlocked=false;
     triangleBossDefeats=0; currentRhomboid=null; rhomboidBullets=[]; rhomboidMinions=[]; rhomboidVortexActive=false;
     passiveState={lifesteal:0,thorns:0,regen:0,manaflow:0,armor:0,magnet:0,explosive:0,crit:0,multishot:0,ghostly:0,goldmag:0,overclock:0,trishot:0,homingshot:0,novaleak:0,aimassist:0,novaHitCount:0,berserkerActive:false,berserkerTimer:0,timeslowActive:false,timeslowTimer:0,regenTimer:0,trishotTimer:0,homingTimer:0,blackholeActive:false,blackholeTimer:0};
-    theEnemyActive = false; theEnemyData = null; theEnemyElapsed = 0; theEnemyHorror = 0; theEnemyCamZoom = 1; player._theEnemySlowMult = 1;
+    player._theEnemySlowMult = 1;
     const darkReset = document.getElementById('theEnemyDarkness'); if(darkReset) darkReset.style.opacity='0';
     hakariDomainActive = false;
     hakariDomainTimer = 0;
@@ -10739,11 +10695,6 @@ function gameLoop(ts){
     }
 
     if(!gameRunning){
-        
-        if (theEnemyActive) {
-            const darkness = document.getElementById('theEnemyDarkness');
-            if (darkness) darkness.style.opacity = (theEnemyHorror * 0.82).toFixed(3);
-        }
         return;
     }
     const rawDt = lastTs ? Math.min(ts - lastTs, 50) : 16.667;
@@ -10838,7 +10789,7 @@ function gameLoop(ts){
     // Safety: force-advance after 20s (1200 frames) if an enemy gets stuck.
     const _budgetDone = waveEnemiesSpawned >= waveEnemyBudget;
     const _waveCanAdvance = (_budgetDone && _aliveEnemies === 0 && roundTimer >= 60) || roundTimer >= 1200;
-    if(_waveCanAdvance&&!sukunaBossActive&&!theEnemyActive){
+    if(_waveCanAdvance&&!sukunaBossActive){
         currentRound++;
         roundTimer=0;
         waveEnemiesSpawned=0;
@@ -10878,38 +10829,16 @@ function gameLoop(ts){
             }
         }
         if(currentRound===900 && currentCharacter !== 'gojo') {
-            enemies.forEach(e => { e.alive = false; });
-            enemies = [];
-            currentBoss = null; bossBullets = []; miniTriangles = [];
-            bossSpawned = false;
-            floatMoneyText('⚠️ WAVE 900 SOMETHING IS COMING...');
-            playSound(40, 0.3, 'sawtooth');
-            setTimeout(() => playSound(35, 0.2, 'sawtooth'), 600);
+            floatMoneyText('⚠️ WAVE 900 — FINAL STRETCH! SURVIVE TO 1000!');
+            playSound(400, 0.3, 'square');
+            setTimeout(() => playSound(500, 0.2, 'square'), 200);
         }
-
-        if(currentRound===950 && !theEnemyActive && currentCharacter !== 'gojo') {
-            spawnTheEnemy();
-            return;
-        }
-        if(currentRound>=1000 && !sukunaBossActive && !theEnemyActive) {
-            floatMoneyText('🏆 WAVE 1000 REACHED! YOU WIN!');
-            if (currentCharacter === 'default') {
-                veteranWins++;
-                if (veteranWins >= 5 && !unlockedMasteries.includes('default')) {
-                    unlockedMasteries.push('default');
-                    savePersistentData();
-                    floatMoneyText('🎖️ WAR VETERAN MASTERY UNLOCKED! Equip it in the character menu!');
-                } else {
-                    savePersistentData();
-                    floatMoneyText(`🎖️ Veteran wins: ${veteranWins}/5 to unlock War Veteran Mastery`);
-                }
-                updateMasteryCardButtons();
-            }
-            endGame();
+        if(currentRound>=1000 && !sukunaBossActive) {
+            triggerYouWin();
             return;
         }
     }
-    if(!hakariDomainActive && !sukunaBossActive && !theEnemyActive && !(currentRound>=900 && currentRound<1000) && ts-lastEnemySpawn>getSpawnInterval()){
+    if(!hakariDomainActive && !sukunaBossActive && ts-lastEnemySpawn>getSpawnInterval()){
         spawnWave();
         lastEnemySpawn=ts;
     }
@@ -11435,21 +11364,6 @@ function gameLoop(ts){
     tickModEnemies(dt);
     drawZaFrozenLabels();
     tickSpecialEnemies(dt);
-    updateTheEnemy(dt);
-    
-    if (theEnemyActive) {
-        const zoom = theEnemyCamZoom;
-        const cEl = document.getElementById('gameCanvas');
-        const pw = document.getElementById('gameWrapper');
-        const scaleX = (pw ? pw.offsetWidth : 1100) / 1100;
-        cEl.style.transform = `scale(${zoom})`;
-        cEl.style.transformOrigin = `${player.x / 1100 * 100}% ${player.y / 700 * 100}%`;
-    } else {
-        const cEl = document.getElementById('gameCanvas');
-        cEl.style.transform = '';
-        cEl.style.transformOrigin = '';
-    }
-    drawTheEnemy(ctx);
 
     if (currentBoss && currentBoss.alive) {
         currentBoss.update(dt);
@@ -13494,7 +13408,7 @@ function startEndlessMode(){
     startGame(); // startGame resets endlessMode to false, so we override after
     endlessMode = true;
 }
-function backToMainMenu(){stopJackpotMusic();stopMainTheme();stopCharMusicAudio();hideSlotMachine();document.getElementById('gameOver').style.display='none';document.getElementById('gameContainer').style.display='none';document.body.classList.remove('game-active');skinOverlay.style.display='none';document.getElementById('playMenu').style.display='none';document.getElementById('mainMenu').style.display='block';updateMoneyDisplay();const darkBM=document.getElementById('theEnemyDarkness');if(darkBM){darkBM.style.opacity='0';darkBM.style.display='none';}const cBM=document.getElementById('gameCanvas');if(cBM){cBM.style.transform='';}checkRunSave();}
+function backToMainMenu(){stopJackpotMusic();stopMainTheme();stopCharMusicAudio();hideSlotMachine();document.getElementById('gameOver').style.display='none';document.getElementById('youWinScreen').style.display='none';document.getElementById('gameContainer').style.display='none';document.body.classList.remove('game-active');skinOverlay.style.display='none';document.getElementById('playMenu').style.display='none';document.getElementById('mainMenu').style.display='block';updateMoneyDisplay();const cBM=document.getElementById('gameCanvas');if(cBM){cBM.style.transform='';}checkRunSave();}
 function updateMoneyDisplay(){document.getElementById('totalMoney').textContent=totalMoney;document.getElementById('shopMoney').textContent=totalMoney;}
 function updateShopDisplay(){
     updateMoneyDisplay();
@@ -13551,9 +13465,15 @@ function updateShopDisplay(){
     const pvCard = document.getElementById('primeVeteranCharacter');
     if (pvCard) {
         const pvUnlocked = unlockedCharacters.includes('prime_veteran');
-        pvCard.style.display = pvUnlocked ? '' : 'none';
+        pvCard.style.display = '';
         pvCard.classList.remove('selected', 'locked');
-        if (pvUnlocked && currentCharacter === 'prime_veteran') pvCard.classList.add('selected');
+        if (!pvUnlocked) {
+            pvCard.classList.add('locked');
+            const priceEl = pvCard.querySelector('.character-price');
+            if (priceEl) priceEl.textContent = '🔒 Import OG Save';
+        } else {
+            if (currentCharacter === 'prime_veteran') pvCard.classList.add('selected');
+        }
     }
     const laCard = document.getElementById('lastArchitectCharacter');
     if (laCard) {
@@ -13579,15 +13499,29 @@ function updateShopDisplay(){
     }
     const gojoCard = document.getElementById('gojoCharacter');
     if (gojoCard) {
-        gojoCard.style.display = unlockedCharacters.includes('gojo') ? '' : 'none';
+        const gojoUnlocked = unlockedCharacters.includes('gojo');
+        gojoCard.style.display = '';
         gojoCard.classList.remove('selected', 'locked');
-        if (currentCharacter === 'gojo') gojoCard.classList.add('selected');
+        if (!gojoUnlocked) {
+            gojoCard.classList.add('locked');
+            const priceEl = gojoCard.querySelector('.character-price');
+            if (priceEl) priceEl.textContent = '🔒 Complete HQ Quests';
+        } else {
+            if (currentCharacter === 'gojo') gojoCard.classList.add('selected');
+        }
     }
     const hornetCard = document.getElementById('hornetCharacter');
     if (hornetCard) {
-        hornetCard.style.display = unlockedCharacters.includes('hornet') ? '' : 'none';
+        const hornetUnlocked = unlockedCharacters.includes('hornet');
+        hornetCard.style.display = '';
         hornetCard.classList.remove('selected', 'locked');
-        if (currentCharacter === 'hornet') hornetCard.classList.add('selected');
+        if (!hornetUnlocked) {
+            hornetCard.classList.add('locked');
+            const priceEl = hornetCard.querySelector('.character-price');
+            if (priceEl) priceEl.textContent = '🔒 Complete HQ Quests';
+        } else {
+            if (currentCharacter === 'hornet') hornetCard.classList.add('selected');
+        }
     }
     const tstCard = document.getElementById('theStrongestTodayCharacter');
     if (tstCard) {
@@ -13602,10 +13536,17 @@ function updateShopDisplay(){
 
     const megumiCard = document.getElementById('megumiCharacter');
     if (megumiCard) {
-        const megumiQuestsDone = HONORED_QUESTS.filter(q => q.character === 'Megumi Fushiguro').every(q => hqCompleted.includes(q.id));
-        megumiCard.style.display = megumiQuestsDone ? '' : 'none';
+        const megumiQuestsDone = HONORED_QUESTS.filter(q => q.character === 'Megumi Fushiguro').length > 0 &&
+            HONORED_QUESTS.filter(q => q.character === 'Megumi Fushiguro').every(q => hqCompleted.includes(q.id));
+        megumiCard.style.display = '';
         megumiCard.classList.remove('selected','locked');
-        if (currentCharacter === 'megumi') megumiCard.classList.add('selected');
+        if (!megumiQuestsDone) {
+            megumiCard.classList.add('locked');
+            const priceEl = megumiCard.querySelector('.character-price');
+            if (priceEl) priceEl.textContent = '🔒 Complete Megumi HQ Quests';
+        } else {
+            if (currentCharacter === 'megumi') megumiCard.classList.add('selected');
+        }
     }
 
     document.querySelectorAll('.character-card').forEach(card => {
@@ -13652,7 +13593,29 @@ function updateMcSkinClass(){
 function selectCharacter(name){
     if (name === 'prime_veteran') {
         if (!unlockedCharacters.includes('prime_veteran')) {
-            alert('🔒 Secret character!\n\nThis is the original Veteran from CIRCULATE OG, hidden here for players who found their way back.\n\nComplete all 10 quests in CIRCULATE OG, then import your save here to unlock him.');
+            alert('🔒 Prime Veteran — Secret Character!\n\nComplete all 10 quests in CIRCULATE OG, then import your save here to unlock him.');
+            return;
+        }
+    }
+    if (name === 'gojo') {
+        if (!unlockedCharacters.includes('gojo')) {
+            alert('🔒 Gojo Satoru is locked!\n\nComplete all Satoru Gojo quests in the HQ tab to earn a secret unlock code.');
+            return;
+        }
+    }
+    if (name === 'hornet') {
+        if (!unlockedCharacters.includes('hornet')) {
+            alert('🔒 Hornet is locked!\n\nComplete all Hornet quests in the HQ tab to earn a secret unlock code.');
+            return;
+        }
+    }
+    if (name === 'megumi') {
+        const megumiDone = HONORED_QUESTS.filter(q => q.character === 'Megumi Fushiguro').length > 0 &&
+            HONORED_QUESTS.filter(q => q.character === 'Megumi Fushiguro').every(q => hqCompleted.includes(q.id));
+        if (!megumiDone) {
+            const megumiProgress = HONORED_QUESTS.filter(q => q.character === 'Megumi Fushiguro').filter(q => hqCompleted.includes(q.id)).length;
+            const megumiTotal = HONORED_QUESTS.filter(q => q.character === 'Megumi Fushiguro').length;
+            alert(`🔒 Megumi Fushiguro is locked!\n\nComplete all ${megumiTotal} Megumi quests in the HQ tab to unlock him.\nProgress: ${megumiProgress}/${megumiTotal}`);
             return;
         }
     }
