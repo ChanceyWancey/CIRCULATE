@@ -1484,46 +1484,206 @@
         <!-- CREATE TAB -->
         <div id="modsTabCreateContent">
             <div style="background:rgba(5,150,105,0.07);border:1px solid rgba(5,150,105,0.25);border-radius:10px;padding:18px 20px;margin-bottom:16px;">
-                <div style="font-size:13px;font-weight:bold;color:#34d399;margin-bottom:6px;">Create a Mod</div>
-                <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-bottom:14px;">Copy the prompt below and paste it into ChatGPT. Then paste the JSON you get back into the <b style="color:#34d399;">Install Mod</b> tab.</div>
-                <div style="display:flex;gap:10px;margin-bottom:14px;">
-                    <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;color:rgba(255,255,255,0.7);">
-                        <input type="radio" name="modType" value="character" checked onchange="refreshModPrompt()" style="accent-color:#34d399;"> Custom Character
+                <div style="font-size:13px;font-weight:bold;color:#34d399;margin-bottom:4px;">✨ Create a Mod</div>
+                <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-bottom:14px;">Fill out the questions, copy the prompt into ChatGPT, then paste the JSON back into <b style="color:#34d399;">Install Mod</b>.</div>
+
+                <!-- Type selector -->
+                <div style="display:flex;gap:8px;margin-bottom:16px;">
+                    <label onclick="refreshModPrompt()" style="flex:1;display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;font-size:13px;font-weight:bold;padding:10px;border-radius:8px;border:2px solid rgba(52,211,153,0.5);background:rgba(5,150,105,0.15);color:#34d399;transition:all 0.15s;" id="modTypeLabelChar">
+                        <input type="radio" name="modType" value="character" checked onchange="refreshModPrompt()" style="accent-color:#34d399;"> 🧑 Character
                     </label>
-                    <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;color:rgba(255,255,255,0.7);">
-                        <input type="radio" name="modType" value="enemy" onchange="refreshModPrompt()" style="accent-color:#34d399;"> Custom Enemy
+                    <label onclick="refreshModPrompt()" style="flex:1;display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;font-size:13px;font-weight:bold;padding:10px;border-radius:8px;border:2px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.5);transition:all 0.15s;" id="modTypeLabelEnemy">
+                        <input type="radio" name="modType" value="enemy" onchange="refreshModPrompt()" style="accent-color:#ef4444;"> 👾 Enemy
                     </label>
                 </div>
 
-                <!-- Customisation options (shown for both types) -->
-                <div id="modCharOptions" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:14px;margin-bottom:14px;">
-                    <div style="font-size:11px;font-weight:bold;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">✏️ Customise (optional)</div>
-                    <div id="modThemeRow" style="margin-bottom:10px;">
-                        <label style="font-size:11px;color:rgba(255,255,255,0.5);display:block;margin-bottom:4px;" id="modThemeLabel">Character concept / theme</label>
-                        <input id="modCustomTheme" type="text" placeholder='e.g. "ice wizard", "ninja", "friendly robot"'
-                            oninput="refreshModPrompt()"
+                <!-- ===== CHARACTER QUESTIONS ===== -->
+                <div id="modCharQuestions">
+                    <div style="font-size:11px;font-weight:bold;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;">📋 Tell us about your character</div>
+
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+                        <div>
+                            <label style="font-size:11px;color:rgba(255,255,255,0.5);display:block;margin-bottom:4px;">1. What's the character's name or theme? <span style="color:#6ee7b7;">*</span></label>
+                            <input id="cq_theme" type="text" placeholder='e.g. "Shadow Monk", "Lava Giant"' oninput="refreshModPrompt()"
+                                style="width:100%;background:#0d1117;border:1px solid rgba(255,255,255,0.15);color:#e2e8f0;border-radius:6px;padding:8px 10px;font-size:12px;font-family:inherit;outline:none;box-sizing:border-box;">
+                        </div>
+                        <div>
+                            <label style="font-size:11px;color:rgba(255,255,255,0.5);display:block;margin-bottom:4px;">2. Pick a color vibe</label>
+                            <select id="cq_color" onchange="refreshModPrompt()" style="width:100%;background:#0d1117;border:1px solid rgba(255,255,255,0.15);color:#e2e8f0;border-radius:6px;padding:8px 10px;font-size:12px;font-family:inherit;outline:none;box-sizing:border-box;">
+                                <option value="">Let AI decide</option>
+                                <option value="red/crimson">🔴 Red / Crimson</option>
+                                <option value="blue/ice">🔵 Blue / Ice</option>
+                                <option value="green/nature">🟢 Green / Nature</option>
+                                <option value="purple/void">🟣 Purple / Void</option>
+                                <option value="yellow/lightning">🟡 Yellow / Lightning</option>
+                                <option value="orange/fire">🟠 Orange / Fire</option>
+                                <option value="white/holy">⚪ White / Holy</option>
+                                <option value="black/shadow">⚫ Black / Shadow</option>
+                                <option value="pink/chaos">🩷 Pink / Chaos</option>
+                                <option value="teal/cyber">🩵 Teal / Cyber</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px;">
+                        <div>
+                            <label style="font-size:11px;color:rgba(255,255,255,0.5);display:block;margin-bottom:4px;">3. Play style</label>
+                            <select id="cq_playstyle" onchange="refreshModPrompt()" style="width:100%;background:#0d1117;border:1px solid rgba(255,255,255,0.15);color:#e2e8f0;border-radius:6px;padding:8px 10px;font-size:12px;font-family:inherit;outline:none;box-sizing:border-box;">
+                                <option value="">Let AI decide</option>
+                                <option value="aggressive glass cannon — high damage, low HP">💥 Glass Cannon</option>
+                                <option value="tanky bruiser — high HP, slow">🛡️ Tank</option>
+                                <option value="fast skirmisher — high speed, medium stats">⚡ Speedster</option>
+                                <option value="support/healer — self-sustaining with regen">💚 Sustain / Healer</option>
+                                <option value="summoner — raises minions to fight">💀 Summoner</option>
+                                <option value="balanced all-rounder">⚖️ All-Rounder</option>
+                                <option value="trapper — places traps and controls space">⚠️ Trapper</option>
+                                <option value="berserker — gets stronger as HP drops">😤 Berserker</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="font-size:11px;color:rgba(255,255,255,0.5);display:block;margin-bottom:4px;">4. Combat range</label>
+                            <select id="cq_range" onchange="refreshModPrompt()" style="width:100%;background:#0d1117;border:1px solid rgba(255,255,255,0.15);color:#e2e8f0;border-radius:6px;padding:8px 10px;font-size:12px;font-family:inherit;outline:none;box-sizing:border-box;">
+                                <option value="">Let AI decide</option>
+                                <option value="melee — no projectiles, damages by contact">🥊 Melee only</option>
+                                <option value="short range — fast projectiles, high fire rate">🔫 Short range</option>
+                                <option value="long range — slow powerful shots">🏹 Long range</option>
+                                <option value="mixed — both melee and ranged">⚔️ Mixed</option>
+                                <option value="AOE — explosions and area attacks">💣 AOE blaster</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="font-size:11px;color:rgba(255,255,255,0.5);display:block;margin-bottom:4px;">5. Difficulty feel</label>
+                            <select id="cq_difficulty" onchange="refreshModPrompt()" style="width:100%;background:#0d1117;border:1px solid rgba(255,255,255,0.15);color:#e2e8f0;border-radius:6px;padding:8px 10px;font-size:12px;font-family:inherit;outline:none;box-sizing:border-box;">
+                                <option value="">Let AI decide</option>
+                                <option value="beginner-friendly — forgiving stats, simple ability">🟢 Easy / Beginner</option>
+                                <option value="moderate difficulty — balanced risk and reward">🟡 Medium</option>
+                                <option value="high skill ceiling — risky but powerful">🔴 Hard / Risky</option>
+                                <option value="gimmick/meme — extreme stats, very specific win condition">💀 Gimmick / Meme</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom:10px;">
+                        <label style="font-size:11px;color:rgba(255,255,255,0.5);display:block;margin-bottom:4px;">6. Passive traits — what should always be active? <span style="color:rgba(255,255,255,0.25);">(describe 1–3, or leave blank)</span></label>
+                        <input id="cq_passives" type="text" placeholder='e.g. "heal 5 HP per kill, 20% dodge chance, shots pierce through enemies"' oninput="refreshModPrompt()"
                             style="width:100%;background:#0d1117;border:1px solid rgba(255,255,255,0.15);color:#e2e8f0;border-radius:6px;padding:8px 10px;font-size:12px;font-family:inherit;outline:none;box-sizing:border-box;">
                     </div>
-                    <div id="modPassiveRow" style="margin-bottom:10px;">
-                        <label style="font-size:11px;color:rgba(255,255,255,0.5);display:block;margin-bottom:4px;" id="modPassiveLabel">Passives — always-on traits (optional, 1–3)</label>
-                        <input id="modCustomPassive" type="text" placeholder='e.g. "heal on kill, pierce shots, 20% dodge chance"'
-                            oninput="refreshModPrompt()"
+
+                    <div style="margin-bottom:10px;">
+                        <label style="font-size:11px;color:rgba(255,255,255,0.5);display:block;margin-bottom:4px;">7. Main ability — what happens when you press your Ability key?</label>
+                        <textarea id="cq_ability" rows="2" placeholder='e.g. "unleash a shockwave that knocks back and damages all nearby enemies"' oninput="refreshModPrompt()"
+                            style="width:100%;background:#0d1117;border:1px solid rgba(255,255,255,0.15);color:#e2e8f0;border-radius:6px;padding:8px 10px;font-size:12px;font-family:inherit;outline:none;resize:vertical;box-sizing:border-box;"></textarea>
+                    </div>
+
+                    <div style="margin-bottom:10px;">
+                        <label style="font-size:11px;color:rgba(255,255,255,0.5);display:block;margin-bottom:4px;">8. Extra keys — should this character have Z / X / C abilities? <span style="color:rgba(255,255,255,0.25);">(optional)</span></label>
+                        <input id="cq_extrakeys" type="text" placeholder='e.g. "Z: fire strike, X: freeze dash, C: summon shield"' oninput="refreshModPrompt()"
                             style="width:100%;background:#0d1117;border:1px solid rgba(255,255,255,0.15);color:#e2e8f0;border-radius:6px;padding:8px 10px;font-size:12px;font-family:inherit;outline:none;box-sizing:border-box;">
                     </div>
-                    <div>
-                        <label style="font-size:11px;color:rgba(255,255,255,0.5);display:block;margin-bottom:4px;" id="modAbilityLabel">Active ability — describe what you want it to do</label>
-                        <textarea id="modCustomAbility" rows="3"
-                            placeholder='e.g. "freeze all enemies for 3 seconds", "fire 8 homing missiles", "teleport to the mouse cursor and deal damage nearby"'
-                            oninput="refreshModPrompt()"
+
+                    <div style="margin-bottom:10px;">
+                        <label style="font-size:11px;color:rgba(255,255,255,0.5);display:block;margin-bottom:4px;">9. Any other details? <span style="color:rgba(255,255,255,0.25);">(story, backstory, special mechanics, etc.)</span></label>
+                        <textarea id="cq_other" rows="2" placeholder='e.g. "inspired by a samurai, transforms at low HP, costs 5000 gold to unlock"' oninput="refreshModPrompt()"
                             style="width:100%;background:#0d1117;border:1px solid rgba(255,255,255,0.15);color:#e2e8f0;border-radius:6px;padding:8px 10px;font-size:12px;font-family:inherit;outline:none;resize:vertical;box-sizing:border-box;"></textarea>
                     </div>
                 </div>
 
-                <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;">
+                <!-- ===== ENEMY QUESTIONS ===== -->
+                <div id="modEnemyQuestions" style="display:none;">
+                    <div style="font-size:11px;font-weight:bold;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;">📋 Tell us about your enemy</div>
+
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+                        <div>
+                            <label style="font-size:11px;color:rgba(255,255,255,0.5);display:block;margin-bottom:4px;">1. What's the enemy's name or theme? <span style="color:#6ee7b7;">*</span></label>
+                            <input id="eq_theme" type="text" placeholder='e.g. "lava golem", "shadow clone", "electric jellyfish"' oninput="refreshModPrompt()"
+                                style="width:100%;background:#0d1117;border:1px solid rgba(255,255,255,0.15);color:#e2e8f0;border-radius:6px;padding:8px 10px;font-size:12px;font-family:inherit;outline:none;box-sizing:border-box;">
+                        </div>
+                        <div>
+                            <label style="font-size:11px;color:rgba(255,255,255,0.5);display:block;margin-bottom:4px;">2. Color vibe</label>
+                            <select id="eq_color" onchange="refreshModPrompt()" style="width:100%;background:#0d1117;border:1px solid rgba(255,255,255,0.15);color:#e2e8f0;border-radius:6px;padding:8px 10px;font-size:12px;font-family:inherit;outline:none;box-sizing:border-box;">
+                                <option value="">Let AI decide</option>
+                                <option value="red">🔴 Red</option>
+                                <option value="blue">🔵 Blue</option>
+                                <option value="green">🟢 Green</option>
+                                <option value="purple">🟣 Purple</option>
+                                <option value="yellow">🟡 Yellow</option>
+                                <option value="orange">🟠 Orange</option>
+                                <option value="white">⚪ White</option>
+                                <option value="black/dark">⚫ Black / Dark</option>
+                                <option value="pink">🩷 Pink</option>
+                                <option value="teal/cyan">🩵 Teal</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+                        <div>
+                            <label style="font-size:11px;color:rgba(255,255,255,0.5);display:block;margin-bottom:4px;">3. How does it move?</label>
+                            <select id="eq_behavior" onchange="refreshModPrompt()" style="width:100%;background:#0d1117;border:1px solid rgba(255,255,255,0.15);color:#e2e8f0;border-radius:6px;padding:8px 10px;font-size:12px;font-family:inherit;outline:none;box-sizing:border-box;">
+                                <option value="">Let AI decide</option>
+                                <option value="chase">🎯 Chases the player</option>
+                                <option value="strafe">🔄 Circles / strafes around player</option>
+                                <option value="ranged">🏹 Keeps distance and shoots</option>
+                                <option value="stationary">📍 Stays still (has other effects)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="font-size:11px;color:rgba(255,255,255,0.5);display:block;margin-bottom:4px;">4. How tough is it?</label>
+                            <select id="eq_toughness" onchange="refreshModPrompt()" style="width:100%;background:#0d1117;border:1px solid rgba(255,255,255,0.15);color:#e2e8f0;border-radius:6px;padding:8px 10px;font-size:12px;font-family:inherit;outline:none;box-sizing:border-box;">
+                                <option value="">Let AI decide</option>
+                                <option value="fragile — low HP, fast, dangerous in groups">🪨 Fragile but fast</option>
+                                <option value="standard — average HP and speed">⚖️ Standard</option>
+                                <option value="tanky — high HP, slow">🛡️ Tanky</option>
+                                <option value="boss-tier — massive HP, special mechanics">💀 Boss-tier</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+                        <div>
+                            <label style="font-size:11px;color:rgba(255,255,255,0.5);display:block;margin-bottom:4px;">5. When does it appear?</label>
+                            <select id="eq_wave" onchange="refreshModPrompt()" style="width:100%;background:#0d1117;border:1px solid rgba(255,255,255,0.15);color:#e2e8f0;border-radius:6px;padding:8px 10px;font-size:12px;font-family:inherit;outline:none;box-sizing:border-box;">
+                                <option value="">Let AI decide</option>
+                                <option value="early game (wave 1+)">🌱 Early game (wave 1+)</option>
+                                <option value="mid game (wave 5+)">⚡ Mid game (wave 5+)</option>
+                                <option value="late game (wave 15+)">🔥 Late game (wave 15+)</option>
+                                <option value="very late / endgame (wave 30+)">💀 Endgame (wave 30+)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="font-size:11px;color:rgba(255,255,255,0.5);display:block;margin-bottom:4px;">6. Size</label>
+                            <select id="eq_size" onchange="refreshModPrompt()" style="width:100%;background:#0d1117;border:1px solid rgba(255,255,255,0.15);color:#e2e8f0;border-radius:6px;padding:8px 10px;font-size:12px;font-family:inherit;outline:none;box-sizing:border-box;">
+                                <option value="">Let AI decide</option>
+                                <option value="tiny (radius ~8px)">🔹 Tiny</option>
+                                <option value="small (radius ~12px)">🔸 Small</option>
+                                <option value="standard (radius ~15px)">⬛ Standard</option>
+                                <option value="large (radius ~22px)">🟥 Large</option>
+                                <option value="huge (radius ~30px)">💠 Huge</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom:10px;">
+                        <label style="font-size:11px;color:rgba(255,255,255,0.5);display:block;margin-bottom:4px;">7. Special ability — what does it do periodically? <span style="color:rgba(255,255,255,0.25);">(leave blank for no ability)</span></label>
+                        <textarea id="eq_ability" rows="2" placeholder='e.g. "fires 3 homing shots at the player every 4 seconds", "heals itself 20 HP every 5 seconds", "dashes toward the player and leaves fire behind"' oninput="refreshModPrompt()"
+                            style="width:100%;background:#0d1117;border:1px solid rgba(255,255,255,0.15);color:#e2e8f0;border-radius:6px;padding:8px 10px;font-size:12px;font-family:inherit;outline:none;resize:vertical;box-sizing:border-box;"></textarea>
+                    </div>
+
+                    <div style="margin-bottom:10px;">
+                        <label style="font-size:11px;color:rgba(255,255,255,0.5);display:block;margin-bottom:4px;">8. Any other details? <span style="color:rgba(255,255,255,0.25);">(lore, special mechanics, unique gimmick)</span></label>
+                        <textarea id="eq_other" rows="2" placeholder='e.g. "splits into two smaller versions when killed", "becomes invisible at 50% HP", "only takes damage from behind"' oninput="refreshModPrompt()"
+                            style="width:100%;background:#0d1117;border:1px solid rgba(255,255,255,0.15);color:#e2e8f0;border-radius:6px;padding:8px 10px;font-size:12px;font-family:inherit;outline:none;resize:vertical;box-sizing:border-box;"></textarea>
+                    </div>
+                </div>
+
+                <!-- Prompt output -->
+                <div style="display:flex;gap:8px;margin-top:4px;margin-bottom:10px;flex-wrap:wrap;">
                     <a href="https://chat.openai.com" target="_blank" style="background:#10a37f;color:white;padding:8px 18px;border-radius:6px;font-size:12px;font-weight:bold;font-family:inherit;text-decoration:none;border-bottom:3px solid #0d7a60;">↗ Open ChatGPT</a>
                     <button onclick="copyModPrompt()" style="background:#1d4ed8;color:white;border:none;border-bottom:3px solid #1e3a8a;padding:8px 18px;border-radius:6px;font-size:12px;font-weight:bold;font-family:inherit;cursor:pointer;">📋 Copy Prompt</button>
+                    <button onclick="clearModForm()" style="background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.4);border:1px dashed rgba(255,255,255,0.15);padding:8px 14px;border-radius:6px;font-size:12px;font-family:inherit;cursor:pointer;">↺ Clear Form</button>
                 </div>
-                <textarea id="modGeneratedCode" readonly style="width:100%;min-height:220px;background:#0d1117;border:1.5px solid rgba(5,150,105,0.4);color:#86efac;border-radius:8px;padding:12px;font-size:11px;font-family:monospace;resize:vertical;outline:none;box-sizing:border-box;"></textarea>
+                <div style="font-size:10px;color:rgba(255,255,255,0.25);margin-bottom:6px;font-family:monospace;">📄 Generated prompt — copy this into ChatGPT:</div>
+                <textarea id="modGeneratedCode" readonly style="width:100%;min-height:160px;background:#0d1117;border:1.5px solid rgba(5,150,105,0.4);color:#86efac;border-radius:8px;padding:12px;font-size:11px;font-family:monospace;resize:vertical;outline:none;box-sizing:border-box;"></textarea>
             </div>
             <!-- kept for compatibility -->
             <div id="modGenerateResult" style="display:none;"></div>
@@ -1531,6 +1691,13 @@
             <div id="modPromptInput" style="display:none;"></div>
             <div id="modPromptHint" style="display:none;"></div>
             <div id="modGenerateBtn" style="display:none;"></div>
+            <!-- legacy ids kept so nothing breaks -->
+            <div id="modThemeLabel" style="display:none;"></div>
+            <div id="modAbilityLabel" style="display:none;"></div>
+            <div id="modPassiveLabel" style="display:none;"></div>
+            <input id="modCustomTheme" style="display:none;">
+            <input id="modCustomPassive" style="display:none;">
+            <textarea id="modCustomAbility" style="display:none;"></textarea>
         </div>
 
         <!-- INSTALL TAB -->
@@ -14634,8 +14801,21 @@ Please fix the error in the JSON above and return the complete corrected JSON ob
     });
 }
 
-function getModPromptText(type, customTheme, customAbility, customPassive) {
+function getModPromptText(type, opts) {
+    opts = opts || {};
     if (type === 'character') {
+        const lines = [];
+        if (opts.theme)      lines.push(`CHARACTER THEME / NAME: "${opts.theme}"\nBase the character's name, color, icon, and desc around this.`);
+        if (opts.color)      lines.push(`COLOR SCHEME: ${opts.color} — use this as the primary color palette.`);
+        if (opts.playstyle)  lines.push(`PLAYSTYLE: ${opts.playstyle}`);
+        if (opts.range)      lines.push(`COMBAT RANGE: ${opts.range}`);
+        if (opts.difficulty) lines.push(`DIFFICULTY FEEL: ${opts.difficulty}`);
+        if (opts.passives)   lines.push(`PASSIVES (always-on traits): "${opts.passives}"\nImplement these faithfully in passiveDesc and passiveCode.`);
+        if (opts.ability)    lines.push(`ACTIVE ABILITY: "${opts.ability}"\nImplement this as the ability key action in abilityCode and abilityDesc.`);
+        if (opts.extrakeys)  lines.push(`EXTRA KEYS: "${opts.extrakeys}"\nImplement these as extraKeys entries (e.g. { "z": "...code...", "x": "...code..." }). Reference them by letter in infoAbilities.`);
+        if (opts.other)      lines.push(`ADDITIONAL DETAILS: "${opts.other}"`);
+        const userRequests = lines.length ? '\n\nUSER REQUESTS — follow these exactly:\n' + lines.map((l,i)=>`${i+1}. ${l}`).join('\n') : '';
+
         return `You are a mod generator for CIRCULATE — a top-down bullet-hell arena survival game where the player controls a colored ball fighting endless waves of enemies on a walled canvas. Characters each have a unique visual identity, stat profile, one active ability (bound to whatever key the player has set as their Ability key — do NOT hardcode "R"), and 1–3 passive traits that are always active.
 
 GAME CONTEXT YOU MUST UNDERSTAND:
@@ -14646,214 +14826,216 @@ GAME CONTEXT YOU MUST UNDERSTAND:
 - 100 HP is the standard. Tank has 500 HP. Glass Cannon has 1 HP.
 - Damage 10 is weak, 20 is standard, 50+ is high-cost specialist.
 - Characters are bought with persistent gold earned across runs.
-- PASSIVES are always-on effects — e.g. lifesteal, speed aura, pierce shots, kill-heal, damage reflection, dodge chance, etc. They are part of the core identity of a character and run every frame or on-hit/on-kill via passiveCode.
+- PASSIVES are always-on effects — e.g. lifesteal, speed aura, pierce shots, kill-heal, damage reflection, dodge chance, etc.
 - The ABILITY KEY is whatever the player has bound — never say "press R". Say "press your Ability key" or just describe the effect.
 
 EXISTING CHARACTERS FOR REFERENCE (do NOT duplicate these):
 • Vampire – Passive: heal 8 HP on kill + 10% lifesteal. No active ability.
-• Phantom – Passive: pierce shots through walls, 15% dodge. Ability: Ghost Walk (phase through walls + speed burst).
+• Phantom – Passive: pierce shots through walls, 15% dodge. Ability: Ghost Walk (phase + speed burst).
 • Druid – Passive: shots root enemies for 1.5s. Ability: spawn heal mushrooms.
-• Tank – Passive: 25% damage reduction, melee contact deals 50 dmg. Ability: Ground Slam AoE stun.
+• Tank – Passive: 25% damage reduction, melee contact 50 dmg. Ability: Ground Slam AoE stun.
 • Necromancer – Passive: 30% raise-dead on kill. Ability: Soul Burst (minions explode).
-• Glass Cannon – Passive: 150 dmg/shot, kills stack Adrenaline (+5% fire rate per stack). No ability.
-• Speedrunner – Passive: damage scales with movement speed. Ability: Sprint Burst (3s turbo).
-• Cyborg – Passive: mode-swap bonus shot. Ability: 360° Laser Sweep. E key toggles Rapid/Heavy mode.
+• Glass Cannon – Passive: 150 dmg/shot, kills stack Adrenaline. No ability.
+• Speedrunner – Passive: damage scales with speed. Ability: Sprint Burst.
+• Cyborg – Passive: mode-swap bonus shot. Ability: 360° Laser Sweep. E toggles Rapid/Heavy mode.
 
 YOUR TASK: Generate a single creative custom CHARACTER as a JSON object with EXACTLY these fields:
 - id: unique snake_case string (e.g. "void_monk")
 - name: display name (e.g. "Void Monk")
-- color: hex color of the player ball (e.g. "#7c3aed")
-- shadow: slightly darker hex for the drop shadow (e.g. "#4c1d95")
-- projColor: hex color of the projectiles this character fires (e.g. "#c4b5fd")
-- hp: max health — balance relative to speed/damage (e.g. 120)
-- speed: movement speed 1–6 (e.g. 3.2)
-- damage: base projectile damage 5–30, or 0 if melee/no projectiles (e.g. 14)
-- ability: a short internal id string for the active ability (e.g. "shadow_burst") — flavor only, any snake_case name
-- manaCost: mana cost to activate ability, 0–80 (e.g. 35)
-- cdMax: cooldown in frames at 60fps after the ability fires, 0 = no cooldown (e.g. 300)
-- desc: 1–2 sentence flavor description of the character's identity and playstyle
-- passiveDesc: array of 1–3 short strings, each describing one passive trait (e.g. ["Heal 5 HP on every kill", "20% dodge chance", "Shots pierce through enemies"])
-- abilityDesc: 2–4 sentence mechanical description of EXACTLY what the active ability does (include damage, duration, area, etc.). Do NOT mention "R key" — say "Activating this ability..." or just describe the effect.
-- icon: single emoji representing the character (e.g. "🌑")
-- unlockCost: persistent gold cost to unlock in the shop, 0 = free (e.g. 2500)
-- passiveCode: JavaScript function body string that runs every game frame (or on kill/on hit) to implement passive effects. Leave as "" if passives are purely stat-based (e.g. just HP/speed differences with no per-frame logic needed).
-- abilityCode: JavaScript function body string that runs when the player presses their Ability key (see below)
+- color: primary hex color (e.g. "#8b5cf6")
+- shadow: darker hex color for gradient (e.g. "#3b0764")
+- projColor: projectile hex color (e.g. "#c4b5fd")
+- icon: single emoji
+- desc: 1–2 sentence shop description
+- hp: starting HP (e.g. 120)
+- speed: movement speed 1–5 (e.g. 3)
+- damage: base shot damage (e.g. 18)
+- manaCost: mana cost per ability use (e.g. 30)
+- cdMax: cooldown in frames at 60fps (e.g. 180 = 3s)
+- unlockCost: gold cost (e.g. 2500)
+- passiveDesc: array of 1–3 strings describing always-on traits (e.g. ["Shots pierce walls", "15% dodge chance"])
+- passiveCode: JavaScript function body that runs every frame for passive effects (or "" if stat-only)
+- abilityDesc: 1–2 sentence description of the active ability
+- abilityCode: JavaScript function body that runs when ability key is pressed
+- extraKeys: (optional) object mapping key letters to JS code bodies e.g. { "z": "...code...", "x": "...code..." }
+- infoStats: array of { label, value } objects for the INFO panel
+- infoAbilities: HTML string — use <b>PASSIVE:</b>, <b>ABILITY:</b>, and <b>EXTRA KEYS:</b> headers with <br> line breaks
+- infoPlaystyle: 1–2 sentence playstyle guide
+- infoTip: single tip string starting with 💡 Tip:
 - isCustomMod: true
 - type: "character"
-- infoStats: array of {label, value} objects shown in the INFO panel (2–6 entries, e.g. [{"label":"HP","value":"120"},{"label":"Fire Rate","value":"200ms"},{"label":"Mana Cost","value":"35"}])
-- infoAbilities: HTML string for the INFO panel — use <b>PASSIVE:</b> and <b>ABILITY:</b> and (if applicable) <b>Z / X / C keys:</b> headers, <br> for line breaks. List ALL passives first, then the active ability, then extra keys if any.
-- infoPlaystyle: 1–2 sentence plain-text description of how to play this character effectively.
-- infoTip: A single practical tip starting with 💡 Tip:
 
-EXTRA KEYS (extraKeys field — optional but encouraged for complex characters):
-You can give the character additional abilities bound to letter keys (z, x, c, q, e, f, g, etc.) using the extraKeys object.
-Format: { "z": "...JS code...", "x": "...JS code...", "c": "...JS code..." }
-Each value is a JavaScript function body that runs when that key is pressed.
-These are REAL keybinds that work in-game — the game engine dispatches them automatically.
-Available variables (same as abilityCode, plus passiveState).
+EXTRA KEYS (extraKeys field — optional):
+Format: { "z": "...JS code...", "x": "...JS code..." } — any letter key works.
+Each value is a JS function body run when that key is pressed. Same variables as abilityCode, plus passiveState.
+Label them by letter in infoAbilities (e.g. "Z: Fire Strike"). Never say "R key" for extra keys.
 
-EXAMPLE extraKeys:
-  Three elemental strikes:
-  "extraKeys": {
-    "z": "enemies.forEach(e=>{if(Math.hypot(e.x-player.x,e.y-player.y)<130)damageEnemy(e,player.damage*4,player.x,player.y)});for(let i=0;i<30;i++)particles.push(new Particle(player.x,player.y,'#f97316'));floatMoneyText('🔥 Ember Strike!');playSound(280,0.08,'sawtooth');",
-    "x": "enemies.forEach(e=>{if(Math.hypot(e.x-player.x,e.y-player.y)<130){e.frozen=180;for(let i=0;i<8;i++)particles.push(new Particle(e.x,e.y,'#bae6fd'));}});floatMoneyText('❄️ Frost Nova!');playSound(200,0.07,'sine');",
-    "c": "const pv=player.speed;player.speed*=2;setTimeout(()=>player.speed=pv,1800);for(let i=0;i<25;i++)particles.push(new Particle(player.x,player.y,'#86efac'));floatMoneyText('💨 Wind Step!');playSound(500,0.06,'square');"
-  }
+PASSIVE CODE (passiveCode field):
+JS function body running every frame. Variables: player, enemies, particles, Particle, Projectile, projectiles, canvas, floatMoneyText, damageEnemy, gainExp, handleKill, updateHUD, playSound, passiveState, mousePos, dt.
+Use player._modPassive = player._modPassive || {} for per-character state.
+Examples:
+  Regen: "player._modPassive=player._modPassive||{};player._modPassive.t=(player._modPassive.t||0)+1;if(player._modPassive.t>=120){player._modPassive.t=0;player.health=Math.min(player.maxHealth,player.health+3);updateHUD();}"
+  Particles: "if(Math.random()<0.15)particles.push(new Particle(player.x+(Math.random()-.5)*20,player.y+(Math.random()-.5)*20,'#facc15'));"
 
-RULES for extraKeys:
-- Refer to them by their letter in all text fields (e.g. "Z: Ember Strike", "X: Frost Nova") — never say "R key" for extra keys.
-- List extra key descriptions under a <b>EXTRA KEYS:</b> section in infoAbilities.
-- Only add extra keys when the character concept genuinely benefits from multiple inputs (stance switching, element cycling, resource management, etc.).
-
-PASSIVE CODE INSTRUCTIONS (passiveCode field):
-Write a JavaScript function BODY that runs every game frame to implement always-on effects.
-Available variables: player, enemies, particles, Particle, Projectile, projectiles, canvas, floatMoneyText, damageEnemy, gainExp, handleKill, updateHUD, playSound, passiveState, mousePos, dt.
-Use player._modPassive = player._modPassive || {} to store per-character frame state.
-
-EXAMPLE passiveCode values:
-  Regeneration: "player._modPassive=player._modPassive||{};player._modPassive.t=(player._modPassive.t||0)+1;if(player._modPassive.t>=120){player._modPassive.t=0;player.health=Math.min(player.maxHealth,player.health+3);updateHUD();}"
-  Speed aura particles: "if(Math.random()<0.15)particles.push(new Particle(player.x+(Math.random()-.5)*20,player.y+(Math.random()-.5)*20,'#facc15'));"
-  Lifesteal: "passiveState.vampiric=Math.max(passiveState.vampiric||0,0.08);"
-
-ABILITY CODE INSTRUCTIONS (abilityCode field):
-Write a JavaScript function BODY (no function declaration) that runs when the player presses their Ability key.
-Available variables: player, enemies, particles, Particle, Projectile, projectiles, canvas, floatMoneyText, damageEnemy, gainExp, handleKill, updateHUD, playSound, applyPassiveDamageBoost, mousePos.
-
-EXAMPLE abilityCode values:
-  Shockwave blast: "enemies.forEach(e=>{const d=Math.hypot(e.x-player.x,e.y-player.y);if(d<200){damageEnemy(e,player.damage*3,player.x,player.y);if(e.health<=0&&e.alive){e.alive=false;player.kills++;gainExp(e.expValue||10);handleKill(e);}}});for(let i=0;i<60;i++)particles.push(new Particle(player.x,player.y,'#a78bfa'));floatMoneyText('💜 VOID BURST!');playSound(200,0.12,'sine');"
-  Speed burst: "const prev=player.speed;player.speed*=2.5;setTimeout(()=>{player.speed=prev;},4000);for(let i=0;i<40;i++)particles.push(new Particle(player.x,player.y,'#facc15'));floatMoneyText('⚡ SPEED SURGE! 4s!');playSound(440,0.1,'square');"
-  Freeze all: "enemies.forEach(e=>{e.frozen=240;for(let i=0;i<6;i++)particles.push(new Particle(e.x,e.y,'#bfdbfe'));});floatMoneyText('❄️ DEEP FREEZE! 4s!');playSound(300,0.08,'sine');"
-
-Keep code compact (one line or a few semicolon-separated statements). Set ability: "mod_custom" when you provide abilityCode.
+ABILITY CODE (abilityCode field):
+JS function body run when ability key is pressed. Variables: player, enemies, particles, Particle, Projectile, projectiles, canvas, floatMoneyText, damageEnemy, gainExp, handleKill, updateHUD, playSound, applyPassiveDamageBoost, mousePos.
+Examples:
+  Shockwave: "enemies.forEach(e=>{const d=Math.hypot(e.x-player.x,e.y-player.y);if(d<200){damageEnemy(e,player.damage*3,player.x,player.y);}});for(let i=0;i<60;i++)particles.push(new Particle(player.x,player.y,'#a78bfa'));floatMoneyText('💜 VOID BURST!');playSound(200,0.12,'sine');"
+  Freeze: "enemies.forEach(e=>{e.frozen=240;for(let i=0;i<6;i++)particles.push(new Particle(e.x,e.y,'#bfdbfe'));});floatMoneyText('❄️ DEEP FREEZE!');playSound(300,0.08,'sine');"
 
 DESIGN GUIDELINES:
-- Every character MUST have at least 1 meaningful passive. Describe them in passiveDesc and implement in passiveCode (or use passiveState fields for stat-based passives).
-- Do NOT write "R key", "press R", or any hardcoded key name in any text field — say "Ability", "Z key", "X key", etc. as appropriate.
-- abilityDesc, passiveDesc, and infoAbilities must all describe concrete mechanics, not vague flavor.
-- Always include abilityCode. passiveCode can be "" if passives are purely stat-based. extraKeys is optional.
-${customTheme ? `\nUSER REQUEST — CHARACTER THEME: "${customTheme}"\nBase the character's name, color, icon, and desc around this theme.` : ''}${customPassive ? `\nUSER REQUEST — PASSIVES: "${customPassive}"\nImplement these as the character's passive traits. Reflect them faithfully in passiveDesc and passiveCode.` : ''}${customAbility ? `\nUSER REQUEST — ACTIVE ABILITY: "${customAbility}"\nImplement this as the active ability. Set abilityDesc and abilityCode to match this behaviour exactly. Be faithful to what the user described.` : ''}
+- Every character MUST have at least 1 meaningful passive.
+- Never write "R key", "press R", or any hardcoded key name — say "Ability", "Z key", "X key" etc.
+- Balance: high HP → lower speed or damage; high damage → higher mana cost or lower HP.
+- Keep all code compact (single line or semicolon-separated statements).
+- Always include abilityCode. passiveCode can be "" for stat-only passives.${userRequests}
 
 Return ONLY a single valid JSON object. No markdown, no code fences, no explanation, no preamble. Just the raw JSON.`;
     } else {
-        return `You are a mod generator for CIRCULATE — a top-down bullet-hell arena survival game. The player (a colored ball) fights waves of enemies on a rectangular walled canvas. Enemies spawn from the edges and attack the player. Waves get harder over time — later waves have stronger, faster, and more numerous enemies.
+        const lines = [];
+        if (opts.theme)     lines.push(`ENEMY THEME / NAME: "${opts.theme}"\nBase the enemy's name, color, icon, and desc around this.`);
+        if (opts.color)     lines.push(`COLOR SCHEME: ${opts.color}`);
+        if (opts.behavior)  lines.push(`MOVEMENT BEHAVIOR: ${opts.behavior}`);
+        if (opts.toughness) lines.push(`TOUGHNESS PROFILE: ${opts.toughness}`);
+        if (opts.wave)      lines.push(`APPEARANCE TIMING: ${opts.wave} — set the "round" field accordingly.`);
+        if (opts.size)      lines.push(`SIZE: ${opts.size} — set radius accordingly.`);
+        if (opts.ability)   lines.push(`SPECIAL ABILITY: "${opts.ability}"\nImplement this as abilityCode.`);
+        if (opts.other)     lines.push(`ADDITIONAL DETAILS: "${opts.other}"`);
+        const userRequests = lines.length ? '\n\nUSER REQUESTS — follow these exactly:\n' + lines.map((l,i)=>`${i+1}. ${l}`).join('\n') : '';
 
-GAME CONTEXT YOU MUST UNDERSTAND:
-- Enemies move across a 2D canvas and deal damage by touching the player (contact damage per tick at ~60fps).
-- HP 200 is a standard normal enemy. HP 10,000 is a boss. HP 150 is a fast fragile threat.
-- Speed 2 is average. Speed 3.5 is fast and threatening. Speed 5+ is extremely dangerous.
-- Radius 15px is a standard enemy circle. Radius 10px is small/fast. Radius 30px is a large elite.
-- Contact damage ~10/tick is standard. Bosses deal ~20/tick. Fragile fast enemies deal ~6–8/tick.
-- "round" controls earliest wave appearance: round 1 = spawns immediately, round 5+ = mid-game threat, round 15+ = late-game elite.
+        return `You are a mod generator for CIRCULATE — a top-down bullet-hell arena survival game. The player (a colored ball) fights waves of enemies on a rectangular walled canvas. Enemies spawn from edges and attack the player. Waves get harder over time.
 
-EXISTING ENEMY TYPES FOR REFERENCE (do NOT duplicate these):
-• Normal – basic chaser, red circle, speed ~2.5, 200 HP, 10 dmg, radius 15.
-• Triangle – faster fragile purple triangle, speed 3.5, 150 HP, 12 dmg, radius 12.
-• Boss – massive red circle, 10,000 HP, speed 1.5, 20 dmg, radius 30.
-• Shielder – has a rotating front shield that blocks projectiles, chases player.
-• Splitter – splits into 2 mini-splitters on death.
-• Healer – slowly heals nearby enemies over time.
-• Bomber – proximity fuse, explodes for AoE damage when near player.
-• Phantom – phases in and out of visibility; nearly invisible while phasing.
-• Sniper – stays at range and fires slow high-damage projectiles at player.
-• Berserker – speeds up drastically as its HP drops.
-• Puller – emits a gravity pulse that drags the player toward it.
-• Charger – winds up then launches a high-speed charge dash at the player.
-• TimeBomb – slow-moving, explodes in a large AoE after a long fuse timer.
-• Leech – attaches to the player and drains HP over time.
-• Guardian – orbits and protects a nearby weaker enemy, intercepting bullets.
-• Golem – very large, very slow, very tanky. Faces the player and barely moves.
-• Dasher – repeatedly dashes toward the player with afterimage trail.
-• Magnet – pulls the player's bullets off-course toward itself.
-• Webber – fires sticky webs that slow player movement.
-• Silencer – disables the player's ability to use R while it is alive.
-• Mimic – disguises itself as a pickup item until the player gets close.
-• Echo – periodically creates a ghost copy of itself that also attacks.
-• Void Rift – stationary; continuously spawns small weaker enemies.
-• Swarm – tiny, spawns in massive groups of 10+, individually very weak.
+GAME CONTEXT:
+- Enemies deal contact damage per tick at ~60fps. HP 200 = standard. HP 10,000 = boss. HP 150 = fast fragile threat.
+- Speed 2 = average. Speed 3.5 = fast. Speed 5+ = extremely dangerous.
+- Radius 15px = standard circle. 10px = small/fast. 30px = large elite.
+- Contact damage ~10/tick is standard. Bosses ~20/tick. Fast fragile enemies ~6–8/tick.
+- "round" = earliest wave number: 1 = appears immediately, 5+ = mid-game, 15+ = late-game elite.
 
-BEHAVIOR TYPES:
-- "chase": directly pursues the player at all times (most common)
-- "strafe": circles around the player while slowly closing distance
-- "ranged": keeps distance and fires projectiles at the player
-- "stationary": does not move, but may have other effects (spawning, pulsing, etc.)
+EXISTING ENEMY TYPES (do NOT duplicate):
+• Normal – chaser, red, speed 2.5, 200 HP, 10 dmg, r15.
+• Triangle – fast purple triangle, speed 3.5, 150 HP, 12 dmg, r12.
+• Boss – massive red, 10,000 HP, speed 1.5, 20 dmg, r30.
+• Shielder – rotating shield blocks bullets. • Splitter – splits on death.
+• Healer – heals nearby enemies. • Bomber – proximity AoE explosion.
+• Phantom – phases in/out. • Sniper – long range slow shots.
+• Berserker – speeds up at low HP. • Puller – gravity pulse toward it.
+• Charger – wind-up dash. • TimeBomb – large AoE fuse.
+• Leech – drains player HP on contact. • Guardian – orbits and protects weaker enemy.
+• Golem – huge, slow, tanky. • Dasher – repeated dashes with afterimage.
+• Magnet – deflects player bullets. • Webber – fires slowing webs.
+• Silencer – disables player ability while alive. • Mimic – disguises as pickup.
+• Echo – creates ghost copies. • Void Rift – stationary enemy spawner.
+• Swarm – tiny, massive groups, individually weak.
+
+BEHAVIOR TYPES: "chase", "strafe", "ranged", "stationary"
 
 YOUR TASK: Generate a single creative custom ENEMY as a JSON object with EXACTLY these fields:
 - id: unique snake_case string (e.g. "crystal_wraith")
 - name: display name (e.g. "Crystal Wraith")
-- color: hex color of the enemy circle (e.g. "#67e8f9")
-- hp: base health on wave 1 — scales with later waves automatically (e.g. 280)
+- color: hex color (e.g. "#67e8f9")
+- hp: base health on wave 1 (e.g. 280)
 - speed: movement speed 1–5 (e.g. 2.2)
-- damage: contact damage per tick at 60fps (e.g. 8)
-- radius: visual size in pixels, 10–30 (e.g. 16)
-- round: earliest wave number this enemy can appear (e.g. 6)
+- damage: contact damage per tick (e.g. 8)
+- radius: visual size in pixels 10–30 (e.g. 16)
+- round: earliest wave number (e.g. 6)
 - behavior: one of "chase", "strafe", "ranged", "stationary"
-- desc: 2–3 sentence bestiary-style description explaining what makes this enemy dangerous and how a player should react to it
-- icon: single emoji representing this enemy (e.g. "🔷")
-- abilityCode: (optional) JavaScript function body that runs on a timer as the enemy's special ability (see below)
-- abilityCooldownSeconds: (optional) how many seconds between each ability trigger (e.g. 3.5). Default is 4.
+- desc: 2–3 sentence bestiary description — what makes it dangerous and how to counter it
+- icon: single emoji (e.g. "🔷")
+- abilityCode: (optional) JS function body for a repeating special ability
+- abilityCooldownSeconds: (optional) seconds between ability triggers (e.g. 3.5)
 - isCustomMod: true
 - type: "enemy"
 
-ABILITY CODE INSTRUCTIONS (abilityCode field — optional but encouraged):
-Write a JavaScript function BODY (no function declaration) for a repeating ability the enemy uses in combat.
-The following variables are available:
-  enemy         — this enemy object: { x, y, health, maxHealth, speed, damage, radius, color, alive }
-  player        — { x, y, health, maxHealth, speed, damage, radius }
-  enemies       — all live enemies on screen
-  particles     — push new Particle(x, y, '#hexcolor') for effects
-  Particle      — constructor
-  Projectile    — constructor: new Projectile(x, y, angle, damage, colorHex, isSpecial)
-  projectiles   — push new Projectile(...) to fire a shot at the player
-  canvas        — { width, height }
-  floatMoneyText(str) — show floating text on screen
-  damageEnemy(e, amount, sx, sy) — damage another enemy
-  playSound(freq, vol, type)    — 'sine', 'square', 'sawtooth'
-  mousePos      — { x, y }
-
-EXAMPLE abilityCode values:
-  Fire a shot at the player: "const angle=Math.atan2(player.y-enemy.y,player.x-enemy.x);const p=new Projectile(enemy.x,enemy.y,angle,enemy.damage*2,enemy.color,false);p.speed=5;projectiles.push(p);for(let i=0;i<8;i++)particles.push(new Particle(enemy.x,enemy.y,enemy.color));playSound(300,0.06,'sine');"
-  Heal itself: "enemy.health=Math.min(enemy.maxHealth,enemy.health+20);for(let i=0;i<12;i++)particles.push(new Particle(enemy.x+(Math.random()-.5)*30,enemy.y+(Math.random()-.5)*30,'#4ade80'));floatMoneyText('💚 '+enemy.name+' healed!');"
-  Explode nearby enemies away: "const blast=80;enemies.forEach(other=>{if(other===enemy||!other.alive)return;const d=Math.hypot(other.x-enemy.x,other.y-enemy.y);if(d<blast){const a=Math.atan2(other.y-enemy.y,other.x-enemy.x);other.x+=Math.cos(a)*40;other.y+=Math.sin(a)*40;}});for(let i=0;i<20;i++)particles.push(new Particle(enemy.x,enemy.y,'#f97316'));playSound(180,0.08,'square');"
-  Dash toward player: "const angle=Math.atan2(player.y-enemy.y,player.x-enemy.x);enemy.x+=Math.cos(angle)*120;enemy.y+=Math.sin(angle)*120;for(let i=0;i<15;i++)particles.push(new Particle(enemy.x,enemy.y,enemy.color));playSound(400,0.07,'sawtooth');"
+ABILITY CODE VARIABLES (if used): enemy, player, enemies, particles, Particle, Projectile, projectiles, canvas, floatMoneyText, damageEnemy, playSound, mousePos
+Examples:
+  Fire shot: "const a=Math.atan2(player.y-enemy.y,player.x-enemy.x);const p=new Projectile(enemy.x,enemy.y,a,enemy.damage*2,enemy.color,false);p.speed=5;projectiles.push(p);for(let i=0;i<8;i++)particles.push(new Particle(enemy.x,enemy.y,enemy.color));playSound(300,0.06,'sine');"
+  Heal self: "enemy.health=Math.min(enemy.maxHealth,enemy.health+20);for(let i=0;i<12;i++)particles.push(new Particle(enemy.x+(Math.random()-.5)*30,enemy.y+(Math.random()-.5)*30,'#4ade80'));floatMoneyText('💚 '+enemy.name+' healed!');"
+  Dash: "const a=Math.atan2(player.y-enemy.y,player.x-enemy.x);enemy.x+=Math.cos(a)*120;enemy.y+=Math.sin(a)*120;for(let i=0;i<15;i++)particles.push(new Particle(enemy.x,enemy.y,enemy.color));playSound(400,0.07,'sawtooth');"
 
 DESIGN GUIDELINES:
-- Invent a genuinely unique threat that fills a different niche from existing enemies.
-- The desc should give the player tactical information — what is the danger and how do you counter it?
-- Balance stats appropriately: if high HP, reduce speed; if very fast, reduce HP and radius.
-- "round" should reflect difficulty — easy enemies appear early, elite/boss-tier appear after round 10+.
-- Be creative with flavor: name, color, and icon should form a cohesive visual identity.
-- If you include abilityCode, set abilityCooldownSeconds to a sensible value (2–8 seconds).
-${customTheme ? `\nUSER REQUEST — ENEMY THEME: "${customTheme}"\nBase the enemy's name, color, icon, and desc around this theme.` : ''}${customAbility ? `\nUSER REQUEST — SPECIAL ABILITY: "${customAbility}"\nImplement this as the abilityCode. Be faithful to what the user described.` : ''}
+- Invent a unique threat that fills a niche not covered by existing enemies.
+- desc should give tactical info — what's dangerous and how to counter it.
+- Balance: high HP → lower speed; very fast → lower HP and radius.
+- round should match difficulty (easy = early, elite = round 10+).${userRequests}
 
 Return ONLY a single valid JSON object. No markdown, no code fences, no explanation, no preamble. Just the raw JSON.`;
     }
 }
 
+
 function refreshModPrompt() {
     const type = document.querySelector('input[name="modType"]:checked').value;
     const isChar = type === 'character';
-    const themeLabel = document.getElementById('modThemeLabel');
-    const abilityLabel = document.getElementById('modAbilityLabel');
-    const passiveLabel = document.getElementById('modPassiveLabel');
-    const passiveRow = document.getElementById('modPassiveRow');
-    const themeInput = document.getElementById('modCustomTheme');
-    const abilityInput = document.getElementById('modCustomAbility');
-    const passiveInput = document.getElementById('modCustomPassive');
-    if (themeLabel) themeLabel.textContent = isChar ? 'Character concept / theme' : 'Enemy concept / theme';
-    if (abilityLabel) abilityLabel.textContent = isChar ? 'Active ability — describe what you want it to do' : 'Special ability — describe what the enemy does periodically';
-    if (passiveRow) passiveRow.style.display = isChar ? 'block' : 'none';
-    if (themeInput) themeInput.placeholder = isChar ? '"ice wizard", "ninja", "friendly robot"' : '"ancient tree spirit", "shadow clone", "electric jellyfish"';
-    if (abilityInput) abilityInput.placeholder = isChar
-        ? '"freeze all enemies for 3 seconds", "fire 8 homing missiles", "teleport to the mouse cursor"'
-        : '"fires 3 shots at the player every 4s", "heals itself 20 HP every 5s", "dashes toward player"';
-    const theme = (themeInput?.value || '').trim();
-    const ability = (abilityInput?.value || '').trim();
-    const passive = isChar ? (passiveInput?.value || '').trim() : '';
-    document.getElementById('modGeneratedCode').value = getModPromptText(type, theme, ability, passive);
+
+    // Toggle question panels
+    const charQ = document.getElementById('modCharQuestions');
+    const enemyQ = document.getElementById('modEnemyQuestions');
+    if (charQ) charQ.style.display = isChar ? 'block' : 'none';
+    if (enemyQ) enemyQ.style.display = isChar ? 'none' : 'block';
+
+    // Update type selector button styles
+    const lblChar = document.getElementById('modTypeLabelChar');
+    const lblEnemy = document.getElementById('modTypeLabelEnemy');
+    if (lblChar) {
+        lblChar.style.borderColor = isChar ? 'rgba(52,211,153,0.6)' : 'rgba(255,255,255,0.1)';
+        lblChar.style.background = isChar ? 'rgba(5,150,105,0.2)' : 'rgba(255,255,255,0.04)';
+        lblChar.style.color = isChar ? '#34d399' : 'rgba(255,255,255,0.4)';
+    }
+    if (lblEnemy) {
+        lblEnemy.style.borderColor = !isChar ? 'rgba(239,68,68,0.6)' : 'rgba(255,255,255,0.1)';
+        lblEnemy.style.background = !isChar ? 'rgba(220,38,38,0.15)' : 'rgba(255,255,255,0.04)';
+        lblEnemy.style.color = !isChar ? '#f87171' : 'rgba(255,255,255,0.4)';
+    }
+
+    // Collect character fields
+    const charOpts = {
+        theme:      (document.getElementById('cq_theme')?.value || '').trim(),
+        color:      (document.getElementById('cq_color')?.value || '').trim(),
+        playstyle:  (document.getElementById('cq_playstyle')?.value || '').trim(),
+        range:      (document.getElementById('cq_range')?.value || '').trim(),
+        difficulty: (document.getElementById('cq_difficulty')?.value || '').trim(),
+        passives:   (document.getElementById('cq_passives')?.value || '').trim(),
+        ability:    (document.getElementById('cq_ability')?.value || '').trim(),
+        extrakeys:  (document.getElementById('cq_extrakeys')?.value || '').trim(),
+        other:      (document.getElementById('cq_other')?.value || '').trim(),
+    };
+
+    // Collect enemy fields
+    const enemyOpts = {
+        theme:     (document.getElementById('eq_theme')?.value || '').trim(),
+        color:     (document.getElementById('eq_color')?.value || '').trim(),
+        behavior:  (document.getElementById('eq_behavior')?.value || '').trim(),
+        toughness: (document.getElementById('eq_toughness')?.value || '').trim(),
+        wave:      (document.getElementById('eq_wave')?.value || '').trim(),
+        size:      (document.getElementById('eq_size')?.value || '').trim(),
+        ability:   (document.getElementById('eq_ability')?.value || '').trim(),
+        other:     (document.getElementById('eq_other')?.value || '').trim(),
+    };
+
+    document.getElementById('modGeneratedCode').value = getModPromptText(type, isChar ? charOpts : enemyOpts);
 }
 
-function updateModPromptHint() { refreshModPrompt(); }
-function buildModPrompt() { refreshModPrompt(); }
+function clearModForm() {
+    ['cq_theme','cq_passives','cq_ability','cq_extrakeys','cq_other'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+    });
+    ['cq_color','cq_playstyle','cq_range','cq_difficulty'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+    });
+    ['eq_theme','eq_ability','eq_other'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+    });
+    ['eq_color','eq_behavior','eq_toughness','eq_wave','eq_size'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+    });
+    refreshModPrompt();
+    floatMoneyText('↺ Form cleared');
+}
 
 function copyModPrompt() {
     const text = document.getElementById('modGeneratedCode').value;
