@@ -1671,9 +1671,81 @@
                     </div>
 
                     <div style="margin-bottom:10px;">
-                        <label style="font-size:11px;color:rgba(255,255,255,0.5);display:block;margin-bottom:4px;">8. Any other details? <span style="color:rgba(255,255,255,0.25);">(lore, special mechanics, unique gimmick)</span></label>
+                        <label style="font-size:11px;color:rgba(255,255,255,0.5);display:block;margin-bottom:4px;">8. Visual design / shape <span style="color:rgba(255,255,255,0.25);">(how should it look?)</span></label>
+                        <select id="eq_design" onchange="refreshModPrompt()" style="width:100%;background:#0d1117;border:1px solid rgba(255,255,255,0.15);color:#e2e8f0;border-radius:6px;padding:8px 10px;font-size:12px;font-family:inherit;outline:none;box-sizing:border-box;margin-bottom:6px;">
+                            <option value="">Let AI decide</option>
+                            <option value="pulsing glowing sphere with inner gradient and outer ring">🔮 Pulsing sphere</option>
+                            <option value="spinning triangle that rotates faster as it approaches">🔺 Rotating triangle</option>
+                            <option value="spiky star shape with sharp points that spins slowly">⭐ Spiky star</option>
+                            <option value="core with 3 orbiting satellite dots circling it">🌀 Core + orbiting dots</option>
+                            <option value="eyeball with a pupil that tracks toward the player">👁️ Eyeball</option>
+                            <option value="flame aura — circle with flickering fire particles around the edge">🔥 Flame aura</option>
+                            <option value="cracked dark sphere with glowing cracks on the surface">💥 Cracked sphere</option>
+                            <option value="cube / square shape that rotates">⬛ Rotating cube</option>
+                            <option value="diamond / rhombus shape">💎 Diamond</option>
+                            <option value="wispy ghost shape — translucent with a wavy outline">👻 Ghost / wispy</option>
+                            <option value="custom">✏️ Describe your own…</option>
+                        </select>
+                        <textarea id="eq_design_custom" rows="2" placeholder='Describe exactly how it should look, e.g. "a dark hollow ring with a bright core, rotating slowly with sparks flying off it"' oninput="refreshModPrompt()"
+                            style="display:none;width:100%;background:#0d1117;border:1px solid rgba(139,92,246,0.4);color:#e2e8f0;border-radius:6px;padding:8px 10px;font-size:12px;font-family:inherit;outline:none;resize:vertical;box-sizing:border-box;"></textarea>
+                    </div>
+
+                    <div style="margin-bottom:10px;">
+                        <label style="font-size:11px;color:rgba(255,255,255,0.5);display:block;margin-bottom:4px;">9. Any other details? <span style="color:rgba(255,255,255,0.25);">(lore, special mechanics, unique gimmick)</span></label>
                         <textarea id="eq_other" rows="2" placeholder='e.g. "splits into two smaller versions when killed", "becomes invisible at 50% HP", "only takes damage from behind"' oninput="refreshModPrompt()"
                             style="width:100%;background:#0d1117;border:1px solid rgba(255,255,255,0.15);color:#e2e8f0;border-radius:6px;padding:8px 10px;font-size:12px;font-family:inherit;outline:none;resize:vertical;box-sizing:border-box;"></textarea>
+                    </div>
+
+                    <!-- ===== ENEMY DESIGN PREVIEW ===== -->
+                    <div style="margin-top:18px;margin-bottom:4px;">
+                        <div style="font-size:11px;font-weight:bold;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">🎨 Design Preview</div>
+                        <div id="enemyDesignPreview" style="background:rgba(255,255,255,0.03);border:1.5px solid rgba(255,255,255,0.1);border-radius:12px;padding:18px;display:flex;gap:18px;align-items:center;transition:border-color 0.3s;">
+                            <!-- Circle preview -->
+                            <div style="flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:8px;">
+                                <div id="edp_circle" style="width:64px;height:64px;border-radius:50%;background:#ef4444;box-shadow:0 0 22px #ef444488;display:flex;align-items:center;justify-content:center;font-size:26px;transition:all 0.3s;position:relative;">
+                                    <span id="edp_icon">👾</span>
+                                </div>
+                                <div id="edp_sizebadge" style="font-size:9px;color:rgba(255,255,255,0.35);font-family:monospace;letter-spacing:0.5px;">r15px</div>
+                            </div>
+                            <!-- Info -->
+                            <div style="flex:1;min-width:0;">
+                                <div id="edp_name" style="font-size:15px;font-weight:bold;color:#e2e8f0;margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Your Enemy</div>
+                                <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px;">
+                                    <span id="edp_behavior_badge" style="font-size:9px;background:rgba(99,102,241,0.2);color:#a5b4fc;border:1px solid rgba(99,102,241,0.35);border-radius:10px;padding:2px 8px;font-family:monospace;">🎯 Chase</span>
+                                    <span id="edp_tough_badge" style="font-size:9px;background:rgba(245,158,11,0.15);color:#fcd34d;border:1px solid rgba(245,158,11,0.3);border-radius:10px;padding:2px 8px;font-family:monospace;">⚖️ Standard</span>
+                                    <span id="edp_wave_badge" style="font-size:9px;background:rgba(34,197,94,0.12);color:#86efac;border:1px solid rgba(34,197,94,0.25);border-radius:10px;padding:2px 8px;font-family:monospace;">🌱 Wave 1+</span>
+                                </div>
+                                <!-- Stat bars -->
+                                <div style="display:flex;flex-direction:column;gap:4px;">
+                                    <div style="display:flex;align-items:center;gap:8px;">
+                                        <span style="font-size:9px;color:rgba(255,255,255,0.3);width:36px;font-family:monospace;">HP</span>
+                                        <div style="flex:1;height:5px;background:rgba(255,255,255,0.07);border-radius:3px;overflow:hidden;">
+                                            <div id="edp_hp_bar" style="height:100%;width:30%;background:linear-gradient(90deg,#22c55e,#4ade80);border-radius:3px;transition:width 0.4s;"></div>
+                                        </div>
+                                        <span id="edp_hp_label" style="font-size:9px;color:rgba(255,255,255,0.4);font-family:monospace;width:50px;text-align:right;">Standard</span>
+                                    </div>
+                                    <div style="display:flex;align-items:center;gap:8px;">
+                                        <span style="font-size:9px;color:rgba(255,255,255,0.3);width:36px;font-family:monospace;">SPD</span>
+                                        <div style="flex:1;height:5px;background:rgba(255,255,255,0.07);border-radius:3px;overflow:hidden;">
+                                            <div id="edp_spd_bar" style="height:100%;width:40%;background:linear-gradient(90deg,#3b82f6,#60a5fa);border-radius:3px;transition:width 0.4s;"></div>
+                                        </div>
+                                        <span id="edp_spd_label" style="font-size:9px;color:rgba(255,255,255,0.4);font-family:monospace;width:50px;text-align:right;">Average</span>
+                                    </div>
+                                    <div style="display:flex;align-items:center;gap:8px;">
+                                        <span style="font-size:9px;color:rgba(255,255,255,0.3);width:36px;font-family:monospace;">DMG</span>
+                                        <div style="flex:1;height:5px;background:rgba(255,255,255,0.07);border-radius:3px;overflow:hidden;">
+                                            <div id="edp_dmg_bar" style="height:100%;width:30%;background:linear-gradient(90deg,#ef4444,#f87171);border-radius:3px;transition:width 0.4s;"></div>
+                                        </div>
+                                        <span id="edp_dmg_label" style="font-size:9px;color:rgba(255,255,255,0.4);font-family:monospace;width:50px;text-align:right;">Normal</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Ability dot -->
+                            <div id="edp_ability_dot" style="flex-shrink:0;display:none;flex-direction:column;align-items:center;gap:4px;">
+                                <div style="width:32px;height:32px;border-radius:50%;background:rgba(139,92,246,0.2);border:1.5px solid rgba(139,92,246,0.5);display:flex;align-items:center;justify-content:center;font-size:14px;">⚡</div>
+                                <span style="font-size:8px;color:rgba(139,92,246,0.8);font-family:monospace;">ABILITY</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -1770,6 +1842,14 @@
             <div style="background:rgba(251,191,36,0.06);border:1.5px solid rgba(251,191,36,0.2);border-radius:10px;padding:16px 18px;">
                 <div style="font-size:12px;font-weight:bold;color:#fbbf24;margin-bottom:12px;">💡 Good to know</div>
                 <div style="display:flex;flex-direction:column;gap:8px;">
+                    <div style="display:flex;gap:10px;align-items:flex-start;">
+                        <span style="font-size:14px;flex-shrink:0;">🔒</span>
+                        <span style="font-size:11px;color:rgba(255,255,255,0.6);"><b style="color:#f87171;">Character mods lock out built-in characters.</b> While any character mod is enabled, vanilla characters are hidden and gold earned in runs is <b style="color:#f87171;">not saved</b> to your wallet. Disable all character mods to get them back.</span>
+                    </div>
+                    <div style="display:flex;gap:10px;align-items:flex-start;">
+                        <span style="font-size:14px;flex-shrink:0;">👾</span>
+                        <span style="font-size:11px;color:rgba(255,255,255,0.6);"><b style="color:#fb923c;">Enemy mods replace all vanilla enemies.</b> While any enemy mod is enabled, only your mod enemies will spawn — no normal enemies, triangles, bosses, etc. Disable all enemy mods to restore the normal enemy roster.</span>
+                    </div>
                     <div style="display:flex;gap:10px;align-items:flex-start;">
                         <span style="font-size:14px;flex-shrink:0;">🔄</span>
                         <span style="font-size:11px;color:rgba(255,255,255,0.6);">Passive effects reset when you start a new run. Anything stored in <code style="color:#86efac;font-size:10px;">player._modPassive</code> goes away on death or restart.</span>
@@ -1999,6 +2079,14 @@
 <div id="characterShop">
     <h2>CHARACTER SHOP</h2>
     <div class="currency-display">💰 $<span id="shopMoney">0</span></div>
+    <div id="modCharRestrictionBanner" style="display:none;background:rgba(239,68,68,0.12);border:2px solid rgba(239,68,68,0.5);border-radius:10px;padding:14px 18px;margin-bottom:18px;text-align:center;">
+        <div style="font-size:14px;font-weight:bold;color:#f87171;margin-bottom:6px;">🧩 Character Mods Active</div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.55);line-height:1.6;">Built-in characters are hidden while character mods are enabled.<br>Gold earned in-game is <b style="color:#f87171;">not saved</b> to your wallet during mod runs.<br>Disable all character mods in <b style="color:#34d399;">🧩 Mods → Manage Mods</b> to restore normal characters and gold.</div>
+    </div>
+    <div id="modEnemyRestrictionBanner" style="display:none;background:rgba(251,146,60,0.1);border:2px solid rgba(251,146,60,0.4);border-radius:10px;padding:14px 18px;margin-bottom:18px;text-align:center;">
+        <div style="font-size:14px;font-weight:bold;color:#fb923c;margin-bottom:6px;">🧩 Enemy Mods Active</div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.55);line-height:1.6;">Only mod enemies will spawn — all built-in enemies are replaced.<br>Disable all enemy mods in <b style="color:#34d399;">🧩 Mods → Manage Mods</b> to restore normal enemies.</div>
+    </div>
     <div class="character-grid">
 
         <div class="character-card selected" onclick="selectCharacter('default')">
@@ -2388,6 +2476,7 @@
         </div>
         <div class="stat-box"><div class="stat-label">GOLD</div><div class="stat-value" id="hudMoney" style="color:#fbbf24;">0</div></div>
     </div>
+    <div id="modModeIndicator" style="display:none;position:absolute;top:68px;left:50%;transform:translateX(-50%);background:rgba(139,92,246,0.18);border:1.5px solid rgba(139,92,246,0.5);border-radius:20px;padding:3px 14px;font-size:10px;font-weight:bold;color:#c4b5fd;letter-spacing:1px;pointer-events:none;z-index:10;">🧩 MOD MODE — gold not saved</div>
     <div id="controls">WASD: Move | SPACE: Dash | Click: Shoot | R: Special | F11: Fullscreen | Shop opens every 25 waves!</div>
     <div id="statsPanel">
         <h3>📊 STATS (Press TAB to hide)</h3>
@@ -4931,10 +5020,10 @@ function earnMoney(amount, reason) {
         const char = CHARACTERS[currentCharacter];
         const mult = char?.isGoldHoarder ? (char?.isCoinKing ? 10 : GH_GOLD_MULT) : 1;
         const actual = amount * mult;
-        // Mod characters only earn run gold, never persistent gold
-        if (char?._isModChar) {
+        // If any character mod is active, gold is never saved to wallet
+        if (char?._isModChar || hasActiveCharMods()) {
             runGold += actual;
-            document.getElementById('hudMoney').textContent = '💰' + runGold + ' (gold)';
+            document.getElementById('hudMoney').textContent = '💰' + runGold + ' (gold) [MOD]';
             floatMoneyText('+$' + actual + (reason ? ' (' + reason + ')' : ''));
             return;
         }
@@ -5922,6 +6011,9 @@ class Enemy {
             ctx.shadowBlur=_shadowsEnabled?8:0; ctx.shadowColor='#fbbf24';
             ctx.fillText('BOSS',this.x,this.y-this.radius-4);
 
+        } else if (this._isModEnemy && this._drawFn) {
+            try { this._drawFn(ctx, this, _shadowsEnabled); } catch(_de) {}
+
         } else {
             // ⚫ NORMAL ENEMY - vivid red sphere with radial gradient and subtle highlight
             this._normT = ((this._normT||0)+0.03)%(Math.PI*2);
@@ -6651,7 +6743,14 @@ function spawnWave(){
         setTimeout(()=>{
             if(!gameRunning)return;
 
-            let typePool = ['normal'];
+            // Add eligible mod enemies to the pool
+            const modEnemyIds = getModEnemiesForPool();
+            // If enemy mods are active, ONLY spawn mod enemies
+            let typePool;
+            if (modEnemyIds.length > 0 && hasActiveEnemyMods()) {
+                typePool = modEnemyIds;
+            } else {
+                typePool = ['normal'];
             if(triangleEnemyUnlocked) typePool.push('triangle','triangle');
             if(currentRound >= 20) typePool.push('shielder');
             if(currentRound >= 10) typePool.push('splitter');
@@ -6678,9 +6777,8 @@ function spawnWave(){
             if(currentRound >= 32) typePool.push('echo');
             if(currentRound >= 38) typePool.push('void_rift');
             if(currentRound >= 35) typePool.push('mirror_e');
-            // Add eligible mod enemies to the pool
-            const modEnemyIds = getModEnemiesForPool();
             modEnemyIds.forEach(id => typePool.push(id));
+            }
             const type = typePool[Math.floor(Math.random()*typePool.length)];
             // If a mod enemy was selected, spawn it and skip normal construction
             if (modEnemyIds.includes(type)) { spawnModEnemy(type); return; }
@@ -9209,7 +9307,7 @@ function endGame(sukunaKilled=false){
     const total = roundBonus + milestoneBonus;
     if(milestoneBonus > 0) floatMoneyText(`+$${milestoneBonus} milestone bonus!`);
     try {
-        if (!CHARACTERS[currentCharacter]?._isModChar) {
+        if (!CHARACTERS[currentCharacter]?._isModChar && !hasActiveCharMods()) {
             totalMoney += total; sessionMoney += total;
         }
     } finally {
@@ -13212,6 +13310,20 @@ function startGame(){
     gameRunning=true;
     mousePos = { x: canvas.width / 2, y: canvas.height / 2 };
     resetGame();
+    // Show/hide mod mode indicator
+    const modInd = document.getElementById('modModeIndicator');
+    if (modInd) {
+        const charOn = hasActiveCharMods(), enemyOn = hasActiveEnemyMods();
+        if (charOn || enemyOn) {
+            const parts = [];
+            if (charOn) parts.push('char mods');
+            if (enemyOn) parts.push('enemy mods');
+            modInd.textContent = '🧩 MOD MODE (' + parts.join(' + ') + ') — gold not saved';
+            modInd.style.display = 'block';
+        } else {
+            modInd.style.display = 'none';
+        }
+    }
     updateBiome();
     updateBiomeColors();
     showBiomeIndicator();
@@ -13373,6 +13485,7 @@ function updateShopDisplay(){
             cardEl.classList.add('selected');
         }
     });
+    if (typeof updateModRestrictions === 'function') updateModRestrictions();
 }
 function updateMcSkinClass(){
     if(['wemmbu','eggchan'].includes(currentCharacter))document.body.classList.add('mc-skin');
@@ -15089,6 +15202,9 @@ Return ONLY a single valid JSON object. No markdown, no code fences, no explanat
         if (opts.wave)      lines.push(`APPEARANCE TIMING: ${opts.wave} — set the "round" field accordingly.`);
         if (opts.size)      lines.push(`SIZE: ${opts.size} — set radius accordingly.`);
         if (opts.ability)   lines.push(`SPECIAL ABILITY: "${opts.ability}"\nImplement this as abilityCode.`);
+        if (opts.design && opts.design !== 'custom') lines.push(`VISUAL DESIGN STYLE: "${opts.design}" — implement this look in the drawCode field using canvas 2D API. Must match the enemy color and theme.`);
+        if (opts.design === 'custom' && opts.design_custom) lines.push(`CUSTOM VISUAL DESIGN: "${opts.design_custom}" — implement exactly this appearance in the drawCode field.`);
+        if (!opts.design)   lines.push(`VISUAL DESIGN: You must generate a creative custom drawCode that visually matches the enemy's theme and color. Do NOT leave it as a plain circle.`);
         if (opts.other)     lines.push(`ADDITIONAL DETAILS: "${opts.other}"`);
         const userRequests = lines.length ? '\n\nUSER REQUESTS — follow these exactly:\n' + lines.map((l,i)=>`${i+1}. ${l}`).join('\n') : '';
 
@@ -15131,10 +15247,41 @@ YOUR TASK: Generate a single creative custom ENEMY as a JSON object with EXACTLY
 - behavior: one of "chase", "strafe", "ranged", "stationary"
 - desc: 2–3 sentence bestiary description — what makes it dangerous and how to counter it
 - icon: single emoji (e.g. "🔷")
+- drawCode: JS function body for custom visual rendering — REQUIRED, see section below
 - abilityCode: (optional) JS function body for a repeating special ability
 - abilityCooldownSeconds: (optional) seconds between ability triggers (e.g. 3.5)
 - isCustomMod: true
 - type: "enemy"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+DRAW CODE (drawCode field) — REQUIRED
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+drawCode runs every frame to draw the enemy on the canvas. It replaces the default red circle.
+Variables: ctx (Canvas 2D context), enemy (the enemy object), shadowsEnabled (boolean)
+Key enemy fields: enemy.x, enemy.y, enemy.radius, enemy.color, enemy.health, enemy.maxHealth
+
+IMPORTANT RULES for drawCode:
+- Always call ctx.save() at the start and ctx.restore() at the end
+- Never draw health bars — the game does that automatically after drawCode runs
+- Use enemy.color as the primary color so it matches the mod's color field
+- You can use enemy._t = ((enemy._t||0)+0.05)%(Math.PI*2) for animation timers
+- Keep it self-contained — no external variables except ctx, enemy, shadowsEnabled
+- Single line of JS, semicolons between statements, no raw newlines
+
+DRAW CODE EXAMPLES:
+  Gradient sphere: "ctx.save();if(shadowsEnabled){ctx.shadowBlur=20;ctx.shadowColor=enemy.color;}const g=ctx.createRadialGradient(enemy.x-enemy.radius*0.3,enemy.y-enemy.radius*0.3,enemy.radius*0.1,enemy.x,enemy.y,enemy.radius);g.addColorStop(0,'#fff');g.addColorStop(0.4,enemy.color);g.addColorStop(1,'#000');ctx.fillStyle=g;ctx.beginPath();ctx.arc(enemy.x,enemy.y,enemy.radius,0,Math.PI*2);ctx.fill();ctx.restore();"
+
+  Pulsing ring: "ctx.save();enemy._t=((enemy._t||0)+0.06)%(Math.PI*2);const pulse=Math.sin(enemy._t);if(shadowsEnabled){ctx.shadowBlur=14+pulse*8;ctx.shadowColor=enemy.color;}ctx.fillStyle=enemy.color;ctx.beginPath();ctx.arc(enemy.x,enemy.y,enemy.radius,0,Math.PI*2);ctx.fill();ctx.globalAlpha=0.35+0.25*pulse;ctx.strokeStyle=enemy.color;ctx.lineWidth=3;ctx.beginPath();ctx.arc(enemy.x,enemy.y,enemy.radius+8+pulse*4,0,Math.PI*2);ctx.stroke();ctx.restore();"
+
+  Rotating triangle: "ctx.save();enemy._t=((enemy._t||0)+0.04)%(Math.PI*2);if(shadowsEnabled){ctx.shadowBlur=18;ctx.shadowColor=enemy.color;}ctx.fillStyle=enemy.color;ctx.translate(enemy.x,enemy.y);ctx.rotate(enemy._t);const s=enemy.radius;ctx.beginPath();ctx.moveTo(0,-s);ctx.lineTo(s*0.866,s*0.5);ctx.lineTo(-s*0.866,s*0.5);ctx.closePath();ctx.fill();ctx.restore();"
+
+  Star / spiky: "ctx.save();enemy._t=((enemy._t||0)+0.03)%(Math.PI*2);if(shadowsEnabled){ctx.shadowBlur=16;ctx.shadowColor=enemy.color;}ctx.fillStyle=enemy.color;ctx.translate(enemy.x,enemy.y);ctx.rotate(enemy._t);ctx.beginPath();for(let i=0;i<10;i++){const a=(Math.PI*2/10)*i;const r=i%2===0?enemy.radius:enemy.radius*0.45;ctx.lineTo(Math.cos(a)*r,Math.sin(a)*r);}ctx.closePath();ctx.fill();ctx.restore();"
+
+  Orbiting dots: "ctx.save();enemy._t=((enemy._t||0)+0.05)%(Math.PI*2);if(shadowsEnabled){ctx.shadowBlur=14;ctx.shadowColor=enemy.color;}ctx.fillStyle=enemy.color;ctx.beginPath();ctx.arc(enemy.x,enemy.y,enemy.radius*0.6,0,Math.PI*2);ctx.fill();ctx.fillStyle='#fff';for(let i=0;i<3;i++){const a=enemy._t+(Math.PI*2/3)*i;ctx.beginPath();ctx.arc(enemy.x+Math.cos(a)*(enemy.radius+4),enemy.y+Math.sin(a)*(enemy.radius+4),3,0,Math.PI*2);ctx.fill();}ctx.restore();"
+
+  Eye: "ctx.save();if(shadowsEnabled){ctx.shadowBlur=16;ctx.shadowColor=enemy.color;}ctx.fillStyle=enemy.color;ctx.beginPath();ctx.arc(enemy.x,enemy.y,enemy.radius,0,Math.PI*2);ctx.fill();ctx.fillStyle='#fff';ctx.beginPath();ctx.ellipse(enemy.x,enemy.y,enemy.radius*0.55,enemy.radius*0.35,0,0,Math.PI*2);ctx.fill();const px=enemy.x+(player.x-enemy.x)/Math.max(1,Math.hypot(player.x-enemy.x,player.y-enemy.y))*enemy.radius*0.18;const py=enemy.y+(player.y-enemy.y)/Math.max(1,Math.hypot(player.x-enemy.x,player.y-enemy.y))*enemy.radius*0.18;ctx.fillStyle='#0f172a';ctx.beginPath();ctx.arc(px,py,enemy.radius*0.2,0,Math.PI*2);ctx.fill();ctx.restore();"
+
+  Flame aura: "ctx.save();enemy._t=((enemy._t||0)+0.08)%(Math.PI*2);if(shadowsEnabled){ctx.shadowBlur=22;ctx.shadowColor='#f97316';}ctx.fillStyle=enemy.color;ctx.beginPath();ctx.arc(enemy.x,enemy.y,enemy.radius,0,Math.PI*2);ctx.fill();for(let i=0;i<6;i++){const a=(Math.PI*2/6)*i+enemy._t;const fx=enemy.x+Math.cos(a)*(enemy.radius+4+Math.sin(enemy._t*3+i)*4);const fy=enemy.y+Math.sin(a)*(enemy.radius+4+Math.sin(enemy._t*3+i)*4);ctx.globalAlpha=0.5+0.3*Math.sin(enemy._t+i);ctx.fillStyle='#fbbf24';ctx.beginPath();ctx.arc(fx,fy,3,0,Math.PI*2);ctx.fill();}ctx.restore();"
 
 ABILITY CODE VARIABLES (if used): enemy, player, enemies, particles, Particle, Projectile, projectiles, canvas, ctx, floatMoneyText, damageEnemy, playSound, mousePos, currentRound
 Examples:
@@ -15142,11 +15289,45 @@ Examples:
   Heal self: "enemy.health=Math.min(enemy.maxHealth,enemy.health+20);for(let i=0;i<12;i++)particles.push(new Particle(enemy.x+(Math.random()-.5)*30,enemy.y+(Math.random()-.5)*30,'#4ade80'));floatMoneyText('💚 '+enemy.name+' healed!');"
   Dash: "const a=Math.atan2(player.y-enemy.y,player.x-enemy.x);enemy.x+=Math.cos(a)*120;enemy.y+=Math.sin(a)*120;for(let i=0;i<15;i++)particles.push(new Particle(enemy.x,enemy.y,enemy.color));playSound(400,0.07,'sawtooth');"
 
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+⚠️  CRITICAL JavaScript RULES — VIOLATIONS BREAK THE ENEMY ⚠️
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+These are the most common mistakes that silently break enemy mods. Every single one must be followed:
+
+1. ALWAYS use * for multiplication. NEVER omit it.
+   ✅ CORRECT:   enemy.damage * 2    Math.PI * 2    enemy.damage * 1.5    dx * 0.04
+   ❌ BROKEN:    enemy.damage2       Math.PI2       enemy.damage1.5       dx0.04
+   (JS will treat "damage2" as a property name → undefined → NaN → nothing happens)
+
+2. ALWAYS use * between a variable and a parenthesis.
+   ✅ CORRECT:   (Math.PI * 2 / 8) * i    spread * 0.4
+   ❌ BROKEN:    (Math.PI*2/8)i            spread)0.4
+   (missing * is a syntax error → entire abilityCode crashes silently)
+
+3. All code must be a SINGLE LINE. Use semicolons to separate statements, not newlines.
+   setTimeout callbacks are allowed but the entire value must be one unbroken line.
+
+4. Arrow functions inside strings need semicolons, not line breaks:
+   ✅ CORRECT:   enemies.forEach(e=>{if(e.alive)damageEnemy(e,10,enemy.x,enemy.y);});
+   ❌ BROKEN:    enemies.forEach(e=>{ [newline] if(e.alive) [newline] ... })
+
+5. NEVER reference a variable before declaring it. Declare with const/let at the start of the code string.
+
+6. Before finalising the JSON, mentally trace every expression in abilityCode AND drawCode:
+   — Is every multiplication written with *?
+   — Is every variable declared before use?
+   — Does drawCode start with ctx.save() and end with ctx.restore()?
+   — Is the entire value one single line with no raw newlines?
+   If ANY check fails, rewrite that expression before returning.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 DESIGN GUIDELINES:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 - Invent a unique threat that fills a niche not covered by existing enemies.
 - desc should give tactical info — what's dangerous and how to counter it.
 - Balance: high HP → lower speed; very fast → lower HP and radius.
-- round should match difficulty (easy = early, elite = round 10+).${userRequests}
+- round should match difficulty (easy = early, elite = round 10+).
+- If you include abilityCode, also include abilityCooldownSeconds (e.g. 3.0).${userRequests}
 
 Return ONLY a single valid JSON object. No markdown, no code fences, no explanation, no preamble. Just the raw JSON.`;
     }
@@ -15199,10 +15380,119 @@ function refreshModPrompt() {
         wave:      (document.getElementById('eq_wave')?.value || '').trim(),
         size:      (document.getElementById('eq_size')?.value || '').trim(),
         ability:   (document.getElementById('eq_ability')?.value || '').trim(),
+        design:    (document.getElementById('eq_design')?.value || '').trim(),
+        design_custom: (document.getElementById('eq_design_custom')?.value || '').trim(),
         other:     (document.getElementById('eq_other')?.value || '').trim(),
     };
 
+    // Show/hide custom design textarea
+    const dCustom = document.getElementById('eq_design_custom');
+    if (dCustom) dCustom.style.display = (enemyOpts.design === 'custom') ? 'block' : 'none';
+
     document.getElementById('modGeneratedCode').value = getModPromptText(type, isChar ? charOpts : enemyOpts);
+
+    // ===== LIVE ENEMY DESIGN PREVIEW =====
+    if (!isChar) {
+        const colorMap = {
+            'red':        { hex: '#ef4444', glow: '#ef444488' },
+            'blue':       { hex: '#3b82f6', glow: '#3b82f688' },
+            'green':      { hex: '#22c55e', glow: '#22c55e88' },
+            'purple':     { hex: '#a855f7', glow: '#a855f788' },
+            'yellow':     { hex: '#eab308', glow: '#eab30888' },
+            'orange':     { hex: '#f97316', glow: '#f9731688' },
+            'white':      { hex: '#e2e8f0', glow: '#e2e8f055' },
+            'black/dark': { hex: '#334155', glow: '#33415588' },
+            'pink':       { hex: '#ec4899', glow: '#ec489988' },
+            'teal/cyan':  { hex: '#06b6d4', glow: '#06b6d488' },
+        };
+        const behaviorMap = {
+            'chase':       '🎯 Chase',
+            'strafe':      '🔄 Strafe',
+            'ranged':      '🏹 Ranged',
+            'stationary':  '📍 Stationary',
+        };
+        const toughMap = {
+            'fragile — low HP, fast, dangerous in groups': { label: '💨 Fragile', hp: 18, spd: 75, dmg: 22, hpL: 'Low', spdL: 'Fast', dmgL: 'Light' },
+            'standard — average HP and speed':             { label: '⚖️ Standard', hp: 35, spd: 40, dmg: 30, hpL: 'Normal', spdL: 'Average', dmgL: 'Normal' },
+            'tanky — high HP, slow':                       { label: '🛡️ Tanky',    hp: 80, spd: 20, dmg: 45, hpL: 'High', spdL: 'Slow', dmgL: 'Heavy' },
+            'boss-tier — massive HP, special mechanics':   { label: '💀 Boss',     hp: 100, spd: 25, dmg: 80, hpL: 'Massive', spdL: 'Slow', dmgL: 'Deadly' },
+        };
+        const waveMap = {
+            'early game (wave 1+)':          '🌱 Wave 1+',
+            'mid game (wave 5+)':            '⚡ Wave 5+',
+            'late game (wave 15+)':          '🔥 Wave 15+',
+            'very late / endgame (wave 30+)':'💀 Wave 30+',
+        };
+        const sizeMap = {
+            'tiny (radius ~8px)':     { r: 8,  pct: 30, label: 'r8px' },
+            'small (radius ~12px)':   { r: 12, pct: 45, label: 'r12px' },
+            'standard (radius ~15px)':{ r: 15, pct: 55, label: 'r15px' },
+            'large (radius ~22px)':   { r: 22, pct: 72, label: 'r22px' },
+            'huge (radius ~30px)':    { r: 30, pct: 95, label: 'r30px' },
+        };
+
+        const colKey = enemyOpts.color;
+        const col = colorMap[colKey] || { hex: '#ef4444', glow: '#ef444488' };
+        const tough = toughMap[enemyOpts.toughness] || { label: '⚖️ Standard', hp: 35, spd: 40, dmg: 30, hpL: 'Normal', spdL: 'Average', dmgL: 'Normal' };
+        const sz = sizeMap[enemyOpts.size] || { pct: 55, label: 'r15px' };
+        const circlePx = Math.round(48 + (sz.pct / 100) * 36); // 48–84px
+
+        const circle = document.getElementById('edp_circle');
+        if (circle) {
+            circle.style.width = circlePx + 'px';
+            circle.style.height = circlePx + 'px';
+            circle.style.background = col.hex;
+            circle.style.boxShadow = '0 0 22px ' + col.glow;
+        }
+        const nameEl = document.getElementById('edp_name');
+        if (nameEl) nameEl.textContent = enemyOpts.theme || 'Your Enemy';
+        const sizeBadge = document.getElementById('edp_sizebadge');
+        if (sizeBadge) sizeBadge.textContent = sz.label;
+        const behaviorBadge = document.getElementById('edp_behavior_badge');
+        if (behaviorBadge) behaviorBadge.textContent = behaviorMap[enemyOpts.behavior] || '🎯 Chase';
+        const toughBadge = document.getElementById('edp_tough_badge');
+        if (toughBadge) toughBadge.textContent = tough.label;
+        const waveBadge = document.getElementById('edp_wave_badge');
+        if (waveBadge) waveBadge.textContent = waveMap[enemyOpts.wave] || '🌱 Wave 1+';
+
+        const hpBar = document.getElementById('edp_hp_bar');
+        if (hpBar) hpBar.style.width = tough.hp + '%';
+        const hpLabel = document.getElementById('edp_hp_label');
+        if (hpLabel) hpLabel.textContent = tough.hpL;
+        const spdBar = document.getElementById('edp_spd_bar');
+        if (spdBar) spdBar.style.width = tough.spd + '%';
+        const spdLabel = document.getElementById('edp_spd_label');
+        if (spdLabel) spdLabel.textContent = tough.spdL;
+        const dmgBar = document.getElementById('edp_dmg_bar');
+        if (dmgBar) dmgBar.style.width = tough.dmg + '%';
+        const dmgLabel = document.getElementById('edp_dmg_label');
+        if (dmgLabel) dmgLabel.textContent = tough.dmgL;
+
+        const abilDot = document.getElementById('edp_ability_dot');
+        if (abilDot) abilDot.style.display = enemyOpts.ability ? 'flex' : 'none';
+
+        // Update icon to reflect design style
+        const designIconMap = {
+            'pulsing glowing sphere with inner gradient and outer ring': '🔮',
+            'spinning triangle that rotates faster as it approaches': '🔺',
+            'spiky star shape with sharp points that spins slowly': '⭐',
+            'core with 3 orbiting satellite dots circling it': '🌀',
+            'eyeball with a pupil that tracks toward the player': '👁️',
+            'flame aura — circle with flickering fire particles around the edge': '🔥',
+            'cracked dark sphere with glowing cracks on the surface': '💥',
+            'cube / square shape that rotates': '⬛',
+            'diamond / rhombus shape': '💎',
+            'wispy ghost shape — translucent with a wavy outline': '👻',
+        };
+        const iconEl = document.getElementById('edp_icon');
+        if (iconEl) {
+            const designIcon = designIconMap[enemyOpts.design];
+            iconEl.textContent = designIcon || '👾';
+        }
+
+        const preview = document.getElementById('enemyDesignPreview');
+        if (preview) preview.style.borderColor = col.hex + '55';
+    }
 }
 
 function clearModForm() {
@@ -15214,11 +15504,11 @@ function clearModForm() {
         const el = document.getElementById(id);
         if (el) el.value = '';
     });
-    ['eq_theme','eq_ability','eq_other'].forEach(id => {
+    ['eq_theme','eq_ability','eq_other','eq_design_custom'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.value = '';
     });
-    ['eq_color','eq_behavior','eq_toughness','eq_wave','eq_size'].forEach(id => {
+    ['eq_color','eq_behavior','eq_toughness','eq_wave','eq_size','eq_design'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.value = '';
     });
@@ -15328,6 +15618,53 @@ function deleteMod(i) {
     applyActiveMods();
     renderModsManageList();
     floatMoneyText(`🗑️ "${name}" deleted`);
+}
+
+
+// ===== MOD RESTRICTION HELPERS =====
+function hasActiveCharMods() {
+    return _installedMods.some(m => m.enabled && m.isCustomMod && m.type === 'character');
+}
+function hasActiveEnemyMods() {
+    return _installedMods.some(m => m.enabled && m.isCustomMod && m.type === 'enemy');
+}
+
+function updateModRestrictions() {
+    const charModsOn = hasActiveCharMods();
+    const enemyModsOn = hasActiveEnemyMods();
+
+    // Show/hide the banners in character shop
+    const banner = document.getElementById('modCharRestrictionBanner');
+    if (banner) banner.style.display = charModsOn ? 'block' : 'none';
+    const enemyBanner = document.getElementById('modEnemyRestrictionBanner');
+    if (enemyBanner) enemyBanner.style.display = enemyModsOn ? 'block' : 'none';
+
+    // Show/hide all vanilla character cards
+    document.querySelectorAll('.character-card:not([data-mod-char])').forEach(card => {
+        card.style.display = charModsOn ? 'none' : '';
+    });
+
+    // Hide mastery buttons whenever any mod mode is active (char OR enemy mods)
+    const anyModOn = charModsOn || enemyModsOn;
+    document.querySelectorAll('.mastery-btn').forEach(btn => {
+        btn.style.display = anyModOn ? 'none' : '';
+    });
+
+    // If currently selected character is a vanilla one and char mods are on,
+    // auto-switch to the first active mod character
+    if (charModsOn && !CHARACTERS[currentCharacter]?._isModChar) {
+        const firstModChar = _installedMods.find(m => m.enabled && m.isCustomMod && m.type === 'character');
+        if (firstModChar) {
+            currentCharacter = firstModChar.id;
+            savePersistentData();
+        }
+    }
+
+    // If char mods just turned off and selected char no longer exists, fall back to default
+    if (!charModsOn && (!CHARACTERS[currentCharacter] || CHARACTERS[currentCharacter]?._isModChar)) {
+        currentCharacter = 'default';
+        savePersistentData();
+    }
 }
 
 function applyActiveMods() {
@@ -15469,10 +15806,12 @@ function applyActiveMods() {
     if (typeof updateShopDisplay === 'function' && document.getElementById('characterShop')?.style.display !== 'none') {
         updateShopDisplay();
     }
+    // Apply character/enemy mod restrictions
+    updateModRestrictions();
 }
 
 function getModEnemiesForPool() {
-    return _installedMods.filter(m => m.enabled && m.isCustomMod && m.type === 'enemy' && m.round && currentRound >= m.round).map(m => m.id);
+    return _installedMods.filter(m => m.enabled && m.isCustomMod && m.type === 'enemy' && currentRound >= (m.round || 1)).map(m => m.id);
 }
 
 function spawnModEnemy(id) {
@@ -15497,6 +15836,16 @@ function spawnModEnemy(id) {
     e._modAbilityCode = mod.abilityCode || null;
     e._modAbilityCooldown = 0;
     e._modAbilityInterval = Math.round((mod.abilityCooldownSeconds || 4) * 60);
+    // Compile drawCode into _drawFn
+    e._drawFn = null;
+    if (mod.drawCode && typeof mod.drawCode === 'string' && mod.drawCode.trim()) {
+        try {
+            e._drawFn = new Function('ctx', 'enemy', 'shadowsEnabled', mod.drawCode);
+        } catch(err) {
+            console.error('Mod enemy "' + mod.name + '" drawCode failed to compile:', err.message);
+            logModError(mod.name, mod.id, 'compile', 'drawCode: ' + err.message, mod.drawCode);
+        }
+    }
     // Pre-compile ability function once at spawn time
     e._modAbilityFn = null;
     if (mod.abilityCode && typeof mod.abilityCode === 'string' && mod.abilityCode.trim()) {
