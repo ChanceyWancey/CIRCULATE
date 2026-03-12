@@ -1594,6 +1594,16 @@
                             style="width:100%;background:#0d1117;border:1px solid rgba(139,92,246,0.25);color:#e2e8f0;border-radius:6px;padding:8px 10px;font-size:12px;font-family:inherit;outline:none;box-sizing:border-box;">
                         <div style="font-size:10px;color:rgba(255,255,255,0.2);margin-top:3px;">Upload your image at <a href="https://cloudinary.com" target="_blank" style="color:#a78bfa;">cloudinary.com</a> → Media Library → copy the URL</div>
                     </div>
+                    <div style="margin-bottom:10px;background:rgba(139,92,246,0.08);border:1.5px solid rgba(139,92,246,0.35);border-radius:8px;padding:12px;">
+                        <label style="font-size:12px;color:#c4b5fd;display:block;margin-bottom:6px;font-weight:bold;">🎵 Character music URL <span style="font-size:10px;font-weight:normal;color:rgba(255,255,255,0.35);">(optional — plays instead of the main theme in-game)</span></label>
+                        <div style="display:flex;gap:6px;align-items:center;">
+                            <input id="cq_musicUrl" type="text" placeholder="https://res.cloudinary.com/... or any direct MP3/WAV URL" oninput="refreshModPrompt()"
+                                style="flex:1;background:#0d1117;border:1px solid rgba(139,92,246,0.4);color:#e2e8f0;border-radius:6px;padding:8px 10px;font-size:12px;font-family:inherit;outline:none;box-sizing:border-box;">
+                            <button onclick="previewModMusic()" style="background:rgba(139,92,246,0.2);color:#c4b5fd;border:1px solid rgba(139,92,246,0.4);padding:7px 10px;border-radius:6px;cursor:pointer;font-size:12px;font-family:inherit;white-space:nowrap;">▶ Test</button>
+                            <button onclick="stopModMusicPreview()" style="background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.4);border:1px solid rgba(255,255,255,0.12);padding:7px 10px;border-radius:6px;cursor:pointer;font-size:12px;font-family:inherit;">⏹</button>
+                        </div>
+                        <div style="font-size:10px;color:rgba(255,255,255,0.25);margin-top:5px;">Upload audio at <a href="https://cloudinary.com" target="_blank" style="color:#a78bfa;">cloudinary.com</a> → Media Library → copy URL &nbsp;|&nbsp; Paste any direct MP3/WAV link</div>
+                    </div>
                 </div>
 
                 <!-- ===== ENEMY QUESTIONS ===== -->
@@ -1631,7 +1641,7 @@
                                 <option value="">Let AI decide</option>
                                 <option value="chase">🎯 Chases the player</option>
                                 <option value="strafe">🔄 Circles / strafes around player</option>
-                                <option value="ranged">🏹 Keeps distance and shoots</option>
+                                <option value="strafe_shoot">🔄🏹 Strafes AND shoots at player</option>
                                 <option value="stationary">📍 Stays still (has other effects)</option>
                             </select>
                         </div>
@@ -1840,6 +1850,34 @@
                         <div style="font-size:10px;color:rgba(255,255,255,0.45);">3. Click the image → copy the <b style="color:#c4b5fd;">URL</b> shown at the top</div>
                         <div style="font-size:10px;color:rgba(255,255,255,0.45);">4. Paste that URL in the field above and click Apply</div>
                     </div>
+                </div>
+            </div>
+
+            <!-- CHARACTER MUSIC -->
+            <div id="charMusicSection" style="margin-top:14px;background:rgba(139,92,246,0.07);border:1.5px solid rgba(139,92,246,0.3);border-radius:10px;padding:18px 20px;">
+                <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">
+                    <span style="font-size:18px;">🎵</span>
+                    <span style="font-size:13px;font-weight:bold;color:#c4b5fd;">Character Music</span>
+                </div>
+                <div style="font-size:11px;color:rgba(255,255,255,0.35);margin-bottom:14px;">Assign a custom music track to any character. It will replace the main theme when that character is active.</div>
+                <div style="display:flex;flex-direction:column;gap:10px;">
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                        <div>
+                            <label style="font-size:11px;color:rgba(255,255,255,0.5);display:block;margin-bottom:4px;">Character</label>
+                            <select id="charMusicTarget" onchange="onCharMusicTargetChange()" style="width:100%;background:#0d1117;border:1px solid rgba(139,92,246,0.3);color:#e2e8f0;border-radius:6px;padding:8px 10px;font-size:12px;font-family:inherit;outline:none;box-sizing:border-box;"></select>
+                        </div>
+                        <div>
+                            <label style="font-size:11px;color:rgba(255,255,255,0.5);display:block;margin-bottom:4px;">🔗 Music URL <span style="color:rgba(255,255,255,0.2);">(MP3/WAV — Cloudinary, direct link, etc.)</span></label>
+                            <input id="charMusicUrl" type="text" placeholder="https://res.cloudinary.com/... or any direct audio URL" style="width:100%;background:#0d1117;border:1px solid rgba(139,92,246,0.3);color:#e2e8f0;border-radius:6px;padding:8px 10px;font-size:12px;font-family:inherit;outline:none;box-sizing:border-box;">
+                        </div>
+                    </div>
+                    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+                        <button onclick="applyCharMusic()" style="background:#7c3aed;color:white;border:none;border-bottom:3px solid #5b21b6;padding:8px 18px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:bold;font-family:inherit;">✅ Apply Music</button>
+                        <button onclick="previewCharMusic()" style="background:rgba(139,92,246,0.2);color:#c4b5fd;border:1px solid rgba(139,92,246,0.4);padding:8px 14px;border-radius:6px;cursor:pointer;font-size:12px;font-family:inherit;">▶ Preview</button>
+                        <button onclick="stopCharMusicPreview()" style="background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.4);border:1px solid rgba(255,255,255,0.12);padding:8px 14px;border-radius:6px;cursor:pointer;font-size:12px;font-family:inherit;">⏹ Stop</button>
+                        <button onclick="removeCharMusic()" style="background:rgba(220,38,38,0.1);color:rgba(248,113,113,0.8);border:1px solid rgba(220,38,38,0.25);padding:8px 12px;border-radius:6px;cursor:pointer;font-size:12px;font-family:inherit;">🗑 Remove</button>
+                    </div>
+                    <div id="charMusicStatus" style="font-size:11px;color:rgba(255,255,255,0.35);min-height:16px;"></div>
                 </div>
             </div>
         </div>
@@ -3183,7 +3221,8 @@ const SKIN_URLS = {
 };
 
 let currentRound = 0, roundTimer = 0, killStreak = 0, sessionMoney = 0;
-let waveEnemiesSpawned = 0; // tracks enemies spawned in current wave for early-clear
+let waveEnemiesSpawned = 0; // tracks enemies spawned in current wave
+let waveEnemyBudget = 0;    // total enemies to spawn this wave (= currentRound)
 let endlessMode = false;
 
 const PRICES = {
@@ -4178,6 +4217,10 @@ function applyMusicVolume() {
     
     if (!jackpotAudio._fadeIn && !jackpotAudio._fadeOut && !jackpotAudio.paused) {
         jackpotAudio.volume = mv;
+    }
+
+    if (!charMusicAudio.paused) {
+        charMusicAudio.volume = mv;
     }
 }
 
@@ -5475,10 +5518,61 @@ class Enemy {
             }
         }
 
+        // ── MOD ENEMY BEHAVIOR ──────────────────────────────────────
+        if (this._isModEnemy && this._modBehavior) {
+            const beh = this._modBehavior;
+            const margin = this.radius + 10;
+            const onMap = this.x > margin && this.x < canvas.width - margin && this.y > margin && this.y < canvas.height - margin;
+            if (!onMap) {
+                // Force the enemy toward the nearest point inside the canvas
+                tx = Math.max(margin, Math.min(canvas.width  - margin, this.x < margin ? margin + 40 : canvas.width  - margin - 40));
+                ty = Math.max(margin, Math.min(canvas.height - margin, this.y < margin ? margin + 40 : canvas.height - margin - 40));
+            } else if (beh === 'stationary') {
+                // Never move once on the map
+                const eRes2 = resolveCircleWall(this.x, this.y, this.radius);
+                this.x = eRes2.x; this.y = eRes2.y;
+                return;
+            } else if (beh === 'strafe') {
+                // Orbit the player at a fixed distance
+                const STRAFE_DIST = Math.max(distToPlayer, 130);
+                this._modOrbitAngle = (this._modOrbitAngle || Math.atan2(this.y - player.y, this.x - player.x)) + 0.025 * dt;
+                tx = player.x + Math.cos(this._modOrbitAngle) * STRAFE_DIST;
+                ty = player.y + Math.sin(this._modOrbitAngle) * STRAFE_DIST;
+                // Clamp inside canvas
+                tx = Math.max(margin, Math.min(canvas.width  - margin, tx));
+                ty = Math.max(margin, Math.min(canvas.height - margin, ty));
+            } else if (beh === 'strafe_shoot') {
+                // Orbit the player at a fixed distance AND fire projectiles periodically
+                const SS_DIST = Math.max(distToPlayer, 150);
+                this._modOrbitAngle = (this._modOrbitAngle || Math.atan2(this.y - player.y, this.x - player.x)) + 0.022 * dt;
+                tx = player.x + Math.cos(this._modOrbitAngle) * SS_DIST;
+                ty = player.y + Math.sin(this._modOrbitAngle) * SS_DIST;
+                tx = Math.max(margin, Math.min(canvas.width  - margin, tx));
+                ty = Math.max(margin, Math.min(canvas.height - margin, ty));
+                // Built-in shoot timer (independent of abilityCode)
+                this._ssCooldown = (this._ssCooldown || 0) - dt;
+                if (this._ssCooldown <= 0) {
+                    this._ssCooldown = 90 + Math.random() * 60; // fire every ~1.5–2.5s at 60fps
+                    const sa = Math.atan2(player.y - this.y, player.x - this.x);
+                    bossBullets.push({ x: this.x, y: this.y, vx: Math.cos(sa) * 5.5, vy: Math.sin(sa) * 5.5, damage: this.damage * 2.5, radius: 6, alive: true, isLine: false, color: this.color });
+                    for (let i = 0; i < 5; i++) particles.push(new Particle(this.x, this.y, this.color));
+                    playSound(320, 0.04, 'sine');
+                }
+            }
+            // 'chase' falls through to default movement below
+        }
+        // ────────────────────────────────────────────────────────────
+
         const ddx = tx - this.x, ddy = ty - this.y, ddist = Math.sqrt(ddx*ddx + ddy*ddy);
         if(ddist > 0 && !this.isBoomerang && !this.isVoidRift && !this.isDasher && !this._zaFrozen) {
             this.x += (ddx/ddist) * this.speed * dt * slowMult * effectiveSlowMult;
             this.y += (ddy/ddist) * this.speed * dt * slowMult * effectiveSlowMult;
+        }
+
+        // Hard-clamp mod enemies inside the canvas so they can never die off-screen
+        if (this._isModEnemy) {
+            this.x = Math.max(this.radius, Math.min(canvas.width  - this.radius, this.x));
+            this.y = Math.max(this.radius, Math.min(canvas.height - this.radius, this.y));
         }
 
         const eRes = resolveCircleWall(this.x, this.y, this.radius);
@@ -6376,14 +6470,14 @@ function getSpawnCount(){
     return Math.round(baseCount * biomeMultiplier);
 }
 function getSpawnInterval(){
-    if(currentRound>=900) return 120;
-    if(currentRound>=600) return Math.max(200 - Math.floor((currentRound-600)/5), 100);
-    if(currentRound>=500) return Math.max(600-Math.floor((currentRound-500)/5),120);
-    if(currentRound>=50 && currentRound<500) {
-        const progress = (currentRound - 50) / 450;
-        return Math.max(1500 - progress * 1200, 300);
-    }
-    return Math.max(1500-getDifficulty()*80,300);
+    // Time between spawning individual enemies within a wave (ms)
+    if(currentRound>=900) return 100;
+    if(currentRound>=600) return 150;
+    if(currentRound>=300) return 250;
+    if(currentRound>=100) return 400;
+    if(currentRound>=50)  return 600;
+    if(currentRound>=20)  return 900;
+    return 1200; // early waves: one enemy every 1.2s
 }
 function getEnemyStats(type){
     const d=getDifficulty();
@@ -6755,32 +6849,44 @@ function tickSpecialEnemies(dt) {
 }
 
 function spawnWave(){
-    waveEnemiesSpawned = 0; // reset counter for early-clear detection
+    // Boss/mini-boss waves spawn once and set their own budget
     if(currentRound > 0 && currentRound % 15 === 0 && currentRound % 50 !== 0) {
         spawnMiniBosse();
+        waveEnemiesSpawned = waveEnemyBudget; // mark budget used so wave ends on kill
         return;
     }
-
     if(currentRound === 50 || currentRound === 100) {
         spawnTheBoss();
+        waveEnemiesSpawned = waveEnemyBudget;
         return;
     }
-
     if(currentRound === 150 || currentRound === 200) {
         spawnRhomboid();
+        waveEnemiesSpawned = waveEnemyBudget;
         return;
     }
-
     if(currentRound > 200 && currentRound % 50 === 0) {
         spawnTheBoss();
+        waveEnemiesSpawned = waveEnemyBudget;
         return;
     }
 
-    const count=getSpawnCount();
-    const showIndicators = currentRound < 500;
+    // Don't spawn more than the budget for this wave
+    if (waveEnemiesSpawned >= waveEnemyBudget) return;
+
+    // Spawn a single enemy
+    const side = Math.floor(Math.random()*4); let sx, sy;
+    if(side===0){sx=Math.random()*canvas.width; sy=-30;}
+    else if(side===1){sx=canvas.width+30; sy=Math.random()*canvas.height;}
+    else if(side===2){sx=Math.random()*canvas.width; sy=canvas.height+30;}
+    else{sx=-30; sy=Math.random()*canvas.height;}
+
+    const edgeX = side===0||side===2 ? sx : (side===1 ? canvas.width-2 : 2);
+    const edgeY = side===1||side===3 ? sy : (side===2 ? canvas.height-2 : 2);
+    if(currentRound < 500) spawnIndicators.push({ x: edgeX, y: edgeY, life: 1.0, delay: 0 });
 
     let bountyIdx = -1;
-    if (currentRound > 0 && currentRound % 10 === 0) {
+    if (waveEnemiesSpawned === 0 && currentRound > 0 && currentRound % 10 === 0) {
         const adjectives = ['Ruthless','Cursed','Ancient','Savage','Elite','Infamous','Wicked','Deadly'];
         const nouns = ['Slayer','Hunter','Destroyer','Reaper','Terror','Fiend','Stalker','Menace'];
         bountyLabel = adjectives[Math.floor(Math.random()*adjectives.length)] + ' ' + nouns[Math.floor(Math.random()*nouns.length)];
@@ -6790,35 +6896,16 @@ function spawnWave(){
         floatMoneyText(`🎯 BOUNTY: ${bountyLabel} $${bountyGold}!`);
     }
 
-    for(let i=0;i<count;i++){
-        const side=Math.floor(Math.random()*4);let sx,sy;
-        if(side===0){sx=Math.random()*canvas.width;sy=0;}
-        else if(side===1){sx=canvas.width;sy=Math.random()*canvas.height;}
-        else if(side===2){sx=Math.random()*canvas.width;sy=canvas.height;}
-        else{sx=0;sy=Math.random()*canvas.height;}
+    const isBountyEnemy = (waveEnemiesSpawned === 0 && bountyIdx === 0);
 
-        const spawnDelay = i*120;
-        const spawnX = side===0||side===2 ? sx : (side===1 ? canvas.width+30 : -30);
-        const spawnY = side===1||side===3 ? sy : (side===2 ? canvas.height+30 : -30);
-        const edgeX = side===0||side===2 ? sx : (side===1 ? canvas.width-2 : 2);
-        const edgeY = side===1||side===3 ? sy : (side===2 ? canvas.height-2 : 2);
-
-        if(showIndicators) {
-            spawnIndicators.push({ x: edgeX, y: edgeY, life: 1.0, delay: spawnDelay / 16.667 });
-        }
-
-        const isBountyEnemy = (i === bountyIdx);
-        setTimeout(()=>{
-            if(!gameRunning)return;
-
-            // Add eligible mod enemies to the pool
-            const modEnemyIds = getModEnemiesForPool();
-            // If enemy mods are active, ONLY spawn mod enemies
-            let typePool;
-            if (modEnemyIds.length > 0 && hasActiveEnemyMods()) {
-                typePool = modEnemyIds;
-            } else {
-                typePool = ['normal'];
+    setTimeout(()=>{
+        if(!gameRunning)return;
+        const modEnemyIds = getModEnemiesForPool();
+        let typePool;
+        if (modEnemyIds.length > 0 && hasActiveEnemyMods()) {
+            typePool = modEnemyIds;
+        } else {
+            typePool = ['normal'];
             if(triangleEnemyUnlocked) typePool.push('triangle','triangle');
             if(currentRound >= 20) typePool.push('shielder');
             if(currentRound >= 10) typePool.push('splitter');
@@ -6830,7 +6917,6 @@ function spawnWave(){
             if(currentRound >= 25) typePool.push('phantom_e');
             if(currentRound >= 28) typePool.push('leech');
             if(currentRound >= 30) typePool.push('sniper_e');
-            
             if(currentRound >= 40) typePool.push('puller');
             if(currentRound >= 45) typePool.push('guardian');
             if(currentRound >= 55) typePool.push('timebomb');
@@ -6846,12 +6932,11 @@ function spawnWave(){
             if(currentRound >= 38) typePool.push('void_rift');
             if(currentRound >= 35) typePool.push('mirror_e');
             modEnemyIds.forEach(id => typePool.push(id));
-            }
-            const type = typePool[Math.floor(Math.random()*typePool.length)];
-            // If a mod enemy was selected, spawn it and skip normal construction
-            if (modEnemyIds.includes(type)) { spawnModEnemy(type); waveEnemiesSpawned++; return; }
-            const e=new Enemy(spawnX,spawnY,type);const stats=getEnemyStats(type);
-            e.health=stats.health;e.maxHealth=stats.health;e.speed=stats.speed;e.damage=stats.damage;
+        }
+        const type = typePool[Math.floor(Math.random()*typePool.length)];
+        if (modEnemyIds.includes(type)) { spawnModEnemy(type); waveEnemiesSpawned++; return; }
+        const e=new Enemy(sx,sy,type); const stats=getEnemyStats(type);
+        e.health=stats.health; e.maxHealth=stats.health; e.speed=stats.speed; e.damage=stats.damage;
 
             if(e.isShielder)     { e.color='#3b82f6'; e.expValue=18; }
             if(e.isSplitter)     { e.color='#f97316'; e.expValue=16; }
@@ -6900,8 +6985,7 @@ function spawnWave(){
             if (!seenEnemyTypes.includes(type)) { seenEnemyTypes.push(type); savePersistentData(); }
             enemies.push(e);
             waveEnemiesSpawned++;
-        },spawnDelay);
-    }
+        }, 0);
 }
 
 function circleRect(cx, cy, cr, rx, ry, rw, rh) {
@@ -9324,21 +9408,35 @@ function updateHUD(){
 function updateSkinOverlay(ts) {
     const sk = CHARACTERS[currentCharacter];
     if (!sk || !sk.useImg) { skinOverlay.style.display='none'; return; }
-    const r = player.radius;
+
+    // Compute CSS scale: canvas may be rendered smaller than its internal 1100×700
+    const canvasEl = document.getElementById('gameCanvas');
+    const scaleX = canvasEl.offsetWidth  / canvas.width;
+    const scaleY = canvasEl.offsetHeight / canvas.height;
+    // Use the average scale (they should be equal but just in case)
+    const scale = (scaleX + scaleY) / 2;
+
+    // Find where the canvas starts on screen so we can offset correctly
+    const canvasRect = canvasEl.getBoundingClientRect();
+    const wrapRect   = canvasEl.parentElement.getBoundingClientRect();
+
+    const r = player.radius * scale;
+    const cssX = (canvasRect.left - wrapRect.left) + player.x * scaleX - r;
+    const cssY = (canvasRect.top  - wrapRect.top)  + player.y * scaleY - r;
+
     skinOverlay.style.display = 'block';
-    skinOverlay.style.left  = (player.x - r) + 'px';
-    skinOverlay.style.top   = (player.y - r) + 'px';
-    skinOverlay.style.width  = (r*2) + 'px';
-    skinOverlay.style.height = (r*2) + 'px';
+    skinOverlay.style.left   = cssX + 'px';
+    skinOverlay.style.top    = cssY + 'px';
+    skinOverlay.style.width  = (r * 2) + 'px';
+    skinOverlay.style.height = (r * 2) + 'px';
+
     if (skinOverlay.getAttribute('data-skin') !== currentCharacter) {
         skinOverlay.src = SKIN_URLS[currentCharacter] || '';
         skinOverlay.setAttribute('data-skin', currentCharacter);
     }
-    skinOverlay.style.opacity = (player.invulnerable>0 && Math.floor(ts/100)%2===0) ? '0.4' : '1';
-    let glowColor = sk.shadow;
-
-    skinOverlay.style.boxShadow = `0 0 16px 6px ${glowColor}`;
-    skinOverlay.style.border    = `2px solid ${glowColor}`;
+    skinOverlay.style.opacity   = (player.invulnerable>0 && Math.floor(ts/100)%2===0) ? '0.4' : '1';
+    skinOverlay.style.boxShadow = `0 0 16px 6px ${sk.shadow}`;
+    skinOverlay.style.border    = `2px solid ${sk.shadow}`;
 }
 
 function endGame(sukunaKilled=false){
@@ -9860,6 +9958,7 @@ function resetGame(){
         builderWalls=[];
     }
     lastEnemySpawn=0;roundTimer=0;spawnIndicators=[];currentRound=currentCharacter==='character10b'?500:0;killStreak=0;sessionMoney=0;
+    waveEnemiesSpawned=0; waveEnemyBudget=1; // wave 0→1 on first advance
     autoFireEnabled=true;specialInProgress=false;
     dreamArmorAnnounce=null;lastDreamTierIdx=-1;bloodGodAnnounce=null;
     mgLastShot=0; lastTs=0;
@@ -10772,7 +10871,21 @@ function gameLoop(ts){
         saveHQ();
         if(gameRunning) { checkHonored(); }
     }
-    roundTimer+=dt;if(roundTimer>=120&&!sukunaBossActive&&!theEnemyActive){currentRound++;roundTimer=0;
+    roundTimer+=dt;
+    const _aliveEnemies = enemies.filter(e=>e.alive).length;
+    // Wave advances when all spawned enemies are dead AND budget is exhausted.
+    // roundTimer >= 60 gives a 1-second breather between waves.
+    // Safety: force-advance after 20s (1200 frames) if an enemy gets stuck.
+    const _budgetDone = waveEnemiesSpawned >= waveEnemyBudget;
+    const _waveCanAdvance = (_budgetDone && _aliveEnemies === 0 && roundTimer >= 60) || roundTimer >= 1200;
+    if(_waveCanAdvance&&!sukunaBossActive&&!theEnemyActive){
+        currentRound++;
+        roundTimer=0;
+        waveEnemiesSpawned=0;
+        // Budget for the new wave: equal to wave number, capped to keep things sane at high waves
+        waveEnemyBudget = currentRound <= 50 ? currentRound
+                        : currentRound <= 200 ? 50 + Math.floor((currentRound-50)/3)
+                        : Math.min(50 + Math.floor((currentRound-50)/3), 120);
         if(gameRunning) { checkHonored(); }
         if (currentCharacter === 'gojo') {
             const newPhase = getGojoPhase(currentRound);
@@ -10841,13 +10954,6 @@ function gameLoop(ts){
     if(!hakariDomainActive && !sukunaBossActive && !theEnemyActive && !(currentRound>=900 && currentRound<1000) && ts-lastEnemySpawn>getSpawnInterval()){
         spawnWave();
         lastEnemySpawn=ts;
-    }
-
-    // Early wave clear: if all enemies from this wave are dead and the wave timer hasn't expired, skip to next wave
-    if(gameRunning && !shopOpen && !sukunaBossActive && !theEnemyActive && !hakariDomainActive
-        && waveEnemiesSpawned > 0 && enemies.filter(e=>e.alive).length === 0
-        && roundTimer > 10 && roundTimer < 119) {
-        roundTimer = 119; // will tick to 120 on next frame → wave advances naturally
     }
 
     if (CHARACTERS[currentCharacter].isBoxer && gameRunning && !document.getElementById('levelUpNotice').classList.contains('show')) {
@@ -12300,8 +12406,10 @@ function pauseGame() {
     if (!gameRunning && !gamePaused) return;
     gamePaused = true;
     gameRunning = false;
-    fadeOutMainTheme(600, false);
+    fadeOutMainTheme(600, true);
     pauseJackpotMusic();
+    // Pause custom character music too
+    if (!charMusicAudio.paused) charMusicAudio.pause();
     document.getElementById('pauseOverlay').style.display = 'block';
     document.getElementById('pauseMenu').style.display = 'block';
 }
@@ -12314,7 +12422,14 @@ function resumeGame() {
     if (hakariJackpotActive) {
         resumeJackpotMusic();
     } else {
-        fadeInMainTheme(800);
+        const _resumeMap = getCharMusicMap();
+        if (_resumeMap[currentCharacter] && charMusicAudio._currentCharId === currentCharacter) {
+            // Resume custom character music
+            charMusicAudio.volume = getMusicVol();
+            charMusicAudio.play().catch(() => {});
+        } else {
+            fadeInMainTheme(800);
+        }
     }
     lastTs = 0;
     requestAnimationFrame(gameLoop);
@@ -12325,6 +12440,7 @@ function pauseToMainMenu() {
     gameRunning = false;
     stopJackpotMusic();
     stopMainTheme();
+    stopCharMusicAudio();
     hideSlotMachine();
     document.getElementById('pauseOverlay').style.display = 'none';
     document.getElementById('pauseMenu').style.display = 'none';
@@ -13362,6 +13478,7 @@ function showQuestsPage(){
 }
 
 function showCharacterShop(){stopMainTheme();document.getElementById('mainMenu').style.display='none';document.getElementById('gameContainer').style.display='none';document.getElementById('characterShop').style.display='block';updateShopDisplay();updateMasteryCardButtons();
+    applyCharMusicForCharacter(currentCharacter);
     const wvCard = document.getElementById('warVeteranCharacter');
     if (wvCard) wvCard.style.display = (unlockedMasteries.includes('default') && equippedMasteries.includes('default')) ? '' : 'none';
     const laCard = document.getElementById('lastArchitectCharacter');
@@ -13375,6 +13492,7 @@ function showCharacterShop(){stopMainTheme();document.getElementById('mainMenu')
 function backToMenu(){
     stopJackpotMusic();
     stopMainTheme();
+    stopCharMusicAudio();
     hideSlotMachine();
     renderHQPanel();document.getElementById('tutorial').style.display='none';document.getElementById('characterShop').style.display='none';document.getElementById('questsPage').style.display='none';document.getElementById('moneyPopup').classList.remove('show');document.getElementById('mainMenu').style.display='block';updateMoneyDisplay();}
 function startGame(){
@@ -13405,14 +13523,20 @@ function startGame(){
     showBiomeIndicator();
     mainTheme.pause();
     mainTheme.currentTime = 0;
-    fadeInMainTheme(1200);
+    const _cgMap = getCharMusicMap();
+    if (_cgMap[currentCharacter]) {
+        syncCharMusicToGameState();
+    } else {
+        stopCharMusicAudio();
+        fadeInMainTheme(1200);
+    }
     requestAnimationFrame(gameLoop);
 }
 function startEndlessMode(){
     startGame(); // startGame resets endlessMode to false, so we override after
     endlessMode = true;
 }
-function backToMainMenu(){stopJackpotMusic();stopMainTheme();hideSlotMachine();document.getElementById('gameOver').style.display='none';document.getElementById('gameContainer').style.display='none';document.body.classList.remove('game-active');skinOverlay.style.display='none';document.getElementById('playMenu').style.display='none';document.getElementById('mainMenu').style.display='block';updateMoneyDisplay();const darkBM=document.getElementById('theEnemyDarkness');if(darkBM){darkBM.style.opacity='0';darkBM.style.display='none';}const cBM=document.getElementById('gameCanvas');if(cBM){cBM.style.transform='';}checkRunSave();}
+function backToMainMenu(){stopJackpotMusic();stopMainTheme();stopCharMusicAudio();hideSlotMachine();document.getElementById('gameOver').style.display='none';document.getElementById('gameContainer').style.display='none';document.body.classList.remove('game-active');skinOverlay.style.display='none';document.getElementById('playMenu').style.display='none';document.getElementById('mainMenu').style.display='block';updateMoneyDisplay();const darkBM=document.getElementById('theEnemyDarkness');if(darkBM){darkBM.style.opacity='0';darkBM.style.display='none';}const cBM=document.getElementById('gameCanvas');if(cBM){cBM.style.transform='';}checkRunSave();}
 function updateMoneyDisplay(){document.getElementById('totalMoney').textContent=totalMoney;document.getElementById('shopMoney').textContent=totalMoney;}
 function updateShopDisplay(){
     updateMoneyDisplay();
@@ -13626,6 +13750,12 @@ function selectCharacter(name){
         currentCharacter = name;
         savePersistentData();
         updateShopDisplay();
+        // Mod characters: always re-apply image and force skin overlay to reload
+        if (CHARACTERS[name] && CHARACTERS[name]._isModChar) {
+            restoreModImages();
+            if (typeof skinOverlay !== 'undefined') skinOverlay.removeAttribute('data-skin');
+        }
+        applyCharMusicForCharacter(name);
     }
     updateMcSkinClass();
 }
@@ -14964,7 +15094,7 @@ function modsTab(tab) {
     if (tab === 'manage') renderModsManageList();
     if (tab === 'create') refreshModPrompt();
     if (tab === 'errors') renderModErrors();
-    if (tab === 'install') refreshModImageTargetList();
+    if (tab === 'install') { refreshModImageTargetList(); refreshCharMusicTargetList(); }
 }
 
 // ===== MOD ERROR LOG =====
@@ -15090,6 +15220,7 @@ function getModPromptText(type, opts) {
         if (opts.extrakeys)  lines.push(`EXTRA KEYS: "${opts.extrakeys}"\nImplement these as extraKeys entries (e.g. { "z": "...code...", "x": "...code..." }). Reference them by letter in infoAbilities.`);
         if (opts.other)      lines.push(`ADDITIONAL DETAILS: "${opts.other}"`);
         if (opts.imageUrl)   lines.push(`IMAGE URL: "${opts.imageUrl}" — include this exact string as the "imageUrl" field in the JSON output.`);
+        if (opts.musicUrl)   lines.push(`MUSIC URL: "${opts.musicUrl}" — include this exact string as the "musicUrl" field in the JSON output. This audio will replace the main theme while this character is active.`);
         const userRequests = lines.length ? '\n\nUSER REQUESTS — follow these exactly:\n' + lines.map((l,i)=>`${i+1}. ${l}`).join('\n') : '';
 
         return `You are a mod generator for CIRCULATE — a top-down bullet-hell arena survival game where the player controls a colored ball fighting endless waves of enemies on a walled canvas. Characters each have a unique visual identity, stat profile, one active ability (bound to whatever key the player has set as their Ability key — do NOT hardcode "R"), and 1–3 passive traits that are always active.
@@ -15141,6 +15272,7 @@ YOUR TASK: Generate a single creative custom CHARACTER as a JSON object with EXA
 - isCustomMod: true
 - type: "character"
 - imageUrl: (optional) if the user provided a Cloudinary URL, set this field to that exact URL string. Otherwise omit it.
+- musicUrl: (optional) if the user provided a music URL (MP3/WAV), set this field to that exact URL string so it plays in-game instead of the main theme. Otherwise omit it.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 GAME API — read this carefully before writing any code
@@ -15288,12 +15420,12 @@ Return ONLY a single valid JSON object. No markdown, no code fences, no explanat
         if (opts.imageUrl)  lines.push(`IMAGE URL: "${opts.imageUrl}" — include this exact string as the "imageUrl" field in the JSON output.`);
         const userRequests = lines.length ? '\n\nUSER REQUESTS — follow these exactly:\n' + lines.map((l,i)=>`${i+1}. ${l}`).join('\n') : '';
 
-        return `You are a mod generator for CIRCULATE — a top-down bullet-hell arena survival game. The player (a colored ball) fights waves of enemies on a rectangular walled canvas. Enemies spawn from edges and attack the player. Waves get harder over time.
+        return `You are a mod generator for CIRCULATE — a top-down bullet-hell arena survival game. The player (a colored ball) fights waves of enemies on a rectangular walled canvas (1100×700px). Enemies spawn from the edges and attack the player. Waves get harder over time.
 
 GAME CONTEXT:
 - Enemies deal contact damage per tick at ~60fps. HP 200 = standard. HP 10,000 = boss. HP 150 = fast fragile threat.
 - Speed 2 = average. Speed 3.5 = fast. Speed 5+ = extremely dangerous.
-- Radius 15px = standard circle. 10px = small/fast. 30px = large elite.
+- Radius 15px = standard. 10px = small/fast. 30px = large elite.
 - Contact damage ~10/tick is standard. Bosses ~20/tick. Fast fragile enemies ~6–8/tick.
 - "round" = earliest wave number: 1 = appears immediately, 5+ = mid-game, 15+ = late-game elite.
 
@@ -15313,7 +15445,11 @@ EXISTING ENEMY TYPES (do NOT duplicate):
 • Echo – creates ghost copies. • Void Rift – stationary enemy spawner.
 • Swarm – tiny, massive groups, individually weak.
 
-BEHAVIOR TYPES: "chase", "strafe", "ranged", "stationary"
+BEHAVIOR TYPES — choose ONE that fits the enemy's design:
+• "chase"      — Moves directly toward the player at all times. Good for aggressive melee threats.
+• "strafe"       — Orbits the player in a circle at mid-range. Never closes in. Great for enemies that fire projectiles while circling.
+• "strafe_shoot" — Orbits like strafe AND automatically fires a projectile at the player every 1.5–2.5 seconds. No abilityCode needed for shooting — it is built in.
+• "stationary" — Never moves after entering the map. Use for turret-style or trap enemies that rely entirely on abilityCode to act.
 
 YOUR TASK: Generate a single creative custom ENEMY as a JSON object with EXACTLY these fields:
 - id: unique snake_case string (e.g. "crystal_wraith")
@@ -15324,12 +15460,12 @@ YOUR TASK: Generate a single creative custom ENEMY as a JSON object with EXACTLY
 - damage: contact damage per tick (e.g. 8)
 - radius: visual size in pixels 10–30 (e.g. 16)
 - round: earliest wave number (e.g. 6)
-- behavior: one of "chase", "strafe", "ranged", "stationary"
+- behavior: one of "chase", "strafe", "strafe_shoot", "stationary"
 - desc: 2–3 sentence bestiary description — what makes it dangerous and how to counter it
 - icon: single emoji (e.g. "🔷")
 - drawCode: JS function body for custom visual rendering — REQUIRED, see section below
-- abilityCode: (optional) JS function body for a repeating special ability
-- abilityCooldownSeconds: (optional) seconds between ability triggers (e.g. 3.5)
+- abilityCode: (optional, but REQUIRED if behavior is "stationary") JS function body for a repeating special ability
+- abilityCooldownSeconds: (optional, REQUIRED if abilityCode is set) seconds between ability triggers (e.g. 3.5)
 - isCustomMod: true
 - type: "enemy"
 - imageUrl: (optional) if the user provided a Cloudinary URL, set this field to that exact URL string. Otherwise omit it.
@@ -15451,6 +15587,7 @@ function refreshModPrompt() {
         extrakeys:  (document.getElementById('cq_extrakeys')?.value || '').trim(),
         other:      (document.getElementById('cq_other')?.value || '').trim(),
         imageUrl:   (document.getElementById('cq_imageUrl')?.value || '').trim(),
+        musicUrl:   (document.getElementById('cq_musicUrl')?.value || '').trim(),
     };
 
     // Collect enemy fields
@@ -15490,8 +15627,8 @@ function refreshModPrompt() {
         };
         const behaviorMap = {
             'chase':       '🎯 Chase',
-            'strafe':      '🔄 Strafe',
-            'ranged':      '🏹 Ranged',
+            'strafe':        '🔄 Strafe',
+            'strafe_shoot':  '🔄🏹 Strafe + Shoot',
             'stationary':  '📍 Stationary',
         };
         const toughMap = {
@@ -15579,7 +15716,7 @@ function refreshModPrompt() {
 }
 
 function clearModForm() {
-    ['cq_theme','cq_passives','cq_ability','cq_extrakeys','cq_other'].forEach(id => {
+    ['cq_theme','cq_passives','cq_ability','cq_extrakeys','cq_other','cq_musicUrl'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.value = '';
     });
@@ -15648,12 +15785,20 @@ function tryInstallMod(raw) {
         }
         saveModsToStorage();
         applyActiveMods();
+        restoreModImages();
         // Auto-apply imageUrl if baked into the mod JSON
         if (mod.imageUrl && typeof mod.imageUrl === 'string' && mod.imageUrl.trim()) {
             const imgs = getModImages();
             imgs[mod.id] = mod.imageUrl.trim();
             saveModImages(imgs);
             restoreModImages();
+        }
+        // Auto-apply musicUrl if baked into the mod JSON
+        if (mod.musicUrl && typeof mod.musicUrl === 'string' && mod.musicUrl.trim()) {
+            const mmap = getCharMusicMap();
+            mmap[mod.id] = mod.musicUrl.trim();
+            saveCharMusicMap(mmap);
+            refreshCharMusicTargetList();
         }
         if (status) { status.textContent = `✅ "${mod.name}" installed!`; status.style.color = '#34d399'; }
         document.getElementById('modInstallInput').value = '';
@@ -15694,6 +15839,7 @@ function toggleMod(i) {
     _installedMods[i].enabled = !_installedMods[i].enabled;
     saveModsToStorage();
     applyActiveMods();
+    restoreModImages();
     renderModsManageList();
     floatMoneyText(_installedMods[i].enabled ? `✅ ${_installedMods[i].name} enabled` : `⭕ ${_installedMods[i].name} disabled`);
 }
@@ -15708,6 +15854,7 @@ function deleteMod(i) {
     _installedMods.splice(i, 1);
     saveModsToStorage();
     applyActiveMods();
+    restoreModImages();
     renderModsManageList();
     floatMoneyText(`🗑️ "${name}" deleted`);
 }
@@ -15980,6 +16127,8 @@ function applyModImage() {
     // Apply to SKIN_URLS and CHARACTERS.useImg for characters
     SKIN_URLS[id] = url;
     if (CHARACTERS[id]) { CHARACTERS[id].useImg = true; CHARACTERS[id]._modImgUrl = url; }
+    // Invalidate skin overlay cache so the new image loads immediately
+    if (typeof skinOverlay !== 'undefined') skinOverlay.removeAttribute('data-skin');
     // Update card preview image
     const card = document.getElementById(id + 'Character');
     if (card) {
@@ -16023,6 +16172,182 @@ function restoreModImages() {
 }
 // ===== END MOD IMAGE SYSTEM =====
 
+// ===== CHARACTER MUSIC SYSTEM =====
+const charMusicAudio = new Audio();
+charMusicAudio.loop = true;
+charMusicAudio._currentCharId = null;
+
+function getCharMusicMap() {
+    try { return JSON.parse(localStorage.getItem('charMusicMap') || '{}'); } catch(e) { return {}; }
+}
+function saveCharMusicMap(obj) {
+    localStorage.setItem('charMusicMap', JSON.stringify(obj));
+}
+
+// Populate the character dropdown in the music section
+function refreshCharMusicTargetList() {
+    const sel = document.getElementById('charMusicTarget');
+    if (!sel) return;
+    const map = getCharMusicMap();
+    // Build a list of all known characters
+    const builtins = Object.keys(CHARACTERS).filter(k => !CHARACTERS[k].removed);
+    const modChars = _installedMods.filter(m => m.isCustomMod && m.type === 'character').map(m => m.id);
+    const allIds = [...new Set([...builtins, ...modChars])];
+    const prevVal = sel.value;
+    sel.innerHTML = '<option value="">— select a character —</option>';
+    allIds.forEach(id => {
+        const char = CHARACTERS[id];
+        const name = char ? char.name : id;
+        const hasMusic = !!map[id];
+        const opt = document.createElement('option');
+        opt.value = id;
+        opt.textContent = name + (hasMusic ? ' 🎵' : '');
+        sel.appendChild(opt);
+    });
+    sel.value = prevVal || '';
+    onCharMusicTargetChange();
+}
+
+function onCharMusicTargetChange() {
+    const sel = document.getElementById('charMusicTarget');
+    const urlInput = document.getElementById('charMusicUrl');
+    const status = document.getElementById('charMusicStatus');
+    if (!sel || !urlInput) return;
+    const id = sel.value;
+    const map = getCharMusicMap();
+    urlInput.value = id && map[id] ? map[id] : '';
+    if (status) status.textContent = '';
+}
+
+function applyCharMusic() {
+    const sel = document.getElementById('charMusicTarget');
+    const urlInput = document.getElementById('charMusicUrl');
+    const status = document.getElementById('charMusicStatus');
+    if (!sel || !urlInput) return;
+    const id = sel.value;
+    const url = urlInput.value.trim();
+    if (!id) { if (status) { status.textContent = '⚠️ Select a character first.'; status.style.color = '#fbbf24'; } return; }
+    if (!url) { if (status) { status.textContent = '⚠️ Paste a music URL first.'; status.style.color = '#fbbf24'; } return; }
+    const map = getCharMusicMap();
+    map[id] = url;
+    saveCharMusicMap(map);
+    refreshCharMusicTargetList();
+    sel.value = id;
+    // If this is the current character and we're in the shop (not in-game), preview it
+    if (id === currentCharacter) applyCharMusicForCharacter(id);
+    if (status) { status.textContent = '✅ Music applied! It will play when this character is selected.'; status.style.color = '#34d399'; }
+    floatMoneyText('🎵 Music set for ' + (CHARACTERS[id] ? CHARACTERS[id].name : id) + '!');
+}
+
+function removeCharMusic() {
+    const sel = document.getElementById('charMusicTarget');
+    const urlInput = document.getElementById('charMusicUrl');
+    const status = document.getElementById('charMusicStatus');
+    if (!sel) return;
+    const id = sel.value;
+    if (!id) return;
+    const map = getCharMusicMap();
+    delete map[id];
+    saveCharMusicMap(map);
+    if (urlInput) urlInput.value = '';
+    refreshCharMusicTargetList();
+    sel.value = id;
+    // Stop if playing for this char
+    if (charMusicAudio._currentCharId === id) stopCharMusicAudio();
+    if (status) { status.textContent = '🗑️ Music removed.'; status.style.color = '#f87171'; }
+    floatMoneyText('🗑️ Music removed.');
+}
+
+function previewCharMusic() {
+    const urlInput = document.getElementById('charMusicUrl');
+    const status = document.getElementById('charMusicStatus');
+    const url = urlInput ? urlInput.value.trim() : '';
+    if (!url) { if (status) { status.textContent = '⚠️ Enter a URL to preview.'; status.style.color = '#fbbf24'; } return; }
+    charMusicAudio.src = url;
+    charMusicAudio.volume = getMusicVol();
+    charMusicAudio._currentCharId = '__preview__';
+    charMusicAudio.play().then(() => {
+        if (status) { status.textContent = '▶ Previewing...'; status.style.color = '#c4b5fd'; }
+    }).catch(() => {
+        if (status) { status.textContent = '❌ Could not play — check the URL.'; status.style.color = '#f87171'; }
+    });
+}
+
+function stopCharMusicPreview() {
+    charMusicAudio.pause();
+    charMusicAudio.currentTime = 0;
+    charMusicAudio._currentCharId = null;
+    const status = document.getElementById('charMusicStatus');
+    if (status) { status.textContent = '⏹ Stopped.'; status.style.color = 'rgba(255,255,255,0.35)'; }
+}
+
+function stopCharMusicAudio() {
+    charMusicAudio.pause();
+    charMusicAudio.currentTime = 0;
+    charMusicAudio._currentCharId = null;
+}
+
+// Called when a character is made active — swaps music if needed
+function applyCharMusicForCharacter(charId) {
+    const map = getCharMusicMap();
+    const url = map[charId] || '';
+    const isModChar = !!(CHARACTERS[charId] && CHARACTERS[charId]._isModChar);
+    if (url) {
+        // Stop main theme, play char music
+        stopMainTheme();
+        // Mod characters always reload src + restart; others only reload if needed
+        if (isModChar || charMusicAudio._currentCharId !== charId || charMusicAudio.paused) {
+            charMusicAudio.pause();
+            charMusicAudio.src = url;
+            charMusicAudio.currentTime = 0;
+            charMusicAudio.volume = getMusicVol();
+            charMusicAudio._currentCharId = charId;
+            charMusicAudio.play().catch(() => {});
+        }
+    } else {
+        // No custom music — stop char music if it was playing for a different char
+        if (charMusicAudio._currentCharId && charMusicAudio._currentCharId !== '__preview__') {
+            stopCharMusicAudio();
+        }
+    }
+}
+
+// Resume/stop char music when game state changes
+function syncCharMusicToGameState() {
+    const map = getCharMusicMap();
+    const url = map[currentCharacter] || '';
+    if (url) {
+        if (charMusicAudio.paused || charMusicAudio._currentCharId !== currentCharacter) {
+            charMusicAudio.src = url;
+            charMusicAudio.volume = getMusicVol();
+            charMusicAudio._currentCharId = currentCharacter;
+            charMusicAudio.play().catch(() => {});
+        }
+        // Make sure main theme is off
+        mainTheme.pause();
+        mainTheme.volume = 0;
+    } else {
+        if (charMusicAudio._currentCharId && charMusicAudio._currentCharId !== '__preview__') {
+            stopCharMusicAudio();
+        }
+    }
+}
+function previewModMusic() {
+    const url = (document.getElementById('cq_musicUrl')?.value || '').trim();
+    if (!url) { floatMoneyText('⚠️ Enter a music URL first'); return; }
+    charMusicAudio.src = url;
+    charMusicAudio.volume = getMusicVol();
+    charMusicAudio._currentCharId = '__preview__';
+    charMusicAudio.play().then(() => floatMoneyText('▶ Previewing music...')).catch(() => floatMoneyText('❌ Could not play — check the URL'));
+}
+function stopModMusicPreview() {
+    charMusicAudio.pause();
+    charMusicAudio.currentTime = 0;
+    charMusicAudio._currentCharId = null;
+}
+
+// ===== END CHARACTER MUSIC SYSTEM =====
+
 function getModEnemiesForPool() {
     return _installedMods.filter(m => m.enabled && m.isCustomMod && m.type === 'enemy' && currentRound >= (m.round || 1)).map(m => m.id);
 }
@@ -16046,6 +16371,8 @@ function spawnModEnemy(id) {
     e.name = mod.name;
     e._isModEnemy = true;
     e._modId = mod.id;
+    e._modBehavior = (mod.behavior || 'chase').toLowerCase();
+    e._modOrbitAngle = Math.atan2(e.y - player.y, e.x - player.x); // for strafe
     // Apply custom image if one has been set
     const _modImgs = getModImages();
     if (_modImgs[mod.id]) { e._imgUrl = _modImgs[mod.id]; e._img = new Image(); e._img.src = _modImgs[mod.id]; }
