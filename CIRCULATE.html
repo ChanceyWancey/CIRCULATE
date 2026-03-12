@@ -3103,6 +3103,20 @@ if (unlockedCharacters.includes('admin')) {
     if (currentCharacter === 'admin') currentCharacter = 'default';
 }
 
+// Strip quest-locked characters that were previously incorrectly accessible.
+// They will re-appear once properly earned (codes / quests).
+if (!localStorage.getItem('ballRPGQuestLockPurged')) {
+    const questLocked = ['gojo', 'hornet', 'megumi', 'prime_veteran'];
+    const hadAny = questLocked.some(c => unlockedCharacters.includes(c));
+    if (hadAny) {
+        unlockedCharacters = unlockedCharacters.filter(c => !questLocked.includes(c));
+        if (questLocked.includes(currentCharacter)) currentCharacter = 'default';
+        localStorage.setItem('ballRPGCharacters', JSON.stringify(unlockedCharacters));
+        localStorage.setItem('ballRPGCurrentCharacter', currentCharacter);
+    }
+    localStorage.setItem('ballRPGQuestLockPurged', '1');
+}
+
 if (unlockedCharacters.includes('technoblade') && !localStorage.getItem('ballRPGTechnoRefunded')) {
     totalMoney += 50000;
     localStorage.setItem('ballRPGTechnoRefunded', '1');
