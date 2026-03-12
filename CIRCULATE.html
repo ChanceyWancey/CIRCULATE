@@ -1587,6 +1587,13 @@
                         <textarea id="cq_other" rows="2" placeholder='e.g. "inspired by a samurai, transforms at low HP, costs 5000 gold to unlock"' oninput="refreshModPrompt()"
                             style="width:100%;background:#0d1117;border:1px solid rgba(255,255,255,0.15);color:#e2e8f0;border-radius:6px;padding:8px 10px;font-size:12px;font-family:inherit;outline:none;resize:vertical;box-sizing:border-box;"></textarea>
                     </div>
+
+                    <div style="margin-bottom:10px;">
+                        <label style="font-size:11px;color:rgba(255,255,255,0.5);display:block;margin-bottom:4px;">🖼️ Character image URL <span style="color:rgba(255,255,255,0.25);">(optional — paste a Cloudinary URL to use as the in-game sprite)</span></label>
+                        <input id="cq_imageUrl" type="text" placeholder="https://res.cloudinary.com/..." oninput="refreshModPrompt()"
+                            style="width:100%;background:#0d1117;border:1px solid rgba(139,92,246,0.25);color:#e2e8f0;border-radius:6px;padding:8px 10px;font-size:12px;font-family:inherit;outline:none;box-sizing:border-box;">
+                        <div style="font-size:10px;color:rgba(255,255,255,0.2);margin-top:3px;">Upload your image at <a href="https://cloudinary.com" target="_blank" style="color:#a78bfa;">cloudinary.com</a> → Media Library → copy the URL</div>
+                    </div>
                 </div>
 
                 <!-- ===== ENEMY QUESTIONS ===== -->
@@ -1696,6 +1703,13 @@
                             style="width:100%;background:#0d1117;border:1px solid rgba(255,255,255,0.15);color:#e2e8f0;border-radius:6px;padding:8px 10px;font-size:12px;font-family:inherit;outline:none;resize:vertical;box-sizing:border-box;"></textarea>
                     </div>
 
+                    <div style="margin-bottom:10px;">
+                        <label style="font-size:11px;color:rgba(255,255,255,0.5);display:block;margin-bottom:4px;">🖼️ Enemy image URL <span style="color:rgba(255,255,255,0.25);">(optional — paste a Cloudinary URL to use as the in-game sprite)</span></label>
+                        <input id="eq_imageUrl" type="text" placeholder="https://res.cloudinary.com/..." oninput="refreshModPrompt()"
+                            style="width:100%;background:#0d1117;border:1px solid rgba(139,92,246,0.25);color:#e2e8f0;border-radius:6px;padding:8px 10px;font-size:12px;font-family:inherit;outline:none;box-sizing:border-box;">
+                        <div style="font-size:10px;color:rgba(255,255,255,0.2);margin-top:3px;">Upload your image at <a href="https://cloudinary.com" target="_blank" style="color:#a78bfa;">cloudinary.com</a> → Media Library → copy the URL</div>
+                    </div>
+
                     <!-- ===== ENEMY DESIGN PREVIEW ===== -->
                     <div style="margin-top:18px;margin-bottom:4px;">
                         <div style="font-size:11px;font-weight:bold;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">🎨 Design Preview</div>
@@ -1775,13 +1789,57 @@
 
         <!-- INSTALL TAB -->
         <div id="modsTabInstallContent" style="display:none;">
-            <div style="background:rgba(5,150,105,0.07);border:1px solid rgba(5,150,105,0.25);border-radius:10px;padding:18px 20px;">
+            <div style="background:rgba(5,150,105,0.07);border:1px solid rgba(5,150,105,0.25);border-radius:10px;padding:18px 20px;margin-bottom:14px;">
                 <div style="font-size:13px;font-weight:bold;color:#34d399;margin-bottom:8px;">Paste mod code here</div>
                 <div style="font-size:11px;color:rgba(255,255,255,0.35);margin-bottom:12px;">Paste the JSON code you got from the AI (or the Create tab) to install it as a mod.</div>
                 <textarea id="modInstallInput" placeholder='Paste mod JSON code here...' style="width:100%;min-height:160px;background:#0d1117;border:1.5px solid rgba(5,150,105,0.35);color:#86efac;border-radius:8px;padding:12px;font-size:11px;font-family:monospace;resize:vertical;outline:none;box-sizing:border-box;"></textarea>
                 <div style="display:flex;gap:8px;margin-top:12px;align-items:center;">
                     <button onclick="installModFromInput()" style="background:#059669;color:white;border:none;border-bottom:3px solid #065f46;padding:10px 24px;border-radius:7px;font-size:13px;font-weight:bold;font-family:inherit;cursor:pointer;">📦 Install Mod</button>
                     <div id="modInstallStatus" style="font-size:12px;color:rgba(255,255,255,0.4);"></div>
+                </div>
+            </div>
+
+            <!-- IMAGE UPLOAD -->
+            <div style="background:rgba(139,92,246,0.07);border:1.5px solid rgba(139,92,246,0.3);border-radius:10px;padding:18px 20px;">
+                <div style="font-size:13px;font-weight:bold;color:#c4b5fd;margin-bottom:4px;">🖼️ Custom Mod Images</div>
+                <div style="font-size:11px;color:rgba(255,255,255,0.35);margin-bottom:14px;">Upload an image for any installed mod character or enemy. The image will be displayed instead of the plain colored circle during gameplay.</div>
+
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
+                    <div>
+                        <label style="font-size:11px;color:rgba(255,255,255,0.5);display:block;margin-bottom:4px;">Which mod?</label>
+                        <select id="modImgTarget" style="width:100%;background:#0d1117;border:1px solid rgba(139,92,246,0.3);color:#e2e8f0;border-radius:6px;padding:8px 10px;font-size:12px;font-family:inherit;outline:none;box-sizing:border-box;">
+                            <option value="">— select a mod —</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="font-size:11px;color:rgba(255,255,255,0.5);display:block;margin-bottom:4px;">Cloudinary URL <span style="color:rgba(255,255,255,0.2);">(paste from cloudinary.com)</span></label>
+                        <input id="modImgUrl" type="text" placeholder="https://res.cloudinary.com/..." style="width:100%;background:#0d1117;border:1px solid rgba(139,92,246,0.3);color:#e2e8f0;border-radius:6px;padding:8px 10px;font-size:12px;font-family:inherit;outline:none;box-sizing:border-box;">
+                    </div>
+                </div>
+
+                <!-- Preview + upload row -->
+                <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
+                    <div id="modImgPreviewWrap" style="width:56px;height:56px;border-radius:50%;background:rgba(255,255,255,0.05);border:2px solid rgba(139,92,246,0.25);overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;">
+                        <span id="modImgPreviewEmpty" style="font-size:20px;">🖼️</span>
+                        <img id="modImgPreview" src="" style="display:none;width:100%;height:100%;object-fit:cover;">
+                    </div>
+                    <div style="flex:1;">
+                        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                            <button onclick="applyModImage()" style="background:#7c3aed;color:white;border:none;border-bottom:3px solid #5b21b6;padding:9px 18px;border-radius:7px;font-size:12px;font-weight:bold;font-family:inherit;cursor:pointer;">✅ Apply Image</button>
+                            <button onclick="removeModImage()" style="background:rgba(220,38,38,0.12);color:#f87171;border:1px solid rgba(220,38,38,0.3);padding:9px 14px;border-radius:7px;font-size:12px;font-family:inherit;cursor:pointer;">🗑 Remove</button>
+                        </div>
+                        <div id="modImgStatus" style="font-size:11px;color:rgba(255,255,255,0.35);margin-top:6px;"></div>
+                    </div>
+                </div>
+
+                <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:8px;padding:10px 12px;">
+                    <div style="font-size:10px;color:rgba(255,255,255,0.3);font-weight:bold;margin-bottom:6px;letter-spacing:0.5px;">HOW TO GET A CLOUDINARY URL</div>
+                    <div style="display:flex;flex-direction:column;gap:4px;">
+                        <div style="font-size:10px;color:rgba(255,255,255,0.45);">1. Go to <a href="https://cloudinary.com" target="_blank" style="color:#a78bfa;">cloudinary.com</a> and create a free account</div>
+                        <div style="font-size:10px;color:rgba(255,255,255,0.45);">2. Click <b style="color:#c4b5fd;">Media Library</b> → Upload your image</div>
+                        <div style="font-size:10px;color:rgba(255,255,255,0.45);">3. Click the image → copy the <b style="color:#c4b5fd;">URL</b> shown at the top</div>
+                        <div style="font-size:10px;color:rgba(255,255,255,0.45);">4. Paste that URL in the field above and click Apply</div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -3026,7 +3084,7 @@ const LIMITED_EXPIRY = {
     'yuji_itadori': new Date(2026, 2, 8, 23, 59, 59),
     'character10b': new Date(2026, 2, 6, 23, 59, 59),
     'rouge_square': new Date(2026, 2, 13, 12, 0, 0),
-    'luffy': new Date(2026, 2, 18, 0, 0, 0)
+    'luffy': new Date(2026, 2, 25, 0, 0, 0)
 };
 
 function updateLimitedTimers() {
@@ -3125,6 +3183,7 @@ const SKIN_URLS = {
 };
 
 let currentRound = 0, roundTimer = 0, killStreak = 0, sessionMoney = 0;
+let waveEnemiesSpawned = 0; // tracks enemies spawned in current wave for early-clear
 let endlessMode = false;
 
 const PRICES = {
@@ -6011,6 +6070,14 @@ class Enemy {
             ctx.shadowBlur=_shadowsEnabled?8:0; ctx.shadowColor='#fbbf24';
             ctx.fillText('BOSS',this.x,this.y-this.radius-4);
 
+        } else if (this._isModEnemy && this._img && this._img.complete && this._img.naturalWidth > 0) {
+            // Custom image for this mod enemy
+            ctx.save();
+            ctx.shadowBlur = _shadowsEnabled ? 20 : 0; ctx.shadowColor = this.color;
+            ctx.beginPath(); ctx.arc(this.x, this.y, this.radius, 0, Math.PI*2); ctx.clip();
+            ctx.drawImage(this._img, this.x - this.radius, this.y - this.radius, this.radius*2, this.radius*2);
+            ctx.restore();
+
         } else if (this._isModEnemy && this._drawFn) {
             try { this._drawFn(ctx, this, _shadowsEnabled); } catch(_de) {}
 
@@ -6688,6 +6755,7 @@ function tickSpecialEnemies(dt) {
 }
 
 function spawnWave(){
+    waveEnemiesSpawned = 0; // reset counter for early-clear detection
     if(currentRound > 0 && currentRound % 15 === 0 && currentRound % 50 !== 0) {
         spawnMiniBosse();
         return;
@@ -6781,7 +6849,7 @@ function spawnWave(){
             }
             const type = typePool[Math.floor(Math.random()*typePool.length)];
             // If a mod enemy was selected, spawn it and skip normal construction
-            if (modEnemyIds.includes(type)) { spawnModEnemy(type); return; }
+            if (modEnemyIds.includes(type)) { spawnModEnemy(type); waveEnemiesSpawned++; return; }
             const e=new Enemy(spawnX,spawnY,type);const stats=getEnemyStats(type);
             e.health=stats.health;e.maxHealth=stats.health;e.speed=stats.speed;e.damage=stats.damage;
 
@@ -6831,6 +6899,7 @@ function spawnWave(){
             
             if (!seenEnemyTypes.includes(type)) { seenEnemyTypes.push(type); savePersistentData(); }
             enemies.push(e);
+            waveEnemiesSpawned++;
         },spawnDelay);
     }
 }
@@ -10772,6 +10841,13 @@ function gameLoop(ts){
     if(!hakariDomainActive && !sukunaBossActive && !theEnemyActive && !(currentRound>=900 && currentRound<1000) && ts-lastEnemySpawn>getSpawnInterval()){
         spawnWave();
         lastEnemySpawn=ts;
+    }
+
+    // Early wave clear: if all enemies from this wave are dead and the wave timer hasn't expired, skip to next wave
+    if(gameRunning && !shopOpen && !sukunaBossActive && !theEnemyActive && !hakariDomainActive
+        && waveEnemiesSpawned > 0 && enemies.filter(e=>e.alive).length === 0
+        && roundTimer > 10 && roundTimer < 119) {
+        roundTimer = 119; // will tick to 120 on next frame → wave advances naturally
     }
 
     if (CHARACTERS[currentCharacter].isBoxer && gameRunning && !document.getElementById('levelUpNotice').classList.contains('show')) {
@@ -14888,6 +14964,7 @@ function modsTab(tab) {
     if (tab === 'manage') renderModsManageList();
     if (tab === 'create') refreshModPrompt();
     if (tab === 'errors') renderModErrors();
+    if (tab === 'install') refreshModImageTargetList();
 }
 
 // ===== MOD ERROR LOG =====
@@ -15012,6 +15089,7 @@ function getModPromptText(type, opts) {
         if (opts.ability)    lines.push(`ACTIVE ABILITY: "${opts.ability}"\nImplement this as the ability key action in abilityCode and abilityDesc.`);
         if (opts.extrakeys)  lines.push(`EXTRA KEYS: "${opts.extrakeys}"\nImplement these as extraKeys entries (e.g. { "z": "...code...", "x": "...code..." }). Reference them by letter in infoAbilities.`);
         if (opts.other)      lines.push(`ADDITIONAL DETAILS: "${opts.other}"`);
+        if (opts.imageUrl)   lines.push(`IMAGE URL: "${opts.imageUrl}" — include this exact string as the "imageUrl" field in the JSON output.`);
         const userRequests = lines.length ? '\n\nUSER REQUESTS — follow these exactly:\n' + lines.map((l,i)=>`${i+1}. ${l}`).join('\n') : '';
 
         return `You are a mod generator for CIRCULATE — a top-down bullet-hell arena survival game where the player controls a colored ball fighting endless waves of enemies on a walled canvas. Characters each have a unique visual identity, stat profile, one active ability (bound to whatever key the player has set as their Ability key — do NOT hardcode "R"), and 1–3 passive traits that are always active.
@@ -15062,6 +15140,7 @@ YOUR TASK: Generate a single creative custom CHARACTER as a JSON object with EXA
 - infoTip: single tip string starting with 💡 Tip:
 - isCustomMod: true
 - type: "character"
+- imageUrl: (optional) if the user provided a Cloudinary URL, set this field to that exact URL string. Otherwise omit it.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 GAME API — read this carefully before writing any code
@@ -15206,6 +15285,7 @@ Return ONLY a single valid JSON object. No markdown, no code fences, no explanat
         if (opts.design === 'custom' && opts.design_custom) lines.push(`CUSTOM VISUAL DESIGN: "${opts.design_custom}" — implement exactly this appearance in the drawCode field.`);
         if (!opts.design)   lines.push(`VISUAL DESIGN: You must generate a creative custom drawCode that visually matches the enemy's theme and color. Do NOT leave it as a plain circle.`);
         if (opts.other)     lines.push(`ADDITIONAL DETAILS: "${opts.other}"`);
+        if (opts.imageUrl)  lines.push(`IMAGE URL: "${opts.imageUrl}" — include this exact string as the "imageUrl" field in the JSON output.`);
         const userRequests = lines.length ? '\n\nUSER REQUESTS — follow these exactly:\n' + lines.map((l,i)=>`${i+1}. ${l}`).join('\n') : '';
 
         return `You are a mod generator for CIRCULATE — a top-down bullet-hell arena survival game. The player (a colored ball) fights waves of enemies on a rectangular walled canvas. Enemies spawn from edges and attack the player. Waves get harder over time.
@@ -15252,6 +15332,7 @@ YOUR TASK: Generate a single creative custom ENEMY as a JSON object with EXACTLY
 - abilityCooldownSeconds: (optional) seconds between ability triggers (e.g. 3.5)
 - isCustomMod: true
 - type: "enemy"
+- imageUrl: (optional) if the user provided a Cloudinary URL, set this field to that exact URL string. Otherwise omit it.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 DRAW CODE (drawCode field) — REQUIRED
@@ -15369,6 +15450,7 @@ function refreshModPrompt() {
         ability:    (document.getElementById('cq_ability')?.value || '').trim(),
         extrakeys:  (document.getElementById('cq_extrakeys')?.value || '').trim(),
         other:      (document.getElementById('cq_other')?.value || '').trim(),
+        imageUrl:   (document.getElementById('cq_imageUrl')?.value || '').trim(),
     };
 
     // Collect enemy fields
@@ -15383,6 +15465,7 @@ function refreshModPrompt() {
         design:    (document.getElementById('eq_design')?.value || '').trim(),
         design_custom: (document.getElementById('eq_design_custom')?.value || '').trim(),
         other:     (document.getElementById('eq_other')?.value || '').trim(),
+        imageUrl:  (document.getElementById('eq_imageUrl')?.value || '').trim(),
     };
 
     // Show/hide custom design textarea
@@ -15504,7 +15587,7 @@ function clearModForm() {
         const el = document.getElementById(id);
         if (el) el.value = '';
     });
-    ['eq_theme','eq_ability','eq_other','eq_design_custom'].forEach(id => {
+    ['eq_theme','eq_ability','eq_other','eq_design_custom','eq_imageUrl'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.value = '';
     });
@@ -15512,6 +15595,8 @@ function clearModForm() {
         const el = document.getElementById(id);
         if (el) el.value = '';
     });
+    const cqImg = document.getElementById('cq_imageUrl');
+    if (cqImg) cqImg.value = '';
     refreshModPrompt();
     floatMoneyText('↺ Form cleared');
 }
@@ -15563,6 +15648,13 @@ function tryInstallMod(raw) {
         }
         saveModsToStorage();
         applyActiveMods();
+        // Auto-apply imageUrl if baked into the mod JSON
+        if (mod.imageUrl && typeof mod.imageUrl === 'string' && mod.imageUrl.trim()) {
+            const imgs = getModImages();
+            imgs[mod.id] = mod.imageUrl.trim();
+            saveModImages(imgs);
+            restoreModImages();
+        }
         if (status) { status.textContent = `✅ "${mod.name}" installed!`; status.style.color = '#34d399'; }
         document.getElementById('modInstallInput').value = '';
         setTimeout(() => modsTab('manage'), 600);
@@ -15808,7 +15900,128 @@ function applyActiveMods() {
     }
     // Apply character/enemy mod restrictions
     updateModRestrictions();
+    // Restore any saved mod images
+    if (typeof restoreModImages === 'function') restoreModImages();
+    if (typeof refreshModImageTargetList === 'function') refreshModImageTargetList();
 }
+
+// ===== MOD IMAGE SYSTEM =====
+// Storage: localStorage key 'modImages' → { modId: cloudinaryUrl, ... }
+function getModImages() {
+    try { return JSON.parse(localStorage.getItem('modImages') || '{}'); } catch(e) { return {}; }
+}
+function saveModImages(obj) {
+    localStorage.setItem('modImages', JSON.stringify(obj));
+}
+
+function refreshModImageTargetList() {
+    const sel = document.getElementById('modImgTarget');
+    if (!sel) return;
+    const imgs = getModImages();
+    sel.innerHTML = '<option value="">— select a mod —</option>';
+    _installedMods.filter(m => m.isCustomMod).forEach(m => {
+        const hasImg = !!imgs[m.id];
+        const opt = document.createElement('option');
+        opt.value = m.id;
+        opt.textContent = (m.type === 'character' ? '👤 ' : '👾 ') + m.name + (hasImg ? ' ✅' : '');
+        sel.appendChild(opt);
+    });
+    // Restore URL field if a mod is already selected
+    const cur = sel.value;
+    if (cur && imgs[cur]) {
+        const urlEl = document.getElementById('modImgUrl');
+        if (urlEl) urlEl.value = imgs[cur];
+        updateModImgPreview(imgs[cur]);
+    }
+}
+
+function updateModImgPreview(url) {
+    const img = document.getElementById('modImgPreview');
+    const empty = document.getElementById('modImgPreviewEmpty');
+    if (!img || !empty) return;
+    if (url && url.trim()) {
+        img.src = url.trim();
+        img.style.display = 'block';
+        empty.style.display = 'none';
+        img.onerror = () => { img.style.display = 'none'; empty.style.display = 'block'; empty.textContent = '❌'; };
+    } else {
+        img.src = '';
+        img.style.display = 'none';
+        empty.style.display = 'block';
+        empty.textContent = '🖼️';
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const urlInput = document.getElementById('modImgUrl');
+    if (urlInput) urlInput.addEventListener('input', () => updateModImgPreview(urlInput.value));
+    const sel = document.getElementById('modImgTarget');
+    if (sel) sel.addEventListener('change', () => {
+        const imgs = getModImages();
+        const url = imgs[sel.value] || '';
+        const urlEl = document.getElementById('modImgUrl');
+        if (urlEl) urlEl.value = url;
+        updateModImgPreview(url);
+    });
+});
+
+function applyModImage() {
+    const sel = document.getElementById('modImgTarget');
+    const urlEl = document.getElementById('modImgUrl');
+    const status = document.getElementById('modImgStatus');
+    if (!sel || !urlEl) return;
+    const id = sel.value;
+    const url = urlEl.value.trim();
+    if (!id) { if (status) { status.textContent = '⚠️ Select a mod first.'; status.style.color = '#fbbf24'; } return; }
+    if (!url) { if (status) { status.textContent = '⚠️ Paste a Cloudinary URL first.'; status.style.color = '#fbbf24'; } return; }
+    const imgs = getModImages();
+    imgs[id] = url;
+    saveModImages(imgs);
+    // Apply to SKIN_URLS and CHARACTERS.useImg for characters
+    SKIN_URLS[id] = url;
+    if (CHARACTERS[id]) { CHARACTERS[id].useImg = true; CHARACTERS[id]._modImgUrl = url; }
+    // Update card preview image
+    const card = document.getElementById(id + 'Character');
+    if (card) {
+        const preview = card.querySelector('.character-preview');
+        if (preview) preview.innerHTML = '<img src="' + url + '" style="width:80%;height:80%;object-fit:contain;border-radius:50%;" onerror="this.style.display=\'none\'">';
+    }
+    refreshModImageTargetList();
+    floatMoneyText('🖼️ Image applied to ' + (document.querySelector('#modImgTarget option:checked')?.textContent || id) + '!');
+    if (status) { status.textContent = '✅ Image applied!'; status.style.color = '#34d399'; }
+}
+
+function removeModImage() {
+    const sel = document.getElementById('modImgTarget');
+    const urlEl = document.getElementById('modImgUrl');
+    const status = document.getElementById('modImgStatus');
+    if (!sel) return;
+    const id = sel.value;
+    if (!id) return;
+    const imgs = getModImages();
+    delete imgs[id];
+    saveModImages(imgs);
+    delete SKIN_URLS[id];
+    if (CHARACTERS[id]) { CHARACTERS[id].useImg = false; delete CHARACTERS[id]._modImgUrl; }
+    if (urlEl) urlEl.value = '';
+    updateModImgPreview('');
+    refreshModImageTargetList();
+    floatMoneyText('🗑️ Image removed.');
+    if (status) { status.textContent = '🗑️ Image removed.'; status.style.color = '#f87171'; }
+}
+
+// Restore mod images on load and after mods are applied
+function restoreModImages() {
+    const imgs = getModImages();
+    Object.entries(imgs).forEach(([id, url]) => {
+        SKIN_URLS[id] = url;
+        if (CHARACTERS[id]) { CHARACTERS[id].useImg = true; CHARACTERS[id]._modImgUrl = url; }
+        // For enemies, store on mod object so spawnModEnemy can use it
+        const mod = _installedMods.find(m => m.id === id);
+        if (mod) mod._imgUrl = url;
+    });
+}
+// ===== END MOD IMAGE SYSTEM =====
 
 function getModEnemiesForPool() {
     return _installedMods.filter(m => m.enabled && m.isCustomMod && m.type === 'enemy' && currentRound >= (m.round || 1)).map(m => m.id);
@@ -15833,6 +16046,9 @@ function spawnModEnemy(id) {
     e.name = mod.name;
     e._isModEnemy = true;
     e._modId = mod.id;
+    // Apply custom image if one has been set
+    const _modImgs = getModImages();
+    if (_modImgs[mod.id]) { e._imgUrl = _modImgs[mod.id]; e._img = new Image(); e._img.src = _modImgs[mod.id]; }
     e._modAbilityCode = mod.abilityCode || null;
     e._modAbilityCooldown = 0;
     e._modAbilityInterval = Math.round((mod.abilityCooldownSeconds || 4) * 60);
@@ -15885,6 +16101,7 @@ function tickModEnemies(dt) {
 
 // Apply mods on load
 applyActiveMods();
+restoreModImages();
 // ===================== END MODS SYSTEM =====================
 
 function openCredits() {
