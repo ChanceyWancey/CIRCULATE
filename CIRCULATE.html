@@ -1757,6 +1757,216 @@
                         </div>
                     </div>
 
+                    <!-- ════════════════════════════════════════════════ -->
+                    <!-- 🔀 R-KEY MODE SWITCHING                          -->
+                    <!-- ════════════════════════════════════════════════ -->
+                    <div style="background:rgba(6,182,212,0.07);border:1.5px solid rgba(6,182,212,0.3);border-radius:10px;padding:14px;margin-bottom:10px;">
+                        <div style="font-size:11px;font-weight:bold;color:#67e8f9;margin-bottom:10px;letter-spacing:1px;">🔀 R-KEY MODES &amp; STANCE SWITCHING</div>
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                            <div>
+                                <label style="font-size:11px;color:rgba(255,255,255,0.5);display:block;margin-bottom:4px;">R-key behavior</label>
+                                <select id="cq_rmode" onchange="refreshModPrompt()" style="width:100%;background:#0d1117;border:1px solid rgba(255,255,255,0.15);color:#e2e8f0;border-radius:6px;padding:8px 10px;font-size:12px;font-family:inherit;outline:none;box-sizing:border-box;">
+                                    <option value="">Standard ability (no mode switch)</option>
+                                    <option value="tap R to toggle between two modes instantly — costs mana each toggle">🔄 Tap R = Toggle stance (costs mana)</option>
+                                    <option value="tap R to freely toggle between two modes — no mana cost — use abilityCost 0">🔄 Tap R = Free toggle (no cost)</option>
+                                    <option value="hold R for 1 full second to switch to powered mode — passiveCode detects keys['r'] held for 60 frames — show a charge bar">⏱️ Hold R (1s) = Switch mode</option>
+                                    <option value="hold R for 2 full seconds to awaken — passiveCode detects keys['r'] held for 120 frames — show a charge bar">⏱️ Hold R (2s) = Awakened form</option>
+                                    <option value="hold R for 3 full seconds to transform — passiveCode detects keys['r'] held for 180 frames">⏱️ Hold R (3s) = Full transform</option>
+                                    <option value="hold R for 5 full seconds to trigger ultimate — passiveCode detects keys['r'] held for 300 frames — show a dramatic charge bar">⏱️ Hold R (5s) = Ultimate</option>
+                                    <option value="hold R for 7 full seconds to trigger final form — passiveCode detects keys['r'] held for 420 frames — require wave 10+">⏱️ Hold R (7s) = Final form (wave req)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="font-size:11px;color:rgba(255,255,255,0.5);display:block;margin-bottom:4px;">Mode A name (default / first stance)</label>
+                                <input id="cq_mode_a" type="text" placeholder='e.g. "Storm Mode", "Ice Form", "Grounded"' oninput="refreshModPrompt()"
+                                    style="width:100%;background:#0d1117;border:1px solid rgba(255,255,255,0.15);color:#e2e8f0;border-radius:6px;padding:8px 10px;font-size:12px;font-family:inherit;outline:none;box-sizing:border-box;">
+                            </div>
+                        </div>
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px;">
+                            <div>
+                                <label style="font-size:11px;color:rgba(255,255,255,0.5);display:block;margin-bottom:4px;">Mode B name (powered / alt stance)</label>
+                                <input id="cq_mode_b" type="text" placeholder='e.g. "Blaze Mode", "Awakened", "Berserk"' oninput="refreshModPrompt()"
+                                    style="width:100%;background:#0d1117;border:1px solid rgba(255,255,255,0.15);color:#e2e8f0;border-radius:6px;padding:8px 10px;font-size:12px;font-family:inherit;outline:none;box-sizing:border-box;">
+                            </div>
+                            <div>
+                                <label style="font-size:11px;color:rgba(255,255,255,0.5);display:block;margin-bottom:4px;">Mode B duration (0 = permanent toggle)</label>
+                                <select id="cq_mode_duration" onchange="refreshModPrompt()" style="width:100%;background:#0d1117;border:1px solid rgba(255,255,255,0.15);color:#e2e8f0;border-radius:6px;padding:8px 10px;font-size:12px;font-family:inherit;outline:none;box-sizing:border-box;">
+                                    <option value="permanent — stays until switched back">Permanent toggle (stays until R again)</option>
+                                    <option value="5 seconds then reverts to Mode A">5 seconds</option>
+                                    <option value="10 seconds then reverts to Mode A">10 seconds</option>
+                                    <option value="15 seconds then reverts to Mode A">15 seconds</option>
+                                    <option value="20 seconds then reverts to Mode A">20 seconds</option>
+                                    <option value="30 seconds then reverts to Mode A">30 seconds</option>
+                                    <option value="45 seconds then reverts to Mode A">45 seconds</option>
+                                    <option value="60 seconds then reverts to Mode A">60 seconds</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div style="margin-top:10px;">
+                            <label style="font-size:11px;color:rgba(255,255,255,0.5);display:block;margin-bottom:4px;">What changes between modes? <span style="color:rgba(255,255,255,0.25);">(stats, behavior, fire pattern, visuals)</span></label>
+                            <textarea id="cq_mode_desc" rows="2" placeholder='e.g. "Mode A: single precise shots, high damage, slow fire. Mode B: rapid shotgun spray, low damage, extreme speed" OR "Normal: healer, regen focus. Awakened: 3x DMG, no healing, burn trail, red aura"' oninput="refreshModPrompt()"
+                                style="width:100%;background:#0d1117;border:1px solid rgba(255,255,255,0.15);color:#e2e8f0;border-radius:6px;padding:8px 10px;font-size:12px;font-family:inherit;outline:none;resize:vertical;box-sizing:border-box;"></textarea>
+                        </div>
+                    </div>
+
+                    <!-- ════════════════════════════════════════════════ -->
+                    <!-- ⚡ TRANSFORMATION MECHANICS                      -->
+                    <!-- ════════════════════════════════════════════════ -->
+                    <div style="background:rgba(251,191,36,0.07);border:1.5px solid rgba(251,191,36,0.25);border-radius:10px;padding:14px;margin-bottom:10px;">
+                        <div style="font-size:11px;font-weight:bold;color:#fde047;margin-bottom:10px;letter-spacing:1px;">⚡ TRANSFORMATION MECHANICS</div>
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                            <div>
+                                <label style="font-size:11px;color:rgba(255,255,255,0.5);display:block;margin-bottom:4px;">Auto-transform trigger</label>
+                                <select id="cq_transform_trigger" onchange="refreshModPrompt()" style="width:100%;background:#0d1117;border:1px solid rgba(255,255,255,0.15);color:#e2e8f0;border-radius:6px;padding:8px 10px;font-size:12px;font-family:inherit;outline:none;box-sizing:border-box;">
+                                    <option value="">No auto-transformation</option>
+                                    <option value="permanently transforms when HP drops below 30%">💀 HP drops below 30%</option>
+                                    <option value="permanently transforms when HP drops below 50%">❤️ HP drops below 50%</option>
+                                    <option value="transforms at 10 total kills in the run">🔟 10 kills reached</option>
+                                    <option value="transforms at 25 total kills in the run">⚡ 25 kills reached</option>
+                                    <option value="transforms at 50 total kills in the run">🔥 50 kills reached</option>
+                                    <option value="transforms at 100 total kills in the run">💯 100 kills reached</option>
+                                    <option value="transforms when entering wave 5">🌊 Wave 5 begins</option>
+                                    <option value="transforms when entering wave 10">🌊 Wave 10 begins</option>
+                                    <option value="transforms when entering wave 20">🌊 Wave 20 begins</option>
+                                    <option value="transforms after using ability 3 times">✨ After 3 ability uses</option>
+                                    <option value="transforms after using ability 5 times">✨ After 5 ability uses</option>
+                                    <option value="transforms after using ability 10 times">✨ After 10 ability uses</option>
+                                    <option value="transforms when mana first reaches max">💧 Mana first maxes out</option>
+                                    <option value="oscillates between two forms every 20 seconds automatically">🔄 Cycle every 20s auto</option>
+                                    <option value="oscillates between two forms every 30 seconds automatically">🔄 Cycle every 30s auto</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="font-size:11px;color:rgba(255,255,255,0.5);display:block;margin-bottom:4px;">Transform type</label>
+                                <select id="cq_transform_perm" onchange="refreshModPrompt()" style="width:100%;background:#0d1117;border:1px solid rgba(255,255,255,0.15);color:#e2e8f0;border-radius:6px;padding:8px 10px;font-size:12px;font-family:inherit;outline:none;box-sizing:border-box;">
+                                    <option value="permanent — cannot revert once triggered">🔒 Permanent (no going back)</option>
+                                    <option value="temporary for 10 seconds then reverts">⏱️ Temporary — 10s</option>
+                                    <option value="temporary for 20 seconds then reverts">⏱️ Temporary — 20s</option>
+                                    <option value="temporary for 30 seconds then reverts">⏱️ Temporary — 30s</option>
+                                    <option value="temporary for 45 seconds then reverts">⏱️ Temporary — 45s</option>
+                                    <option value="temporary for 60 seconds then reverts">⏱️ Temporary — 60s</option>
+                                    <option value="repeating — reverts and can re-trigger on next threshold">🔄 Repeating cycle</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div style="margin-top:10px;">
+                            <label style="font-size:11px;color:rgba(255,255,255,0.5);display:block;margin-bottom:4px;">What happens during transformation? <span style="color:rgba(255,255,255,0.25);">(stats, appearance, new powers)</span></label>
+                            <input id="cq_transform_desc" type="text" placeholder='e.g. "doubles in size, 3x damage, immune for 3s, leaves a fire trail, shoots in all directions" OR "splits into 3 ghost copies that all fire"' oninput="refreshModPrompt()"
+                                style="width:100%;background:#0d1117;border:1px solid rgba(255,255,255,0.15);color:#e2e8f0;border-radius:6px;padding:8px 10px;font-size:12px;font-family:inherit;outline:none;box-sizing:border-box;">
+                        </div>
+                    </div>
+
+                    <!-- ════════════════════════════════════════════════ -->
+                    <!-- 🌀 ADVANCED MECHANICS                            -->
+                    <!-- ════════════════════════════════════════════════ -->
+                    <div style="background:rgba(168,85,247,0.07);border:1.5px solid rgba(168,85,247,0.25);border-radius:10px;padding:14px;margin-bottom:10px;">
+                        <div style="font-size:11px;font-weight:bold;color:#d8b4fe;margin-bottom:10px;letter-spacing:1px;">🌀 ADVANCED MECHANICS</div>
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                            <div>
+                                <label style="font-size:11px;color:rgba(255,255,255,0.5);display:block;margin-bottom:4px;">Ultimate meter</label>
+                                <select id="cq_ultimate" onchange="refreshModPrompt()" style="width:100%;background:#0d1117;border:1px solid rgba(255,255,255,0.15);color:#e2e8f0;border-radius:6px;padding:8px 10px;font-size:12px;font-family:inherit;outline:none;box-sizing:border-box;">
+                                    <option value="">No separate ultimate meter</option>
+                                    <option value="kill-charged ultimate: +10% per kill, at 100% automatically fires ultimate then resets">💀 Kill-charged (10% per kill)</option>
+                                    <option value="damage-charged ultimate: fills when taking damage, at 100% fires ultimate then resets">🩸 Damage-charged (fill on hits taken)</option>
+                                    <option value="time-charged ultimate: fills over 20s automatically, fires at 100%">⏱️ Time-charged (20s auto fill)</option>
+                                    <option value="hit-combo charged: fills by hitting enemies 5% per hit, resets on taking damage, fires at 100%">⚔️ Combo-charged (resets on hit taken)</option>
+                                    <option value="mana-ultimate: press R when mana is exactly full for a powered mega ability instead of normal ability">💧 Mana-ultimate (R at full mana = mega)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="font-size:11px;color:rgba(255,255,255,0.5);display:block;margin-bottom:4px;">Auto-burst / periodic passive attack</label>
+                                <select id="cq_autoburst" onchange="refreshModPrompt()" style="width:100%;background:#0d1117;border:1px solid rgba(255,255,255,0.15);color:#e2e8f0;border-radius:6px;padding:8px 10px;font-size:12px;font-family:inherit;outline:none;box-sizing:border-box;">
+                                    <option value="">No auto-burst</option>
+                                    <option value="passiveCode automatically fires a 360° ring of 12 bullets every 3 seconds">🌀 360° ring every 3s</option>
+                                    <option value="passiveCode automatically fires a 360° ring of 16 bullets every 5 seconds">🌀 360° ring every 5s</option>
+                                    <option value="passiveCode automatically fires a forward laser in aimed direction every 4 seconds">🔴 Auto-laser every 4s</option>
+                                    <option value="passiveCode drops a large AOE explosion at player position every 6 seconds">💥 AoE explosion every 6s</option>
+                                    <option value="passiveCode emits a freeze pulse slowing all enemies every 5 seconds">❄️ Freeze pulse every 5s</option>
+                                    <option value="passiveCode launches 4 homing missiles every 4 seconds">🚀 4 homing missiles every 4s</option>
+                                    <option value="passiveCode fires a spiral of 3 bullets in a rotating pattern continuously">🌀 Continuous spiral shooter</option>
+                                    <option value="passiveCode unleashes a shotgun burst of 8 pellets automatically every 2 seconds">💥 Shotgun burst every 2s</option>
+                                    <option value="passiveCode fires twin parallel piercing beams automatically every 3 seconds">🔴🔴 Twin beams every 3s</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px;">
+                            <div>
+                                <label style="font-size:11px;color:rgba(255,255,255,0.5);display:block;margin-bottom:4px;">Passive aura effect</label>
+                                <select id="cq_aura" onchange="refreshModPrompt()" style="width:100%;background:#0d1117;border:1px solid rgba(255,255,255,0.15);color:#e2e8f0;border-radius:6px;padding:8px 10px;font-size:12px;font-family:inherit;outline:none;box-sizing:border-box;">
+                                    <option value="">No aura</option>
+                                    <option value="burn aura — passiveCode damages all enemies within 80px with fire every second">🔥 Burn aura (80px radius)</option>
+                                    <option value="freeze aura — passiveCode constantly applies freeze frames to enemies within 100px">❄️ Freeze aura (slow nearby)</option>
+                                    <option value="regen aura — passiveCode regenerates 3 HP per second automatically">💚 Regen aura (+3 HP/s)</option>
+                                    <option value="lightning aura — passiveCode randomly zaps the nearest enemy every 1 second for electric damage">⚡ Lightning aura (random zaps)</option>
+                                    <option value="void aura — passiveCode damages all enemies on screen for void damage each second">🌑 Void aura (all-screen DoT)</option>
+                                    <option value="shield aura — passiveCode regenerates energyShield by 5 per second up to a cap">🛡️ Shield regen aura</option>
+                                    <option value="death aura — passiveCode deals heavy damage to all enemies within 50px each frame (melee god)">💀 Death aura (melee god)</option>
+                                    <option value="speed aura — passiveCode maintains elevated player speed permanently (does not stack with other speed)">⚡ Speed aura (permanently faster)</option>
+                                    <option value="gravity aura — passiveCode constantly pulls all enemies toward the player">🌍 Gravity aura (pull all enemies)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="font-size:11px;color:rgba(255,255,255,0.5);display:block;margin-bottom:4px;">Kill streak bonus</label>
+                                <select id="cq_killstreak" onchange="refreshModPrompt()" style="width:100%;background:#0d1117;border:1px solid rgba(255,255,255,0.15);color:#e2e8f0;border-radius:6px;padding:8px 10px;font-size:12px;font-family:inherit;outline:none;box-sizing:border-box;">
+                                    <option value="">No kill streak system</option>
+                                    <option value="every 5 kills: automatically fire a free 360° ring shot">🌀 Ring shot every 5 kills</option>
+                                    <option value="every 10 kills: gain +1 permanent damage (stacks forever)">📈 +1 perm DMG every 10 kills</option>
+                                    <option value="every 5 kills: gain a 3-second speed burst">⚡ Speed burst every 5 kills</option>
+                                    <option value="every 10 kills: restore 25 HP">💚 Heal every 10 kills</option>
+                                    <option value="every 5 kills: release a shockwave from player hitting all nearby">💢 Shockwave every 5 kills</option>
+                                    <option value="every 3 kills: spawn a ghost ally that fights for 8 seconds">👻 Summon ally every 3 kills</option>
+                                    <option value="every kill builds a damage multiplier (max 5x) that resets when player takes damage">📊 Combo multiplier (resets on hit)</option>
+                                    <option value="every 10 kills: drop a gold bomb giving +30 gold">💰 Gold bomb every 10 kills</option>
+                                    <option value="every kill: permanently grow slightly larger with +0.3 damage (visual growth)">📏 Grow + gain DMG each kill</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div style="margin-top:10px;">
+                            <label style="font-size:11px;color:rgba(255,255,255,0.5);display:block;margin-bottom:4px;">Ultimate ability description <span style="color:rgba(255,255,255,0.25);">(if using ultimate meter — what fires at 100%?)</span></label>
+                            <input id="cq_ultimate_desc" type="text" placeholder='e.g. "24 homing missiles + 3s invulnerability + screen-wide lightning" OR "freeze all enemies + 5x damage burst for 8 seconds"' oninput="refreshModPrompt()"
+                                style="width:100%;background:#0d1117;border:1px solid rgba(255,255,255,0.15);color:#e2e8f0;border-radius:6px;padding:8px 10px;font-size:12px;font-family:inherit;outline:none;box-sizing:border-box;">
+                        </div>
+                    </div>
+
+                    <!-- ════════════════════════════════════════════════ -->
+                    <!-- 📈 SCALING & PROGRESSION                         -->
+                    <!-- ════════════════════════════════════════════════ -->
+                    <div style="background:rgba(34,197,94,0.06);border:1.5px solid rgba(34,197,94,0.2);border-radius:10px;padding:14px;margin-bottom:10px;">
+                        <div style="font-size:11px;font-weight:bold;color:#86efac;margin-bottom:10px;letter-spacing:1px;">📈 SCALING &amp; PROGRESSION</div>
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                            <div>
+                                <label style="font-size:11px;color:rgba(255,255,255,0.5);display:block;margin-bottom:4px;">Wave scaling behavior</label>
+                                <select id="cq_wavescale" onchange="refreshModPrompt()" style="width:100%;background:#0d1117;border:1px solid rgba(255,255,255,0.15);color:#e2e8f0;border-radius:6px;padding:8px 10px;font-size:12px;font-family:inherit;outline:none;box-sizing:border-box;">
+                                    <option value="">No special wave scaling</option>
+                                    <option value="every wave: +2 permanent damage, passiveCode checks currentRound">📈 +2 DMG per wave</option>
+                                    <option value="every wave: +0.2 permanent speed, passiveCode checks currentRound">⚡ +0.2 speed per wave</option>
+                                    <option value="every 5 waves: unlock a new passive bonus">🔓 New passive every 5 waves</option>
+                                    <option value="every wave: fire rate increases (shootCooldown decreases by 1 each wave, min 3)">🔫 Fire rate increases each wave</option>
+                                    <option value="every wave: heal to full HP between waves">💚 Full heal between waves</option>
+                                    <option value="every 10 waves: dramatically power up — huge stat jump">💥 Power surge every 10 waves</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="font-size:11px;color:rgba(255,255,255,0.5);display:block;margin-bottom:4px;">Minion / ally behavior <span style="color:rgba(255,255,255,0.25);">(if summoner)</span></label>
+                                <select id="cq_minion" onchange="refreshModPrompt()" style="width:100%;background:#0d1117;border:1px solid rgba(255,255,255,0.15);color:#e2e8f0;border-radius:6px;padding:8px 10px;font-size:12px;font-family:inherit;outline:none;box-sizing:border-box;">
+                                    <option value="">No special minion behavior</option>
+                                    <option value="minions target and chase the nearest enemy autonomously">🎯 Auto-targeting chasers</option>
+                                    <option value="minions orbit the player and fire outward at enemies">🪐 Orbital shooters</option>
+                                    <option value="minions position themselves between player and nearest enemy">🛡️ Bodyguard formation</option>
+                                    <option value="minions are ghost copies of the player that mirror movements">👥 Mirror clones</option>
+                                    <option value="minions explode when touching enemies for massive AOE">💥 Kamikaze bombers</option>
+                                    <option value="minions leech HP from enemies and send it to the player">🩸 Lifesteal drones</option>
+                                    <option value="minions stack up: each wave adds 1 more permanent minion (max 5)">📊 Stack minions per wave</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div style="margin-top:10px;">
+                            <label style="font-size:11px;color:rgba(255,255,255,0.5);display:block;margin-bottom:4px;">Unique win condition or gimmick <span style="color:rgba(255,255,255,0.25);">(weird one-of-a-kind constraint)</span></label>
+                            <input id="cq_gimmick" type="text" placeholder='e.g. "HP is always 1 but deals 10x damage", "can only fire while stationary", "bullets get stronger the further they travel before hitting", "gains 1 extra life per wave survived"' oninput="refreshModPrompt()"
+                                style="width:100%;background:#0d1117;border:1px solid rgba(255,255,255,0.15);color:#e2e8f0;border-radius:6px;padding:8px 10px;font-size:12px;font-family:inherit;outline:none;box-sizing:border-box;">
+                        </div>
+                    </div>
+
                     <div style="margin-bottom:10px;">
                         <label style="font-size:11px;color:rgba(255,255,255,0.5);display:block;margin-bottom:4px;">9. Any other details? <span style="color:rgba(255,255,255,0.25);">(story, backstory, special mechanics, win conditions, etc.)</span></label>
                         <textarea id="cq_other" rows="3" placeholder='e.g. "inspired by a samurai, transforms at low HP, based on Zoro from One Piece, gets progressively faster each wave, signature yell when ability fires"' oninput="refreshModPrompt()"
@@ -2260,15 +2470,51 @@
 
         <!-- INSTALL TAB -->
         <div id="modsTabInstallContent" style="display:none;">
+
+            <!-- INSTALL NEW MOD -->
             <div style="background:rgba(5,150,105,0.07);border:1px solid rgba(5,150,105,0.25);border-radius:10px;padding:18px 20px;margin-bottom:14px;">
-                <div style="font-size:13px;font-weight:bold;color:#34d399;margin-bottom:8px;">Paste mod code here</div>
-                <div style="font-size:11px;color:rgba(255,255,255,0.35);margin-bottom:12px;">Paste the JSON code you got from the AI (or the Create tab) to install it as a mod.</div>
-                <textarea id="modInstallInput" placeholder='Paste mod JSON code here...' style="width:100%;min-height:160px;background:#0d1117;border:1.5px solid rgba(5,150,105,0.35);color:#86efac;border-radius:8px;padding:12px;font-size:11px;font-family:monospace;resize:vertical;outline:none;box-sizing:border-box;"></textarea>
-                <div style="display:flex;gap:8px;margin-top:12px;align-items:center;">
-                    <button onclick="installModFromInput()" style="background:#059669;color:white;border:none;border-bottom:3px solid #065f46;padding:10px 24px;border-radius:7px;font-size:13px;font-weight:bold;font-family:inherit;cursor:pointer;">📦 Install Mod</button>
-                    <div id="modInstallStatus" style="font-size:12px;color:rgba(255,255,255,0.4);"></div>
+                <div style="font-size:13px;font-weight:bold;color:#34d399;margin-bottom:4px;">📦 Install a new mod</div>
+                <div style="font-size:11px;color:rgba(255,255,255,0.35);margin-bottom:12px;">Paste the JSON you got from the AI (or the Create tab) to install it.</div>
+                <textarea id="modInstallInput" placeholder='Paste mod JSON code here...' style="width:100%;min-height:140px;background:#0d1117;border:1.5px solid rgba(5,150,105,0.35);color:#86efac;border-radius:8px;padding:12px;font-size:11px;font-family:monospace;resize:vertical;outline:none;box-sizing:border-box;" oninput="modInstallPreviewCheck()"></textarea>
+                <div style="display:flex;gap:8px;margin-top:10px;align-items:center;flex-wrap:wrap;">
+                    <button onclick="installModFromInput()" style="background:#059669;color:white;border:none;border-bottom:3px solid #065f46;padding:10px 22px;border-radius:7px;font-size:13px;font-weight:bold;font-family:inherit;cursor:pointer;">📦 Install Mod</button>
+                    <div id="modInstallStatus" style="font-size:12px;color:rgba(255,255,255,0.4);flex:1;"></div>
                 </div>
             </div>
+
+            <!-- MIGRATE / UPDATE OLD MOD -->
+            <div style="background:rgba(251,191,36,0.06);border:1.5px solid rgba(251,191,36,0.3);border-radius:10px;padding:18px 20px;">
+                <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">
+                    <span style="font-size:18px;">🔄</span>
+                    <div>
+                        <div style="font-size:13px;font-weight:bold;color:#fbbf24;">Update / Migrate Old Character Mod</div>
+                        <div style="font-size:11px;color:rgba(255,255,255,0.35);margin-top:2px;">Have a character mod made in an older version? Paste it below — the game will auto-fill missing fields and re-import it.</div>
+                    </div>
+                </div>
+                <textarea id="modMigrateInput" placeholder='Paste old character mod JSON here...' style="width:100%;min-height:120px;background:#0d1117;border:1.5px solid rgba(251,191,36,0.3);color:#fde68a;border-radius:8px;padding:12px;font-size:11px;font-family:monospace;resize:vertical;outline:none;box-sizing:border-box;margin-top:10px;" oninput="modMigratePreview()"></textarea>
+
+                <!-- Migration diff preview -->
+                <div id="modMigrateDiff" style="display:none;margin-top:10px;background:rgba(0,0,0,0.4);border:1px solid rgba(251,191,36,0.2);border-radius:8px;padding:12px;">
+                    <div style="font-size:11px;font-weight:bold;color:#fbbf24;margin-bottom:8px;">🔍 Migration Preview — Fields that will be added / updated:</div>
+                    <div id="modMigrateDiffList" style="font-size:11px;font-family:monospace;line-height:1.9;max-height:200px;overflow-y:auto;"></div>
+                    <div id="modMigrateNewJson" style="display:none;"></div>
+                </div>
+                <div id="modMigrateStatus" style="font-size:12px;color:rgba(255,255,255,0.4);margin-top:6px;min-height:18px;"></div>
+                <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;">
+                    <button onclick="runModMigration()" id="modMigrateBtn" style="display:none;background:#d97706;color:white;border:none;border-bottom:3px solid #92400e;padding:10px 22px;border-radius:7px;font-size:13px;font-weight:bold;font-family:inherit;cursor:pointer;">🔄 Migrate &amp; Import</button>
+                    <button onclick="runModMigrationAndView()" id="modMigrateViewBtn" style="display:none;background:rgba(251,191,36,0.12);color:#fbbf24;border:1px solid rgba(251,191,36,0.35);padding:10px 18px;border-radius:7px;font-size:12px;font-family:inherit;cursor:pointer;">👁 Preview Migrated JSON</button>
+                </div>
+                <!-- Migrated JSON output -->
+                <div id="modMigrateJsonOut" style="display:none;margin-top:10px;">
+                    <div style="font-size:10px;color:rgba(255,255,255,0.3);margin-bottom:4px;font-family:monospace;">📄 Migrated JSON (ready to install):</div>
+                    <textarea id="modMigrateJsonText" readonly style="width:100%;min-height:180px;background:#0d1117;border:1.5px solid rgba(251,191,36,0.35);color:#fde68a;border-radius:8px;padding:12px;font-size:10px;font-family:monospace;resize:vertical;outline:none;box-sizing:border-box;"></textarea>
+                    <div style="display:flex;gap:8px;margin-top:8px;">
+                        <button onclick="installMigratedMod()" style="background:#059669;color:white;border:none;border-bottom:3px solid #065f46;padding:9px 20px;border-radius:7px;font-size:12px;font-weight:bold;font-family:inherit;cursor:pointer;">📦 Install Migrated Mod</button>
+                        <button onclick="copyMigratedJson()" style="background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.5);border:1px solid rgba(255,255,255,0.15);padding:9px 14px;border-radius:7px;font-size:12px;font-family:inherit;cursor:pointer;">📋 Copy</button>
+                    </div>
+                </div>
+            </div>
+
         </div>
 
         <!-- MANAGE TAB -->
@@ -2291,18 +2537,28 @@
                     <div style="font-size:11px;color:rgba(255,255,255,0.65);padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.05);">🔑 Add extra key bindings (Z, X, C, etc.)</div>
                     <div style="font-size:11px;color:rgba(255,255,255,0.65);padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.05);">✨ Always-on passive effects (auras, lifesteal, regen)</div>
                     <div style="font-size:11px;color:rgba(255,255,255,0.65);padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.05);">🔫 Fire projectiles in any direction or pattern</div>
+                    <div style="font-size:11px;color:rgba(255,255,255,0.65);padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.05);">🔀 Stance switcher: tap R to toggle two completely different modes</div>
+                    <div style="font-size:11px;color:rgba(255,255,255,0.65);padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.05);">⏱️ Hold-R transformations: charge 1–7s to awaken a final form</div>
+                    <div style="font-size:11px;color:rgba(255,255,255,0.65);padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.05);">💥 Ultimate meter: kill/damage/time-charged mega ability at 100%</div>
+                    <div style="font-size:11px;color:rgba(255,255,255,0.65);padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.05);">🌀 Auto-burst: 360° rings, auto-laser, meteor rain every N seconds</div>
+                    <div style="font-size:11px;color:rgba(255,255,255,0.65);padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.05);">🔥 Passive aura: burn, freeze, lightning, void, death field, gravity</div>
+                    <div style="font-size:11px;color:rgba(255,255,255,0.65);padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.05);">🏆 Kill streak bonuses: power spikes, ring shots, combo multipliers</div>
+                    <div style="font-size:11px;color:rgba(255,255,255,0.65);padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.05);">⚡ Auto-transform triggers: low HP, kill count, wave milestone</div>
+                    <div style="font-size:11px;color:rgba(255,255,255,0.65);padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.05);">📈 Wave scaling: get permanently stronger each wave automatically</div>
+                    <div style="font-size:11px;color:rgba(255,255,255,0.65);padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.05);">🪐 Orbital summons: shield orbs that spin and damage enemies</div>
+                    <div style="font-size:11px;color:rgba(255,255,255,0.65);padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.05);">⚡ Chain lightning that jumps between 4+ enemies</div>
                     <div style="font-size:11px;color:rgba(255,255,255,0.65);padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.05);">❄️ Freeze or ignite enemies</div>
                     <div style="font-size:11px;color:rgba(255,255,255,0.65);padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.05);">💥 Deal AoE damage in a radius around the player</div>
                     <div style="font-size:11px;color:rgba(255,255,255,0.65);padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.05);">💚 Heal the player or grant i-frames</div>
-                    <div style="font-size:11px;color:rgba(255,255,255,0.65);padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.05);">✨ Teleport the player (blink to cursor, random warp)</div>
+                    <div style="font-size:11px;color:rgba(255,255,255,0.65);padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.05);">✨ Teleport the player (blink to cursor, grapple, random warp)</div>
+                    <div style="font-size:11px;color:rgba(255,255,255,0.65);padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.05);">🌑 Black hole singularity: pull all enemies into a gravity well</div>
+                    <div style="font-size:11px;color:rgba(255,255,255,0.65);padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.05);">⏱️ Time slow: freeze enemy movement for seconds at a time</div>
+                    <div style="font-size:11px;color:rgba(255,255,255,0.65);padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.05);">📊 Permanent stacking: grow stronger every kill, forever</div>
+                    <div style="font-size:11px;color:rgba(255,255,255,0.65);padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.05);">💀 HP-cost overload: sacrifice HP for insane damage bursts</div>
                     <div style="font-size:11px;color:rgba(255,255,255,0.65);padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.05);">🎆 Spawn particle effects with custom colours</div>
-                    <div style="font-size:11px;color:rgba(255,255,255,0.65);padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.05);">💨 Temporarily boost speed or damage</div>
-                    <div style="font-size:11px;color:rgba(255,255,255,0.65);padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.05);">🔔 Show floating notifications on screen</div>
-                    <div style="font-size:11px;color:rgba(255,255,255,0.65);padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.05);">🔊 Play simple beep/tone sound effects</div>
-                    <div style="font-size:11px;color:rgba(255,255,255,0.65);padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.05);">📊 Use any existing stat upgrade from level-ups</div>
-                    <div style="font-size:11px;color:rgba(255,255,255,0.65);padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.05);">🎲 Scale effects based on wave number or player stats</div>
-                    <div style="font-size:11px;color:rgba(255,255,255,0.65);padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.05);">🛒 Add custom wave shop abilities & passives</div>
-                    <div style="font-size:11px;color:rgba(255,255,255,0.65);padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.05);">⬆️ Add custom level-up upgrades with any rarity</div>
+                    <div style="font-size:11px;color:rgba(255,255,255,0.65);padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.05);">🔔 Show floating notifications &amp; HUD bars on screen</div>
+                    <div style="font-size:11px;color:rgba(255,255,255,0.65);padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.05);">🛒 Add custom wave shop abilities &amp; passives</div>
+                    <div style="font-size:11px;color:rgba(255,255,255,0.65);padding:4px 0;">⬆️ Add custom level-up upgrades with any rarity</div>
                 </div>
             </div>
 
@@ -15916,6 +16172,46 @@ let _creditsStopTimer = null;
 // ===================== MODS SYSTEM =====================
 let _installedMods = JSON.parse(localStorage.getItem('circulateMods') || '[]');
 
+// ── Silent auto-migration: fix any stored mods that are missing critical fields ──
+(function autoMigrateStoredMods() {
+    const s = v => (v == null ? '' : typeof v === 'string' ? v : String(v));
+    let changed = false;
+    _installedMods = _installedMods.map(mod => {
+        if (!mod.isCustomMod || s(mod.type) !== 'character') return mod;
+        let patched = { ...mod };
+        let patching = false;
+        if (!patched.isCustomMod)     { patched.isCustomMod = true; patching = true; }
+        if (!patched.type)            { patched.type = 'character'; patching = true; }
+        if (!s(patched.icon).trim())  { patched.icon = '🧩'; patching = true; }
+        if (!s(patched.projColor).trim()) { patched.projColor = s(patched.color) || '#60a5fa'; patching = true; }
+        if (patched.abilityCost === undefined || patched.abilityCost === null) { patched.abilityCost = 30; patching = true; }
+        if (!patched.cdMax && patched.cdMax !== 0) { patched.cdMax = 480; patching = true; }
+        if (patched.mana === undefined || patched.mana === null) { patched.mana = 100; patching = true; }
+        if (patched.shootCooldown === undefined || patched.shootCooldown === null) { patched.shootCooldown = 20; patching = true; }
+        if (patched.passiveCode === undefined || patched.passiveCode === null) { patched.passiveCode = ''; patching = true; }
+        if (patched.abilityCode === undefined || patched.abilityCode === null) { patched.abilityCode = ''; patching = true; }
+        if (!s(patched.desc).trim()) { patched.desc = s(patched.name || 'Custom') + ' — a modded character.'; patching = true; }
+        if (!s(patched.infoAbilities).trim()) {
+            const parts = [];
+            if (patched.passiveDesc) parts.push('PASSIVE: ' + s(patched.passiveDesc));
+            if (patched.abilityDesc) parts.push('[ABILITY]: ' + s(patched.abilityDesc));
+            patched.infoAbilities = parts.join('<br>') || (s(patched.hp || 100) + ' HP • Spd ' + s(patched.speed || 5) + ' • ' + s(patched.damage || 15) + ' DMG');
+            patching = true;
+        }
+        // Rename old 'abilities' → 'infoAbilities'
+        if (patched.abilities && !mod.infoAbilities) {
+            patched.infoAbilities = s(patched.abilities);
+            delete patched.abilities;
+            patching = true;
+        }
+        if (patching) changed = true;
+        return patched;
+    });
+    if (changed) {
+        try { localStorage.setItem('circulateMods', JSON.stringify(_installedMods)); } catch(e) {}
+    }
+})();
+
 function saveModsToStorage() {
     localStorage.setItem('circulateMods', JSON.stringify(_installedMods));
 }
@@ -16314,6 +16610,125 @@ function getModPromptText(type, opts) {
             code: `enemy._shielded=180; // 3s\nfor(let i=0;i<15;i++)particles.push(new Particle(enemy.x+(Math.random()-.5)*40,enemy.y+(Math.random()-.5)*40,'#e2e8f0'));\nfloatMoneyText('🛡️ '+enemy.name+' shielded!');\n// In drawCode, check enemy._shielded>0 and render a ring around enemy`
         });
 
+        // ── R-KEY HOLD DETECTION ──────────────────────────────────────────────
+        if (t.has('hold r', 'hold to charge', 'hold r for', 'hold-r', 'charge bar', 'hold key', 'hold ability', 'powered form', 'awakened form', 'final form')) hits.push({
+            tag: 'HOLD-R CHARGE & TRANSFORM (passiveCode)',
+            hint: 'Detect keys["r"] held for N frames; show charge bar above player; fire transform at 100%:',
+            code: `// Hold-R detection — in passiveCode:\nplayer._modPassive=player._modPassive||{};\nconst _holdMax=180; // 3 seconds at 60fps — adjust as needed\nif(keys&&keys['r']){\n  player._modPassive._holdR=(player._modPassive._holdR||0)+1;\n  const pct=Math.min(player._modPassive._holdR/_holdMax,1);\n  // Draw charge bar — use ctx in drawCode instead if preferred:\n  const bx=player.x-25, by=player.y-player.radius-14;\n  ctx.fillStyle='rgba(0,0,0,0.5)'; ctx.fillRect(bx,by,50,6);\n  ctx.fillStyle='#fbbf24'; ctx.fillRect(bx,by,50*pct,6);\n  if(player._modPassive._holdR>=_holdMax&&!player._modPassive._transformed){\n    player._modPassive._transformed=true;\n    player._modPassive._holdR=0;\n    player.invulnerable=90;\n    // APPLY TRANSFORMATION HERE — modify stats, color, etc.\n    player.damage*=2; player.speed*=1.3;\n    for(let i=0;i<40;i++)particles.push(new Particle(player.x+(Math.random()-.5)*80,player.y+(Math.random()-.5)*80,'#fbbf24'));\n    floatMoneyText('🔥 AWAKENED!'); playSound(660,0.2,'sine');\n  }\n} else {\n  if(!player._modPassive._transformed) player._modPassive._holdR=0;\n}`
+        });
+
+        // ── STANCE / MODE TOGGLE ──────────────────────────────────────────────
+        if (t.has('mode', 'stance', 'toggle', 'switch form', 'switch mode', 'alternate', 'dual form', 'two form', 'mode a', 'mode b')) hits.push({
+            tag: 'STANCE / MODE TOGGLE (passiveCode + abilityCode)',
+            hint: 'Toggle player._modPassive._mode between 0 and 1 in abilityCode; branch behavior in passiveCode:',
+            code: `// abilityCode — toggle stance:\nplayer._modPassive=player._modPassive||{};\nplayer._modPassive._mode=(player._modPassive._mode===1?0:1);\nconst _isB=player._modPassive._mode===1;\nif(_isB){\n  player._modPassive._baseDmg=player._modPassive._baseDmg||player.damage;\n  player._modPassive._baseSpd=player._modPassive._baseSpd||player.speed;\n  player.damage=player._modPassive._baseDmg*2.5; player.speed=player._modPassive._baseSpd*0.7;\n  floatMoneyText('🔥 MODE B — POWERED!'); playSound(550,0.15,'sawtooth');\n} else {\n  player.damage=player._modPassive._baseDmg||player.damage;\n  player.speed=player._modPassive._baseSpd||player.speed;\n  floatMoneyText('❄️ MODE A — BALANCED'); playSound(330,0.1,'sine');\n}\n// passiveCode — branch fire pattern based on mode:\n// if(player._modPassive._mode===1){ /* MODE B fire logic */ } else { /* MODE A fire logic */ }`
+        });
+
+        // ── ULTIMATE METER ────────────────────────────────────────────────────
+        if (t.has('ultimate', 'ultra', 'ult meter', 'final move', 'super move', 'mega ability', 'meter fill', 'special gauge', 'gauge', 'kill charge')) hits.push({
+            tag: 'ULTIMATE METER (passiveCode)',
+            hint: 'Build an ultimate gauge in passiveState._ult; draw a HUD bar; fire ultimate at 100:',
+            code: `// Ultimate meter — in passiveCode:\nplayer._modPassive=player._modPassive||{};\npassiveState._ult=passiveState._ult||0;\n// Kill-charge: detect new kills\nconst _newKU=(player.kills||0)-(player._modPassive._ultLastKills||0);\nif(_newKU>0){ player._modPassive._ultLastKills=player.kills; passiveState._ult=Math.min(100,passiveState._ult+_newKU*10); }\n// Draw HUD bar:\nconst bx2=player.x-30, by2=player.y-player.radius-22;\nctx.fillStyle='rgba(0,0,0,0.5)'; ctx.fillRect(bx2,by2,60,7);\nconst ultColor=passiveState._ult>=100?'#ffd700':'#a855f7';\nctx.fillStyle=ultColor; ctx.fillRect(bx2,by2,60*(passiveState._ult/100),7);\nctx.strokeStyle=passiveState._ult>=100?'#ffd700':'rgba(168,85,247,0.5)'; ctx.lineWidth=1; ctx.strokeRect(bx2,by2,60,7);\nif(passiveState._ult>=100){\n  passiveState._ult=0;\n  // FIRE ULTIMATE HERE:\n  player.invulnerable=180;\n  for(let u=0;u<24;u++){const a=(Math.PI*2/24)*u;const p=new Projectile(player.x,player.y,a,applyPassiveDamageBoost(player.damage*5),'#ffd700',true);p.speed=14;p.piercing=true;projectiles.push(p);}\n  for(let i=0;i<80;i++)particles.push(new Particle(player.x+(Math.random()-.5)*200,player.y+(Math.random()-.5)*200,'#ffd700'));\n  floatMoneyText('💥 ULTIMATE!'); playSound(220,0.3,'sawtooth');\n}`
+        });
+
+        // ── AURA / PASSIVE FIELD DAMAGE ───────────────────────────────────────
+        if (t.has('aura', 'pulse damage', 'passive damage', 'damage aura', 'field damage', 'contact aoe', 'aoe aura', 'burn aura', 'freeze aura', 'death aura', 'lightning aura')) hits.push({
+            tag: 'PASSIVE DAMAGE AURA (passiveCode)',
+            hint: 'Deal damage to all enemies within radius every second using a frame timer:',
+            code: `// Burn aura — in passiveCode:\nplayer._modPassive=player._modPassive||{};\nplayer._modPassive._auraT=((player._modPassive._auraT||0)+1)%60; // fires every second\nif(player._modPassive._auraT===0){\n  const _auraR=80;\n  enemies.forEach(e=>{\n    if(e.alive&&Math.hypot(e.x-player.x,e.y-player.y)<_auraR){\n      damageEnemy(e,applyPassiveDamageBoost(player.damage*0.5),player.x,player.y);\n      e.burning=(e.burning||0)+60; e.burnDmg=player.damage*0.2;\n      for(let i=0;i<2;i++)particles.push(new Particle(e.x,e.y,'#f97316'));\n    }\n  });\n}\n// Draw aura ring (optional — put in drawCode):\n// ctx.beginPath(); ctx.arc(player.x,player.y,80,0,Math.PI*2);\n// ctx.strokeStyle='rgba(249,115,22,0.25)'; ctx.lineWidth=3; ctx.stroke();`
+        });
+
+        // ── KILL STREAK TRACKER ───────────────────────────────────────────────
+        if (t.has('kill streak', 'killstreak', 'every 5 kill', 'every 10 kill', 'per kill stack', 'combo multiplier', 'kill combo', 'kill chain', 'kill bonus', 'stack power', 'grow per kill')) hits.push({
+            tag: 'KILL STREAK / STACKING BONUS (passiveCode)',
+            hint: 'Track player.kills changes each frame; trigger bonus every N kills:',
+            code: `// Kill streak — in passiveCode:\nplayer._modPassive=player._modPassive||{};\nconst _newKS=(player.kills||0)-(player._modPassive._ksLast||0);\nif(_newKS>0){\n  player._modPassive._ksLast=player.kills;\n  player._modPassive._streak=(player._modPassive._streak||0)+_newKS;\n  // Trigger every 5 kills:\n  if(player._modPassive._streak%5===0){\n    player._modPassive._streak=0; // reset after trigger if desired\n    // STREAK REWARD — e.g. 360° ring:\n    for(let i=0;i<12;i++){const a=(Math.PI*2/12)*i;const p=new Projectile(player.x,player.y,a,applyPassiveDamageBoost(player.damage),'#fbbf24',true);p.speed=9;projectiles.push(p);}\n    floatMoneyText('🔥 STREAK x5!'); playSound(550,0.12,'square');\n  }\n}`
+        });
+
+        // ── AUTO-BURST TIMER ──────────────────────────────────────────────────
+        if (t.has('auto burst', 'auto attack', 'auto fire', 'every 3 second', 'every 4 second', 'every 5 second', 'auto ring', 'auto bomb', 'auto laser', 'periodic attack', 'homing every')) hits.push({
+            tag: 'AUTO-BURST PERIODIC ATTACK (passiveCode)',
+            hint: 'Fire an automatic attack every N seconds using a frame timer:',
+            code: `// Auto-burst every 3 seconds — in passiveCode:\nplayer._modPassive=player._modPassive||{};\nplayer._modPassive._burstT=((player._modPassive._burstT||0)+1)%(60*3);\nif(player._modPassive._burstT===0){\n  // 360° ring burst:\n  for(let i=0;i<12;i++){const a=(Math.PI*2/12)*i;const p=new Projectile(player.x,player.y,a,applyPassiveDamageBoost(player.damage*1.5),'#a855f7',true);p.speed=9;projectiles.push(p);}\n  for(let i=0;i<20;i++)particles.push(new Particle(player.x+(Math.random()-.5)*60,player.y+(Math.random()-.5)*60,'#a855f7'));\n  playSound(440,0.1,'square');\n}`
+        });
+
+        // ── WAVE SCALING ──────────────────────────────────────────────────────
+        if (t.has('wave scaling', 'per wave', 'each wave', 'wave bonus', 'scale with wave', 'stronger each wave', 'wave progression', 'wave milestone')) hits.push({
+            tag: 'WAVE SCALING (passiveCode)',
+            hint: 'Check currentRound in passiveCode to apply per-wave bonuses:',
+            code: `// Wave scaling — apply once per new wave in passiveCode:\nplayer._modPassive=player._modPassive||{};\nif(typeof currentRound!=='undefined'&&currentRound!==(player._modPassive._lastRound||0)){\n  const _prevR=player._modPassive._lastRound||0;\n  const _wavesGained=currentRound-_prevR;\n  player._modPassive._lastRound=currentRound;\n  // Apply per-wave bonus:\n  player.damage+=_wavesGained*2;\n  floatMoneyText('📈 Wave '+currentRound+' — DMG +'+(_wavesGained*2)+'!');\n}`
+        });
+
+        // ── TRANSFORMATION AUTO-TRIGGER ───────────────────────────────────────
+        if (t.has('transform', 'evolve', 'ascend', 'awaken', 'become', 'phase 2', 'second form', 'final form', 'true form', 'unlock form', 'permanent transform')) hits.push({
+            tag: 'AUTO-TRANSFORM TRIGGER (passiveCode)',
+            hint: 'Watch a threshold (kills/HP/wave) and permanently transform once when crossed:',
+            code: `// Auto-transform on kill threshold — in passiveCode:\nplayer._modPassive=player._modPassive||{};\nif(!player._modPassive._evolved&&(player.kills||0)>=25){\n  player._modPassive._evolved=true;\n  player._modPassive._preTfDmg=player.damage;\n  player._modPassive._preTfSpd=player.speed;\n  player.damage*=3; player.speed*=1.4;\n  player.invulnerable=120;\n  for(let i=0;i<60;i++)particles.push(new Particle(player.x+(Math.random()-.5)*120,player.y+(Math.random()-.5)*120,'#f59e0b'));\n  floatMoneyText('💥 TRANSFORMATION! Full power!'); playSound(440,0.25,'sawtooth');\n  // Update projColor, color, etc. in CHARACTERS[currentCharacter] if needed\n}`
+        });
+
+        // ── COMBO MULTIPLIER ──────────────────────────────────────────────────
+        if (t.has('combo', 'multiplier', 'streak bonus', 'chain kill', 'on hit stack', 'damage stack', 'stack damage', 'builds stacks')) hits.push({
+            tag: 'COMBO DAMAGE MULTIPLIER (passiveCode)',
+            hint: 'Build a combo counter that multiplies damage; reset it when player takes damage:',
+            code: `// Combo multiplier — in passiveCode:\nplayer._modPassive=player._modPassive||{};\n// Build combo on new kills:\nconst _ck=(player.kills||0)-(player._modPassive._comboKillTrack||0);\nif(_ck>0){player._modPassive._comboKillTrack=player.kills;player._modPassive._combo=Math.min((player._modPassive._combo||1)+0.3,5);}\n// Reset on damage taken:\nconst _dLost=(player._modPassive._comboHpTrack||player.maxHealth)-player.health;\nif(_dLost>0){player._modPassive._combo=1;floatMoneyText('💔 Combo broken!');}\nplayer._modPassive._comboHpTrack=player.health;\n// Apply multiplier — wrap shots with this:\n// const p=new Projectile(player.x,player.y,a,applyPassiveDamageBoost(player.damage*(player._modPassive._combo||1)),color,true);\nif((player._modPassive._combo||1)>=2)floatMoneyText('x'+Math.round((player._modPassive._combo||1)*10)/10+' COMBO!');`
+        });
+
+        // ── CHAIN LIGHTNING ───────────────────────────────────────────────────
+        if (t.has('chain lightning', 'chain', 'arc', 'jump between', 'bounce between', 'arc to enemy', 'lightning jump')) hits.push({
+            tag: 'CHAIN LIGHTNING',
+            hint: 'Hit closest enemy, then arc to next closest, chaining N times:',
+            code: `// Chain lightning — 4 jumps:\nconst hitEnemy=(srcX,srcY,srcDmg,jumpsLeft,lastHit)=>{\n  let nearest=null,minD=999;\n  enemies.forEach(e=>{if(e.alive&&e!==lastHit){const d=Math.hypot(e.x-srcX,e.y-srcY);if(d<200&&d<minD){minD=d;nearest=e;}}});\n  if(!nearest||jumpsLeft<=0)return;\n  damageEnemy(nearest,applyPassiveDamageBoost(srcDmg),srcX,srcY);\n  nearest.frozen=(nearest.frozen||0)+30;\n  for(let i=0;i<4;i++)particles.push(new Particle(srcX+(nearest.x-srcX)*(i/4),srcY+(nearest.y-srcY)*(i/4),'#facc15'));\n  playSound(440+jumpsLeft*80,0.05,'square');\n  if(jumpsLeft>1)setTimeout(()=>hitEnemy(nearest.x,nearest.y,srcDmg*0.75,jumpsLeft-1,nearest),80);\n};\nhitEnemy(player.x,player.y,player.damage*2.5,4,null);`
+        });
+
+        // ── MINION / ORBITAL SUMMONS ──────────────────────────────────────────
+        if (t.has('orbital', 'orbit player', 'orbiting', 'spin around', 'circle player', 'ring of allies', 'shield orbs')) hits.push({
+            tag: 'ORBITAL SHIELD ORBS (passiveCode)',
+            hint: 'Spawn N orbs that orbit the player and damage on contact:',
+            code: `// Orbital orbs — in passiveCode:\nplayer._modPassive=player._modPassive||{};\nconst _orbN=3; const _orbR=55; const _orbSpd=0.04;\nplayer._modPassive._orbA=(player._modPassive._orbA||0)+_orbSpd;\nfor(let i=0;i<_orbN;i++){\n  const a=player._modPassive._orbA+(Math.PI*2/_orbN)*i;\n  const ox=player.x+Math.cos(a)*_orbR, oy=player.y+Math.sin(a)*_orbR;\n  ctx.beginPath();ctx.arc(ox,oy,7,0,Math.PI*2);\n  ctx.fillStyle='#a855f7';ctx.shadowBlur=12;ctx.shadowColor='#a855f7';ctx.fill();ctx.shadowBlur=0;\n  enemies.forEach(e=>{if(e.alive&&Math.hypot(e.x-ox,e.y-oy)<e.radius+7){damageEnemy(e,applyPassiveDamageBoost(player.damage*0.4),ox,oy);}});\n}`
+        });
+
+        // ── RAIN / FALLING PROJECTILES ────────────────────────────────────────
+        if (t.has('rain', 'fall from above', 'drop from sky', 'meteor', 'airstrike rain', 'mortar')) hits.push({
+            tag: 'RAIN / METEOR STRIKE',
+            hint: 'Spawn projectiles from above at random/targeted positions:',
+            code: `// Meteor rain — 8 impacts scattered around cursor:\nfor(let i=0;i<8;i++){\n  const tx=mousePos.x+(Math.random()-.5)*160, ty=mousePos.y+(Math.random()-.5)*160;\n  setTimeout(()=>{\n    for(let j=0;j<25;j++)particles.push(new Particle(tx+(Math.random()-.5)*50,ty+(Math.random()-.5)*50,'#f97316'));\n    enemies.forEach(e=>{if(e.alive&&Math.hypot(e.x-tx,e.y-ty)<80){damageEnemy(e,applyPassiveDamageBoost(player.damage*3),tx,ty);}});\n    playSound(220,0.1,'sawtooth');\n  },i*150);\n}\nfloatMoneyText('☄️ METEOR RAIN!');`
+        });
+
+        // ── TIME SLOW / BULLET TIME ───────────────────────────────────────────
+        if (t.has('slow time', 'bullet time', 'time slow', 'slow enemies', 'time stop', 'freeze time', 'matrix', 'slow world')) hits.push({
+            tag: 'TIME SLOW / BULLET TIME',
+            hint: 'Use doTimeSlow() to slow all enemies, or manually set enemy speeds:',
+            code: `doTimeSlow();\n// OR manually:\nplayer._modPassive=player._modPassive||{};\nif(!player._modPassive._timeSlow){\n  player._modPassive._timeSlow=300; // 5 seconds\n  player._modPassive._frozenSpeeds=enemies.filter(e=>e.alive).map(e=>({e,s:e.speed}));\n  (player._modPassive._frozenSpeeds||[]).forEach(({e})=>e.speed*=0.2);\n  floatMoneyText('⏱️ TIME SLOW!'); playSound(200,0.15,'sine');\n}\nif(player._modPassive._timeSlow>0){\n  player._modPassive._timeSlow--;\n  if(player._modPassive._timeSlow===0){\n    (player._modPassive._frozenSpeeds||[]).forEach(({e,s})=>{if(e.alive)e.speed=s;});\n    floatMoneyText('▶ Time resumed');\n  }\n}`
+        });
+
+        // ── PERSISTENT STACKING BUFF ──────────────────────────────────────────
+        if (t.has('permanent', 'stacking', 'stack forever', 'perm buff', 'permanently', 'permanent damage', 'permanent speed', 'grow stronger', 'stack per kill', 'infinite stack')) hits.push({
+            tag: 'PERMANENT STACKING BUFF (passiveCode)',
+            hint: 'On each new kill, permanently increment player.damage or player.speed:',
+            code: `// Permanent stack on kill — in passiveCode:\nplayer._modPassive=player._modPassive||{};\nconst _newPS=(player.kills||0)-(player._modPassive._stackKillTrack||0);\nif(_newPS>0){\n  player._modPassive._stackKillTrack=player.kills;\n  player.damage+=_newPS*1; // +1 DMG per kill permanently\n  player._modPassive._totalStacks=(player._modPassive._totalStacks||0)+_newPS;\n  if(player._modPassive._totalStacks%10===0) floatMoneyText('📈 Stack '+player._modPassive._totalStacks+' — DMG: '+Math.round(player.damage));\n}`
+        });
+
+        // ── GRAPPLE / PULL TOWARD CURSOR ─────────────────────────────────────
+        if (t.has('grapple', 'pull to cursor', 'pull toward', 'reel in', 'hook', 'hook shot', 'latch')) hits.push({
+            tag: 'GRAPPLE / PULL-TO-CURSOR',
+            hint: 'Rapidly move player toward mousePos and damage enemies along the path:',
+            code: `const gDx=mousePos.x-player.x, gDy=mousePos.y-player.y;\nconst gDist=Math.hypot(gDx,gDy);\nif(gDist>10){\n  const steps=Math.min(Math.ceil(gDist/20),15);\n  for(let i=0;i<steps;i++){\n    player.x+=gDx/gDist*20; player.y+=gDy/gDist*20;\n    enemies.forEach(e=>{if(e.alive&&Math.hypot(e.x-player.x,e.y-player.y)<e.radius+12)damageEnemy(e,applyPassiveDamageBoost(player.damage*1.5),player.x,player.y);});\n    for(let j=0;j<2;j++)particles.push(new Particle(player.x,player.y,'#34d399'));\n  }\n  player.x=Math.max(20,Math.min(canvas.width-20,player.x));\n  player.y=Math.max(20,Math.min(canvas.height-20,player.y));\n}\nplayer.invulnerable=30; playSound(380,0.08,'square'); floatMoneyText('🪝 GRAPPLE!');`
+        });
+
+        // ── BLACK HOLE / VOID SINGULARITY ─────────────────────────────────────
+        if (t.has('black hole', 'singularity', 'void pull', 'vortex', 'gravity well', 'implosion', 'gravitational')) hits.push({
+            tag: 'BLACK HOLE / SINGULARITY',
+            hint: 'Create a black hole at cursor that pulls and damages all enemies:',
+            code: `doBlackhole();\n// Extended version:\nconst bx=mousePos.x, by=mousePos.y;\nplayer._modPassive=player._modPassive||{};\nplayer._modPassive._bhTimer=180; // 3 seconds\nconst _bh=()=>{\n  if((player._modPassive._bhTimer||0)<=0)return;\n  player._modPassive._bhTimer--;\n  enemies.forEach(e=>{\n    if(e.alive){const dx=bx-e.x,dy=by-e.y,d=Math.hypot(dx,dy);\n      if(d<300&&d>5){e.x+=dx/d*7;e.y+=dy/d*7;}\n      if(d<30){damageEnemy(e,applyPassiveDamageBoost(player.damage*2),bx,by);}\n    }\n  });\n  for(let i=0;i<6;i++)particles.push(new Particle(bx+(Math.random()-.5)*60,by+(Math.random()-.5)*60,'#6366f1'));\n  requestAnimationFrame(_bh);\n};\n_bh(); floatMoneyText('🌑 SINGULARITY!'); playSound(120,0.2,'sine');`
+        });
+
+        // ── OVERLOAD / SELF-DAMAGE TRADEOFF ──────────────────────────────────
+        if (t.has('overload', 'self destruct', 'self damage', 'sacrifice', 'risk reward', 'spend hp', 'hp cost', 'at a cost')) hits.push({
+            tag: 'OVERLOAD / HP COST ABILITY',
+            hint: 'Deal massive damage at the cost of player HP — high risk, high reward:',
+            code: `if(player.health>20){\n  const cost=Math.min(player.health-1,Math.round(player.maxHealth*0.3));\n  player.health-=cost; updateHUD();\n  const burstDmg=applyPassiveDamageBoost(player.damage*(4+cost/10));\n  enemies.forEach(e=>{if(e.alive&&Math.hypot(e.x-player.x,e.y-player.y)<250){damageEnemy(e,burstDmg,player.x,player.y);}});\n  for(let i=0;i<50;i++)particles.push(new Particle(player.x+(Math.random()-.5)*200,player.y+(Math.random()-.5)*200,'#ef4444'));\n  floatMoneyText('💀 OVERLOAD! -'+cost+' HP');\n  player.invulnerable=60; playSound(180,0.2,'sawtooth');\n} else floatMoneyText('⚠️ Not enough HP!');`
+        });
+
         return hits;
     }
 
@@ -16360,8 +16775,34 @@ function getModPromptText(type, opts) {
         if (opts.imageUrl)      lines.push(`IMAGE URL: "${opts.imageUrl}"`);
         if (opts.musicUrl)      lines.push(`MUSIC URL: "${opts.musicUrl}"`);
 
+        // R-KEY MODE SWITCHING
+        if (opts.rmode) {
+            lines.push(`R-KEY BEHAVIOR: ${opts.rmode}`);
+            if (opts.mode_a) lines.push(`MODE A (DEFAULT) NAME: "${opts.mode_a}"`);
+            if (opts.mode_b) lines.push(`MODE B (ALT/POWERED) NAME: "${opts.mode_b}"`);
+            if (opts.mode_duration) lines.push(`MODE B DURATION: ${opts.mode_duration}`);
+            if (opts.mode_desc) lines.push(`WHAT CHANGES BETWEEN MODES: "${opts.mode_desc}" — implement ALL differences faithfully in passiveCode: stats, fire pattern, color, behavior.`);
+        }
+        // TRANSFORMATION
+        if (opts.transform_trigger) {
+            lines.push(`AUTO-TRANSFORM TRIGGER: ${opts.transform_trigger}`);
+            if (opts.transform_perm) lines.push(`TRANSFORM TYPE: ${opts.transform_perm}`);
+            if (opts.transform_desc) lines.push(`TRANSFORMATION EFFECT: "${opts.transform_desc}" — when triggered, visually and mechanically transform the character. Use invulnerable frames on transform, spawn particles, and apply all listed changes.`);
+        }
+        // ADVANCED MECHANICS
+        if (opts.ultimate) {
+            lines.push(`ULTIMATE METER SYSTEM: ${opts.ultimate}`);
+            if (opts.ultimate_desc) lines.push(`ULTIMATE ABILITY (fires at 100%): "${opts.ultimate_desc}" — implement this as the dramatic payoff when ultimate meter fills. Show a meter HUD bar.`);
+        }
+        if (opts.autoburst)   lines.push(`AUTO-BURST (PERIODIC PASSIVE ATTACK): ${opts.autoburst} — implement in passiveCode with a frame counter timer.`);
+        if (opts.aura)        lines.push(`PASSIVE AURA EFFECT: ${opts.aura} — implement in passiveCode running every frame with appropriate radius checks.`);
+        if (opts.killstreak)  lines.push(`KILL STREAK SYSTEM: ${opts.killstreak} — implement in passiveCode by tracking player.kills changes.`);
+        // SCALING & PROGRESSION
+        if (opts.wavescale)   lines.push(`WAVE SCALING: ${opts.wavescale} — implement in passiveCode by checking currentRound.`);
+        if (opts.minion)      lines.push(`MINION / ALLY BEHAVIOR: ${opts.minion}`);
+
         // Detect free-text patterns
-        const freeTexts = [opts.passives, opts.ability, opts.gimmick, opts.visual, opts.other, opts.extrakeys];
+        const freeTexts = [opts.passives, opts.ability, opts.gimmick, opts.visual, opts.other, opts.extrakeys, opts.mode_desc, opts.transform_desc, opts.ultimate_desc];
         const detectedPatterns = detectPatterns(freeTexts, 'player');
 
         // Dropdown-mapped code snippets
@@ -16419,6 +16860,16 @@ KEY PROJECTILE PROPERTIES you can set after construction:
   p.radius (default 6) — hitbox size
   p.homing = true — slowly tracks nearest enemy
 
+ADDITIONAL APIs:
+  keys — { 'r': bool, 'w': bool, 'a': bool, 's': bool, 'd': bool, 'z': bool, 'x': bool, 'c': bool } — LIVE key state (usable in passiveCode)
+  currentRound — current wave number (for wave-scaling logic)
+  ctx — 2D canvas rendering context (use in passiveCode for HUD bars/rings/indicators)
+  canvas.width, canvas.height — arena dimensions
+  doTimeSlow() — slow all enemies for several seconds
+  doBlackhole() — pull all enemies toward center
+  doAirstrike() — call in random explosions
+  doShockwave() — expand shockwave from player
+
 CHARACTER JSON FORMAT — return EXACTLY these fields:
 {
   "id": "unique_snake_case",
@@ -16437,12 +16888,12 @@ CHARACTER JSON FORMAT — return EXACTLY these fields:
   "abilityDesc": "Short description of active ability",
   "abilityCost": 30,
   "abilityCode": "single-line JS; semicolons between statements",
-  "infoAbilities": "1–2 line ability info string",
+  "infoAbilities": "1–2 line ability info string shown on character card",
   "isCustomMod": true,
   "type": "character",
   // optional:
   "cdMax": 480,
-  "extraKeys": { "z": "single-line JS code for Z key", "x": "code for X key" },
+  "extraKeys": { "z": "single-line JS code for Z key", "x": "code for X key", "c": "code for C key" },
   "imageUrl": "https://...",
   "musicUrl": "https://..."
 }
@@ -16452,6 +16903,16 @@ passiveCode RUNS EVERY FRAME (60 fps). Keep it fast. Gate heavy logic with a tim
   player._modPassive._t = ((player._modPassive._t||0)+1) % 60;
   if(player._modPassive._t === 0) { /* runs once per second */ }
 
+KEY passiveCode patterns for advanced mechanics:
+  MODE TOGGLE: branch on player._modPassive._mode===1 to change fire pattern, damage, speed, color
+  HOLD-R CHARGE: track player._modPassive._holdR++ while keys['r'] is true; fire at threshold
+  ULTIMATE METER: track passiveState._ult (0–100), draw HUD bar via ctx, fire at 100
+  AUTO-BURST: use modulo timer e.g. _t % (60*3) === 0 to fire every 3 seconds
+  AURA: check Math.hypot each frame against enemies within radius
+  KILL STREAK: compare player.kills to player._modPassive._lastKillCount
+  WAVE SCALE: compare currentRound to player._modPassive._lastRound
+  TRANSFORM: set player._modPassive._evolved once when threshold is crossed
+
 abilityCode runs ONCE when the ability key is pressed and player.mana >= abilityCost.
 Mana is deducted automatically — do NOT deduct it yourself.
 
@@ -16459,14 +16920,18 @@ Mana is deducted automatically — do NOT deduct it yourself.
 1. ALWAYS use * for multiplication. NEVER omit it (e.g. player.damage * 2 NOT player.damage2).
 2. ALL code must be a SINGLE LINE. Semicolons between statements — no raw newlines.
 3. Always guard player._modPassive: player._modPassive = player._modPassive || {}
-4. Never hardcode key names — say "Ability key" in descriptions.
+4. Never hardcode key names — say "Ability key" in descriptions. Use keys['r'] in code only.
 5. Use floatMoneyText() for all visible player feedback.
 6. passiveCode runs every frame — must complete in under 1ms. No fetch/network calls.
-7. Before finalizing, mentally trace every expression: does every * appear? Does abilityCode do something visible?${userRequests}${codeSection}
+7. ctx is available in passiveCode — use it to draw HUD elements (bars, rings, indicators).
+8. Before finalizing, mentally trace every expression: does every * appear? Does abilityCode do something visible?${userRequests}${codeSection}
 
 BALANCE GUIDELINES:
 - High HP → lower speed or damage. High damage → higher mana cost or lower HP.
 - Every character MUST have at least 1 meaningful passiveCode effect AND a working abilityCode.
+- If mode-switching: implement BOTH branches fully. Mode B should feel dramatically different.
+- If hold-R transform: draw a visible charge bar above the player using ctx.
+- If ultimate meter: draw the HUD bar every frame; fire something dramatic at 100.
 
 Return ONLY a single valid JSON object. No markdown, no code fences, no explanation. Just the raw JSON.`;
 
@@ -16839,6 +17304,25 @@ function refreshModPrompt() {
         trail:         (document.getElementById('cq_trail')?.value || '').trim(),
         visual:        (document.getElementById('cq_visual')?.value || '').trim(),
         gimmick:       (document.getElementById('cq_gimmick')?.value || '').trim(),
+        // R-key mode switching
+        rmode:         (document.getElementById('cq_rmode')?.value || '').trim(),
+        mode_a:        (document.getElementById('cq_mode_a')?.value || '').trim(),
+        mode_b:        (document.getElementById('cq_mode_b')?.value || '').trim(),
+        mode_duration: (document.getElementById('cq_mode_duration')?.value || '').trim(),
+        mode_desc:     (document.getElementById('cq_mode_desc')?.value || '').trim(),
+        // Transformation
+        transform_trigger: (document.getElementById('cq_transform_trigger')?.value || '').trim(),
+        transform_perm:    (document.getElementById('cq_transform_perm')?.value || '').trim(),
+        transform_desc:    (document.getElementById('cq_transform_desc')?.value || '').trim(),
+        // Advanced mechanics
+        ultimate:      (document.getElementById('cq_ultimate')?.value || '').trim(),
+        ultimate_desc: (document.getElementById('cq_ultimate_desc')?.value || '').trim(),
+        autoburst:     (document.getElementById('cq_autoburst')?.value || '').trim(),
+        aura:          (document.getElementById('cq_aura')?.value || '').trim(),
+        killstreak:    (document.getElementById('cq_killstreak')?.value || '').trim(),
+        // Scaling & progression
+        wavescale:     (document.getElementById('cq_wavescale')?.value || '').trim(),
+        minion:        (document.getElementById('cq_minion')?.value || '').trim(),
     };
 
     // Collect enemy fields
@@ -17039,13 +17523,21 @@ function refreshModPrompt() {
 
 function clearModForm() {
     ['cq_theme','cq_passives','cq_ability','cq_extrakeys','cq_other','cq_musicUrl',
-     'cq_gimmick','cq_imageUrl'].forEach(id => {
+     'cq_gimmick','cq_imageUrl',
+     'cq_mode_a','cq_mode_b','cq_mode_desc',
+     'cq_transform_desc','cq_transform_trigger',
+     'cq_ultimate_desc',
+    ].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.value = '';
     });
     ['cq_color','cq_playstyle','cq_range','cq_difficulty',
      'cq_hp','cq_speed','cq_damage','cq_firerate','cq_projtype','cq_dash',
-     'cq_onkill','cq_ondamage','cq_manacost','cq_cooldown'].forEach(id => {
+     'cq_onkill','cq_ondamage','cq_manacost','cq_cooldown',
+     'cq_rmode','cq_mode_duration','cq_transform_trigger','cq_transform_perm',
+     'cq_ultimate','cq_autoburst','cq_aura','cq_killstreak',
+     'cq_wavescale','cq_minion',
+    ].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.value = '';
     });
@@ -17165,6 +17657,416 @@ function tryInstallMod(raw) {
         floatMoneyText('❌ Invalid mod code!');
         logModError('Unknown Mod', '?', 'install', 'JSON parse failed: ' + e.message, raw.slice(0, 300));
     }
+}
+
+// ════════════════════════════════════════════════════════════════════════
+// MOD MIGRATION ENGINE
+// Detects missing / outdated fields in old character mods and fills them in
+// ════════════════════════════════════════════════════════════════════════
+
+const MOD_CHAR_SCHEMA = {
+    // Core identity — must exist
+    id:              { default: null,       desc: 'Unique ID',              critical: true },
+    name:            { default: null,       desc: 'Display name',           critical: true },
+    type:            { default: 'character',desc: 'Mod type',               critical: true },
+    isCustomMod:     { default: true,       desc: 'Custom mod flag',        critical: true },
+    // Visual
+    color:           { default: '#3b82f6',  desc: 'Character color',        critical: false },
+    icon:            { default: '🧩',       desc: 'Icon emoji',             critical: false },
+    desc:            { default: '',         desc: 'Description text',       critical: false },
+    projColor:       { default: null,       desc: 'Projectile color',       critical: false },
+    // Stats
+    hp:              { default: 100,        desc: 'Starting HP',            critical: false },
+    damage:          { default: 15,         desc: 'Starting damage',        critical: false },
+    speed:           { default: 5,          desc: 'Movement speed',         critical: false },
+    mana:            { default: 100,        desc: 'Starting mana',          critical: false },
+    shootCooldown:   { default: 20,         desc: 'Shoot cooldown (frames)',critical: false },
+    // Ability
+    abilityCost:     { default: 30,         desc: 'Ability mana cost',      critical: false },
+    cdMax:           { default: 480,        desc: 'Ability cooldown (frames)',critical: false },
+    passiveDesc:     { default: 'Custom passive',  desc: 'Passive description', critical: false },
+    passiveCode:     { default: '',         desc: 'Passive code (runs every frame)', critical: false },
+    abilityDesc:     { default: 'Custom ability',  desc: 'Ability description', critical: false },
+    abilityCode:     { default: '',         desc: 'Ability code',           critical: false },
+    infoAbilities:   { default: '',         desc: 'Ability info string (card display)', critical: false },
+    // Optional extras
+    extraKeys:       { default: null,       desc: 'Extra key bindings (Z/X/C)', critical: false },
+    imageUrl:        { default: null,       desc: 'Character sprite URL',   critical: false },
+    musicUrl:        { default: null,       desc: 'Character music URL',    critical: false },
+};
+
+// ── Safety helper: always returns a string no matter what the field value is ──
+function _mStr(v) {
+    if (v == null) return '';
+    if (typeof v === 'string') return v;
+    if (Array.isArray(v)) return v.join(' ');
+    return String(v);
+}
+
+// Fields that old mods commonly lack — shown as "new feature" additions
+const MOD_MIGRATION_UPGRADES = [
+    {
+        key: 'infoAbilities',
+        check: mod => !mod.infoAbilities || _mStr(mod.infoAbilities).trim() === '',
+        label: 'infoAbilities',
+        color: '#86efac',
+        build: mod => {
+            const parts = [];
+            if (mod.passiveDesc) parts.push(`PASSIVE: ${_mStr(mod.passiveDesc)}`);
+            if (mod.abilityDesc) parts.push(`[ABILITY]: ${_mStr(mod.abilityDesc)}`);
+            return parts.join('<br>') || `${mod.hp || 100} HP • Spd ${mod.speed || 5} • ${mod.damage || 15} DMG`;
+        },
+        note: 'Auto-built from passiveDesc + abilityDesc'
+    },
+    {
+        key: 'projColor',
+        check: mod => !mod.projColor || _mStr(mod.projColor).trim() === '',
+        label: 'projColor',
+        color: '#93c5fd',
+        build: mod => _mStr(mod.color) || '#60a5fa',
+        note: 'Copied from character color'
+    },
+    {
+        key: 'cdMax',
+        check: mod => !mod.cdMax && mod.cdMax !== 0,
+        label: 'cdMax',
+        color: '#c4b5fd',
+        build: () => 480,
+        note: 'Set to default 480 frames (8 seconds)'
+    },
+    {
+        key: 'isCustomMod',
+        check: mod => !mod.isCustomMod,
+        label: 'isCustomMod',
+        color: '#fca5a5',
+        build: () => true,
+        note: 'Required for mod system to recognize the character'
+    },
+    {
+        key: 'type',
+        check: mod => !mod.type || _mStr(mod.type).trim() === '',
+        label: 'type',
+        color: '#fca5a5',
+        build: () => 'character',
+        note: 'Required — set to "character"'
+    },
+    {
+        key: 'mana',
+        check: mod => mod.mana === undefined || mod.mana === null,
+        label: 'mana',
+        color: '#7dd3fc',
+        build: () => 100,
+        note: 'Set to default 100 (was missing)'
+    },
+    {
+        key: 'shootCooldown',
+        check: mod => mod.shootCooldown === undefined || mod.shootCooldown === null,
+        label: 'shootCooldown',
+        color: '#fdba74',
+        build: () => 20,
+        note: 'Set to default 20 frames (3 shots/sec)'
+    },
+    {
+        key: 'passiveCode',
+        check: mod => mod.passiveCode === undefined || mod.passiveCode === null,
+        label: 'passiveCode',
+        color: '#86efac',
+        build: () => '',
+        note: 'Added empty passiveCode (was missing — add logic if needed)'
+    },
+    {
+        key: 'abilityCode',
+        check: mod => mod.abilityCode === undefined || mod.abilityCode === null,
+        label: 'abilityCode',
+        color: '#86efac',
+        build: () => '',
+        note: 'Added empty abilityCode (was missing)'
+    },
+    {
+        key: 'abilityCost',
+        check: mod => mod.abilityCost === undefined || mod.abilityCost === null,
+        label: 'abilityCost',
+        color: '#fde68a',
+        build: () => 30,
+        note: 'Set to default 30 mana'
+    },
+    {
+        key: 'desc',
+        check: mod => !mod.desc || _mStr(mod.desc).trim() === '',
+        label: 'desc',
+        color: '#d9f99d',
+        build: mod => `${_mStr(mod.name) || 'Custom'} — a modded character.`,
+        note: 'Auto-generated from name'
+    },
+    {
+        key: 'icon',
+        check: mod => !mod.icon || _mStr(mod.icon).trim() === '',
+        label: 'icon',
+        color: '#fde68a',
+        build: () => '🧩',
+        note: 'Set to default 🧩'
+    },
+    {
+        key: 'color',
+        check: mod => !mod.color || _mStr(mod.color).trim() === '',
+        label: 'color',
+        color: '#f9a8d4',
+        build: () => '#3b82f6',
+        note: 'Set to default blue'
+    },
+    {
+        key: 'passiveDesc',
+        check: mod => !mod.passiveDesc || _mStr(mod.passiveDesc).trim() === '',
+        label: 'passiveDesc',
+        color: '#d9f99d',
+        build: () => 'Custom passive ability',
+        note: 'Set to placeholder description'
+    },
+    {
+        key: 'abilityDesc',
+        check: mod => !mod.abilityDesc || _mStr(mod.abilityDesc).trim() === '',
+        label: 'abilityDesc',
+        color: '#d9f99d',
+        build: () => 'Custom active ability',
+        note: 'Set to placeholder description'
+    },
+];
+
+// Detect old passiveCode / abilityCode patterns that reference hardcoded key names
+function detectDeprecatedPatterns(mod) {
+    const warnings = [];
+    const codeFields = ['passiveCode', 'abilityCode'];
+    codeFields.forEach(f => {
+        const c = _mStr(mod[f]);
+        if (!c) return;
+        if (/keys\[['"]r['"]\]/.test(c)) {
+            warnings.push({ field: f, note: 'Uses keys["r"] — make sure this is intentional (correct for mode-switch detection)' });
+        }
+        if (/\bspecialAttack\b/.test(c)) {
+            warnings.push({ field: f, note: 'Calls specialAttack() — this is the old API. Replace with your abilityCode logic directly.' });
+        }
+        if (/player\.damage[^*\s;,)\]+=]/.test(c) && !/player\._modPassive/.test(c)) {
+            warnings.push({ field: f, note: 'Modifies player.damage without guarding player._modPassive — may cause stat drift on re-enter.' });
+        }
+        if (/player\.speed[^*\s;,)\]+=]/.test(c) && !/player\._modPassive/.test(c)) {
+            warnings.push({ field: f, note: 'Modifies player.speed without guarding player._modPassive — may drift.' });
+        }
+        if (c.includes('new Projectile') && !c.includes('applyPassiveDamageBoost')) {
+            warnings.push({ field: f, note: 'Projectile created without applyPassiveDamageBoost() — shop/level-up damage bonuses won\'t apply.' });
+        }
+    });
+    return warnings;
+}
+
+function parseModForMigration(raw) {
+    try {
+        const cleaned = raw.replace(/```json|```/g, '').trim();
+        if (!cleaned.startsWith('{')) return { ok: false, error: 'Not a JSON object' };
+        const mod = JSON.parse(cleaned);
+        if (!mod.id) return { ok: false, error: 'Missing "id" field — not a valid mod' };
+        if (!mod.name) return { ok: false, error: 'Missing "name" field' };
+        return { ok: true, mod };
+    } catch(e) {
+        return { ok: false, error: e.message };
+    }
+}
+
+function buildMigratedMod(mod) {
+    const migrated = JSON.parse(JSON.stringify(mod)); // deep clone
+    const changes = [];
+
+    MOD_MIGRATION_UPGRADES.forEach(upgrade => {
+        if (upgrade.check(mod)) {
+            const val = upgrade.build(mod);
+            migrated[upgrade.key] = val;
+            changes.push({
+                key: upgrade.key,
+                note: upgrade.note,
+                color: upgrade.color,
+                value: typeof val === 'string' ? (val.length > 50 ? val.slice(0,50)+'…' : val || '(empty)') : JSON.stringify(val)
+            });
+        }
+    });
+
+    // Ensure it's flagged as a character mod properly
+    if (!migrated.type || migrated.type !== 'character') {
+        migrated.type = 'character';
+    }
+    if (!migrated.isCustomMod) {
+        migrated.isCustomMod = true;
+    }
+
+    // Migrate old 'abilities' string → infoAbilities if present
+    if (mod.abilities && !mod.infoAbilities) {
+        migrated.infoAbilities = mod.abilities;
+        changes.push({ key: 'infoAbilities ← abilities', note: 'Renamed old "abilities" field to "infoAbilities"', color: '#fbbf24', value: mod.abilities.slice(0,50) });
+        delete migrated.abilities;
+    }
+
+    // If projColor is missing but color exists, set it
+    if (!migrated.projColor && migrated.color) {
+        // only add if not already handled by upgrades
+        const alreadyHandled = changes.find(c => c.key === 'projColor');
+        if (!alreadyHandled) {
+            migrated.projColor = migrated.color;
+            changes.push({ key: 'projColor', note: 'Copied from character color', color: '#93c5fd', value: migrated.color });
+        }
+    }
+
+    const warnings = detectDeprecatedPatterns(mod);
+    return { migrated, changes, warnings };
+}
+
+function modMigratePreview() {
+    const raw = (document.getElementById('modMigrateInput')?.value || '').trim();
+    const diffEl = document.getElementById('modMigrateDiff');
+    const diffList = document.getElementById('modMigrateDiffList');
+    const statusEl = document.getElementById('modMigrateStatus');
+    const migrateBtn = document.getElementById('modMigrateBtn');
+    const viewBtn = document.getElementById('modMigrateViewBtn');
+    const jsonOutEl = document.getElementById('modMigrateJsonOut');
+
+    if (!raw) {
+        if (diffEl) diffEl.style.display = 'none';
+        if (statusEl) statusEl.textContent = '';
+        if (migrateBtn) migrateBtn.style.display = 'none';
+        if (viewBtn) viewBtn.style.display = 'none';
+        return;
+    }
+
+    const parsed = parseModForMigration(raw);
+    if (!parsed.ok) {
+        if (statusEl) { statusEl.textContent = '❌ ' + parsed.error; statusEl.style.color = '#f87171'; }
+        if (diffEl) diffEl.style.display = 'none';
+        if (migrateBtn) migrateBtn.style.display = 'none';
+        if (viewBtn) viewBtn.style.display = 'none';
+        return;
+    }
+
+    const mod = parsed.mod;
+    // Type check — only character mods get migration
+    if (mod.type && mod.type !== 'character') {
+        if (statusEl) { statusEl.textContent = `ℹ️ This is a "${mod.type}" mod — only character mods need migration. Use Install Mod above.`; statusEl.style.color = '#fbbf24'; }
+        if (diffEl) diffEl.style.display = 'none';
+        if (migrateBtn) migrateBtn.style.display = 'none';
+        if (viewBtn) viewBtn.style.display = 'none';
+        return;
+    }
+
+    const { changes, warnings } = buildMigratedMod(mod);
+
+    if (statusEl) { statusEl.textContent = `✅ Parsed: "${mod.name}"  (v? detected)`; statusEl.style.color = '#34d399'; }
+    if (jsonOutEl) jsonOutEl.style.display = 'none';
+
+    if (changes.length === 0 && warnings.length === 0) {
+        if (diffEl) diffEl.style.display = 'none';
+        if (statusEl) { statusEl.textContent = `✅ "${mod.name}" looks up-to-date — no migration needed. Use Install Mod above.`; statusEl.style.color = '#4ade80'; }
+        if (migrateBtn) migrateBtn.style.display = 'none';
+        if (viewBtn) viewBtn.style.display = 'none';
+        return;
+    }
+
+    // Build diff display
+    let html = '';
+    if (changes.length > 0) {
+        html += `<div style="color:rgba(255,255,255,0.5);margin-bottom:6px;font-size:10px;text-transform:uppercase;letter-spacing:1px;">➕ Added / Fixed Fields (${changes.length})</div>`;
+        changes.forEach(c => {
+            html += `<div style="margin-bottom:3px;"><span style="color:${c.color};font-weight:bold;">${c.key}</span> <span style="color:rgba(255,255,255,0.3);">→</span> <span style="color:rgba(255,255,255,0.55);">${escHtml(c.value)}</span> <span style="color:rgba(255,255,255,0.25);font-style:italic;">(${escHtml(c.note)})</span></div>`;
+        });
+    }
+    if (warnings.length > 0) {
+        html += `<div style="color:#fca5a5;margin:10px 0 6px;font-size:10px;text-transform:uppercase;letter-spacing:1px;">⚠️ Code Warnings (${warnings.length})</div>`;
+        warnings.forEach(w => {
+            html += `<div style="margin-bottom:4px;color:#fca5a5;"><span style="color:#fbbf24;font-weight:bold;">${escHtml(w.field)}:</span> ${escHtml(w.note)}</div>`;
+        });
+    }
+    if (diffList) diffList.innerHTML = html;
+    if (diffEl) diffEl.style.display = 'block';
+    if (migrateBtn) migrateBtn.style.display = '';
+    if (viewBtn) viewBtn.style.display = '';
+}
+
+function escHtml(s) {
+    if (typeof s !== 'string') s = String(s);
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function runModMigration() {
+    const raw = (document.getElementById('modMigrateInput')?.value || '').trim();
+    const parsed = parseModForMigration(raw);
+    if (!parsed.ok) { floatMoneyText('❌ ' + parsed.error); return; }
+    const { migrated, changes } = buildMigratedMod(parsed.mod);
+
+    // Install directly
+    const existing = _installedMods.findIndex(m => m.id === migrated.id);
+    if (existing >= 0) {
+        _installedMods[existing] = { ...migrated, enabled: _installedMods[existing].enabled ?? true };
+        floatMoneyText(`🔄 "${migrated.name}" migrated & updated!`);
+    } else {
+        _installedMods.push({ ...migrated, enabled: true });
+        floatMoneyText(`✅ "${migrated.name}" migrated & installed!`);
+    }
+    saveModsToStorage();
+    applyActiveMods();
+    restoreModImages();
+    if (migrated.imageUrl) { const imgs=getModImages(); imgs[migrated.id]=migrated.imageUrl; saveModImages(imgs); restoreModImages(); }
+    if (migrated.musicUrl) { const mm=getCharMusicMap(); mm[migrated.id]=migrated.musicUrl; saveCharMusicMap(mm); refreshCharMusicTargetList(); }
+
+    const statusEl = document.getElementById('modMigrateStatus');
+    if (statusEl) { statusEl.textContent = `✅ "${migrated.name}" migrated (${changes.length} fix${changes.length!==1?'es':''}) & installed!`; statusEl.style.color = '#34d399'; }
+    document.getElementById('modMigrateInput').value = '';
+    const diffEl = document.getElementById('modMigrateDiff'); if (diffEl) diffEl.style.display='none';
+    const migrateBtn = document.getElementById('modMigrateBtn'); if(migrateBtn) migrateBtn.style.display='none';
+    const viewBtn = document.getElementById('modMigrateViewBtn'); if(viewBtn) viewBtn.style.display='none';
+    setTimeout(() => modsTab('manage'), 700);
+}
+
+function runModMigrationAndView() {
+    const raw = (document.getElementById('modMigrateInput')?.value || '').trim();
+    const parsed = parseModForMigration(raw);
+    if (!parsed.ok) { floatMoneyText('❌ ' + parsed.error); return; }
+    const { migrated } = buildMigratedMod(parsed.mod);
+    const pretty = JSON.stringify(migrated, null, 2);
+    const textEl = document.getElementById('modMigrateJsonText');
+    const outEl = document.getElementById('modMigrateJsonOut');
+    if (textEl) textEl.value = pretty;
+    if (outEl) outEl.style.display = 'block';
+}
+
+function installMigratedMod() {
+    const text = (document.getElementById('modMigrateJsonText')?.value || '').trim();
+    if (!text) { floatMoneyText('⚠️ No migrated JSON to install'); return; }
+    tryInstallMod(text);
+    const outEl = document.getElementById('modMigrateJsonOut'); if(outEl) outEl.style.display='none';
+    document.getElementById('modMigrateInput').value = '';
+}
+
+function copyMigratedJson() {
+    const text = document.getElementById('modMigrateJsonText')?.value || '';
+    if (navigator.clipboard) navigator.clipboard.writeText(text).then(()=>floatMoneyText('📋 Migrated JSON copied!')).catch(()=>{ const t=document.getElementById('modMigrateJsonText');t.select();document.execCommand('copy');floatMoneyText('📋 Copied!'); });
+    else { const t=document.getElementById('modMigrateJsonText');t.select();document.execCommand('copy');floatMoneyText('📋 Copied!'); }
+}
+
+function modInstallPreviewCheck() {
+    // Lightly check the install input and nudge toward migrate if it looks like an old mod
+    const raw = (document.getElementById('modInstallInput')?.value || '').trim();
+    const statusEl = document.getElementById('modInstallStatus');
+    if (!raw || raw.length < 10 || !statusEl) return;
+    try {
+        const mod = JSON.parse(raw.replace(/```json|```/g,'').trim());
+        if (mod.isCustomMod && mod.type === 'character') {
+            const { changes } = buildMigratedMod(mod);
+            if (changes.length > 0) {
+                statusEl.textContent = `💡 This looks like an older character mod (${changes.length} field${changes.length!==1?'s':''} missing). Consider using 🔄 Migrate below for best results.`;
+                statusEl.style.color = '#fbbf24';
+            } else {
+                statusEl.textContent = '✅ Mod looks up to date.';
+                statusEl.style.color = '#4ade80';
+            }
+        } else {
+            statusEl.textContent = '';
+        }
+    } catch(e) { statusEl.textContent = ''; }
 }
 
 function renderModsManageList() {
