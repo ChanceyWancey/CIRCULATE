@@ -86,7 +86,7 @@ body{background:var(--bg);min-height:100vh;display:flex;align-items:center;justi
 /* ── GAME ─────────────────────────────────── */
 #gameScreen{display:none;box-shadow:0 4px 40px var(--shadow);border:1px solid var(--border);background:var(--surface);flex-direction:row;align-items:flex-start}
 #gameScreen.active{display:flex}
-#gameCanvas{display:block;cursor:crosshair;background:var(--bg);flex-shrink:0}
+#gameCanvas{display:block;cursor:crosshair;background:var(--bg);flex-shrink:0;transition:cursor .1s}
 
 /* ── SIDEBAR ──────────────────────────────── */
 #sidebar{width:172px;height:420px;background:var(--surface);border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;flex-shrink:0}
@@ -100,8 +100,14 @@ body{background:var(--bg);min-height:100vh;display:flex;align-items:center;justi
 #shopPanel{flex:1;overflow-y:auto;padding:6px;display:flex;flex-direction:column;gap:2px}
 #shopPanel::-webkit-scrollbar{width:3px}
 #shopPanel::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
-.tc{border:1.5px solid var(--border);border-radius:4px;padding:4px 7px;cursor:pointer;transition:all .1s;background:var(--surface);display:flex;align-items:center;gap:6px}
+.tc{border:1.5px solid var(--border);border-radius:4px;padding:4px 7px;cursor:pointer;transition:all .1s;background:var(--surface);display:flex;align-items:center;gap:6px;flex-direction:column;align-items:stretch}
+.tc-main{display:flex;align-items:center;gap:6px}
 .tc:hover{background:var(--surface2)}.tc.sel{border-color:var(--ink)}.tc.unafford{opacity:.4;cursor:default}
+.tc.locked{opacity:.35;cursor:default;pointer-events:none}
+.tc.placing{border-color:var(--accent)!important;background:var(--accent)0a!important;box-shadow:0 0 0 1px var(--accent)44}
+.tc-req{font-family:'DM Mono',monospace;font-size:8px;color:var(--red);padding-left:14px;line-height:1.4}
+.gbtn.on-move{background:var(--gold);border-color:var(--gold);color:#fff}
+.amp-badge{font-family:'DM Mono',monospace;font-size:7px;background:#a855f733;border:1px solid #a855f7;color:#a855f7;padding:1px 4px;border-radius:2px;position:absolute;top:2px;right:2px}
 .tc-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
 .tc-info{flex:1;min-width:0;display:flex;justify-content:space-between;align-items:baseline;gap:4px}
 .tc-name{font-size:10.5px;font-weight:600}.tc-cost{font-family:'DM Mono',monospace;font-size:9.5px;color:var(--gold);flex-shrink:0}
@@ -277,8 +283,9 @@ body{background:var(--bg);min-height:100vh;display:flex;align-items:center;justi
     <div class="upg-system-box">
       <div class="upg-system-title">UPGRADE SYSTEM — 5 · 3 · CUT OFF</div>
       Each tower has <strong>3 upgrade paths</strong> with 5 tiers each.<br>
+      Once <em>any</em> path is upgraded, the <em>other two are immediately cut off</em>.<br>
       The first path to reach tier 3 becomes the <span class="badge-primary">★ PRIMARY</span> — upgradeable to tier 5.<br>
-      A second path may continue as <span class="badge-secondary">SECONDARY</span> — capped at tier 3.<br>
+      If a second path was started before primary, it may remain as <span class="badge-secondary">SECONDARY</span> — capped at tier 3.<br>
       The remaining path becomes <span class="badge-cutoff">✕ CUT OFF</span> and is locked.
     </div>
     <div class="tower-list" id="towerListContent"></div>
@@ -308,6 +315,7 @@ body{background:var(--bg);min-height:100vh;display:flex;align-items:center;justi
       </div>
       <div class="ctrl-row">
         <button class="gbtn out" id="gameSettingsBtn" style="flex:0;padding:8px 10px">⚙</button>
+        <button class="gbtn out" id="moveTowerBtn" style="flex:1">MOVE</button>
         <button class="gbtn out" id="menuBackBtn" style="flex:1">MENU</button>
       </div>
       <div id="msgEl">Place towers, then send the wave.</div>
@@ -368,12 +376,12 @@ body{background:var(--bg);min-height:100vh;display:flex;align-items:center;justi
 // ═══════════════════════════════════════════
 const COLS=20,ROWS=14,CS=30,W=600,H=420;
 
-// ── 13 Tower Definitions ──────────────────
+// ── 15 Tower Definitions (13 combat + Bank + Amplifier) ──
 const TDEFS=[
   {id:0,name:'Guard',cost:50,clr:'#3b82f6',
    desc:'Reliable infantry. Fast rate, flexible paths.',
    pathA:'Damage',pathB:'Range & Pierce',pathC:'Rate & Multi',
-   dmg:20,rate:1.9,range:3.2,splash:0,slow:0,chain:0,burn:0,stun:0,pierce:0,multi:1,
+   dmg:10,rate:0.95,range:3.2,splash:0,slow:0,chain:0,burn:0,stun:0,pierce:0,multi:1,
    pA:[
     {n:'Speed Clip',  c:80,  d:'+35% rate',          f:t=>{t.rate*=1.35}},
     {n:'Sharp Tips',  c:150, d:'+60% damage',         f:t=>{t.dmg*=1.6}},
@@ -398,7 +406,7 @@ const TDEFS=[
   {id:1,name:'Sniper',cost:100,clr:'#8b5cf6',
    desc:'Long-range precision. High single-target damage.',
    pathA:'Damage',pathB:'Range & Slow',pathC:'Special Ammo',
-   dmg:110,rate:0.55,range:7.0,splash:0,slow:0,chain:0,burn:0,stun:0,pierce:1,multi:1,
+   dmg:55,rate:0.275,range:7.0,splash:0,slow:0,chain:0,burn:0,stun:0,pierce:1,multi:1,
    pA:[
     {n:'Heavy Rounds', c:120, d:'+80% damage',         f:t=>{t.dmg*=1.8}},
     {n:'Full Metal',   c:250, d:'Pierce 5 enemies',    f:t=>{t.pierce=5}},
@@ -423,7 +431,7 @@ const TDEFS=[
   {id:2,name:'Cannon',cost:150,clr:'#ec4899',
    desc:'Explosive area damage. Shreds grouped enemies.',
    pathA:'Damage & Splash',pathB:'Fire Rate',pathC:'Crowd Control',
-   dmg:58,rate:0.7,range:3.0,splash:1.5,slow:0,chain:0,burn:0,stun:0,pierce:0,multi:1,
+   dmg:29,rate:0.35,range:3.0,splash:1.5,slow:0,chain:0,burn:0,stun:0,pierce:0,multi:1,
    pA:[
     {n:'Bigger Bomb',  c:150, d:'Splash+30%, Dmg+50%', f:t=>{t.splash*=1.3;t.dmg*=1.5}},
     {n:'Frag Shots',   c:280, d:'Damage ×2',           f:t=>{t.dmg*=2}},
@@ -448,7 +456,7 @@ const TDEFS=[
   {id:3,name:'Frost',cost:120,clr:'#06b6d4',
    desc:'Slows and freezes enemies. Excellent crowd control.',
    pathA:'Slow & CC',pathB:'Area Splash',pathC:'Cryo Damage',
-   dmg:12,rate:1.4,range:3.5,splash:1.3,slow:0.5,chain:0,burn:0,stun:0,pierce:0,multi:1,
+   dmg:6,rate:0.7,range:3.5,splash:1.3,slow:0.5,chain:0,burn:0,stun:0,pierce:0,multi:1,
    pA:[
     {n:'Cold Snap',    c:100, d:'Slow+20%, Dmg+50%',  f:t=>{t.slow=Math.min(.9,t.slow+.2);t.dmg*=1.5}},
     {n:'Deep Freeze',  c:200, d:'Slow 80%, Splash+30%',f:t=>{t.slow=.8;t.splash*=1.3}},
@@ -473,7 +481,8 @@ const TDEFS=[
   {id:4,name:'Laser',cost:180,clr:'#f97316',
    desc:'Rapid-fire beam. Can apply sustained burn damage.',
    pathA:'Damage & Burn',pathB:'Multi-Target',pathC:'Inferno DoT',
-   dmg:36,rate:3.8,range:4.2,splash:0,slow:0,chain:0,burn:0,stun:0,pierce:0,multi:1,
+   dmg:18,rate:1.9,range:4.2,splash:0,slow:0,chain:0,burn:0,stun:0,pierce:0,multi:1,
+   requires:{towers:2},
    pA:[
     {n:'Focused Beam', c:150, d:'Dmg+70%, Rate+30%',  f:t=>{t.dmg*=1.7;t.rate*=1.3}},
     {n:'Superheated',  c:300, d:'Burn 5s on hit',     f:t=>{t.burn=5}},
@@ -498,7 +507,8 @@ const TDEFS=[
   {id:5,name:'Mortar',cost:250,clr:'#92400e',
    desc:'Massive splash, extremely long range. Indiscriminate destruction.',
    pathA:'Damage & Stun',pathB:'Fire Rate',pathC:'Multi-Shell',
-   dmg:100,rate:0.45,range:9.0,splash:2.5,slow:0,chain:0,burn:0,stun:0,pierce:0,multi:1,
+   dmg:50,rate:0.225,range:9.0,splash:2.5,slow:0,chain:0,burn:0,stun:0,pierce:0,multi:1,
+   requires:{towers:3},
    pA:[
     {n:'Big Shell',    c:200, d:'Splash×1.5, Dmg+60%',f:t=>{t.splash*=1.5;t.dmg*=1.6}},
     {n:'Shatter',      c:400, d:'Stun 0.5s on hit',   f:t=>{t.stun=.5}},
@@ -523,7 +533,8 @@ const TDEFS=[
   {id:6,name:'Tesla',cost:200,clr:'#eab308',
    desc:'Chain lightning that jumps between enemies. Devastating in groups.',
    pathA:'Chains & Damage',pathB:'Range & CC',pathC:'Rate & Power',
-   dmg:45,rate:1.1,range:3.5,splash:0,slow:0,chain:4,burn:0,stun:0,pierce:0,multi:1,
+   dmg:22,rate:0.55,range:3.5,splash:0,slow:0,chain:4,burn:0,stun:0,pierce:0,multi:1,
+   requires:{towers:3},
    pA:[
     {n:'Extra Charge', c:160, d:'Chains+2, Dmg+40%',  f:t=>{t.chain+=2;t.dmg*=1.4}},
     {n:'Static Field', c:320, d:'Stun 0.3s on chain', f:t=>{t.stun=.3}},
@@ -548,7 +559,8 @@ const TDEFS=[
   {id:7,name:'Missile',cost:300,clr:'#22c55e',
    desc:'Slow but devastating homing rockets. Great vs bosses.',
    pathA:'Damage & Splash',pathB:'Multi-Launch',pathC:'CC Warheads',
-   dmg:240,rate:0.38,range:5.5,splash:1.2,slow:0,chain:0,burn:0,stun:0,pierce:0,multi:1,
+   dmg:120,rate:0.19,range:5.5,splash:1.2,slow:0,chain:0,burn:0,stun:0,pierce:0,multi:1,
+   requires:{towers:4},
    pA:[
     {n:'Big Warhead',  c:250, d:'Dmg+80%, Splash+30%',f:t=>{t.dmg*=1.8;t.splash*=1.3}},
     {n:'Depleted U.',  c:500, d:'Damage ×2',          f:t=>{t.dmg*=2}},
@@ -573,7 +585,8 @@ const TDEFS=[
   {id:8,name:'Flame',cost:200,clr:'#ef4444',
    desc:'Short-range fire DoT. Melts groups with burn stacks.',
    pathA:'Burn & Damage',pathB:'Area Spread',pathC:'Range & Rate',
-   dmg:26,rate:2.6,range:2.8,splash:0.7,slow:0,chain:0,burn:10,stun:0,pierce:0,multi:1,
+   dmg:13,rate:1.3,range:2.8,splash:0.7,slow:0,chain:0,burn:10,stun:0,pierce:0,multi:1,
+   requires:{towers:2},
    pA:[
     {n:'Longer Burn',  c:150, d:'Burn+4s, Dmg+50%',  f:t=>{t.burn+=4;t.dmg*=1.5}},
     {n:'Hot Shots',    c:300, d:'Burn dmg ×2',        f:t=>{t.dmg*=2}},
@@ -596,9 +609,10 @@ const TDEFS=[
     {n:'Phoenix Burst',c:1920,d:'Range×3, Rate×3, Dmg×2',f:t=>{t.range*=3;t.rate*=3;t.dmg*=2}},
    ]},
   {id:9,name:'Spikes',cost:180,clr:'#78716c',
-   desc:'Omnidirectional piercing spikes. Excellent on tight corners.',
-   pathA:'Damage & Rate',pathB:'Explosive Mines',pathC:'Range & Reach',
-   dmg:38,rate:0.9,range:2.2,splash:0,slow:0,chain:0,burn:0,stun:0,pierce:99,multi:1,
+   desc:'Fires tacks in all 8 directions simultaneously. Pierces every enemy in each lane.',
+   pathA:'Damage & Rate',pathB:'Explosive Tips',pathC:'Range & Reach',
+   dmg:19,rate:0.45,range:2.2,splash:0,slow:0,chain:0,burn:0,stun:0,pierce:99,multi:1,
+   tacMode:true,
    pA:[
     {n:'Extra Spikes', c:150, d:'Dmg+60%, Rate+30%',  f:t=>{t.dmg*=1.6;t.rate*=1.3}},
     {n:'Triple Spike', c:300, d:'Range +60%',         f:t=>{t.range*=1.6}},
@@ -623,7 +637,8 @@ const TDEFS=[
   {id:10,name:'Wizard',cost:220,clr:'#6366f1',
    desc:'Versatile magic. Splash, chain, and burn in one package.',
    pathA:'Fire Magic',pathB:'Multi-Target',pathC:'Crowd Control',
-   dmg:65,rate:1.0,range:4.5,splash:1.1,slow:0,chain:0,burn:0,stun:0,pierce:0,multi:1,
+   dmg:32,rate:0.5,range:4.5,splash:1.1,slow:0,chain:0,burn:0,stun:0,pierce:0,multi:1,
+   requires:{towers:4},
    pA:[
     {n:'Fireball',     c:180, d:'Splash×1.5, Dmg+60%',f:t=>{t.splash*=1.5;t.dmg*=1.6}},
     {n:'Wall of Fire', c:360, d:'Burn 6s on hit',     f:t=>{t.burn=6}},
@@ -648,7 +663,8 @@ const TDEFS=[
   {id:11,name:'Snare',cost:150,clr:'#14b8a6',
    desc:'Stuns and immobilizes. Best paired with high-damage towers.',
    pathA:'Stun & CC',pathB:'Multi-Net',pathC:'Slow Field',
-   dmg:14,rate:0.9,range:4.0,splash:0,slow:0.7,chain:0,burn:0,stun:1.8,pierce:0,multi:1,
+   dmg:7,rate:0.45,range:4.0,splash:0,slow:0.7,chain:0,burn:0,stun:1.8,pierce:0,multi:1,
+   requires:{towers:3},
    pA:[
     {n:'Better Snare', c:120, d:'Stun+0.8s, Dmg+50%',f:t=>{t.stun+=.8;t.dmg*=1.5}},
     {n:'Net Gun',      c:250, d:'Multi 2, Slow 80%',  f:t=>{t.multi=2;t.slow=.8}},
@@ -671,9 +687,10 @@ const TDEFS=[
     {n:'Time Freeze',  c:1760,d:'Stun 6s, Slow 99%',  f:t=>{t.stun=6;t.slow=.99}},
    ]},
   {id:12,name:'Bomber',cost:350,clr:'#b45309',
-   desc:'Air-dropped cluster bombs. Massive AoE with natural multi-attack.',
+   desc:'Air-dropped cluster bombs. Massive AoE. Does NOT freeze or stun enemies.',
    pathA:'Payload & Damage',pathB:'Fire Rate',pathC:'Incendiary',
-   dmg:72,rate:0.6,range:3.5,splash:2.2,slow:0,chain:0,burn:0,stun:0.5,pierce:0,multi:4,
+   dmg:36,rate:0.3,range:3.5,splash:2.2,slow:0,chain:0,burn:0,stun:0,pierce:0,multi:4,
+   requires:{towers:5},
    pA:[
     {n:'Extra Payload',c:280, d:'Multi+2, Dmg+50%',   f:t=>{t.multi+=2;t.dmg*=1.5}},
     {n:'Bigger Bang',  c:560, d:'Splash×1.5, Dmg ×2', f:t=>{t.splash*=1.5;t.dmg*=2}},
@@ -698,28 +715,56 @@ const TDEFS=[
   {id:13,name:'Bank',cost:300,clr:'#f59e0b',
    desc:'Earns gold every wave. Occupies a 3×3 area. Does not shoot.',
    pathA:'Income',pathB:'Interest',pathC:'Capacity',
-   isBank:true, bankIncome:50,
+   isBank:true, bankIncome:10,
    dmg:0,rate:0,range:0,splash:0,slow:0,chain:0,burn:0,stun:0,pierce:0,multi:1,
    pA:[
-    {n:'Teller Window', c:200, d:'+50g per wave',     f:t=>{t.bankIncome+=50}},
-    {n:'Vault',         c:400, d:'+100g per wave',    f:t=>{t.bankIncome+=100}},
-    {n:'Investment',    c:800, d:'+200g per wave',    f:t=>{t.bankIncome+=200}},
-    {n:'Hedge Fund',    c:1600,d:'+400g per wave',    f:t=>{t.bankIncome+=400}},
-    {n:'Central Bank',  c:3200,d:'+800g per wave',    f:t=>{t.bankIncome+=800}},
+    {n:'Teller Window', c:200, d:'+10g per wave',     f:t=>{t.bankIncome+=10}},
+    {n:'Vault',         c:400, d:'+20g per wave',    f:t=>{t.bankIncome+=20}},
+    {n:'Investment',    c:800, d:'+40g per wave',    f:t=>{t.bankIncome+=40}},
+    {n:'Hedge Fund',    c:1600,d:'+80g per wave',    f:t=>{t.bankIncome+=80}},
+    {n:'Central Bank',  c:3200,d:'+160g per wave',   f:t=>{t.bankIncome+=160}},
    ],
    pB:[
-    {n:'Interest 5%',   c:200, d:'+5% of gold/wave', f:t=>{t.bankInterest=(t.bankInterest||0)+.05}},
-    {n:'Interest 10%',  c:400, d:'+5% of gold/wave', f:t=>{t.bankInterest=(t.bankInterest||0)+.05}},
-    {n:'Compound',      c:800, d:'+10% of gold/wave',f:t=>{t.bankInterest=(t.bankInterest||0)+.10}},
-    {n:'High Yield',    c:1600,d:'+15% of gold/wave',f:t=>{t.bankInterest=(t.bankInterest||0)+.15}},
-    {n:'Infinite Money',c:3200,d:'+20% of gold/wave',f:t=>{t.bankInterest=(t.bankInterest||0)+.20}},
+    {n:'Interest 1%',   c:200, d:'+1% of gold/wave', f:t=>{t.bankInterest=(t.bankInterest||0)+.01}},
+    {n:'Interest 2%',   c:400, d:'+1% of gold/wave', f:t=>{t.bankInterest=(t.bankInterest||0)+.01}},
+    {n:'Compound',      c:800, d:'+2% of gold/wave', f:t=>{t.bankInterest=(t.bankInterest||0)+.02}},
+    {n:'High Yield',    c:1600,d:'+3% of gold/wave', f:t=>{t.bankInterest=(t.bankInterest||0)+.03}},
+    {n:'Infinite Money',c:3200,d:'+4% of gold/wave', f:t=>{t.bankInterest=(t.bankInterest||0)+.04}},
    ],
    pC:[
-    {n:'Loan Office',   c:150, d:'Gain 100g now',    f:t=>{gold+=100;updateHUD();}},
-    {n:'Bond Issue',    c:300, d:'Gain 250g now',    f:t=>{gold+=250;updateHUD();}},
-    {n:'Treasury',      c:600, d:'Gain 500g now',    f:t=>{gold+=500;updateHUD();}},
-    {n:'Mint',          c:1200,d:'Gain 1000g now',   f:t=>{gold+=1000;updateHUD();}},
-    {n:'Money Printer', c:2400,d:'Gain 2500g now',   f:t=>{gold+=2500;updateHUD();}},
+    {n:'Better Vault',  c:150, d:'Income +50%',      f:t=>{t.bankIncome=Math.floor(t.bankIncome*1.5)}},
+    {n:'Reserve Fund',  c:300, d:'Income +75%',      f:t=>{t.bankIncome=Math.floor(t.bankIncome*1.75)}},
+    {n:'Treasury',      c:600, d:'Income ×2',        f:t=>{t.bankIncome*=2}},
+    {n:'Mint',          c:1200,d:'Income ×2.5',      f:t=>{t.bankIncome=Math.floor(t.bankIncome*2.5)}},
+    {n:'Federal Reserve',c:2400,d:'Income ×3',       f:t=>{t.bankIncome*=3}},
+   ]},
+  {id:14,name:'Amplifier',cost:20000,clr:'#a855f7',
+   desc:'3x3 support tower. Boosts all nearby towers +50% dmg/rate. Does NOT shoot.',
+   pathA:'Pulse Strength',pathB:'Aura Radius',pathC:'Efficiency',
+   isAmplifier:true,
+   ampBoost:0.5, ampRadius:1,
+   dmg:0,rate:0,range:0,splash:0,slow:0,chain:0,burn:0,stun:0,pierce:0,multi:1,
+   requires:{towers:8},
+   pA:[
+    {n:'Strong Pulse',  c:3000, d:'Boost +10%',       f:t=>{t.ampBoost+=0.10}},
+    {n:'Power Surge',   c:6000, d:'Boost +15%',       f:t=>{t.ampBoost+=0.15}},
+    {n:'Resonance',     c:10000,d:'Boost +20%',       f:t=>{t.ampBoost+=0.20}},
+    {n:'Overdrive',     c:15000,d:'Boost +25%',       f:t=>{t.ampBoost+=0.25}},
+    {n:'MAX RESONANCE', c:20000,d:'Boost x2',         f:t=>{t.ampBoost*=2}},
+   ],
+   pB:[
+    {n:'Wide Field',    c:2500, d:'Radius +1 cell',   f:t=>{t.ampRadius+=1}},
+    {n:'Extended Aura', c:5000, d:'Radius +1 cell',   f:t=>{t.ampRadius+=1}},
+    {n:'Far Reach',     c:9000, d:'Radius +1 cell',   f:t=>{t.ampRadius+=1}},
+    {n:'Massive Field', c:14000,d:'Radius +2 cells',  f:t=>{t.ampRadius+=2}},
+    {n:'MAX REACH',     c:20000,d:'Radius +3 cells',  f:t=>{t.ampRadius+=3}},
+   ],
+   pC:[
+    {n:'Efficiency I',  c:2000, d:'Upgrade costs -10%',f:t=>{t._effDisc=(t._effDisc||0)+0.1}},
+    {n:'Efficiency II', c:4000, d:'Upgrade costs -10%',f:t=>{t._effDisc=(t._effDisc||0)+0.1}},
+    {n:'Efficiency III',c:7000, d:'Upgrade costs -15%',f:t=>{t._effDisc=(t._effDisc||0)+0.15}},
+    {n:'Efficiency IV', c:12000,d:'Upgrade costs -15%',f:t=>{t._effDisc=(t._effDisc||0)+0.15}},
+    {n:'MAX EFFICIENCY',c:18000,d:'Upgrade costs -25%',f:t=>{t._effDisc=(t._effDisc||0)+0.25}},
    ]},
 ];
 
@@ -810,7 +855,7 @@ const ctx=canvas.getContext('2d');
 let gold,lives,score,wave,waveActive,speed,autoWave,isEndless;
 let towers,enemies,bullets,particles;
 let waveQueue,waveTimer;
-let selShopType=0,selTower=null,hoverCell=null;
+let selShopType=0,selTower=null,hoverCell=null,moveTowerMode=false,dragTower=null,dragOffset=[0,0];
 let curMap=MAPS[0],pathCells,pathSet;
 let animId=null,lastTs=0,dark=false,selMapIdx=0,selDiff='Starter';
 const TOTAL_WAVES=10;
@@ -836,7 +881,7 @@ function initGame(map){
   waveActive=false; speed=1; autoWave=false;
   towers=[]; enemies=[]; bullets=[]; particles=[];
   waveQueue=[]; waveTimer=0;
-  selTower=null; selShopType=0;
+  selTower=null; selShopType=0; moveTowerMode=false; dragTower=null;
   updateHUD(); buildShop(); showUpPanel(false);
   document.getElementById('waveBtn').disabled=false;
   document.getElementById('waveBtn').textContent=`SEND WAVE 1`;
@@ -870,8 +915,12 @@ function getPathStatus(t, path) {
     if (lvl > 0) return 'secondary';
     return 'cutoff';
   }
-  // No primary yet
-  if (started <= 1) return 'open'; // 0 or 1 paths touched — all still open
+  // Single-path rule: if only ONE path has been touched, ALL others are immediately cut off
+  if (started === 1) {
+    if (lvl > 0) return 'open'; // the one active path
+    return 'cutoff'; // the other two are locked
+  }
+  if (started === 0) return 'open'; // nothing touched yet
   if (lvl === 0) return 'cutoff'; // 2 paths active, this untouched one is locked
   return 'open'; // one of the two active paths
 }
@@ -901,7 +950,15 @@ function doUpgrade(t, path) {
   else t.pC=(t.pC||0)+1;
   const newLvl=path==='A'?t.pA:path==='B'?t.pB:t.pC;
   if (!t.primaryPath && newLvl >= 3) t.primaryPath = path;
-  score+=5; updateHUD(); renderUpPanel(t); msg(`Upgraded: ${up.n}`);
+  // Single-path rule: if this is the FIRST path touched, immediately lock others
+  const a=t.pA||0,b=t.pB||0,c=t.pC||0;
+  const touchedCount=(a>0?1:0)+(b>0?1:0)+(c>0?1:0);
+  if (touchedCount===1 && !t.primaryPath) {
+    t._soloPath=path; // mark so getPathStatus can lock others
+  } else {
+    t._soloPath=null;
+  }
+  score+=5; updateHUD(); renderUpPanel(t); applyAmpBoosts(); msg(`Upgraded: ${up.n}`);
 }
 
 // ═══════════════════════════════════════════
@@ -948,8 +1005,35 @@ function update(ts){
 
   // Towers shoot
   for(const t of towers){
+    if(TDEFS[t.type].isAmplifier) continue;
     t.cd=(t.cd||0)-dt;
     if(t.cd>0)continue;
+    if(TDEFS[t.type].tacMode){
+      // TAC shooter: fires 8 directional tacks, each piercing all enemies in that direction
+      const cx=t.col*CS+CS/2,cy=t.row*CS+CS/2,rp=t.range*CS;
+      const anyNearby=enemies.some(e=>!e.dead&&!e.reached&&Math.hypot(e.x-cx,e.y-cy)<=rp);
+      if(anyNearby){
+        t.cd=1/t.rate;
+        const dirs=8;
+        for(let d=0;d<dirs;d++){
+          const ang=d*Math.PI*2/dirs;
+          const dx=Math.cos(ang),dy=Math.sin(ang);
+          // find enemies approximately along this direction
+          const tgtsInDir=enemies.filter(e=>{
+            if(e.dead||e.reached)return false;
+            const ex=e.x-cx,ey=e.y-cy;
+            const dist=Math.hypot(ex,ey);
+            if(dist>rp)return false;
+            const dot=(ex*dx+ey*dy)/dist;
+            return dot>0.7; // within ~45deg cone of this direction
+          });
+          tgtsInDir.forEach(tgt=>{
+            bullets.push(makeBullet(t,tgt));
+          });
+        }
+      }
+      continue;
+    }
     const tgts=findTargets(t);
     if(tgts.length>0){
       t.cd=1/t.rate;
@@ -977,7 +1061,7 @@ function update(ts){
     // Pay out bank income
     let bankTotal=0;
     for(const t of towers){
-      if(TDEFS[t.type].isBank){
+      if(TDEFS[t.type].isBank&&!TDEFS[t.type].isAmplifier){
         const inc=t.bankIncome||TDEFS[t.type].bankIncome||0;
         const interest=Math.floor(gold*(t.bankInterest||0));
         bankTotal+=inc+interest;
@@ -990,12 +1074,46 @@ function update(ts){
     document.getElementById('waveBtn').disabled=false;
     document.getElementById('waveBtn').textContent=`SEND WAVE ${wave}`;
     if(bankTotal===0) msg(`Wave ${wave-1} cleared! +${bonus}g`);
+    applyAmpBoosts();
     if(autoWave) setTimeout(()=>{if(!waveActive)startWave();},800);
   }
 }
 
+// ── Amplifier boost system ─────────────────
+function applyAmpBoosts(){
+  // Reset all towers to their base stats first, then re-apply amp boosts
+  for(const t of towers){
+    const def=TDEFS[t.type];
+    if(def.isAmplifier)continue;
+    // If tower has been boosted before, revert (we store originals)
+    if(t._ampOrig){
+      t.dmg=t._ampOrig.dmg;t.rate=t._ampOrig.rate;
+    }
+    t._ampBoosted=false;
+  }
+  // Apply boosts from each amplifier
+  for(const amp of towers){
+    if(!TDEFS[amp.type].isAmplifier)continue;
+    const boost=amp.ampBoost||0.5;
+    const radius=(amp.ampRadius||1)*CS;
+    const acx=amp.col*CS+CS/2,acy=amp.row*CS+CS/2;
+    for(const t of towers){
+      if(TDEFS[t.type].isAmplifier||TDEFS[t.type].isBank)continue;
+      const tcx=t.col*CS+CS/2,tcy=t.row*CS+CS/2;
+      if(Math.hypot(tcx-acx,tcy-acy)<=radius+CS*1.5){
+        if(!t._ampOrig)t._ampOrig={dmg:t.dmg,rate:t.rate};
+        if(!t._ampBoosted){
+          t.dmg=t._ampOrig.dmg*(1+boost);
+          t.rate=t._ampOrig.rate*(1+boost);
+          t._ampBoosted=true;
+        }
+      }
+    }
+  }
+}
+
 function findTargets(t){
-  if(TDEFS[t.type].isBank) return [];
+  if(TDEFS[t.type].isBank||TDEFS[t.type].isAmplifier) return [];
   const cx=t.col*CS+CS/2,cy=t.row*CS+CS/2,rp=t.range*CS;
   const inRange=enemies.filter(e=>!e.dead&&!e.reached&&Math.hypot(e.x-cx,e.y-cy)<=rp);
   inRange.sort((a,b)=>b.pi-a.pi);
@@ -1082,19 +1200,36 @@ function draw(ts){
   const[ec,er]=pathCells[0],[xc,xr]=pathCells[pathCells.length-1];
   ctx.fillText('IN',ec*CS+CS/2,er*CS+CS/2);ctx.fillText('OUT',xc*CS+CS/2,xr*CS+CS/2);
 
+  // Move mode: highlight tower being dragged
+  if(moveTowerMode&&dragTower){
+    const def=TDEFS[dragTower.type];
+    ctx.save();
+    ctx.globalAlpha=0.4;
+    drawTower({...dragTower,col:dragTower.col,row:dragTower.row});
+    ctx.globalAlpha=1;
+    ctx.restore();
+    // Show ghost at hover
+    if(hoverCell){
+      const[hc,hr]=hoverCell;
+      ctx.fillStyle='rgba(168,85,247,0.15)';
+      const sz=(def.isBank||def.isAmplifier)?CS*3:CS;
+      ctx.fillRect(hc*CS,hr*CS,sz,sz);
+    }
+  }
+
   // Hover
-  if(hoverCell){
+  if(hoverCell&&!moveTowerMode){
     const[hc,hr]=hoverCell;
     const def=TDEFS[selShopType];
-    const isBank=def.isBank;
-    if(isBank){
+    const isLargeHover=def.isBank||def.isAmplifier;
+    if(isLargeHover){
       // Show 3x3 footprint preview
       let fits=true;
       for(let dc=0;dc<3;dc++) for(let dr=0;dr<3;dr++){
         const cc=hc+dc,rr=hr+dr;
         if(cc>=COLS||rr>=ROWS||pathSet.has(`${cc},${rr}`)||towers.some(t=>{
           const d=TDEFS[t.type];
-          if(d.isBank) return cc>=t.col&&cc<t.col+3&&rr>=t.row&&rr<t.row+3;
+          if(d.isBank||d.isAmplifier) return cc>=t.col&&cc<t.col+3&&rr>=t.row&&rr<t.row+3;
           return t.col===cc&&t.row===rr;
         })) fits=false;
       }
@@ -1105,7 +1240,7 @@ function draw(ts){
     } else {
       const ok=!pathSet.has(`${hc},${hr}`)&&!towers.some(t=>{
         const d=TDEFS[t.type];
-        if(d.isBank) return hc>=t.col&&hc<t.col+3&&hr>=t.row&&hr<t.row+3;
+        if(d.isBank||d.isAmplifier) return hc>=t.col&&hc<t.col+3&&hr>=t.row&&hr<t.row+3;
         return t.col===hc&&t.row===hr;
       });
       ctx.fillStyle=ok?'rgba(37,99,235,.08)':'rgba(220,38,38,.08)';
@@ -1118,7 +1253,7 @@ function draw(ts){
   }
 
   // Selected tower range ring (skip bank)
-  if(selTower&&!TDEFS[selTower.type].isBank){
+  if(selTower&&!TDEFS[selTower.type].isBank&&!TDEFS[selTower.type].isAmplifier){
     const t=selTower;
     ctx.beginPath();ctx.arc(t.col*CS+CS/2,t.row*CS+CS/2,t.range*CS,0,Math.PI*2);
     ctx.strokeStyle=TDEFS[t.type].clr+'55';ctx.lineWidth=1.5;ctx.setLineDash([4,4]);ctx.stroke();ctx.setLineDash([]);
@@ -1162,6 +1297,38 @@ function drawTower(t){
   else if(id===10){ctx.beginPath();ctx.arc(0,0,7,0,Math.PI*2);ctx.fill();ctx.fillStyle='#312e81';ctx.beginPath();ctx.moveTo(-5,0);ctx.lineTo(0,-11);ctx.lineTo(5,0);ctx.closePath();ctx.fill();}
   else if(id===11){ctx.beginPath();ctx.arc(0,0,7,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(-4,-4);ctx.lineTo(4,4);ctx.moveTo(4,-4);ctx.lineTo(-4,4);ctx.stroke();}
   else if(id===12){ctx.beginPath();ctx.moveTo(-7+3,-6);ctx.lineTo(7-3,-6);ctx.quadraticCurveTo(7,-6,7,-6+3);ctx.lineTo(7,6-3);ctx.quadraticCurveTo(7,6,7-3,6);ctx.lineTo(-7+3,6);ctx.quadraticCurveTo(-7,6,-7,6-3);ctx.lineTo(-7,-6+3);ctx.quadraticCurveTo(-7,-6,-7+3,-6);ctx.closePath();ctx.fill();}
+  else if(id===14){
+    // Amplifier: 3x3 support tower drawn like bank but purple
+    ctx.restore();
+    const bx=t.col*CS,by=t.row*CS,bw=CS*3,bh=CS*3;
+    ctx.fillStyle='rgba(0,0,0,0.07)';ctx.fillRect(bx+3,by+3,bw,bh);
+    ctx.fillStyle=dark?'#1a0f2e':'#f3e8ff';ctx.fillRect(bx,by,bw,bh);
+    ctx.strokeStyle=TDEFS[14].clr;ctx.lineWidth=2;ctx.strokeRect(bx,by,bw,bh);
+    if(selTower===t){ctx.strokeStyle=TDEFS[14].clr+'88';ctx.lineWidth=3;ctx.strokeRect(bx-2,by-2,bw+4,bh+4);}
+    // Aura ring
+    const arad=(t.ampRadius||1)*CS+CS*1.5;
+    ctx.beginPath();ctx.arc(bx+bw/2,by+bh/2,arad,0,Math.PI*2);
+    ctx.strokeStyle=TDEFS[14].clr+'33';ctx.lineWidth=1.5;ctx.setLineDash([3,4]);ctx.stroke();ctx.setLineDash([]);
+    // Columns
+    ctx.strokeStyle=TDEFS[14].clr+'55';ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(bx+CS,by+4);ctx.lineTo(bx+CS,by+bh-4);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(bx+CS*2,by+4);ctx.lineTo(bx+CS*2,by+bh-4);ctx.stroke();
+    // ⚡ symbol
+    ctx.fillStyle=TDEFS[14].clr;ctx.font=`bold ${CS}px sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText('⚡',bx+bw/2,by+bh/2);
+    // boost label
+    ctx.font=`600 8px "DM Mono",monospace`;ctx.fillStyle=dark?'#c084fc':'#7e22ce';
+    ctx.fillText(`+${Math.round((t.ampBoost||0.5)*100)}% boost`,bx+bw/2,by+bh-8);
+    // Upgrade dots
+    ctx.fillStyle=TDEFS[14].clr;
+    const pa14=t.pA||0,pb14=t.pB||0,pc14=t.pC||0;
+    for(let i=0;i<pa14;i++){ctx.beginPath();ctx.arc(bx+8+i*6,by+8,3,0,Math.PI*2);ctx.fill();}
+    ctx.fillStyle=TDEFS[14].clr+'99';
+    for(let i=0;i<pb14;i++){ctx.beginPath();ctx.arc(bx+8+i*6,by+16,3,0,Math.PI*2);ctx.fill();}
+    ctx.fillStyle=TDEFS[14].clr+'55';
+    for(let i=0;i<pc14;i++){ctx.beginPath();ctx.arc(bx+8+i*6,by+24,3,0,Math.PI*2);ctx.fill();}
+    return;
+  }
   else if(id===13){
     // Bank: draw as 3x3 building centered at top-left cell origin
     ctx.restore(); // exit the translated context first
@@ -1235,7 +1402,11 @@ function drawPoly(ctx,x,y,r,n){ctx.beginPath();for(let i=0;i<n;i++){const a=i*Ma
 // ═══════════════════════════════════════════
 // LOOP
 // ═══════════════════════════════════════════
-function loop(ts){update(ts);draw(ts);animId=requestAnimationFrame(loop);}
+function loop(ts){
+  update(ts);draw(ts);
+  canvas.style.cursor=moveTowerMode?(dragTower?'crosshair':'grab'):'crosshair';
+  animId=requestAnimationFrame(loop);
+}
 
 function endGame(win){
   if(animId){cancelAnimationFrame(animId);animId=null;}
@@ -1249,11 +1420,16 @@ function endGame(win){
 // ═══════════════════════════════════════════
 function buildShop(){
   const p=document.getElementById('shopPanel');p.innerHTML='';
+  const towerCount=towers.length;
   TDEFS.forEach((td,i)=>{
+    const req=td.requires;
+    const reqOk=!req||(req.towers===undefined||towerCount>=req.towers);
     const d=document.createElement('div');
-    d.className=`tc${i===selShopType?' sel':''}${gold<td.cost?' unafford':''}`;
-    d.innerHTML=`<span class="tc-dot" style="background:${td.clr}"></span><div class="tc-info"><div class="tc-name">${td.name}</div><div class="tc-cost">${td.cost}g</div></div>`;
-    if(gold>=td.cost) d.addEventListener('click',()=>{selShopType=i;selTower=null;showUpPanel(false);buildShop();msg(`${td.name} — click to place.`);});
+    const isPlacing=i===selShopType&&!selTower&&!moveTowerMode;
+    d.className=`tc${isPlacing?' sel placing':''}${!reqOk?' locked':gold<td.cost?' unafford':''}`;
+    const reqLabel=(!reqOk&&req&&req.towers)?`<div class="tc-req">Requires ${req.towers} towers (${towerCount}/${req.towers})</div>`:'';
+    d.innerHTML=`<div class="tc-main"><span class="tc-dot" style="background:${td.clr}"></span><div class="tc-info"><div class="tc-name">${td.name}</div><div class="tc-cost">${td.cost}g</div></div></div>${reqLabel}`;
+    if(gold>=td.cost&&reqOk) d.addEventListener('click',()=>{selShopType=i;selTower=null;moveTowerMode=false;showUpPanel(false);buildShop();msg(`${td.name} — click to place. Right-click to cancel.`);});
     p.appendChild(d);
   });
 }
@@ -1308,7 +1484,7 @@ function renderUpPanel(tower){
     </div>`;
   }
 
-  const sell=Math.floor(TDEFS[tower.type].cost*.6);
+  const sell=Math.floor(TDEFS[tower.type].cost*.55);
   let upgSpend=0;
   for(let i=0;i<pa;i++)upgSpend+=def.pA[i].c;
   for(let i=0;i<pb;i++)upgSpend+=def.pB[i].c;
@@ -1348,40 +1524,107 @@ canvas.addEventListener('click',e=>{
   const r=canvas.getBoundingClientRect();
   const col=Math.floor((e.clientX-r.left)/CS),row=Math.floor((e.clientY-r.top)/CS);
   if(col<0||col>=COLS||row<0||row>=ROWS)return;
-  // Check if click lands on any tower cell (including 3x3 banks)
+
+  // Move mode: place dragged tower at new location, cost one upgrade
+  if(moveTowerMode&&dragTower){
+    const def=TDEFS[dragTower.type];
+    const isLarge=def.isBank||def.isAmplifier;
+    const cells=isLarge?getBankCells(col,row):[[col,row]];
+    for(const[c,r2] of cells){
+      if(c<0||c>=COLS||r2<0||r2>=ROWS){msg("Doesn't fit.");return;}
+      if(pathSet.has(`${c},${r2}`)){msg("Can't place on path.");return;}
+      if(towers.some(t=>t!==dragTower&&(()=>{
+        const d=TDEFS[t.type];
+        if(d.isBank||d.isAmplifier) return c>=t.col&&c<t.col+3&&r2>=t.row&&r2<t.row+3;
+        return t.col===c&&t.row===r2;
+      })())){msg("Already occupied.");return;}
+    }
+    // Remove one upgrade from the tower (most recent path)
+    const pa=dragTower.pA||0,pb=dragTower.pB||0,pc=dragTower.pC||0;
+    if(pa>0||pb>0||pc>0){
+      // Find path with highest level and remove last upgrade
+      const paths=[['A',pa],['B',pb],['C',pc]].filter(x=>x[1]>0);
+      paths.sort((a,b)=>b[1]-a[1]);
+      const [lostPath,lostLvl]=paths[0];
+      const lostKey=lostPath==='A'?'pA':lostPath==='B'?'pB':'pC';
+      const lostUp=def[lostKey][lostLvl-1];
+      if(lostPath==='A')dragTower.pA--;
+      else if(lostPath==='B')dragTower.pB--;
+      else dragTower.pC--;
+      // If primary path lost its t3 status, clear primary
+      if(dragTower.primaryPath===lostPath&&(dragTower[lostKey]||0)<3)dragTower.primaryPath=null;
+      // Rebuild tower stats from scratch
+      rebuildTowerStats(dragTower);
+      msg(`Tower moved! Lost: ${lostUp.n}`);
+    } else {
+      msg('Tower moved!');
+    }
+    dragTower.col=col;dragTower.row=row;
+    dragTower=null;moveTowerMode=false;
+    document.getElementById('moveTowerBtn').textContent='MOVE';
+    document.getElementById('moveTowerBtn').classList.remove('on-move');
+    updateHUD();buildShop();applyAmpBoosts();
+    return;
+  }
+
+  // Check if click lands on any tower cell (including 3x3 banks/amplifiers)
   const clicked=towers.find(t=>{
     const def=TDEFS[t.type];
-    if(def.isBank){
+    if(def.isBank||def.isAmplifier){
       return col>=t.col&&col<t.col+3&&row>=t.row&&row<t.row+3;
     }
     return t.col===col&&t.row===row;
   });
+
+  // Move mode: picking up a tower
+  if(moveTowerMode&&!dragTower){
+    if(clicked){dragTower=clicked;msg('Click new location to place. Right-click to cancel.');return;}
+    moveTowerMode=false;document.getElementById('moveTowerBtn').textContent='MOVE';
+    document.getElementById('moveTowerBtn').classList.remove('on-move');
+    return;
+  }
+
   if(clicked){selTower=clicked;renderUpPanel(clicked);return;}
   if(selTower){deselTower();return;}
 
   const def=TDEFS[selShopType];
-  const isBank=def.isBank;
-  const cells=isBank?getBankCells(col,row):[[col,row]];
+  const isLarge=def.isBank||def.isAmplifier;
+  const cells=isLarge?getBankCells(col,row):[[col,row]];
 
   // Validate all cells
   for(const[c,r2] of cells){
-    if(c<0||c>=COLS||r2<0||r2>=ROWS){msg("Bank doesn't fit here.");return;}
+    if(c<0||c>=COLS||r2<0||r2>=ROWS){msg("Doesn't fit here.");return;}
     if(pathSet.has(`${c},${r2}`)){msg("Can't build on the path.");return;}
     if(towers.some(t=>{
       const d=TDEFS[t.type];
-      if(d.isBank) return c>=t.col&&c<t.col+3&&r2>=t.row&&r2<t.row+3;
+      if(d.isBank||d.isAmplifier) return c>=t.col&&c<t.col+3&&r2>=t.row&&r2<t.row+3;
       return t.col===c&&t.row===r2;
     })){msg("Already occupied.");return;}
   }
   const cost=def.cost;
   if(gold<cost){msg(`Need ${cost}g.`);return;}
+  const req=def.requires;
+  if(req&&req.towers!==undefined&&towers.length<req.towers){msg(`Need ${req.towers} towers placed first.`);return;}
   gold-=cost;
-  towers.push({col,row,type:selShopType,cd:0,ang:-Math.PI/2,pA:0,pB:0,pC:0,
+  const newTower={col,row,type:selShopType,cd:0,ang:-Math.PI/2,pA:0,pB:0,pC:0,
     dmg:def.dmg,rate:def.rate,range:def.range,splash:def.splash,
     slow:def.slow,chain:def.chain,burn:def.burn,stun:def.stun,
     pierce:def.pierce,multi:def.multi||1,
-    bankIncome:def.bankIncome||0,bankInterest:0});
-  updateHUD();buildShop();msg(`${def.name} placed.`);
+    bankIncome:def.bankIncome||0,bankInterest:0,
+    ampBoost:def.ampBoost||0,ampRadius:def.ampRadius||1};
+  towers.push(newTower);
+  updateHUD();buildShop();applyAmpBoosts();msg(`${def.name} placed.`);
+});
+
+// Right-click cancels placement or move
+canvas.addEventListener('contextmenu',e2=>{
+  if(moveTowerMode){
+    e2.preventDefault();
+    dragTower=null;moveTowerMode=false;
+    document.getElementById('moveTowerBtn').textContent='MOVE';
+    document.getElementById('moveTowerBtn').classList.remove('on-move');
+    msg('Move cancelled.');buildShop();return;
+  }
 });
 
 function getBankCells(col,row){
@@ -1390,13 +1633,15 @@ function getBankCells(col,row){
   return cells;
 }
 
+// Right-click on canvas: sell tower (if not in move mode)
 canvas.addEventListener('contextmenu',e=>{
+  if(moveTowerMode)return; // handled above
   e.preventDefault();
   const r=canvas.getBoundingClientRect();
   const col=Math.floor((e.clientX-r.left)/CS),row=Math.floor((e.clientY-r.top)/CS);
   const idx=towers.findIndex(t=>{
     const def=TDEFS[t.type];
-    if(def.isBank) return col>=t.col&&col<t.col+3&&row>=t.row&&row<t.row+3;
+    if(def.isBank||def.isAmplifier) return col>=t.col&&col<t.col+3&&row>=t.row&&row<t.row+3;
     return t.col===col&&t.row===row;
   });
   if(idx===-1)return;
@@ -1408,7 +1653,32 @@ canvas.addEventListener('contextmenu',e=>{
   gold+=Math.floor(def.cost*.6)+Math.floor(sp*.4);
   towers.splice(idx,1);
   if(selTower===t)deselTower();
-  updateHUD();buildShop();msg('Tower sold.');
+  updateHUD();buildShop();applyAmpBoosts();msg('Tower sold.');
+});
+
+// Rebuild tower stats from scratch after moving (re-apply all upgrades)
+function rebuildTowerStats(t){
+  const def=TDEFS[t.type];
+  t.dmg=def.dmg;t.rate=def.rate;t.range=def.range;t.splash=def.splash;
+  t.slow=def.slow;t.chain=def.chain;t.burn=def.burn;t.stun=def.stun;
+  t.pierce=def.pierce;t.multi=def.multi||1;
+  t.bankIncome=def.bankIncome||0;t.ampBoost=def.ampBoost||0;t.ampRadius=def.ampRadius||1;
+  t._ampOrig=null;t._ampBoosted=false;
+  const apply=(path,cnt)=>{
+    const key=path==='A'?'pA':path==='B'?'pB':'pC';
+    for(let i=0;i<cnt;i++) def[key][i].f(t);
+  };
+  apply('A',t.pA||0);apply('B',t.pB||0);apply('C',t.pC||0);
+}
+
+document.getElementById('moveTowerBtn').addEventListener('click',()=>{
+  moveTowerMode=!moveTowerMode;
+  dragTower=null;
+  const btn=document.getElementById('moveTowerBtn');
+  btn.textContent=moveTowerMode?'MOVE ON':'MOVE';
+  btn.classList.toggle('on-move',moveTowerMode);
+  if(moveTowerMode){selTower=null;showUpPanel(false);buildShop();msg('MOVE: click a tower to pick it up.');}
+  else msg('');
 });
 
 document.getElementById('waveBtn').addEventListener('click',()=>{if(!waveActive)startWave();});
@@ -1447,7 +1717,9 @@ function buildTowerList(){
     entry.className='tower-entry';
     // Summarize stats
     const stats=[];
-    if(td.isBank){
+    if(td.isAmplifier){
+      stats.push(`+${Math.round(td.ampBoost*100)}% boost`,`${td.ampRadius} cell radius`,'3×3 area','no attacks');
+    } else if(td.isBank){
       stats.push(`${td.bankIncome}g/wave base`,'3×3 area','no attacks');
     } else {
       if(td.dmg) stats.push(`${td.dmg} dmg`);
@@ -1466,11 +1738,12 @@ function buildTowerList(){
       `<span class="tpath-tag">${td.pathC||'Path C'}</span>`,
     ].join('');
 
+    const reqNote=td.requires&&td.requires.towers?`<span style="color:var(--red);font-family:'DM Mono',monospace;font-size:8px"> · requires ${td.requires.towers} towers</span>`:'';
     entry.innerHTML=`
       <div class="tower-entry-dot" style="background:${td.clr}"></div>
       <div class="tower-entry-body">
         <div class="tower-entry-top">
-          <div class="tower-entry-name">${td.name}</div>
+          <div class="tower-entry-name">${td.name}${reqNote}</div>
           <div class="tower-entry-cost">${td.cost}g</div>
         </div>
         <div class="tower-entry-desc">${td.desc||''}<br><span style="color:var(--ink3)">${stats.join(' · ')}</span></div>
