@@ -72,6 +72,9 @@ body{background:var(--bg);min-height:100vh;display:flex;align-items:center;justi
 .md-play-btn.normal{color:#fff}
 .md-play-btn.endless{color:var(--ink);border:2px dashed var(--border)}
 .md-play-btn.endless:hover{border-color:var(--ink2);background:var(--surface2)}
+.md-play-btn.sandbox{color:#a855f7;border:2px dashed #a855f7}
+.md-play-btn.sandbox:hover{border-color:#a855f7;background:#a855f711}
+#sandboxBanner{display:none;background:#a855f7;color:#fff;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.12em;text-transform:uppercase;text-align:center;padding:3px 0;flex-shrink:0}
 .md-play-label{font-size:15px;font-weight:700;letter-spacing:-.01em}
 .md-play-sub{font-size:9px;opacity:.65;font-weight:400}
 .md-back{font-family:'DM Mono',monospace;font-size:10px;background:transparent;border:none;color:var(--ink3);cursor:pointer;letter-spacing:.08em;text-transform:uppercase;padding:4px 0;display:flex;align-items:center;gap:4px}
@@ -266,6 +269,10 @@ body{background:var(--bg);min-height:100vh;display:flex;align-items:center;justi
         <span class="md-play-label">∞ ENDLESS</span>
         <span class="md-play-sub">waves never stop · survive as long as possible</span>
       </button>
+      <button class="md-play-btn sandbox" id="mdPlaySandbox">
+        <span class="md-play-label">⚗ SANDBOX</span>
+        <span class="md-play-sub">unlimited gold · no waves · build freely</span>
+      </button>
     </div>
     <button class="md-back" id="mdBack">← back to maps</button>
   </div>
@@ -283,10 +290,9 @@ body{background:var(--bg);min-height:100vh;display:flex;align-items:center;justi
     <div class="upg-system-box">
       <div class="upg-system-title">UPGRADE SYSTEM — 5 · 3 · CUT OFF</div>
       Each tower has <strong>3 upgrade paths</strong> with 5 tiers each.<br>
-      Once <em>any</em> path is upgraded, the <em>other two are immediately cut off</em>.<br>
       The first path to reach tier 3 becomes the <span class="badge-primary">★ PRIMARY</span> — upgradeable to tier 5.<br>
-      If a second path was started before primary, it may remain as <span class="badge-secondary">SECONDARY</span> — capped at tier 3.<br>
-      The remaining path becomes <span class="badge-cutoff">✕ CUT OFF</span> and is locked.
+      A second path you started <em>before</em> primary locked in becomes <span class="badge-secondary">SECONDARY</span> — capped at tier 3.<br>
+      If primary locked with only 1 path ever touched, the others are <span class="badge-cutoff">✕ CUT OFF</span> — no secondary.
     </div>
     <div class="tower-list" id="towerListContent"></div>
     <div style="margin-top:14px">
@@ -299,6 +305,7 @@ body{background:var(--bg);min-height:100vh;display:flex;align-items:center;justi
 <div id="gameScreen">
   <canvas id="gameCanvas" width="600" height="420"></canvas>
   <div id="sidebar">
+    <div id="sandboxBanner">⚗ SANDBOX MODE — unlimited gold · no lives · spawn enemies manually</div>
     <div class="sb-stats">
       <div class="stat"><span class="sl">Wave</span><span class="sv" id="waveEl">1/10</span></div>
       <div class="stat"><span class="sl">Gold</span><span class="sv gld" id="goldEl">150</span></div>
@@ -383,25 +390,25 @@ const TDEFS=[
    pathA:'Damage',pathB:'Range & Pierce',pathC:'Rate & Multi',
    dmg:10,rate:0.95,range:3.2,splash:0,slow:0,chain:0,burn:0,stun:0,pierce:0,multi:1,
    pA:[
-    {n:'Speed Clip',  c:80,  d:'+35% rate',          f:t=>{t.rate*=1.35}},
-    {n:'Sharp Tips',  c:150, d:'+60% damage',         f:t=>{t.dmg*=1.6}},
-    {n:'Quad Barrel', c:320, d:'Fires 4 shots',       f:t=>{t.multi=4}},
-    {n:'Hollow Point',c:600, d:'Damage ×2',           f:t=>{t.dmg*=2}},
-    {n:'Commando',    c:1200,d:'Rate ×2.5, Dmg ×2',  f:t=>{t.rate*=2.5;t.dmg*=2}},
+    {n:'Speed Clip',  c:80,  d:'+8% rate',            f:t=>{t.rate*=1.08},  fOrig:t=>{t.rate*=1.35}},
+    {n:'Sharp Tips',  c:150, d:'+60% damage',          f:t=>{t.dmg*=1.6}},
+    {n:'Quad Barrel', c:320, d:'Fires 2 shots',        f:t=>{t.multi=2},     fOrig:t=>{t.multi=4}},
+    {n:'Hollow Point',c:600, d:'Damage ×2',            f:t=>{t.dmg*=2}},
+    {n:'Commando',    c:1200,d:'Rate ×1.2, Dmg ×2',   f:t=>{t.rate*=1.2;t.dmg*=2}, fOrig:t=>{t.rate*=2.5;t.dmg*=2}},
    ],
    pB:[
-    {n:'Long Barrel', c:70, d:'Range +45%',           f:t=>{t.range*=1.45}},
-    {n:'Piercing',    c:150,d:'Pierce 3 enemies',     f:t=>{t.pierce=3}},
-    {n:'Elite Rifle', c:300,d:'Range +30%, Dmg +80%', f:t=>{t.dmg*=1.8;t.range*=1.3}},
-    {n:'Devastator',  c:700,d:'Dmg ×2, Range +30%',  f:t=>{t.dmg*=2;t.range*=1.3}},
-    {n:'Railgun',     c:1600,d:'Dmg ×3, Pierce 10',  f:t=>{t.dmg*=3;t.pierce=10}},
+    {n:'Long Barrel', c:70, d:'Range +45%',            f:t=>{t.range*=1.45}},
+    {n:'Piercing',    c:150,d:'Pierce 3 enemies',      f:t=>{t.pierce=3}},
+    {n:'Elite Rifle', c:300,d:'Range +30%, Dmg +80%',  f:t=>{t.dmg*=1.8;t.range*=1.3}},
+    {n:'Devastator',  c:700,d:'Dmg ×2, Range +30%',   f:t=>{t.dmg*=2;t.range*=1.3}},
+    {n:'Railgun',     c:1600,d:'Dmg ×3, Pierce 10',   f:t=>{t.dmg*=3;t.pierce=10}},
    ],
    pC:[
-    {n:'Fast Hands',  c:80, d:'Rate ×1.4',            f:t=>{t.rate*=1.4}},
-    {n:'Dual Mag',    c:160,d:'Multi 2, Rate+20%',    f:t=>{t.multi=2;t.rate*=1.2}},
-    {n:'Rapid Assault',c:320,d:'Rate ×2, Multi 3',   f:t=>{t.rate*=2;t.multi=3}},
-    {n:'Overdrive',   c:640,d:'Rate ×3',              f:t=>{t.rate*=3}},
-    {n:'Minigun',     c:1280,d:'Rate ×5, Multi 4',   f:t=>{t.rate*=5;t.multi=4}},
+    {n:'Fast Hands',  c:80, d:'Rate ×1.1',             f:t=>{t.rate*=1.1},   fOrig:t=>{t.rate*=1.4}},
+    {n:'Dual Mag',    c:160,d:'Multi 2',               f:t=>{t.multi=2},     fOrig:t=>{t.multi=2;t.rate*=1.2}},
+    {n:'Rapid Assault',c:320,d:'Rate ×1.2, Multi 2',  f:t=>{t.rate*=1.2;t.multi=2}, fOrig:t=>{t.rate*=2;t.multi=3}},
+    {n:'Overdrive',   c:640,d:'Rate ×1.4',             f:t=>{t.rate*=1.4},   fOrig:t=>{t.rate*=3}},
+    {n:'Minigun',     c:1280,d:'Rate ×1.6, Multi 3',  f:t=>{t.rate*=1.6;t.multi=3}, fOrig:t=>{t.rate*=5;t.multi=4}},
    ]},
   {id:1,name:'Sniper',cost:100,clr:'#8b5cf6',
    desc:'Long-range precision. High single-target damage.',
@@ -411,8 +418,8 @@ const TDEFS=[
     {n:'Heavy Rounds', c:120, d:'+80% damage',         f:t=>{t.dmg*=1.8}},
     {n:'Full Metal',   c:250, d:'Pierce 5 enemies',    f:t=>{t.pierce=5}},
     {n:'Anti-Armor',   c:500, d:'Damage ×2.5',         f:t=>{t.dmg*=2.5}},
-    {n:'Marksman',     c:900, d:'Rate +50%, Dmg ×2',   f:t=>{t.rate*=1.5;t.dmg*=2}},
-    {n:'Elite Sniper', c:2000,d:'Dmg ×3, Rate ×2',    f:t=>{t.dmg*=3;t.rate*=2}},
+    {n:'Marksman',     c:900, d:'Rate +25%, Dmg ×2',   f:t=>{t.rate*=1.25;t.dmg*=2},  fOrig:t=>{t.rate*=1.5;t.dmg*=2}},
+    {n:'Elite Sniper', c:2000,d:'Dmg ×3, Rate ×1.5',   f:t=>{t.dmg*=3;t.rate*=1.5},   fOrig:t=>{t.dmg*=3;t.rate*=2}},
    ],
    pB:[
     {n:'Night Vision', c:100, d:'Range +50%',          f:t=>{t.range*=1.5}},
@@ -435,16 +442,16 @@ const TDEFS=[
    pA:[
     {n:'Bigger Bomb',  c:150, d:'Splash+30%, Dmg+50%', f:t=>{t.splash*=1.3;t.dmg*=1.5}},
     {n:'Frag Shots',   c:280, d:'Damage ×2',           f:t=>{t.dmg*=2}},
-    {n:'Cluster',      c:550, d:'Fires 3 bombs',       f:t=>{t.multi=3}},
+    {n:'Cluster',      c:550, d:'Fires 2 bombs',       f:t=>{t.multi=2},              fOrig:t=>{t.multi=3}},
     {n:'MIRV',         c:1100,d:'Dmg ×2, Splash ×1.5',f:t=>{t.dmg*=2;t.splash*=1.5}},
-    {n:'Carpet Bomb',  c:2200,d:'6 bombs, Dmg ×2',    f:t=>{t.multi=6;t.dmg*=2}},
+    {n:'Carpet Bomb',  c:2200,d:'3 bombs, Dmg ×2',    f:t=>{t.multi=3;t.dmg*=2},     fOrig:t=>{t.multi=6;t.dmg*=2}},
    ],
    pB:[
-    {n:'Faster Fuse',  c:120, d:'Rate +50%',           f:t=>{t.rate*=1.5}},
-    {n:'Auto Loader',  c:250, d:'Rate ×2',             f:t=>{t.rate*=2}},
-    {n:'Rapid Barrage',c:500, d:'Rate ×2, Range+20%',  f:t=>{t.rate*=2;t.range*=1.2}},
-    {n:'Gatling Cannon',c:1100,d:'Rate ×3, Range+30%', f:t=>{t.rate*=3;t.range*=1.3}},
-    {n:'Storm Cannon', c:2200,d:'Rate ×4, Multi 2',    f:t=>{t.rate*=4;t.multi=Math.max(t.multi,2)}},
+    {n:'Faster Fuse',  c:120, d:'Rate +25%',           f:t=>{t.rate*=1.25},                         fOrig:t=>{t.rate*=1.5}},
+    {n:'Auto Loader',  c:250, d:'Rate ×1.5',           f:t=>{t.rate*=1.5},                          fOrig:t=>{t.rate*=2}},
+    {n:'Rapid Barrage',c:500, d:'Rate ×1.5, Range+20%',f:t=>{t.rate*=1.5;t.range*=1.2},             fOrig:t=>{t.rate*=2;t.range*=1.2}},
+    {n:'Gatling Cannon',c:1100,d:'Rate ×2, Range+30%', f:t=>{t.rate*=2;t.range*=1.3},               fOrig:t=>{t.rate*=3;t.range*=1.3}},
+    {n:'Storm Cannon', c:2200,d:'Rate ×2.5',           f:t=>{t.rate*=2.5},                          fOrig:t=>{t.rate*=4;t.multi=Math.max(t.multi,2)}},
    ],
    pC:[
     {n:'Smoke Shell',  c:120, d:'Slow 40% on blast',   f:t=>{t.slow=0.4}},
@@ -466,17 +473,17 @@ const TDEFS=[
    ],
    pB:[
     {n:'Ice Spread',   c:100, d:'Splash +60%',        f:t=>{t.splash*=1.6}},
-    {n:'Frostbite',    c:200, d:'Splash×2, Rate+30%', f:t=>{t.splash*=2;t.rate*=1.3}},
-    {n:'Blizzard',     c:400, d:'Splash×2.5, Rate×1.5',f:t=>{t.splash*=2.5;t.rate*=1.5}},
-    {n:'Winter Storm', c:900, d:'Splash×3, Rate×2',   f:t=>{t.splash*=3;t.rate*=2}},
+    {n:'Frostbite',    c:200, d:'Splash×2, Rate+15%', f:t=>{t.splash*=2;t.rate*=1.15},              fOrig:t=>{t.splash*=2;t.rate*=1.3}},
+    {n:'Blizzard',     c:400, d:'Splash×2.5, Rate×1.2', f:t=>{t.splash*=2.5;t.rate*=1.2},              fOrig:t=>{t.splash*=2.5;t.rate*=1.5}},
+    {n:'Winter Storm', c:900, d:'Splash×3, Rate×1.4',  f:t=>{t.splash*=3;t.rate*=1.4},                fOrig:t=>{t.splash*=3;t.rate*=2}},
     {n:'Ice Age',      c:1900,d:'Splash×4, Slow 95%', f:t=>{t.splash*=4;t.slow=.95}},
    ],
    pC:[
     {n:'Ice Shards',   c:100, d:'Dmg ×1.8',           f:t=>{t.dmg*=1.8}},
     {n:'Cryo Bolts',   c:200, d:'Pierce 3, Dmg×1.5',  f:t=>{t.pierce=3;t.dmg*=1.5}},
-    {n:'Frozen Spike', c:400, d:'Multi 3, Dmg ×2',    f:t=>{t.multi=3;t.dmg*=2}},
-    {n:'Glacial Fury', c:800, d:'Dmg ×3, Rate×1.5',   f:t=>{t.dmg*=3;t.rate*=1.5}},
-    {n:'Zero Point',   c:1600,d:'Dmg ×5, Pierce 10, Rate×2',f:t=>{t.dmg*=5;t.pierce=10;t.rate*=2}},
+    {n:'Frozen Spike', c:400, d:'Multi 2, Dmg ×2',    f:t=>{t.multi=2;t.dmg*=2},              fOrig:t=>{t.multi=3;t.dmg*=2}},
+    {n:'Glacial Fury', c:800, d:'Dmg ×3, Rate×1.2',   f:t=>{t.dmg*=3;t.rate*=1.2},             fOrig:t=>{t.dmg*=3;t.rate*=1.5}},
+    {n:'Zero Point',   c:1600,d:'Dmg ×5, Pierce 10, Rate×1.5',f:t=>{t.dmg*=5;t.pierce=10;t.rate*=1.5},fOrig:t=>{t.dmg*=5;t.pierce=10;t.rate*=2}},
    ]},
   {id:4,name:'Laser',cost:180,clr:'#f97316',
    desc:'Rapid-fire beam. Can apply sustained burn damage.',
@@ -484,18 +491,18 @@ const TDEFS=[
    dmg:18,rate:1.9,range:4.2,splash:0,slow:0,chain:0,burn:0,stun:0,pierce:0,multi:1,
    requires:{towers:2},
    pA:[
-    {n:'Focused Beam', c:150, d:'Dmg+70%, Rate+30%',  f:t=>{t.dmg*=1.7;t.rate*=1.3}},
+    {n:'Focused Beam', c:150, d:'Dmg+70%, Rate+15%',  f:t=>{t.dmg*=1.7;t.rate*=1.15},  fOrig:t=>{t.dmg*=1.7;t.rate*=1.3}},
     {n:'Superheated',  c:300, d:'Burn 5s on hit',     f:t=>{t.burn=5}},
     {n:'Plasma',       c:600, d:'Dmg ×2, Pierce 3',   f:t=>{t.dmg*=2;t.pierce=3}},
-    {n:'Solar Flare',  c:1200,d:'Dmg ×3, Rate ×2',   f:t=>{t.dmg*=3;t.rate*=2}},
+    {n:'Solar Flare',  c:1200,d:'Dmg ×3, Rate ×1.5',  f:t=>{t.dmg*=3;t.rate*=1.5},      fOrig:t=>{t.dmg*=3;t.rate*=2}},
     {n:'Death Ray',    c:2500,d:'Dmg ×5, Burn 12s',   f:t=>{t.dmg*=5;t.burn=12}},
    ],
    pB:[
     {n:'Wide Lens',    c:140, d:'Range +60%',         f:t=>{t.range*=1.6}},
     {n:'Split Beam',   c:280, d:'Targets 2 enemies',  f:t=>{t.multi=2}},
-    {n:'Fan Array',    c:560, d:'Targets 3, Range+20%',f:t=>{t.multi=3;t.range*=1.2}},
-    {n:'Star Array',   c:1200,d:'Targets 4, Range×1.5',f:t=>{t.multi=4;t.range*=1.5}},
-    {n:'Solar Array',  c:2500,d:'Targets 6, Range×2', f:t=>{t.multi=6;t.range*=2}},
+    {n:'Fan Array',    c:560, d:'Targets 2, Range+20%',f:t=>{t.multi=2;t.range*=1.2},       fOrig:t=>{t.multi=3;t.range*=1.2}},
+    {n:'Star Array',   c:1200,d:'Targets 3, Range×1.5',f:t=>{t.multi=3;t.range*=1.5},       fOrig:t=>{t.multi=4;t.range*=1.5}},
+    {n:'Solar Array',  c:2500,d:'Targets 4, Range×2', f:t=>{t.multi=4;t.range*=2},         fOrig:t=>{t.multi=6;t.range*=2}},
    ],
    pC:[
     {n:'Thermal Coat', c:140, d:'Burn 8s on hit',     f:t=>{t.burn=8}},
@@ -513,22 +520,22 @@ const TDEFS=[
     {n:'Big Shell',    c:200, d:'Splash×1.5, Dmg+60%',f:t=>{t.splash*=1.5;t.dmg*=1.6}},
     {n:'Shatter',      c:400, d:'Stun 0.5s on hit',   f:t=>{t.stun=.5}},
     {n:'Artillery',    c:800, d:'Dmg ×2, Splash×1.5', f:t=>{t.dmg*=2;t.splash*=1.5}},
-    {n:'Barrage',      c:1500,d:'Rate ×2, Dmg×1.5',   f:t=>{t.rate*=2;t.dmg*=1.5}},
+    {n:'Barrage',      c:1500,d:'Rate ×1.4, Dmg×1.5', f:t=>{t.rate*=1.4;t.dmg*=1.5},  fOrig:t=>{t.rate*=2;t.dmg*=1.5}},
     {n:'Orbital Strike',c:3000,d:'Dmg ×4, Splash ×2', f:t=>{t.dmg*=4;t.splash*=2}},
    ],
    pB:[
-    {n:'Fast Reload',  c:180, d:'Rate +60%',          f:t=>{t.rate*=1.6}},
-    {n:'Speed Loader', c:360, d:'Rate ×2',            f:t=>{t.rate*=2}},
-    {n:'Rapid Fire',   c:720, d:'Rate ×2.5',          f:t=>{t.rate*=2.5}},
-    {n:'Hypersonic',   c:1500,d:'Rate ×3.5, Range+30%',f:t=>{t.rate*=3.5;t.range*=1.3}},
-    {n:'Auto-Mortar',  c:3000,d:'Rate ×5, Multi 2',   f:t=>{t.rate*=5;t.multi=Math.max(t.multi,2)}},
+    {n:'Fast Reload',  c:180, d:'Rate +30%',           f:t=>{t.rate*=1.3},               fOrig:t=>{t.rate*=1.6}},
+    {n:'Speed Loader', c:360, d:'Rate ×1.5',           f:t=>{t.rate*=1.5},               fOrig:t=>{t.rate*=2}},
+    {n:'Rapid Fire',   c:720, d:'Rate ×1.8',           f:t=>{t.rate*=1.8},               fOrig:t=>{t.rate*=2.5}},
+    {n:'Hypersonic',   c:1500,d:'Rate ×2.5, Range+30%',f:t=>{t.rate*=2.5;t.range*=1.3}, fOrig:t=>{t.rate*=3.5;t.range*=1.3}},
+    {n:'Auto-Mortar',  c:3000,d:'Rate ×3.5',           f:t=>{t.rate*=3.5},               fOrig:t=>{t.rate*=5;t.multi=Math.max(t.multi,2)}},
    ],
    pC:[
     {n:'Scatter',      c:180, d:'Fires 2 shells',      f:t=>{t.multi=2}},
-    {n:'Triple Shell', c:360, d:'Multi 3, Dmg+50%',   f:t=>{t.multi=3;t.dmg*=1.5}},
-    {n:'Volley',       c:720, d:'Multi 4, Rate+40%',  f:t=>{t.multi=4;t.rate*=1.4}},
-    {n:'Carpet Volley',c:1440,d:'Multi 6, Splash×1.3',f:t=>{t.multi=6;t.splash*=1.3}},
-    {n:'Annihilation', c:2880,d:'Multi 8, Dmg×3, Splash×2',f:t=>{t.multi=8;t.dmg*=3;t.splash*=2}},
+    {n:'Triple Shell', c:360, d:'Multi 2, Dmg+50%',   f:t=>{t.multi=2;t.dmg*=1.5},           fOrig:t=>{t.multi=3;t.dmg*=1.5}},
+    {n:'Volley',       c:720, d:'Multi 3, Rate+25%',  f:t=>{t.multi=3;t.rate*=1.25},         fOrig:t=>{t.multi=4;t.rate*=1.4}},
+    {n:'Carpet Volley',c:1440,d:'Multi 4, Splash×1.3',f:t=>{t.multi=4;t.splash*=1.3},        fOrig:t=>{t.multi=6;t.splash*=1.3}},
+    {n:'Annihilation', c:2880,d:'Multi 6, Dmg×3, Splash×2',f:t=>{t.multi=6;t.dmg*=3;t.splash*=2},fOrig:t=>{t.multi=8;t.dmg*=3;t.splash*=2}},
    ]},
   {id:6,name:'Tesla',cost:200,clr:'#eab308',
    desc:'Chain lightning that jumps between enemies. Devastating in groups.',
@@ -550,11 +557,11 @@ const TDEFS=[
     {n:'Quantum Storm',c:2600,d:'Range×3, Stun 1.5s', f:t=>{t.range*=3;t.stun=1.5}},
    ],
    pC:[
-    {n:'Overcharge',   c:150, d:'Rate×1.5, Dmg+30%',  f:t=>{t.rate*=1.5;t.dmg*=1.3}},
-    {n:'Supercharge',  c:300, d:'Rate×2, Dmg+50%',    f:t=>{t.rate*=2;t.dmg*=1.5}},
-    {n:'Hypervolt',    c:600, d:'Rate×2.5, Dmg×2',    f:t=>{t.rate*=2.5;t.dmg*=2}},
-    {n:'Power Surge',  c:1200,d:'Rate×3, Dmg×2.5',    f:t=>{t.rate*=3;t.dmg*=2.5}},
-    {n:'God Lightning',c:2400,d:'Rate×4, Dmg×5',      f:t=>{t.rate*=4;t.dmg*=5}},
+    {n:'Overcharge',   c:150, d:'Rate×1.2, Dmg+30%',  f:t=>{t.rate*=1.2;t.dmg*=1.3},  fOrig:t=>{t.rate*=1.5;t.dmg*=1.3}},
+    {n:'Supercharge',  c:300, d:'Rate×1.5, Dmg+50%',  f:t=>{t.rate*=1.5;t.dmg*=1.5},  fOrig:t=>{t.rate*=2;t.dmg*=1.5}},
+    {n:'Hypervolt',    c:600, d:'Rate×1.8, Dmg×2',    f:t=>{t.rate*=1.8;t.dmg*=2},     fOrig:t=>{t.rate*=2.5;t.dmg*=2}},
+    {n:'Power Surge',  c:1200,d:'Rate×2.2, Dmg×2.5',  f:t=>{t.rate*=2.2;t.dmg*=2.5},  fOrig:t=>{t.rate*=3;t.dmg*=2.5}},
+    {n:'God Lightning',c:2400,d:'Rate×3, Dmg×5',      f:t=>{t.rate*=3;t.dmg*=5},       fOrig:t=>{t.rate*=4;t.dmg*=5}},
    ]},
   {id:7,name:'Missile',cost:300,clr:'#22c55e',
    desc:'Slow but devastating homing rockets. Great vs bosses.',
@@ -565,15 +572,15 @@ const TDEFS=[
     {n:'Big Warhead',  c:250, d:'Dmg+80%, Splash+30%',f:t=>{t.dmg*=1.8;t.splash*=1.3}},
     {n:'Depleted U.',  c:500, d:'Damage ×2',          f:t=>{t.dmg*=2}},
     {n:'Nuclear Tip',  c:1000,d:'Dmg ×2, Splash ×2', f:t=>{t.dmg*=2;t.splash*=2}},
-    {n:'MOAB Killer',  c:2000,d:'Dmg ×3, Rate+50%',  f:t=>{t.dmg*=3;t.rate*=1.5}},
+    {n:'MOAB Killer',  c:2000,d:'Dmg ×3, Rate+25%',  f:t=>{t.dmg*=3;t.rate*=1.25}, fOrig:t=>{t.dmg*=3;t.rate*=1.5}},
     {n:'Apocalypse',   c:4000,d:'Dmg ×4, Splash ×2', f:t=>{t.dmg*=4;t.splash*=2}},
    ],
    pB:[
     {n:'Twin Launcher',c:250, d:'Fires 2 missiles',   f:t=>{t.multi=2}},
-    {n:'Volley',       c:500, d:'Fires 4 missiles',   f:t=>{t.multi=4}},
-    {n:'Salvo',        c:1000,d:'6 missiles, Rate+30%',f:t=>{t.multi=6;t.rate*=1.3}},
-    {n:'Rapid Volley', c:2000,d:'Multi 8, Rate×1.5',  f:t=>{t.multi=8;t.rate*=1.5}},
-    {n:'Death Blossom',c:4000,d:'Multi 12, Rate×2',   f:t=>{t.multi=12;t.rate*=2}},
+    {n:'Volley',       c:500, d:'Fires 3 missiles',   f:t=>{t.multi=3},               fOrig:t=>{t.multi=4}},
+    {n:'Salvo',        c:1000,d:'4 missiles, Rate+20%',f:t=>{t.multi=4;t.rate*=1.2},   fOrig:t=>{t.multi=6;t.rate*=1.3}},
+    {n:'Rapid Volley', c:2000,d:'Multi 6, Rate×1.3',   f:t=>{t.multi=6;t.rate*=1.3},   fOrig:t=>{t.multi=8;t.rate*=1.5}},
+    {n:'Death Blossom',c:4000,d:'Multi 8, Rate×1.5',   f:t=>{t.multi=8;t.rate*=1.5},   fOrig:t=>{t.multi=12;t.rate*=2}},
    ],
    pC:[
     {n:'Concussion',   c:250, d:'Stun 0.8s on hit',   f:t=>{t.stun=0.8}},
@@ -596,43 +603,43 @@ const TDEFS=[
    ],
    pB:[
     {n:'Wide Nozzle',  c:120, d:'Splash×1.8, Range+20%',f:t=>{t.splash*=1.8;t.range*=1.2}},
-    {n:'Cone of Fire', c:250, d:'Multi 2, Rate+30%',  f:t=>{t.multi=2;t.rate*=1.3}},
-    {n:'Firestorm',    c:500, d:'Multi 3, Splash×1.5',f:t=>{t.multi=3;t.splash*=1.5}},
-    {n:'Blazing Storm',c:1100,d:'Multi 4, Splash×2',  f:t=>{t.multi=4;t.splash*=2}},
-    {n:'Apoc. Fire',   c:2200,d:'Multi 6, Splash×3',  f:t=>{t.multi=6;t.splash*=3}},
+    {n:'Cone of Fire', c:250, d:'Multi 2, Rate+15%',  f:t=>{t.multi=2;t.rate*=1.15},  fOrig:t=>{t.multi=2;t.rate*=1.3}},
+    {n:'Firestorm',    c:500, d:'Multi 2, Splash×1.5',f:t=>{t.multi=2;t.splash*=1.5},   fOrig:t=>{t.multi=3;t.splash*=1.5}},
+    {n:'Blazing Storm',c:1100,d:'Multi 3, Splash×2',  f:t=>{t.multi=3;t.splash*=2},     fOrig:t=>{t.multi=4;t.splash*=2}},
+    {n:'Apoc. Fire',   c:2200,d:'Multi 4, Splash×3',  f:t=>{t.multi=4;t.splash*=3},     fOrig:t=>{t.multi=6;t.splash*=3}},
    ],
    pC:[
-    {n:'Pressure Nozzle',c:120,d:'Range×1.5, Rate+30%',f:t=>{t.range*=1.5;t.rate*=1.3}},
-    {n:'Inferno Blaster',c:240,d:'Range×1.8, Rate×1.5',f:t=>{t.range*=1.8;t.rate*=1.5}},
-    {n:'Jet Flame',    c:480, d:'Range×2, Rate×2',    f:t=>{t.range*=2;t.rate*=2}},
-    {n:'Dragon Jet',   c:960, d:'Range×2.5, Rate×2.5, Dmg×1.5',f:t=>{t.range*=2.5;t.rate*=2.5;t.dmg*=1.5}},
-    {n:'Phoenix Burst',c:1920,d:'Range×3, Rate×3, Dmg×2',f:t=>{t.range*=3;t.rate*=3;t.dmg*=2}},
+    {n:'Pressure Nozzle',c:120,d:'Range×1.5, Rate+15%',f:t=>{t.range*=1.5;t.rate*=1.15},              fOrig:t=>{t.range*=1.5;t.rate*=1.3}},
+    {n:'Inferno Blaster',c:240,d:'Range×1.8, Rate×1.2', f:t=>{t.range*=1.8;t.rate*=1.2},               fOrig:t=>{t.range*=1.8;t.rate*=1.5}},
+    {n:'Jet Flame',    c:480, d:'Range×2, Rate×1.5',    f:t=>{t.range*=2;t.rate*=1.5},                 fOrig:t=>{t.range*=2;t.rate*=2}},
+    {n:'Dragon Jet',   c:960, d:'Range×2.5, Rate×1.8, Dmg×1.5',f:t=>{t.range*=2.5;t.rate*=1.8;t.dmg*=1.5}, fOrig:t=>{t.range*=2.5;t.rate*=2.5;t.dmg*=1.5}},
+    {n:'Phoenix Burst',c:1920,d:'Range×3, Rate×2, Dmg×2',  f:t=>{t.range*=3;t.rate*=2;t.dmg*=2},          fOrig:t=>{t.range*=3;t.rate*=3;t.dmg*=2}},
    ]},
   {id:9,name:'Spikes',cost:180,clr:'#78716c',
    desc:'Fires tacks in all 8 directions simultaneously. Pierces every enemy in each lane.',
    pathA:'Damage & Rate',pathB:'Explosive Tips',pathC:'Range & Reach',
-   dmg:19,rate:0.45,range:2.2,splash:0,slow:0,chain:0,burn:0,stun:0,pierce:99,multi:1,
+   dmg:9.5,rate:0.225,range:2.2,splash:0,slow:0,chain:0,burn:0,stun:0,pierce:99,multi:1,
    tacMode:true,
    pA:[
-    {n:'Extra Spikes', c:150, d:'Dmg+60%, Rate+30%',  f:t=>{t.dmg*=1.6;t.rate*=1.3}},
-    {n:'Triple Spike', c:300, d:'Range +60%',         f:t=>{t.range*=1.6}},
-    {n:'Spike Carpet', c:600, d:'Dmg ×2, Rate ×2',   f:t=>{t.dmg*=2;t.rate*=2}},
-    {n:'Spike Storm',  c:1200,d:'Range ×2, Dmg ×2',  f:t=>{t.range*=2;t.dmg*=2}},
-    {n:'Endless Spike',c:2400,d:'Dmg ×3, Rate ×3',   f:t=>{t.dmg*=3;t.rate*=3}},
+    {n:'Extra Spikes', c:150, d:'Dmg+30%, Rate+15%',  f:t=>{t.dmg*=1.3;t.rate*=1.15}},
+    {n:'Triple Spike', c:300, d:'Range +30%',          f:t=>{t.range*=1.3}},
+    {n:'Spike Carpet', c:600, d:'Dmg ×1.5, Rate ×1.5',f:t=>{t.dmg*=1.5;t.rate*=1.5}},
+    {n:'Spike Storm',  c:1200,d:'Range ×1.5, Dmg ×1.5',f:t=>{t.range*=1.5;t.dmg*=1.5}},
+    {n:'Endless Spike',c:2400,d:'Dmg ×2, Rate ×2',    f:t=>{t.dmg*=2;t.rate*=2}},
    ],
    pB:[
-    {n:'Spiked Balls', c:130, d:'Range +60%',         f:t=>{t.range*=1.6}},
-    {n:'Mines',        c:260, d:'Splash 1.0 on hit',  f:t=>{t.splash=1.0}},
-    {n:'Exploding',    c:520, d:'Splash ×2, Dmg+50%', f:t=>{t.splash*=2;t.dmg*=1.5}},
-    {n:'Mega Mines',   c:1100,d:'Splash×3, Dmg×2',    f:t=>{t.splash*=3;t.dmg*=2}},
-    {n:'Nuclear Spikes',c:2200,d:'Splash×4, Dmg×4',  f:t=>{t.splash*=4;t.dmg*=4}},
+    {n:'Spiked Balls', c:130, d:'Range +30%',          f:t=>{t.range*=1.3}},
+    {n:'Mines',        c:260, d:'Splash 0.5 on hit',   f:t=>{t.splash=0.5}},
+    {n:'Exploding',    c:520, d:'Splash ×1.5, Dmg+25%',f:t=>{t.splash*=1.5;t.dmg*=1.25}},
+    {n:'Mega Mines',   c:1100,d:'Splash×2, Dmg×1.5',   f:t=>{t.splash*=2;t.dmg*=1.5}},
+    {n:'Nuclear Spikes',c:2200,d:'Splash×2.5, Dmg×2.5',f:t=>{t.splash*=2.5;t.dmg*=2.5}},
    ],
    pC:[
-    {n:'Longer Spikes',c:130, d:'Range ×1.6',         f:t=>{t.range*=1.6}},
-    {n:'Rapid Deploy', c:260, d:'Rate×1.5, Range+30%',f:t=>{t.rate*=1.5;t.range*=1.3}},
-    {n:'Spike Field',  c:520, d:'Range×2, Rate×2',    f:t=>{t.range*=2;t.rate*=2}},
-    {n:'Infinite Reach',c:1040,d:'Range×3, Dmg×1.5', f:t=>{t.range*=3;t.dmg*=1.5}},
-    {n:'Spike God',    c:2080,d:'Range×4, Rate×3, Dmg×2',f:t=>{t.range*=4;t.rate*=3;t.dmg*=2}},
+    {n:'Longer Spikes',c:130, d:'Range ×1.3',          f:t=>{t.range*=1.3}},
+    {n:'Rapid Deploy', c:260, d:'Rate×1.25, Range+15%', f:t=>{t.rate*=1.25;t.range*=1.15}},
+    {n:'Spike Field',  c:520, d:'Range×1.5, Rate×1.5', f:t=>{t.range*=1.5;t.rate*=1.5}},
+    {n:'Infinite Reach',c:1040,d:'Range×2, Dmg×1.25',  f:t=>{t.range*=2;t.dmg*=1.25}},
+    {n:'Spike God',    c:2080,d:'Range×2.5, Rate×2, Dmg×1.5',f:t=>{t.range*=2.5;t.rate*=2;t.dmg*=1.5}},
    ]},
   {id:10,name:'Wizard',cost:220,clr:'#6366f1',
    desc:'Versatile magic. Splash, chain, and burn in one package.',
@@ -642,16 +649,16 @@ const TDEFS=[
    pA:[
     {n:'Fireball',     c:180, d:'Splash×1.5, Dmg+60%',f:t=>{t.splash*=1.5;t.dmg*=1.6}},
     {n:'Wall of Fire', c:360, d:'Burn 6s on hit',     f:t=>{t.burn=6}},
-    {n:'Shimmer',      c:700, d:'Dmg ×2, Rate+50%',  f:t=>{t.dmg*=2;t.rate*=1.5}},
+    {n:'Shimmer',      c:700, d:'Dmg ×2, Rate+25%',  f:t=>{t.dmg*=2;t.rate*=1.25}, fOrig:t=>{t.dmg*=2;t.rate*=1.5}},
     {n:'Necromancer',  c:1400,d:'Chain 4, Dmg ×2',   f:t=>{t.chain=4;t.dmg*=2}},
     {n:'Archmage',     c:2800,d:'Dmg ×3, Chain 6',   f:t=>{t.dmg*=3;t.chain=6;t.burn=10}},
    ],
    pB:[
     {n:'Guided Magic', c:170, d:'Range +50%',         f:t=>{t.range*=1.5}},
     {n:'Dragon Spit',  c:340, d:'Multi 2, Burn+4s',   f:t=>{t.multi=2;t.burn+=4}},
-    {n:'Phoenix',      c:680, d:'Multi 3, Rate+40%',  f:t=>{t.multi=3;t.rate*=1.4}},
-    {n:'Arcane Tempest',c:1400,d:'Multi 4, Rate×1.5', f:t=>{t.multi=4;t.rate*=1.5}},
-    {n:'Chaos Storm',  c:2800,d:'Multi 6, Rate×2, Splash×1.3',f:t=>{t.multi=6;t.rate*=2;t.splash*=1.3}},
+    {n:'Phoenix',      c:680, d:'Multi 2, Rate+20%',  f:t=>{t.multi=2;t.rate*=1.2},    fOrig:t=>{t.multi=3;t.rate*=1.4}},
+    {n:'Arcane Tempest',c:1400,d:'Multi 3, Rate×1.2', f:t=>{t.multi=3;t.rate*=1.2},    fOrig:t=>{t.multi=4;t.rate*=1.5}},
+    {n:'Chaos Storm',  c:2800,d:'Multi 4, Rate×1.5, Splash×1.3',f:t=>{t.multi=4;t.rate*=1.5;t.splash*=1.3}, fOrig:t=>{t.multi=6;t.rate*=2;t.splash*=1.3}},
    ],
    pC:[
     {n:'Slow Rune',    c:170, d:'Slow 30% on hit',    f:t=>{t.slow=0.3}},
@@ -669,15 +676,15 @@ const TDEFS=[
     {n:'Better Snare', c:120, d:'Stun+0.8s, Dmg+50%',f:t=>{t.stun+=.8;t.dmg*=1.5}},
     {n:'Net Gun',      c:250, d:'Multi 2, Slow 80%',  f:t=>{t.multi=2;t.slow=.8}},
     {n:'Binding Rope', c:500, d:'Stun×2, Range+30%',  f:t=>{t.stun*=2;t.range*=1.3}},
-    {n:'Para. Field',  c:1000,d:'Rate×2, Stun×1.5',   f:t=>{t.rate*=2;t.stun*=1.5}},
+    {n:'Para. Field',  c:1000,d:'Rate×1.4, Stun×1.5', f:t=>{t.rate*=1.4;t.stun*=1.5}, fOrig:t=>{t.rate*=2;t.stun*=1.5}},
     {n:'Time Stop',    c:2000,d:'Stun×2, Slow 90%',   f:t=>{t.stun*=2;t.slow=.9}},
    ],
    pB:[
     {n:'Wide Net',     c:110, d:'Splash 1.5',         f:t=>{t.splash=1.5}},
-    {n:'Triple Net',   c:220, d:'Multi 3',            f:t=>{t.multi=3}},
-    {n:'Snare Carpet', c:440, d:'Splash×2, Rate+50%', f:t=>{t.splash*=2;t.rate*=1.5}},
-    {n:'Net Storm',    c:900, d:'Splash×3, Multi 4',  f:t=>{t.splash*=3;t.multi=4}},
-    {n:'Web of Doom',  c:1800,d:'Splash×4, Multi 6',  f:t=>{t.splash*=4;t.multi=6}},
+    {n:'Triple Net',   c:220, d:'Multi 2',            f:t=>{t.multi=2},              fOrig:t=>{t.multi=3}},
+    {n:'Snare Carpet', c:440, d:'Splash×2, Rate+25%', f:t=>{t.splash*=2;t.rate*=1.25}, fOrig:t=>{t.splash*=2;t.rate*=1.5}},
+    {n:'Net Storm',    c:900, d:'Splash×3, Multi 3',  f:t=>{t.splash*=3;t.multi=3},    fOrig:t=>{t.splash*=3;t.multi=4}},
+    {n:'Web of Doom',  c:1800,d:'Splash×4, Multi 4',  f:t=>{t.splash*=4;t.multi=4},    fOrig:t=>{t.splash*=4;t.multi=6}},
    ],
    pC:[
     {n:'Tar Field',    c:110, d:'Slow 85%, Range+30%',f:t=>{t.slow=.85;t.range*=1.3}},
@@ -692,18 +699,18 @@ const TDEFS=[
    dmg:36,rate:0.3,range:3.5,splash:2.2,slow:0,chain:0,burn:0,stun:0,pierce:0,multi:4,
    requires:{towers:5},
    pA:[
-    {n:'Extra Payload',c:280, d:'Multi+2, Dmg+50%',   f:t=>{t.multi+=2;t.dmg*=1.5}},
+    {n:'Extra Payload',c:280, d:'Multi+1, Dmg+50%',   f:t=>{t.multi+=1;t.dmg*=1.5},  fOrig:t=>{t.multi+=2;t.dmg*=1.5}},
     {n:'Bigger Bang',  c:560, d:'Splash×1.5, Dmg ×2', f:t=>{t.splash*=1.5;t.dmg*=2}},
-    {n:'Cluster Rack', c:1100,d:'Multi ×2',           f:t=>{t.multi*=2}},
+    {n:'Cluster Rack', c:1100,d:'Multi ×1.5',         f:t=>{t.multi=Math.ceil(t.multi*1.5)}, fOrig:t=>{t.multi*=2}},
     {n:'MIRV Warhead', c:2200,d:'Dmg ×2, Splash×1.5', f:t=>{t.dmg*=2;t.splash*=1.5}},
-    {n:'Annihilation', c:4500,d:'Dmg ×4, Multi ×2',  f:t=>{t.dmg*=4;t.multi*=2}},
+    {n:'Annihilation', c:4500,d:'Dmg ×4, Multi ×1.5', f:t=>{t.dmg*=4;t.multi=Math.ceil(t.multi*1.5)}, fOrig:t=>{t.dmg*=4;t.multi*=2}},
    ],
    pB:[
-    {n:'Fast Rack',    c:250, d:'Rate +60%',          f:t=>{t.rate*=1.6}},
-    {n:'Auto Rack',    c:500, d:'Rate ×2',            f:t=>{t.rate*=2}},
-    {n:'Rapid Drop',   c:1000,d:'Rate ×2, Range+20%', f:t=>{t.rate*=2;t.range*=1.2}},
-    {n:'Blitz Drop',   c:2000,d:'Rate ×3, Range+30%', f:t=>{t.rate*=3;t.range*=1.3}},
-    {n:'Saturation',   c:4000,d:'Rate ×5, Range+50%', f:t=>{t.rate*=5;t.range*=1.5}},
+    {n:'Fast Rack',    c:250, d:'Rate +30%',          f:t=>{t.rate*=1.3},               fOrig:t=>{t.rate*=1.6}},
+    {n:'Auto Rack',    c:500, d:'Rate ×1.5',          f:t=>{t.rate*=1.5},               fOrig:t=>{t.rate*=2}},
+    {n:'Rapid Drop',   c:1000,d:'Rate ×1.5, Range+20%',f:t=>{t.rate*=1.5;t.range*=1.2},   fOrig:t=>{t.rate*=2;t.range*=1.2}},
+    {n:'Blitz Drop',   c:2000,d:'Rate ×2, Range+30%', f:t=>{t.rate*=2;t.range*=1.3},     fOrig:t=>{t.rate*=3;t.range*=1.3}},
+    {n:'Saturation',   c:4000,d:'Rate ×3, Range+50%', f:t=>{t.rate*=3;t.range*=1.5},     fOrig:t=>{t.rate*=5;t.range*=1.5}},
    ],
    pC:[
     {n:'Incendiary',   c:250, d:'Burn 5s on bombs',   f:t=>{t.burn=5}},
@@ -852,7 +859,7 @@ function makeWave(w){
 const canvas=document.getElementById('gameCanvas');
 const ctx=canvas.getContext('2d');
 
-let gold,lives,score,wave,waveActive,speed,autoWave,isEndless;
+let gold,lives,score,wave,waveActive,speed,autoWave,isEndless,isSandbox;
 let towers,enemies,bullets,particles;
 let waveQueue,waveTimer;
 let selShopType=0,selTower=null,hoverCell=null,moveTowerMode=false,dragTower=null,dragOffset=[0,0];
@@ -875,16 +882,18 @@ function buildPath(wp){
 function initGame(map){
   curMap=map;
   isEndless=map.endless||false;
+  isSandbox=map.sandbox||false;
   pathCells=buildPath(map.wp);
   pathSet=new Set(pathCells.map(([c,r])=>`${c},${r}`));
-  gold=map.gold; lives=map.lives; score=0; wave=1;
+  gold=isSandbox?999999:map.gold; lives=isSandbox?999:map.lives; score=0; wave=1;
   waveActive=false; speed=1; autoWave=false;
   towers=[]; enemies=[]; bullets=[]; particles=[];
   waveQueue=[]; waveTimer=0;
   selTower=null; selShopType=0; moveTowerMode=false; dragTower=null;
   updateHUD(); buildShop(); showUpPanel(false);
+  document.getElementById('sandboxBanner').style.display=isSandbox?'block':'none';
   document.getElementById('waveBtn').disabled=false;
-  document.getElementById('waveBtn').textContent=`SEND WAVE 1`;
+  document.getElementById('waveBtn').textContent=isSandbox?'SPAWN ENEMIES':'SEND WAVE 1';
   document.getElementById('autoBtn').textContent='AUTO OFF';
   document.getElementById('autoBtn').classList.remove('on');
   msg('Place towers, then send the wave.');
@@ -894,7 +903,7 @@ function updateHUD(){
   document.getElementById('goldEl').textContent=gold;
   document.getElementById('livesEl').textContent=lives;
   document.getElementById('scoreEl').textContent=score;
-  document.getElementById('waveEl').textContent=isEndless?`${wave}/∞`:`${wave}/${TOTAL_WAVES}`;
+  document.getElementById('waveEl').textContent=isEndless||isSandbox?`${wave}/∞`:`${wave}/${TOTAL_WAVES}`;
 }
 function msg(t){document.getElementById('msgEl').textContent=t;}
 
@@ -912,17 +921,20 @@ function getPathStatus(t, path) {
 
   if (t.primaryPath) {
     if (path === t.primaryPath) return 'primary';
+    // Count non-primary paths that have been upgraded
+    const nonPrimaryStarted = ['A','B','C'].filter(p=>p!==t.primaryPath&&(p==='A'?a:p==='B'?b:c)>0).length;
+    if (nonPrimaryStarted === 0) {
+      // No secondary chosen yet — both remaining paths stay open until one is picked
+      return 'open';
+    }
+    // A secondary has been chosen
     if (lvl > 0) return 'secondary';
     return 'cutoff';
   }
-  // Single-path rule: if only ONE path has been touched, ALL others are immediately cut off
-  if (started === 1) {
-    if (lvl > 0) return 'open'; // the one active path
-    return 'cutoff'; // the other two are locked
-  }
-  if (started === 0) return 'open'; // nothing touched yet
-  if (lvl === 0) return 'cutoff'; // 2 paths active, this untouched one is locked
-  return 'open'; // one of the two active paths
+  // No primary yet
+  if (started <= 1) return 'open';
+  if (lvl === 0) return 'cutoff';
+  return 'open';
 }
 
 function canUp(t, path) {
@@ -943,21 +955,13 @@ function doUpgrade(t, path) {
   const ups=TDEFS[t.type][pathKey];
   if (lvl>=ups.length||!canUp(t,path)) return;
   const up=ups[lvl];
-  if (gold<up.c){msg(`Need ${up.c}g.`);return;}
-  gold-=up.c; up.f(t);
+  if (!isSandbox&&gold<up.c){msg(`Need ${up.c}g.`);return;}
+  if(!isSandbox) gold-=up.c; up.f(t);
   if(path==='A')t.pA=(t.pA||0)+1;
   else if(path==='B')t.pB=(t.pB||0)+1;
   else t.pC=(t.pC||0)+1;
   const newLvl=path==='A'?t.pA:path==='B'?t.pB:t.pC;
   if (!t.primaryPath && newLvl >= 3) t.primaryPath = path;
-  // Single-path rule: if this is the FIRST path touched, immediately lock others
-  const a=t.pA||0,b=t.pB||0,c=t.pC||0;
-  const touchedCount=(a>0?1:0)+(b>0?1:0)+(c>0?1:0);
-  if (touchedCount===1 && !t.primaryPath) {
-    t._soloPath=path; // mark so getPathStatus can lock others
-  } else {
-    t._soloPath=null;
-  }
   score+=5; updateHUD(); renderUpPanel(t); applyAmpBoosts(); msg(`Upgraded: ${up.n}`);
 }
 
@@ -999,8 +1003,9 @@ function update(ts){
 
   // Reached end
   enemies.filter(e=>e.reached&&!e.dead).forEach(e=>{
-    e.dead=true;lives--;updateHUD();
-    if(lives<=0){endGame(false);return;}
+    e.dead=true;
+    if(!isSandbox){lives--;updateHUD();if(lives<=0){endGame(false);return;}}
+    else updateHUD();
   });
 
   // Towers shoot
@@ -1069,10 +1074,10 @@ function update(ts){
     }
     if(bankTotal>0){gold+=bankTotal;msg(`Wave ${wave} cleared! +${20+wave*5}g bonus +${bankTotal}g bank`);}
     const bonus=20+wave*5; gold+=bonus;
-    if(!isEndless && wave>=TOTAL_WAVES){endGame(true);return;}
+    if(!isEndless&&!isSandbox && wave>=TOTAL_WAVES){endGame(true);return;}
     wave++; updateHUD();
     document.getElementById('waveBtn').disabled=false;
-    document.getElementById('waveBtn').textContent=`SEND WAVE ${wave}`;
+    document.getElementById('waveBtn').textContent=isSandbox?`SPAWN WAVE ${wave}`:`SEND WAVE ${wave}`;
     if(bankTotal===0) msg(`Wave ${wave-1} cleared! +${bonus}g`);
     applyAmpBoosts();
     if(autoWave) setTimeout(()=>{if(!waveActive)startWave();},800);
@@ -1081,34 +1086,25 @@ function update(ts){
 
 // ── Amplifier boost system ─────────────────
 function applyAmpBoosts(){
-  // Reset all towers to their base stats first, then re-apply amp boosts
-  for(const t of towers){
-    const def=TDEFS[t.type];
-    if(def.isAmplifier)continue;
-    // If tower has been boosted before, revert (we store originals)
-    if(t._ampOrig){
-      t.dmg=t._ampOrig.dmg;t.rate=t._ampOrig.rate;
-    }
-    t._ampBoosted=false;
-  }
-  // Apply boosts from each amplifier
+  // Figure out which towers are in any amplifier's range
+  const inAmpRange=new Set();
   for(const amp of towers){
     if(!TDEFS[amp.type].isAmplifier)continue;
-    const boost=amp.ampBoost||0.5;
-    const radius=(amp.ampRadius||1)*CS;
+    const radius=(amp.ampRadius||1)*CS+CS*1.5;
     const acx=amp.col*CS+CS/2,acy=amp.row*CS+CS/2;
     for(const t of towers){
       if(TDEFS[t.type].isAmplifier||TDEFS[t.type].isBank)continue;
       const tcx=t.col*CS+CS/2,tcy=t.row*CS+CS/2;
-      if(Math.hypot(tcx-acx,tcy-acy)<=radius+CS*1.5){
-        if(!t._ampOrig)t._ampOrig={dmg:t.dmg,rate:t.rate};
-        if(!t._ampBoosted){
-          t.dmg=t._ampOrig.dmg*(1+boost);
-          t.rate=t._ampOrig.rate*(1+boost);
-          t._ampBoosted=true;
-        }
-      }
+      if(Math.hypot(tcx-acx,tcy-acy)<=radius) inAmpRange.add(t);
     }
+  }
+  // Rebuild every non-amp tower: use fOrig if in range (un-nerfs upgrades), normal f if not
+  for(const t of towers){
+    const def=TDEFS[t.type];
+    if(def.isAmplifier||def.isBank)continue;
+    const boosted=inAmpRange.has(t);
+    rebuildTowerStats(t, boosted);
+    t._ampBoosted=boosted;
   }
 }
 
@@ -1602,10 +1598,10 @@ canvas.addEventListener('click',e=>{
     })){msg("Already occupied.");return;}
   }
   const cost=def.cost;
-  if(gold<cost){msg(`Need ${cost}g.`);return;}
+  if(!isSandbox&&gold<cost){msg(`Need ${cost}g.`);return;}
   const req=def.requires;
   if(req&&req.towers!==undefined&&towers.length<req.towers){msg(`Need ${req.towers} towers placed first.`);return;}
-  gold-=cost;
+  if(!isSandbox) gold-=cost;
   const newTower={col,row,type:selShopType,cd:0,ang:-Math.PI/2,pA:0,pB:0,pC:0,
     dmg:def.dmg,rate:def.rate,range:def.range,splash:def.splash,
     slow:def.slow,chain:def.chain,burn:def.burn,stun:def.stun,
@@ -1657,7 +1653,7 @@ canvas.addEventListener('contextmenu',e=>{
 });
 
 // Rebuild tower stats from scratch after moving (re-apply all upgrades)
-function rebuildTowerStats(t){
+function rebuildTowerStats(t, useOrig=false){
   const def=TDEFS[t.type];
   t.dmg=def.dmg;t.rate=def.rate;t.range=def.range;t.splash=def.splash;
   t.slow=def.slow;t.chain=def.chain;t.burn=def.burn;t.stun=def.stun;
@@ -1666,7 +1662,10 @@ function rebuildTowerStats(t){
   t._ampOrig=null;t._ampBoosted=false;
   const apply=(path,cnt)=>{
     const key=path==='A'?'pA':path==='B'?'pB':'pC';
-    for(let i=0;i<cnt;i++) def[key][i].f(t);
+    for(let i=0;i<cnt;i++){
+      const up=def[key][i];
+      (useOrig&&up.fOrig?up.fOrig:up.f)(t);
+    }
   };
   apply('A',t.pA||0);apply('B',t.pB||0);apply('C',t.pC||0);
 }
@@ -1698,6 +1697,18 @@ document.getElementById('menuBackBtn').addEventListener('click',()=>{
   showScreen('menu');closeMapDetail();
 });
 document.getElementById('gameSettingsBtn').addEventListener('click',()=>openSettings());
+
+document.addEventListener('keydown',e=>{
+  if(e.key==='s'||e.key==='S'){
+    if(selTower){deselTower();}
+    else if(moveTowerMode){
+      dragTower=null;moveTowerMode=false;
+      document.getElementById('moveTowerBtn').textContent='MOVE';
+      document.getElementById('moveTowerBtn').classList.remove('on-move');
+      buildShop();msg('');
+    }
+  }
+});
 
 // ── Towers Modal ───────────────────────────
 function openTowers(){
@@ -1865,9 +1876,9 @@ function closeMapDetail(){
   buildMenuMaps();
 }
 
-function startGameFromMenu(endless){
+function startGameFromMenu(endless,sandbox=false){
   const m=MAPS[selMapIdx];
-  const mapToUse={...m,endless};
+  const mapToUse={...m,endless,sandbox};
   showScreen('game');
   initGame(mapToUse);
   lastTs=performance.now();
@@ -1889,6 +1900,7 @@ document.querySelectorAll('.diff-tab').forEach(btn=>{
 document.getElementById('mdBack').addEventListener('click',closeMapDetail);
 document.getElementById('mdPlayNormal').addEventListener('click',()=>startGameFromMenu(false));
 document.getElementById('mdPlayEndless').addEventListener('click',()=>startGameFromMenu(true));
+document.getElementById('mdPlaySandbox').addEventListener('click',()=>startGameFromMenu(false,true));
 // ── Game Over / Retry ──────────────────────
 document.getElementById('goRetry').addEventListener('click',()=>{
   document.getElementById('goOverlay').classList.remove('open');
