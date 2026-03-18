@@ -272,7 +272,25 @@ body{background:var(--bg);min-height:100vh;display:flex;align-items:center;justi
 #goOverlay p{font-family:'DM Mono',monospace;font-size:12px;color:var(--ink2)}
 .go-btns{display:flex;gap:8px;margin-top:6px}
 
-/* ── UPDATE POPUP ─────────────────────────── */
+/* ── CHANGELOG MODAL ─────────────────────── */
+#changelogOverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:300;align-items:center;justify-content:center}
+#changelogOverlay.open{display:flex}
+.changelog-box{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:26px 28px;width:400px;max-height:82vh;display:flex;flex-direction:column;gap:14px;box-shadow:0 12px 48px var(--shadow)}
+.changelog-head{display:flex;justify-content:space-between;align-items:flex-start}
+.changelog-title{font-size:20px;font-weight:700;letter-spacing:-.02em;color:var(--ink)}
+.changelog-ver{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin-top:3px}
+.changelog-list{overflow-y:auto;display:flex;flex-direction:column;gap:6px;padding-right:4px}
+.changelog-list::-webkit-scrollbar{width:3px}
+.changelog-list::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+.cl-item{display:flex;gap:10px;align-items:flex-start;padding:7px 10px;background:var(--surface2);border-radius:6px;border-left:3px solid var(--border)}
+.cl-item.feature{border-color:#3b82f6}
+.cl-item.fix{border-color:#22c55e}
+.cl-item.change{border-color:#f97316}
+.cl-tag{font-family:'DM Mono',monospace;font-size:7px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;padding:2px 5px;border-radius:3px;flex-shrink:0;margin-top:1px}
+.cl-tag.feature{background:#3b82f622;color:#3b82f6}
+.cl-tag.fix{background:#22c55e22;color:#22c55e}
+.cl-tag.change{background:#f9731622;color:#f97316}
+.cl-text{font-family:'DM Mono',monospace;font-size:10px;color:var(--ink2);line-height:1.5}
 #updateOverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:300;align-items:center;justify-content:center}
 #updateOverlay.open{display:flex}
 .update-box{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:28px 32px;width:340px;box-shadow:0 12px 48px var(--shadow);display:flex;flex-direction:column;gap:10px}
@@ -428,7 +446,19 @@ body{background:var(--bg);min-height:100vh;display:flex;align-items:center;justi
 
 <div id="betaWrap"><div class="beta-track" id="betaTrack"></div></div>
 
-<!-- ══════════ UPDATE POPUP ══════════ -->
+<!-- ══════════ CHANGELOG MODAL ══════════ -->
+<div id="changelogOverlay">
+  <div class="changelog-box">
+    <div class="changelog-head">
+      <div>
+        <div class="changelog-title">What's New</div>
+        <div class="changelog-ver" id="changelogVer">ALPHA v1</div>
+      </div>
+      <button class="mbtn out" id="changelogClose" style="padding:7px 16px;font-size:10px">CLOSE</button>
+    </div>
+    <div class="changelog-list" id="changelogList"></div>
+  </div>
+</div>
 <div id="updateOverlay">
   <div class="update-box">
     <div class="update-box-icon">⬆️</div>
@@ -480,6 +510,42 @@ body{background:var(--bg);min-height:100vh;display:flex;align-items:center;justi
   const CHECK_INTERVAL=60000;
   const SAVE_KEY='htl_resume_state';
   const BASELINE_KEY='htl_version_baseline';
+  const CHANGELOG_KEY='htl_seen_changelog';
+
+  // ── Changelog entries ────────────────────
+  const VERSION='ALPHA v1';
+  const CHANGELOG=[
+    {type:'feature', text:'Dark mode — persists across sessions via localStorage'},
+    {type:'feature', text:'S key deselects active tower placement'},
+    {type:'feature', text:'Auto-update checker — detects new GitHub versions every 60s'},
+    {type:'feature', text:'Resume from last session — game state saved on refresh or update'},
+    {type:'feature', text:'Full Goldback — 30s grace period on new towers: full refund, no shooting, ends on upgrade'},
+    {type:'feature', text:'SKIP button above towers in Full Goldback state to end it early'},
+    {type:'feature', text:'Tower targeting modes — FIRST, LAST, WEAK, STRONG, BOSS — cycling button in upgrade panel'},
+    {type:'feature', text:'Upgrade panel refreshes live as gold changes — buttons enable/disable instantly'},
+    {type:'change', text:'Right-click to cancel placement replaced by S key'},
+    {type:'change', text:'Cursor color correctly inherits theme on load — no more dark cursor in dark mode'},
+    {type:'change', text:'Watermark renamed from BETA to ALPHA v1'},
+    {type:'fix',    text:'Update checker no longer causes infinite reloads — now compares remote-vs-remote'},
+    {type:'fix',    text:'Resume popup now appears correctly — was failing silently due to script load order'},
+    {type:'fix',    text:'Sell button clickable during Full Goldback — panel no longer rebuilds every frame'},
+  ];
+
+  function showChangelog(){
+    const list=document.getElementById('changelogList');
+    document.getElementById('changelogVer').textContent=VERSION;
+    list.innerHTML=CHANGELOG.map(e=>`
+      <div class="cl-item ${e.type}">
+        <span class="cl-tag ${e.type}">${e.type}</span>
+        <span class="cl-text">${e.text}</span>
+      </div>`).join('');
+    document.getElementById('changelogOverlay').classList.add('open');
+  }
+
+  function maybeShowChangelog(){
+    const seen=localStorage.getItem(CHANGELOG_KEY);
+    if(seen!==VERSION) showChangelog();
+  }
 
   function hashStr(s){
     let h=0;
@@ -489,6 +555,8 @@ body{background:var(--bg);min-height:100vh;display:flex;align-items:center;justi
 
   let baselineHash=null;
   let updatePending=false;
+
+  // ── Save game state ──────────────────────
   window.saveGameForUpdate=function(){
     try{
       // Serialize towers (only data, no functions)
@@ -666,6 +734,7 @@ body{background:var(--bg);min-height:100vh;display:flex;align-items:center;justi
         document.getElementById('updateOverlay').classList.add('open');
         document.getElementById('updateNow').onclick=()=>{
           saveGameForUpdate();
+          localStorage.removeItem(CHANGELOG_KEY);
           setTimeout(()=>location.reload(true),200);
         };
         document.getElementById('updateLater').onclick=()=>{
@@ -673,6 +742,7 @@ body{background:var(--bg);min-height:100vh;display:flex;align-items:center;justi
           updatePending=false;
         };
       } else {
+        localStorage.removeItem(CHANGELOG_KEY);
         setTimeout(()=>location.reload(true),800);
       }
     }catch(e){}
@@ -690,8 +760,23 @@ body{background:var(--bg);min-height:100vh;display:flex;align-items:center;justi
     if(inGame) saveGameForUpdate();
   },15000);
 
-  // Run on boot — defer checkResume until after main game scripts load
-  window.addEventListener('load', checkResume);
+  // Run on boot — defer until after main game scripts load
+  window.addEventListener('load', ()=>{
+    maybeShowChangelog();
+    // Show resume after changelog is closed (or immediately if no changelog)
+    const seen=localStorage.getItem(CHANGELOG_KEY);
+    if(seen===VERSION){
+      checkResume();
+    } else {
+      // Wait for changelog close button before checking resume
+      const origClose=document.getElementById('changelogClose').onclick;
+      document.getElementById('changelogClose').onclick=()=>{
+        document.getElementById('changelogOverlay').classList.remove('open');
+        localStorage.setItem(CHANGELOG_KEY, VERSION);
+        checkResume();
+      };
+    }
+  });
   checkForUpdate();
   setInterval(checkForUpdate,CHECK_INTERVAL);
 })();
