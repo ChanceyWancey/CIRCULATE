@@ -1900,17 +1900,92 @@ function draw(ts){
       ctx.fillStyle=ok?'rgba(37,99,235,.08)':'rgba(220,38,38,.08)';
       ctx.fillRect(hc*CS,hr*CS,CS,CS);
       if(ok){
-        ctx.beginPath();ctx.arc(hc*CS+CS/2,hr*CS+CS/2,def.range*CS,0,Math.PI*2);
+        const phcx=hc*CS+CS/2,phcy=hr*CS+CS/2,phRange=def.range*CS;
+        // Blind spot preview on placement hover
+        if(wallSet&&wallSet.size>0){
+          ctx.save();
+          ctx.beginPath();ctx.arc(phcx,phcy,phRange,0,Math.PI*2);ctx.clip();
+          for(const[wc,wr] of (curMap.walls||[])){
+            const wallCx2=wc*CS+CS/2,wallCy2=wr*CS+CS/2;
+            if(Math.hypot(wallCx2-phcx,wallCy2-phcy)>phRange+CS)continue;
+            const corners2=[[wc*CS,wr*CS],[wc*CS+CS,wr*CS],[wc*CS+CS,wr*CS+CS],[wc*CS,wr*CS+CS]];
+            const refA2=Math.atan2(wallCy2-phcy,wallCx2-phcx);
+            let minD2=Infinity,maxD2=-Infinity,minC2=corners2[0],maxC2=corners2[0];
+            for(const[cx2,cy2] of corners2){let d=Math.atan2(cy2-phcy,cx2-phcx)-refA2;while(d>Math.PI)d-=Math.PI*2;while(d<-Math.PI)d+=Math.PI*2;if(d<minD2){minD2=d;minC2=[cx2,cy2];}if(d>maxD2){maxD2=d;maxC2=[cx2,cy2];}}
+            if(maxD2-minD2<0.01)continue;
+            const minA2=refA2+minD2,maxA2=refA2+maxD2;
+            ctx.beginPath();
+            ctx.moveTo(minC2[0],minC2[1]);
+            ctx.lineTo(phcx+Math.cos(minA2)*(phRange+2),phcy+Math.sin(minA2)*(phRange+2));
+            ctx.arc(phcx,phcy,phRange+2,minA2,maxA2);
+            ctx.lineTo(maxC2[0],maxC2[1]);
+            ctx.closePath();
+            ctx.fillStyle='rgba(220,38,38,0.20)';ctx.fill();
+          }
+          ctx.restore();
+        }
+        ctx.beginPath();ctx.arc(phcx,phcy,phRange,0,Math.PI*2);
         ctx.strokeStyle=def.clr+'33';ctx.lineWidth=1.5;ctx.setLineDash([4,4]);ctx.stroke();ctx.setLineDash([]);
       }
     }
     } // end else (def exists)
   }
 
-  // Selected tower range ring
+  // Selected tower range ring + BTD6-style blind spot (red shadow behind walls)
   if(selTower&&!TDEFS[selTower.type].isBank&&!TDEFS[selTower.type].isAmplifier){
     const t=selTower;
-    ctx.beginPath();ctx.arc(t.col*CS+CS/2,t.row*CS+CS/2,t.range*CS,0,Math.PI*2);
+    const tcx=t.col*CS+CS/2,tcy=t.row*CS+CS/2,tRange=t.range*CS;
+
+    // Draw blind spots from walls blocking LOS
+    if(wallSet&&wallSet.size>0){
+      ctx.save();
+      ctx.beginPath();ctx.arc(tcx,tcy,tRange,0,Math.PI*2);ctx.clip();
+
+      for(const[wc,wr] of (curMap.walls||[])){
+        const wallCx=wc*CS+CS/2,wallCy=wr*CS+CS/2;
+        const wallDist=Math.hypot(wallCx-tcx,wallCy-tcy);
+        if(wallDist>tRange+CS)continue;
+
+        // Find the two extreme silhouette corners (the outermost as seen from the tower)
+        // by finding min and max angle using cross product to determine left/right extremes
+        const corners=[
+          [wc*CS,    wr*CS],
+          [wc*CS+CS, wr*CS],
+          [wc*CS+CS, wr*CS+CS],
+          [wc*CS,    wr*CS+CS],
+        ];
+        const refA=Math.atan2(wallCy-tcy,wallCx-tcx);
+        let minDelta=Infinity,maxDelta=-Infinity;
+        let minCorner=corners[0],maxCorner=corners[0];
+        for(const[cx,cy] of corners){
+          let d=Math.atan2(cy-tcy,cx-tcx)-refA;
+          while(d>Math.PI)d-=Math.PI*2;
+          while(d<-Math.PI)d+=Math.PI*2;
+          if(d<minDelta){minDelta=d;minCorner=[cx,cy];}
+          if(d>maxDelta){maxDelta=d;maxCorner=[cx,cy];}
+        }
+        const minA=refA+minDelta, maxA=refA+maxDelta;
+        // Don't draw if angular span is basically zero
+        if(maxDelta-minDelta<0.01)continue;
+
+        // Shadow polygon: minCorner -> ray to range -> arc -> ray back -> maxCorner
+        const farMin=[tcx+Math.cos(minA)*(tRange+2), tcy+Math.sin(minA)*(tRange+2)];
+        const farMax=[tcx+Math.cos(maxA)*(tRange+2), tcy+Math.sin(maxA)*(tRange+2)];
+
+        ctx.beginPath();
+        ctx.moveTo(minCorner[0], minCorner[1]);
+        ctx.lineTo(farMin[0], farMin[1]);
+        ctx.arc(tcx, tcy, tRange+2, minA, maxA);
+        ctx.lineTo(maxCorner[0], maxCorner[1]);
+        ctx.closePath();
+        ctx.fillStyle='rgba(220,38,38,0.25)';
+        ctx.fill();
+      }
+      ctx.restore();
+    }
+
+    // Range ring on top
+    ctx.beginPath();ctx.arc(tcx,tcy,tRange,0,Math.PI*2);
     ctx.strokeStyle=TDEFS[t.type].clr+'55';ctx.lineWidth=1.5;ctx.setLineDash([4,4]);ctx.stroke();ctx.setLineDash([]);
   }
 
@@ -2357,6 +2432,7 @@ canvas.addEventListener('click',e=>{
       if(!pathSet.has(`${c},${r2}`)){msg("Walls must be placed on the path.");return;}
     } else {
       if(pathSet.has(`${c},${r2}`)){msg("Can't build on the path.");return;}
+      if(wallSet.has(`${c},${r2}`)){msg("Can't build on a wall.");return;}
     }
     if(towers.some(wt=>TDEFS[wt.type].isWall&&wt.col===c&&wt.row===r2)){msg("Already a wall there.");return;}
     if(towers.some(t=>{
