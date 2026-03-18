@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<title>Hold The Line — Map Creator</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@400;600;700&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f5f3ef;--surface:#ffffff;--surface2:#f0ede8;
+  --grid:#e5e2db;--border:#ccc8be;--ink:#1a1714;--ink2:#6b6560;--ink3:#aaa69f;
+  --accent:#c2410c;--gold:#d97706;--red:#dc2626;--green:#15803d;--shadow:rgba(0,0,0,.08);
+  --path-clr:#3b82f6;
+}
+[data-theme="dark"]{
+  --bg:#0e0e10;--surface:#16161a;--surface2:#1e1e24;
+  --grid:#1e1e24;--border:#2e2e3a;--ink:#f0eee9;--ink2:#8a8680;--ink3:#4a4640;
+  --shadow:rgba(0,0,0,.4);
+}
+body{background:var(--bg);min-height:100vh;font-family:'Syne',sans-serif;color:var(--ink);display:flex;flex-direction:column;align-items:center;padding:24px 16px 40px;gap:20px;transition:background .2s,color .2s}
+
+h1{font-size:32px;font-weight:700;letter-spacing:-.04em;line-height:1}
+.subtitle{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink3);margin-top:3px}
+
+.workspace{display:flex;gap:16px;align-items:flex-start;width:100%;max-width:1100px}
+
+/* ── SIDEBAR ── */
+.sidebar{width:220px;flex-shrink:0;display:flex;flex-direction:column;gap:10px}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px;display:flex;flex-direction:column;gap:8px}
+.panel-title{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink3);margin-bottom:2px}
+.tool-btn{width:100%;padding:9px 12px;border:1.5px solid var(--border);background:var(--surface2);border-radius:5px;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink2);cursor:pointer;text-align:left;display:flex;align-items:center;gap:8px;transition:all .12s}
+.tool-btn:hover{border-color:var(--ink2);color:var(--ink)}
+.tool-btn.active{border-color:var(--path-clr);background:rgba(59,130,246,.08);color:var(--path-clr)}
+.tool-btn.active.wall-tool{border-color:#64748b;background:rgba(100,116,139,.08);color:#64748b}
+.tool-btn.active.erase-tool{border-color:var(--red);background:rgba(220,38,38,.06);color:var(--red)}
+.tool-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.tool-icon{font-size:12px;flex-shrink:0;width:14px;text-align:center}
+
+label{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink3)}
+input[type=text],input[type=number],textarea,select{
+  width:100%;padding:7px 9px;background:var(--surface2);border:1.5px solid var(--border);border-radius:5px;
+  font-family:'DM Mono',monospace;font-size:11px;color:var(--ink);outline:none;transition:border .12s;
+}
+input[type=text]:focus,input[type=number]:focus,textarea:focus,select:focus{border-color:var(--ink2)}
+textarea{resize:vertical;min-height:52px;line-height:1.5}
+select{cursor:pointer}
+input[type=color]{width:100%;height:32px;padding:2px;background:var(--surface2);border:1.5px solid var(--border);border-radius:5px;cursor:pointer}
+
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.field{display:flex;flex-direction:column;gap:4px}
+
+.btn{width:100%;padding:9px 12px;border:1.5px solid var(--ink);background:var(--ink);color:var(--surface);font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;border-radius:5px;cursor:pointer;transition:all .12s}
+.btn:hover{opacity:.85}
+.btn.out{background:transparent;color:var(--ink)}
+.btn.out:hover{background:var(--surface2)}
+.btn.danger{border-color:var(--red);background:var(--red);color:#fff}
+.btn.danger:hover{opacity:.85}
+
+/* Stats */
+.stat-row{display:flex;justify-content:space-between;align-items:baseline;padding:3px 0;border-bottom:1px solid var(--border)}
+.stat-row:last-child{border-bottom:none}
+.stat-k{font-family:'DM Mono',monospace;font-size:9px;color:var(--ink3);letter-spacing:.1em;text-transform:uppercase}
+.stat-v{font-family:'DM Mono',monospace;font-size:11px;font-weight:500;color:var(--ink)}
+.stat-v.ok{color:var(--green)}
+.stat-v.err{color:var(--red)}
+
+/* Validation notice */
+.notice{font-family:'DM Mono',monospace;font-size:9px;line-height:1.6;color:var(--ink2);background:var(--surface2);border-radius:4px;padding:6px 8px}
+.notice.warn{color:#d97706;background:rgba(217,119,6,.08);border-left:2px solid #d97706}
+.notice.err{color:var(--red);background:rgba(220,38,38,.06);border-left:2px solid var(--red)}
+.notice.ok{color:var(--green);background:rgba(21,128,61,.06);border-left:2px solid var(--green)}
+
+/* ── CANVAS AREA ── */
+.canvas-wrap{flex:1;display:flex;flex-direction:column;gap:10px;align-items:flex-start}
+#mapCanvas{display:block;border:1px solid var(--border);border-radius:6px;cursor:crosshair;background:var(--bg)}
+.canvas-hint{font-family:'DM Mono',monospace;font-size:9px;color:var(--ink3);letter-spacing:.08em}
+
+/* ── EXPORT MODAL ── */
+#exportOverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:100;align-items:center;justify-content:center}
+#exportOverlay.open{display:flex}
+.export-box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:24px;width:600px;max-height:80vh;display:flex;flex-direction:column;gap:12px;box-shadow:0 12px 48px var(--shadow)}
+.export-box h3{font-size:18px;font-weight:700;letter-spacing:-.02em}
+.export-box p{font-family:'DM Mono',monospace;font-size:9px;color:var(--ink2);line-height:1.6;letter-spacing:.06em}
+#exportCode{flex:1;overflow-y:auto;max-height:45vh;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:12px;font-family:'DM Mono',monospace;font-size:10px;line-height:1.7;color:var(--ink);white-space:pre;overflow-x:auto}
+.export-btns{display:flex;gap:8px}
+.export-btns .btn{flex:1;padding:10px}
+
+/* ── IMPORT MODAL ── */
+#importOverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:100;align-items:center;justify-content:center}
+#importOverlay.open{display:flex}
+.import-box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:24px;width:540px;display:flex;flex-direction:column;gap:12px;box-shadow:0 12px 48px var(--shadow)}
+.import-box h3{font-size:18px;font-weight:700;letter-spacing:-.02em}
+.import-box p{font-family:'DM Mono',monospace;font-size:9px;color:var(--ink2);line-height:1.6}
+#importCode{width:100%;height:140px;resize:vertical;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:10px;font-family:'DM Mono',monospace;font-size:10px;line-height:1.6;color:var(--ink)}
+.import-err{font-family:'DM Mono',monospace;font-size:9px;color:var(--red)}
+.import-btns{display:flex;gap:8px}
+.import-btns .btn{flex:1;padding:10px}
+
+/* dark toggle */
+.topbar{display:flex;justify-content:space-between;align-items:center;width:100%;max-width:1100px}
+.topbar-right{display:flex;gap:8px;align-items:center}
+.toggle{width:38px;height:22px;background:var(--border);border:none;border-radius:11px;cursor:pointer;position:relative;transition:background .15s;flex-shrink:0}
+.toggle::after{content:'';position:absolute;left:3px;top:3px;width:16px;height:16px;background:#fff;border-radius:50%;transition:transform .15s}
+.toggle.on{background:var(--ink)}.toggle.on::after{transform:translateX(16px)}
+.toggle-label{font-family:'DM Mono',monospace;font-size:9px;color:var(--ink3);letter-spacing:.1em;text-transform:uppercase}
+
+/* Waypoint list */
+.wp-list{display:flex;flex-direction:column;gap:3px;max-height:120px;overflow-y:auto}
+.wp-list::-webkit-scrollbar{width:3px}
+.wp-list::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+.wp-item{display:flex;justify-content:space-between;align-items:center;padding:3px 6px;background:var(--surface2);border-radius:3px;font-family:'DM Mono',monospace;font-size:9px;color:var(--ink2)}
+.wp-item .wp-del{background:none;border:none;color:var(--ink3);cursor:pointer;font-size:10px;padding:0 2px}
+.wp-item .wp-del:hover{color:var(--red)}
+.wp-item.start{border-left:2px solid var(--green)}
+.wp-item.end{border-left:2px solid var(--red)}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div>
+    <h1>MAP CREATOR</h1>
+    <div class="subtitle">Hold The Line — custom map editor</div>
+  </div>
+  <div class="topbar-right">
+    <span class="toggle-label">Dark</span>
+    <button class="toggle" id="darkToggle"></button>
+  </div>
+</div>
+
+<div class="workspace">
+  <!-- ── LEFT SIDEBAR ── -->
+  <div class="sidebar">
+
+    <div class="panel">
+      <div class="panel-title">Tools</div>
+      <button class="tool-btn active" id="toolWaypoint">
+        <span class="tool-icon">⬤</span>Waypoint
+      </button>
+      <button class="tool-btn wall-tool" id="toolWall">
+        <span class="tool-icon">▪</span>Wall (LOS block)
+      </button>
+      <button class="tool-btn erase-tool" id="toolErase">
+        <span class="tool-icon">✕</span>Erase
+      </button>
+      <div class="notice">
+        <b>Waypoint:</b> click grid to add path turns. Path goes right edge to right edge.<br>
+        <b>Wall:</b> click near path to place stone walls that block tower line-of-sight.<br>
+        <b>Erase:</b> remove waypoints or walls.
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title">Waypoints</div>
+      <div class="wp-list" id="wpList"><span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--ink3)">No waypoints yet</span></div>
+      <button class="btn out" id="undoWp" style="font-size:9px;padding:6px">↩ UNDO LAST</button>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title">Map Settings</div>
+      <div class="field"><label>Name</label><input type="text" id="mapName" value="My Map" maxlength="20"></div>
+      <div class="field"><label>Description</label><textarea id="mapDesc" rows="2">A custom map.</textarea></div>
+      <div class="field"><label>Difficulty</label>
+        <select id="mapDiff">
+          <option value="Starter">Starter</option>
+          <option value="Medium" selected>Medium</option>
+          <option value="Hard">Hard</option>
+        </select>
+      </div>
+      <div class="field"><label>Map Color</label><input type="color" id="mapClr" value="#3b82f6"></div>
+      <div class="row2">
+        <div class="field"><label>Lives</label><input type="number" id="mapLives" value="15" min="1" max="99"></div>
+        <div class="field"><label>Start Gold</label><input type="number" id="mapGold" value="250" min="50" step="50"></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title">Validation</div>
+      <div id="validationPanel">
+        <div class="stat-row"><span class="stat-k">Path cells</span><span class="stat-v" id="statCells">0</span></div>
+        <div class="stat-row"><span class="stat-k">Turns</span><span class="stat-v" id="statTurns">0</span></div>
+        <div class="stat-row"><span class="stat-k">Walls</span><span class="stat-v" id="statWalls">0</span></div>
+        <div class="stat-row"><span class="stat-k">Status</span><span class="stat-v" id="statStatus">—</span></div>
+      </div>
+      <div id="validNotice" class="notice">Add at least 2 waypoints to start building a path.</div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title">Actions</div>
+      <button class="btn" id="exportBtn">EXPORT MAP CODE</button>
+      <button class="btn out" id="importBtn">IMPORT MAP CODE</button>
+      <button class="btn out" id="clearWallsBtn">CLEAR WALLS</button>
+      <button class="btn danger" id="clearAllBtn">CLEAR ALL</button>
+    </div>
+
+  </div>
+
+  <!-- ── CANVAS ── -->
+  <div class="canvas-wrap">
+    <canvas id="mapCanvas" width="720" height="504"></canvas>
+    <div class="canvas-hint" id="canvasHint">Hover over the grid to see coordinates. Click to place waypoints.</div>
+  </div>
+</div>
+
+<!-- ── EXPORT MODAL ── -->
+<div id="exportOverlay">
+  <div class="export-box">
+    <h3>Map Code</h3>
+    <p>Paste this object into the MAPS array in Hold The Line. The walls array creates stone blocks that block tower line-of-sight near the path.</p>
+    <pre id="exportCode"></pre>
+    <div class="export-btns">
+      <button class="btn" id="copyBtn">COPY TO CLIPBOARD</button>
+      <button class="btn out" id="exportClose">CLOSE</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── IMPORT MODAL ── -->
+<div id="importOverlay">
+  <div class="import-box">
+    <h3>Import Map Code</h3>
+    <p>Paste a map object from the MAPS array. Both JS object literal and JSON formats are supported.</p>
+    <textarea id="importCode" placeholder="{name:'Meadow', wp:[[0,3],[5,3],...], walls:[...], ...}"></textarea>
+    <div class="import-err" id="importErr"></div>
+    <div class="import-btns">
+      <button class="btn" id="importDoBtn">IMPORT</button>
+      <button class="btn out" id="importClose">CANCEL</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════
+// CONSTANTS
+// ═══════════════════════════════════════════
+const COLS=20, ROWS=14, CS=36; // 36px cells → 720×504
+const W=COLS*CS, H=ROWS*CS;
+
+// ═══════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════
+let waypoints=[];   // [[col,row], ...]
+let walls=new Set(); // "col,row"
+let hoverCell=null;
+let tool='waypoint'; // 'waypoint' | 'wall' | 'erase'
+let dark=localStorage.getItem('htl_dark')==='1';
+
+// ── Dark mode ──────────────────────────────
+if(dark){document.documentElement.dataset.theme='dark';document.getElementById('darkToggle').classList.add('on');}
+document.getElementById('darkToggle').addEventListener('click',()=>{
+  dark=!dark;
+  document.documentElement.dataset.theme=dark?'dark':'light';
+  document.getElementById('darkToggle').classList.toggle('on',dark);
+  localStorage.setItem('htl_dark',dark?'1':'0');
+  draw();
+});
+
+// ═══════════════════════════════════════════
+// PATH BUILDING (mirrors game logic)
+// ═══════════════════════════════════════════
+function buildPath(wp){
+  if(wp.length<2) return [];
+  const c=[];
+  for(let i=0;i<wp.length-1;i++){
+    const[x0,y0]=wp[i],[x1,y1]=wp[i+1];
+    const dx=Math.sign(x1-x0), dy=Math.sign(y1-y0);
+    if(dx!==0&&dy!==0) return null; // diagonal — invalid
+    let x=x0, y=y0;
+    while(x!==x1||y!==y1){c.push([x,y]);x+=dx;y+=dy;}
+  }
+  c.push(wp[wp.length-1]);
+  return c;
+}
+
+function pathSet(){
+  const path=buildPath(waypoints);
+  if(!path) return new Set();
+  return new Set(path.map(([c,r])=>`${c},${r}`));
+}
+
+// ═══════════════════════════════════════════
+// VALIDATION
+// ═══════════════════════════════════════════
+function validate(){
+  const path=buildPath(waypoints);
+  const wc=walls.size;
+
+  document.getElementById('statWalls').textContent=wc;
+
+  if(waypoints.length<2){
+    document.getElementById('statCells').textContent='0';
+    document.getElementById('statTurns').textContent='0';
+    document.getElementById('statStatus').textContent='—';
+    document.getElementById('statStatus').className='stat-v';
+    setNotice('Add at least 2 waypoints to build a path.','');
+    return false;
+  }
+
+  if(path===null){
+    document.getElementById('statCells').textContent='?';
+    document.getElementById('statTurns').textContent='?';
+    document.getElementById('statStatus').textContent='DIAGONAL';
+    document.getElementById('statStatus').className='stat-v err';
+    setNotice('A path segment is diagonal. Waypoints must connect horizontally or vertically only.','err');
+    return false;
+  }
+
+  const cells=path.length;
+  const turns=waypoints.length-2;
+  document.getElementById('statCells').textContent=cells;
+  document.getElementById('statTurns').textContent=turns;
+
+  // Check for self-intersection
+  const seen=new Set();
+  let selfIntersect=false;
+  for(const[c,r] of path){
+    const k=`${c},${r}`;
+    if(seen.has(k)){selfIntersect=true;break;}
+    seen.add(k);
+  }
+
+  if(selfIntersect){
+    document.getElementById('statStatus').textContent='OVERLAP';
+    document.getElementById('statStatus').className='stat-v err';
+    setNotice('The path crosses itself. Rearrange waypoints to fix overlapping segments.','err');
+    return false;
+  }
+
+  const[sc,sr]=waypoints[0];
+  const[ec,er]=waypoints[waypoints.length-1];
+  const entersLeft=sc===0;
+  const exitsRight=ec===COLS-1;
+
+  if(!entersLeft){
+    document.getElementById('statStatus').textContent='NO ENTRY';
+    document.getElementById('statStatus').className='stat-v err';
+    setNotice('First waypoint must be on the left edge (col 0) so enemies enter from the left.','err');
+    return false;
+  }
+  if(!exitsRight){
+    document.getElementById('statStatus').textContent='NO EXIT';
+    document.getElementById('statStatus').className='stat-v err';
+    setNotice('Last waypoint must be on the right edge (col 19) so enemies exit to the right.','err');
+    return false;
+  }
+
+  if(cells<8){
+    document.getElementById('statStatus').textContent='TOO SHORT';
+    document.getElementById('statStatus').className='stat-v err';
+    setNotice('Path is too short ('+cells+' cells). Aim for at least 20 cells for a playable map.','warn');
+    return false;
+  }
+
+  document.getElementById('statStatus').textContent='VALID';
+  document.getElementById('statStatus').className='stat-v ok';
+  setNotice('Path looks good! Add walls near path bends to block tower line-of-sight. Then export.','ok');
+  return true;
+}
+
+function setNotice(text, type){
+  const el=document.getElementById('validNotice');
+  el.textContent=text;
+  el.className='notice'+(type?' '+type:'');
+}
+
+// ═══════════════════════════════════════════
+// DRAW
+// ═══════════════════════════════════════════
+const canvas=document.getElementById('mapCanvas');
+const ctx=canvas.getContext('2d');
+
+function getCSSVar(v){return getComputedStyle(document.documentElement).getPropertyValue(v).trim();}
+
+function draw(){
+  const bg=dark?'#0e0e10':'#f5f3ef';
+  const gridC=dark?'#1e1e24':'#e5e2db';
+
+  ctx.fillStyle=bg;
+  ctx.fillRect(0,0,W,H);
+
+  // Grid
+  ctx.strokeStyle=gridC;ctx.lineWidth=1;
+  for(let c=0;c<=COLS;c++){ctx.beginPath();ctx.moveTo(c*CS,0);ctx.lineTo(c*CS,H);ctx.stroke();}
+  for(let r=0;r<=ROWS;r++){ctx.beginPath();ctx.moveTo(0,r*CS);ctx.lineTo(W,r*CS);ctx.stroke();}
+
+  // Row/col labels on edges
+  ctx.fillStyle=dark?'#2e2e3a':'#ddd9ce';
+  ctx.font=`600 8px "DM Mono",monospace`;
+  ctx.textAlign='center';ctx.textBaseline='middle';
+  for(let c=0;c<COLS;c++){
+    ctx.fillStyle=dark?'#2a2a36':'#e0ddd7';
+    ctx.fillRect(c*CS,0,CS,10);
+    ctx.fillStyle=dark?'#555':'#aaa';
+    ctx.fillText(c,c*CS+CS/2,6);
+  }
+  for(let r=0;r<ROWS;r++){
+    ctx.fillStyle=dark?'#2a2a36':'#e0ddd7';
+    ctx.fillRect(0,r*CS,10,CS);
+    ctx.fillStyle=dark?'#555':'#aaa';
+    ctx.fillText(r,6,r*CS+CS/2);
+  }
+
+  // Path
+  const path=buildPath(waypoints);
+  const pSet=pathSet();
+  const mapClr=document.getElementById('mapClr').value;
+
+  if(path&&path.length>0){
+    for(const[c,r] of path){
+      ctx.fillStyle=mapClr+(dark?'44':'33');
+      ctx.fillRect(c*CS+1,r*CS+1,CS-2,CS-2);
+    }
+    // Center line
+    ctx.beginPath();
+    path.forEach(([c,r],i)=>{
+      const px=c*CS+CS/2, py=r*CS+CS/2;
+      i===0?ctx.moveTo(px,py):ctx.lineTo(px,py);
+    });
+    ctx.strokeStyle=mapClr+(dark?'cc':'bb');
+    ctx.lineWidth=2.5;ctx.lineJoin='round';ctx.lineCap='round';
+    ctx.setLineDash([5,7]);ctx.stroke();ctx.setLineDash([]);ctx.lineWidth=1;
+
+    // IN / OUT labels
+    const[ic,ir]=path[0],[oc,or]=path[path.length-1];
+    ctx.fillStyle=mapClr+(dark?'99':'bb');
+    ctx.font=`700 8px "DM Mono",monospace`;
+    ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText('IN',ic*CS+CS/2,ir*CS+CS/2);
+    ctx.fillText('OUT',oc*CS+CS/2,or*CS+CS/2);
+  }
+
+  // Walls (static stone walls)
+  for(const key of walls){
+    const[c,r]=key.split(',').map(Number);
+    const wx=c*CS, wy=r*CS;
+    ctx.fillStyle=dark?'#1a1a22':'#ccc8be';
+    ctx.fillRect(wx,wy,CS,CS);
+    ctx.fillStyle=dark?'#222228':'#b8b4aa';
+    ctx.fillRect(wx+2,wy+2,CS-4,CS-4);
+    // brick lines
+    ctx.strokeStyle=dark?'#2a2a32':'#9fa09a';
+    ctx.lineWidth=1;
+    ctx.beginPath();
+    ctx.moveTo(wx+2,wy+CS/2);ctx.lineTo(wx+CS-2,wy+CS/2);
+    ctx.moveTo(wx+CS/2,wy+2);ctx.lineTo(wx+CS/2,wy+CS/2);
+    ctx.moveTo(wx+CS/4,wy+CS/2);ctx.lineTo(wx+CS/4,wy+CS-2);
+    ctx.moveTo(wx+CS*3/4,wy+CS/2);ctx.lineTo(wx+CS*3/4,wy+CS-2);
+    ctx.stroke();
+    // corner stones
+    ctx.fillStyle=dark?'#2a2a32':'#aaa69f';
+    ctx.fillRect(wx+4,wy+4,4,4);
+    ctx.fillRect(wx+CS-8,wy+CS-8,4,4);
+    ctx.fillRect(wx+CS-8,wy+4,4,4);
+    ctx.fillRect(wx+4,wy+CS-8,4,4);
+  }
+
+  // Waypoints
+  waypoints.forEach(([c,r],i)=>{
+    const cx2=c*CS+CS/2, cy2=r*CS+CS/2;
+    const isFirst=i===0, isLast=i===waypoints.length-1;
+    const clr=isFirst?'#22c55e':isLast?'#ef4444':mapClr;
+
+    ctx.fillStyle=dark?'#16161a':'#fff';
+    ctx.beginPath();ctx.arc(cx2,cy2,10,0,Math.PI*2);ctx.fill();
+    ctx.strokeStyle=clr;ctx.lineWidth=2.5;
+    ctx.beginPath();ctx.arc(cx2,cy2,10,0,Math.PI*2);ctx.stroke();
+    ctx.fillStyle=clr;
+    ctx.font=`700 9px "DM Mono",monospace`;
+    ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText(i+1,cx2,cy2);
+  });
+
+  // Hover
+  if(hoverCell){
+    const[hc,hr]=hoverCell;
+    const onPath=pSet.has(`${hc},${hr}`);
+    const hasWall=walls.has(`${hc},${hr}`);
+
+    if(tool==='waypoint'){
+      ctx.fillStyle='rgba(59,130,246,.12)';
+      ctx.fillRect(hc*CS,hr*CS,CS,CS);
+      ctx.strokeStyle='rgba(59,130,246,.5)';
+      ctx.lineWidth=1.5;ctx.setLineDash([3,3]);
+      ctx.strokeRect(hc*CS+1,hr*CS+1,CS-2,CS-2);
+      ctx.setLineDash([]);
+    } else if(tool==='wall'){
+      const canPlace=!onPath&&!hasWall;
+      ctx.fillStyle=canPlace?'rgba(100,116,139,.2)':'rgba(220,38,38,.12)';
+      ctx.fillRect(hc*CS,hr*CS,CS,CS);
+      ctx.strokeStyle=canPlace?'rgba(100,116,139,.6)':'rgba(220,38,38,.5)';
+      ctx.lineWidth=1.5;ctx.setLineDash([3,3]);
+      ctx.strokeRect(hc*CS+1,hr*CS+1,CS-2,CS-2);
+      ctx.setLineDash([]);
+    } else if(tool==='erase'){
+      ctx.fillStyle='rgba(220,38,38,.1)';
+      ctx.fillRect(hc*CS,hr*CS,CS,CS);
+      ctx.strokeStyle='rgba(220,38,38,.5)';
+      ctx.lineWidth=1.5;ctx.setLineDash([3,3]);
+      ctx.strokeRect(hc*CS+1,hr*CS+1,CS-2,CS-2);
+      ctx.setLineDash([]);
+    }
+
+    // Coordinate tooltip
+    ctx.fillStyle=dark?'rgba(14,14,16,.85)':'rgba(245,243,239,.9)';
+    const label=`${hc}, ${hr}`;
+    ctx.font=`500 9px "DM Mono",monospace`;
+    const tw=ctx.measureText(label).width+10;
+    const tx=Math.min(hc*CS+CS+4, W-tw-4);
+    const ty=Math.max(hr*CS-3, 4);
+    ctx.fillRect(tx,ty,tw,16);
+    ctx.strokeStyle=dark?'#2e2e3a':'#ccc8be';ctx.lineWidth=1;
+    ctx.strokeRect(tx,ty,tw,16);
+    ctx.fillStyle=dark?'#f0eee9':'#1a1714';
+    ctx.textAlign='left';ctx.textBaseline='top';
+    ctx.fillText(label,tx+5,ty+4);
+  }
+
+  validate();
+}
+
+// ═══════════════════════════════════════════
+// INTERACTION
+// ═══════════════════════════════════════════
+function getCell(e){
+  const r=canvas.getBoundingClientRect();
+  const x=e.clientX-r.left, y=e.clientY-r.top;
+  return[Math.floor(x/CS), Math.floor(y/CS)];
+}
+
+canvas.addEventListener('mousemove',e=>{
+  const[c,r]=getCell(e);
+  hoverCell=(c>=0&&c<COLS&&r>=0&&r<ROWS)?[c,r]:null;
+  draw();
+
+  if(hoverCell){
+    const[hc,hr]=hoverCell;
+    const onPath=pathSet().has(`${hc},${hr}`);
+    if(tool==='waypoint') document.getElementById('canvasHint').textContent=`Col ${hc}, Row ${hr} — click to add waypoint`;
+    else if(tool==='wall') document.getElementById('canvasHint').textContent=onPath?`Col ${hc}, Row ${hr} — can't place wall on path`:`Col ${hc}, Row ${hr} — click to toggle wall`;
+    else document.getElementById('canvasHint').textContent=`Col ${hc}, Row ${hr} — click to erase`;
+  }
+});
+
+canvas.addEventListener('mouseleave',()=>{hoverCell=null;draw();});
+
+canvas.addEventListener('click',e=>{
+  const[c,r]=getCell(e);
+  if(c<0||c>=COLS||r<0||r>=ROWS) return;
+
+  if(tool==='waypoint'){
+    waypoints.push([c,r]);
+    rebuildWpList();
+    draw();
+  } else if(tool==='wall'){
+    const key=`${c},${r}`;
+    const onPath=pathSet().has(key);
+    if(onPath) return;
+    if(walls.has(key)) walls.delete(key);
+    else walls.add(key);
+    draw();
+  } else if(tool==='erase'){
+    const key=`${c},${r}`;
+    // Remove waypoint if near one
+    let removed=false;
+    for(let i=waypoints.length-1;i>=0;i--){
+      const[wc,wr]=waypoints[i];
+      if(wc===c&&wr===r){waypoints.splice(i,1);removed=true;break;}
+    }
+    if(!removed) walls.delete(key);
+    rebuildWpList();
+    draw();
+  }
+});
+
+// Right-click removes last waypoint quickly
+canvas.addEventListener('contextmenu',e=>{
+  e.preventDefault();
+  if(tool==='waypoint'&&waypoints.length>0){
+    waypoints.pop();
+    rebuildWpList();
+    draw();
+  }
+});
+
+// ── Tools ──────────────────────────────────
+function setTool(t){
+  tool=t;
+  document.getElementById('toolWaypoint').classList.toggle('active',t==='waypoint');
+  document.getElementById('toolWall').classList.toggle('active',t==='wall');
+  document.getElementById('toolErase').classList.toggle('active',t==='erase');
+  draw();
+}
+document.getElementById('toolWaypoint').addEventListener('click',()=>setTool('waypoint'));
+document.getElementById('toolWall').addEventListener('click',()=>setTool('wall'));
+document.getElementById('toolErase').addEventListener('click',()=>setTool('erase'));
+
+// ── Waypoint list ──────────────────────────
+function rebuildWpList(){
+  const el=document.getElementById('wpList');
+  if(waypoints.length===0){
+    el.innerHTML=`<span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--ink3)">No waypoints yet</span>`;
+    return;
+  }
+  el.innerHTML=waypoints.map(([c,r],i)=>`
+    <div class="wp-item${i===0?' start':i===waypoints.length-1?' end':''}">
+      <span>#${i+1} → col ${c}, row ${r}</span>
+      <button class="wp-del" onclick="removeWp(${i})">✕</button>
+    </div>`).join('');
+}
+
+function removeWp(i){waypoints.splice(i,1);rebuildWpList();draw();}
+
+document.getElementById('undoWp').addEventListener('click',()=>{
+  if(waypoints.length>0){waypoints.pop();rebuildWpList();draw();}
+});
+
+// ── Settings live update ───────────────────
+['mapName','mapDesc','mapDiff','mapClr','mapLives','mapGold'].forEach(id=>{
+  document.getElementById(id).addEventListener('input',draw);
+});
+
+// ── Clear ──────────────────────────────────
+document.getElementById('clearWallsBtn').addEventListener('click',()=>{
+  walls.clear();draw();
+});
+document.getElementById('clearAllBtn').addEventListener('click',()=>{
+  if(confirm('Clear all waypoints and walls?')){
+    waypoints=[];walls.clear();rebuildWpList();draw();
+  }
+});
+
+// ═══════════════════════════════════════════
+// EXPORT
+// ═══════════════════════════════════════════
+function generateCode(){
+  const name=document.getElementById('mapName').value.trim()||'My Map';
+  const desc=document.getElementById('mapDesc').value.trim()||'A custom map.';
+  const diff=document.getElementById('mapDiff').value;
+  const clr=document.getElementById('mapClr').value;
+  const lives=parseInt(document.getElementById('mapLives').value)||15;
+  const gold=parseInt(document.getElementById('mapGold').value)||250;
+
+  const wpStr=waypoints.map(([c,r])=>`[${c},${r}]`).join(',');
+  const wallArr=[...walls].map(k=>{
+    const[c,r]=k.split(',').map(Number);
+    return`[${c},${r}]`;
+  }).join(',');
+
+  return`{name:'${name.replace(/'/g,"\\'")}',
+ desc:'${desc.replace(/'/g,"\\'")}',
+ diff:'${diff}',clr:'${clr}', lives:${lives},gold:${gold},
+ wp:[${wpStr}]${wallArr?`,\n walls:[${wallArr}]`:''}}`;
+}
+
+document.getElementById('exportBtn').addEventListener('click',()=>{
+  if(!validate()){
+    // Still allow export with warning
+  }
+  document.getElementById('exportCode').textContent=generateCode();
+  document.getElementById('exportOverlay').classList.add('open');
+});
+document.getElementById('exportClose').addEventListener('click',()=>{
+  document.getElementById('exportOverlay').classList.remove('open');
+});
+document.getElementById('exportOverlay').addEventListener('click',e=>{
+  if(e.target===document.getElementById('exportOverlay'))
+    document.getElementById('exportOverlay').classList.remove('open');
+});
+document.getElementById('copyBtn').addEventListener('click',()=>{
+  const code=document.getElementById('exportCode').textContent;
+  navigator.clipboard.writeText(code).then(()=>{
+    const btn=document.getElementById('copyBtn');
+    const orig=btn.textContent;
+    btn.textContent='COPIED!';
+    setTimeout(()=>btn.textContent=orig,1500);
+  });
+});
+
+// ═══════════════════════════════════════════
+// IMPORT
+// ═══════════════════════════════════════════
+document.getElementById('importBtn').addEventListener('click',()=>{
+  document.getElementById('importCode').value='';
+  document.getElementById('importErr').textContent='';
+  document.getElementById('importOverlay').classList.add('open');
+});
+document.getElementById('importClose').addEventListener('click',()=>{
+  document.getElementById('importOverlay').classList.remove('open');
+});
+document.getElementById('importOverlay').addEventListener('click',e=>{
+  if(e.target===document.getElementById('importOverlay'))
+    document.getElementById('importOverlay').classList.remove('open');
+});
+
+document.getElementById('importDoBtn').addEventListener('click',()=>{
+  const raw=document.getElementById('importCode').value.trim();
+  document.getElementById('importErr').textContent='';
+  try{
+    // Normalize JS object literal to JSON-ish then eval carefully
+    let parsed;
+    // Try: wrap in parentheses and use Function eval (sandboxed enough for our own format)
+    try{
+      parsed=Function('"use strict";return ('+raw+')')();
+    }catch(e2){
+      throw new Error('Could not parse: '+e2.message);
+    }
+    if(!parsed||!Array.isArray(parsed.wp)||parsed.wp.length<2)
+      throw new Error('Missing or invalid wp (waypoints) array');
+
+    // Load data
+    waypoints=parsed.wp.map(([c,r])=>[c,r]);
+    walls=new Set();
+    if(Array.isArray(parsed.walls)){
+      parsed.walls.forEach(([c,r])=>walls.add(`${c},${r}`));
+    }
+    if(parsed.name) document.getElementById('mapName').value=parsed.name;
+    if(parsed.desc) document.getElementById('mapDesc').value=parsed.desc;
+    if(parsed.diff) document.getElementById('mapDiff').value=parsed.diff;
+    if(parsed.clr) document.getElementById('mapClr').value=parsed.clr;
+    if(parsed.lives) document.getElementById('mapLives').value=parsed.lives;
+    if(parsed.gold) document.getElementById('mapGold').value=parsed.gold;
+
+    rebuildWpList();
+    draw();
+    document.getElementById('importOverlay').classList.remove('open');
+  }catch(e){
+    document.getElementById('importErr').textContent='Error: '+e.message;
+  }
+});
+
+// ═══════════════════════════════════════════
+// BOOT
+// ═══════════════════════════════════════════
+rebuildWpList();
+draw();
+</script>
+</body>
+</html>
