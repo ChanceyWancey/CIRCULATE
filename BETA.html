@@ -170,6 +170,16 @@ body{background:var(--bg);min-height:100vh;display:flex;align-items:center;justi
 .buy-btn:hover{opacity:.85}.buy-btn:disabled{background:transparent;border-color:var(--border);color:var(--ink3);cursor:default}
 .back-btn{width:100%;padding:7px;border:1.5px solid var(--border);background:transparent;color:var(--ink2);font-family:'DM Mono',monospace;font-size:10px;cursor:pointer;border-radius:4px}
 .back-btn:hover{border-color:var(--ink);color:var(--ink)}
+.target-row{display:flex;align-items:center;gap:6px;padding:5px 0 2px}
+.target-lbl{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3);flex-shrink:0}
+.target-hint{font-family:'DM Mono',monospace;font-size:8px;color:var(--ink3);flex-shrink:0;white-space:nowrap;opacity:.7}
+.target-btn{flex:1;font-family:'DM Mono',monospace;font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:5px 8px;border-radius:4px;border:1.5px solid var(--border);background:var(--surface2);color:var(--ink2);cursor:pointer;transition:all .12s;text-align:center}
+.target-btn:hover{opacity:.8}
+.target-btn.active-first{border-color:#3b82f6;color:#3b82f6;background:#3b82f611}
+.target-btn.active-last{border-color:#8b5cf6;color:#8b5cf6;background:#8b5cf611}
+.target-btn.active-weak{border-color:#22c55e;color:#22c55e;background:#22c55e11}
+.target-btn.active-strong{border-color:#f97316;color:#f97316;background:#f9731611}
+.target-btn.active-boss{border-color:#f59e0b;color:#f59e0b;background:#f59e0b11}
 
 /* Controls */
 #sbCtrl{padding:8px;display:flex;flex-direction:column;gap:4px;border-top:1px solid var(--border)}
@@ -488,6 +498,7 @@ body{background:var(--bg);min-height:100vh;display:flex;align-items:center;justi
         primaryPath:t.primaryPath||null,
         secondaryPath:t.secondaryPath||null,
         fgbTimer:t.fgbTimer||0,
+        targetMode:t.targetMode||'first',
       }));
       const state={
         mapName:curMap.name,
@@ -563,6 +574,7 @@ body{background:var(--bg);min-height:100vh;display:flex;align-items:center;justi
         t.primaryPath=td.primaryPath;
         t.secondaryPath=td.secondaryPath;
         t.fgbTimer=td.fgbTimer||0;
+        t.targetMode=td.targetMode||'first';
         towers.push(t);
       });
 
@@ -695,7 +707,7 @@ body{background:var(--bg);min-height:100vh;display:flex;align-items:center;justi
     row.className='beta-row';
     for(let c=0;c<cols;c++){
       const s=document.createElement('span');
-      s.textContent='BETA';
+      s.textContent='ALPHA v1';
       row.appendChild(s);
     }
     track.appendChild(row);
@@ -1428,12 +1440,33 @@ function applyAmpBoosts(){
   }
 }
 
+const TARGET_MODES=['first','last','weak','strong','boss'];
+const TARGET_LABELS={first:'FIRST',last:'LAST',weak:'WEAK',strong:'STRONG',boss:'BOSS'};
+const TARGET_ICONS={first:'→','last':'←',weak:'♡',strong:'★',boss:'👑'};
+
+function cycleTarget(t){
+  const cur=t.targetMode||'first';
+  const idx=TARGET_MODES.indexOf(cur);
+  t.targetMode=TARGET_MODES[(idx+1)%TARGET_MODES.length];
+  renderUpPanel(t);
+}
+
 function findTargets(t){
   if(TDEFS[t.type].isBank||TDEFS[t.type].isAmplifier) return [];
   const cx=t.col*CS+CS/2,cy=t.row*CS+CS/2,rp=t.range*CS;
   const inRange=enemies.filter(e=>!e.dead&&!e.reached&&Math.hypot(e.x-cx,e.y-cy)<=rp);
-  inRange.sort((a,b)=>b.pi-a.pi);
-  return inRange.slice(0,t.multi||1);
+  if(!inRange.length) return [];
+  const mode=t.targetMode||'first';
+  let sorted;
+  if(mode==='first')      sorted=inRange.slice().sort((a,b)=>b.pi-a.pi);
+  else if(mode==='last')  sorted=inRange.slice().sort((a,b)=>a.pi-b.pi);
+  else if(mode==='weak')  sorted=inRange.slice().sort((a,b)=>a.hp-b.hp);
+  else if(mode==='strong')sorted=inRange.slice().sort((a,b)=>b.hp-a.hp);
+  else if(mode==='boss'){
+    const bosses=inRange.filter(e=>e.type===3);
+    sorted=bosses.length?bosses.sort((a,b)=>b.pi-a.pi):inRange.slice().sort((a,b)=>b.pi-a.pi);
+  } else sorted=inRange.slice().sort((a,b)=>b.pi-a.pi);
+  return sorted.slice(0,t.multi||1);
 }
 
 function makeBullet(t,tgt){
@@ -1828,12 +1861,18 @@ function renderUpPanel(tower){
     <div class="fgb-bar-top"><span class="fgb-label">✦ Full Goldback</span><span class="fgb-timer" id="fgbTimerEl">${fgbSec}s</span></div>
     <div class="fgb-track"><div class="fgb-fill" id="fgbFillEl" style="width:${fgbPct}%"></div></div>
   </div>`:'';
+  const curTarget=tower.targetMode||'first';
+  const targetRowHTML=`<div class="target-row">
+    <span class="target-lbl">Target</span>
+    <button class="target-btn active-${curTarget}" onclick="setTowerTarget(null)" title="Click to cycle targeting mode">${TARGET_ICONS[curTarget]} ${TARGET_LABELS[curTarget]} ↻</button>
+  </div>`;
   p.innerHTML=`
     <div class="up-head">
       <div><div class="up-name">${def.name}</div><div class="up-sub">Path ${pa}-${pb}-${pc}</div></div>
       <button class="sell-btn${isFGB?' fgb':''}" onclick="sellTower()">${sellLabel}</button>
     </div>
     ${fgbHTML}
+    ${targetRowHTML}
     ${pathSection('A',def.pathA||'PATH A')}
     ${pathSection('B',def.pathB||'PATH B')}
     ${pathSection('C',def.pathC||'PATH C')}
@@ -1841,6 +1880,16 @@ function renderUpPanel(tower){
 }
 
 function deselTower(){selTower=null;showUpPanel(false);buildShop();}
+function setTowerTarget(mode){
+  if(!selTower)return;
+  if(mode===null){
+    const idx=TARGET_MODES.indexOf(selTower.targetMode||'first');
+    selTower.targetMode=TARGET_MODES[(idx+1)%TARGET_MODES.length];
+  } else {
+    selTower.targetMode=mode;
+  }
+  renderUpPanel(selTower);
+}
 function sellTower(){
   if(!selTower)return;
   const def=TDEFS[selTower.type],pa=selTower.pA||0,pb=selTower.pB||0,pc=selTower.pC||0;
