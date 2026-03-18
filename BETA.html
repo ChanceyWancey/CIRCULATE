@@ -152,6 +152,14 @@ body{background:var(--bg);min-height:100vh;display:flex;align-items:center;justi
 .up-name{font-size:14px;font-weight:600}.up-sub{font-family:'DM Mono',monospace;font-size:9px;color:var(--ink3);letter-spacing:.1em;text-transform:uppercase;margin-top:1px}
 .sell-btn{font-family:'DM Mono',monospace;font-size:9px;border:1px solid var(--red);background:none;color:var(--red);padding:3px 7px;cursor:pointer;border-radius:3px}
 .sell-btn:hover{background:var(--red);color:#fff}
+.sell-btn.fgb{border-color:#16a34a;color:#16a34a;font-weight:700}
+.sell-btn.fgb:hover{background:#16a34a;color:#fff}
+.fgb-bar{background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:6px 8px;display:flex;flex-direction:column;gap:3px;margin-bottom:2px}
+.fgb-bar-top{display:flex;justify-content:space-between;align-items:center}
+.fgb-label{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:.1em;text-transform:uppercase;color:#16a34a;font-weight:600}
+.fgb-timer{font-family:'DM Mono',monospace;font-size:11px;font-weight:600;color:#16a34a}
+.fgb-track{height:3px;background:var(--border);border-radius:2px;overflow:hidden}
+.fgb-fill{height:100%;background:#16a34a;border-radius:2px;transition:width .5s linear}
 .path-box{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:9px}
 .path-lbl{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink3);margin-bottom:7px}
 .tiers{display:flex;gap:3px;margin-bottom:7px;flex-wrap:nowrap}
@@ -253,6 +261,28 @@ body{background:var(--bg);min-height:100vh;display:flex;align-items:center;justi
 #goOverlay h2{font-size:36px;font-weight:700;letter-spacing:-.03em;color:var(--ink)}
 #goOverlay p{font-family:'DM Mono',monospace;font-size:12px;color:var(--ink2)}
 .go-btns{display:flex;gap:8px;margin-top:6px}
+
+/* ── UPDATE POPUP ─────────────────────────── */
+#updateOverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:300;align-items:center;justify-content:center}
+#updateOverlay.open{display:flex}
+.update-box{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:28px 32px;width:340px;box-shadow:0 12px 48px var(--shadow);display:flex;flex-direction:column;gap:10px}
+.update-box-icon{font-size:22px;margin-bottom:2px}
+.update-box h3{font-size:20px;font-weight:700;letter-spacing:-.02em;color:var(--ink);line-height:1.2}
+.update-box p{font-family:'DM Mono',monospace;font-size:10px;color:var(--ink2);line-height:1.7}
+.update-box-btns{display:flex;gap:8px;margin-top:6px}
+.update-box-btns .mbtn{flex:1;padding:10px;font-size:10px;text-align:center}
+
+/* ── RESUME POPUP ─────────────────────────── */
+#resumeOverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:300;align-items:center;justify-content:center}
+#resumeOverlay.open{display:flex}
+.resume-box{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:28px 32px;width:360px;box-shadow:0 12px 48px var(--shadow);display:flex;flex-direction:column;gap:10px}
+.resume-box-icon{font-size:22px;margin-bottom:2px}
+.resume-box h3{font-size:20px;font-weight:700;letter-spacing:-.02em;color:var(--ink);line-height:1.2}
+.resume-box p{font-family:'DM Mono',monospace;font-size:10px;color:var(--ink2);line-height:1.7}
+.resume-meta{display:flex;gap:8px;flex-wrap:wrap}
+.resume-chip{font-family:'DM Mono',monospace;font-size:9px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:3px 8px;color:var(--ink2)}
+.resume-box-btns{display:flex;gap:8px;margin-top:6px}
+.resume-box-btns .mbtn{flex:1;padding:10px;font-size:10px;text-align:center}
 </style>
 </head>
 <body>
@@ -388,6 +418,33 @@ body{background:var(--bg);min-height:100vh;display:flex;align-items:center;justi
 
 <div id="betaWrap"><div class="beta-track" id="betaTrack"></div></div>
 
+<!-- ══════════ UPDATE POPUP ══════════ -->
+<div id="updateOverlay">
+  <div class="update-box">
+    <div class="update-box-icon">⬆️</div>
+    <h3>Update Available</h3>
+    <p>A new version of Hold The Line is ready. Your current game will be saved so you can pick up right where you left off.</p>
+    <div class="update-box-btns">
+      <button class="mbtn" id="updateNow">UPDATE NOW</button>
+      <button class="mbtn out" id="updateLater">LATER</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ RESUME POPUP ══════════ -->
+<div id="resumeOverlay">
+  <div class="resume-box">
+    <div class="resume-box-icon">🔄</div>
+    <h3>Resume from last session?</h3>
+    <p>You were in the middle of a game. Want to pick up where you left off?</p>
+    <div class="resume-meta" id="resumeMeta"></div>
+    <div class="resume-box-btns">
+      <button class="mbtn" id="resumeYes">RESUME</button>
+      <button class="mbtn out" id="resumeNo">START FRESH</button>
+    </div>
+  </div>
+</div>
+
 <!-- ══════════ CUSTOM CURSOR ══════════ -->
 <div id="cursor">
   <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -403,6 +460,224 @@ body{background:var(--bg);min-height:100vh;display:flex;align-items:center;justi
     <circle class="c-dot" cx="16" cy="16" r="1.8" fill="currentColor"/>
   </svg>
 </div>
+
+<script>
+// ═══════════════════════════════════════════
+// AUTO-UPDATE + RESUME SYSTEM
+// ═══════════════════════════════════════════
+(function(){
+  const RAW_URL='https://raw.githubusercontent.com/ChanceyWancey/CIRCULATE/main/BETA.html';
+  const CHECK_INTERVAL=60000;
+  const SAVE_KEY='htl_resume_state';
+
+  function hashStr(s){
+    let h=0;
+    for(let i=0;i<s.length;i++) h=(Math.imul(31,h)+s.charCodeAt(i))|0;
+    return h;
+  }
+  const localHash=hashStr(document.documentElement.outerHTML);
+
+  // ── Save game state ──────────────────────
+  window.saveGameForUpdate=function(){
+    try{
+      // Serialize towers (only data, no functions)
+      const towersData=towers.map(t=>({
+        col:t.col,row:t.row,type:t.type,
+        pA:t.pA,pB:t.pB,pC:t.pC,
+        primaryPath:t.primaryPath||null,
+        secondaryPath:t.secondaryPath||null,
+        fgbTimer:t.fgbTimer||0,
+      }));
+      const state={
+        mapName:curMap.name,
+        endless:isEndless,
+        sandbox:isSandbox,
+        gold,lives,score,wave,
+        speed,autoWave,
+        waveActive,
+        towers:towersData,
+        ts:Date.now(),
+      };
+      localStorage.setItem(SAVE_KEY,JSON.stringify(state));
+      return true;
+    }catch(e){return false;}
+  };
+
+  // ── Restore game state ───────────────────
+  window.restoreGameFromSave=function(){
+    try{
+      const raw=localStorage.getItem(SAVE_KEY);
+      if(!raw)return false;
+      const state=JSON.parse(raw);
+      localStorage.removeItem(SAVE_KEY);
+
+      // Find the map
+      const map=MAPS.find(m=>m.name===state.mapName);
+      if(!map)return false;
+
+      // Boot the game normally first
+      const mapToUse={...map,endless:state.endless,sandbox:state.sandbox};
+      showScreen('game');
+      initGame(mapToUse);
+
+      // Override state
+      gold=state.gold;
+      lives=state.lives;
+      score=state.score;
+      wave=state.wave;
+      speed=state.speed||1;
+      autoWave=state.autoWave||false;
+      waveActive=false; // always restore paused
+
+      // Restore towers with upgrades re-applied
+      towers=[];
+      state.towers.forEach(td=>{
+        const def=TDEFS[td.type];
+        const t={
+          col:td.col,row:td.row,type:td.type,
+          cd:0,ang:-Math.PI/2,
+          pA:0,pB:0,pC:0,
+          primaryPath:null,secondaryPath:null,
+          dmg:def.dmg,rate:def.rate,range:def.range,
+          splash:def.splash,slow:def.slow,chain:def.chain,
+          burn:def.burn,stun:def.stun,pierce:def.pierce,
+          multi:def.multi||1,
+          bankIncome:def.bankIncome||0,bankInterest:0,
+          ampBoost:def.ampBoost||0,ampRadius:def.ampRadius||1,
+        };
+        // Re-apply upgrades in order
+        const paths=['A','B','C'];
+        const saved={A:td.pA||0,B:td.pB||0,C:td.pC||0};
+        paths.forEach(p=>{
+          const upgs=def['p'+p];
+          for(let i=0;i<saved[p];i++){
+            if(upgs&&upgs[i]){
+              const isPrimary=td.primaryPath===p;
+              const fn=isPrimary&&upgs[i].fOrig?upgs[i].fOrig:upgs[i].f;
+              if(fn)fn(t);
+            }
+          }
+          t['p'+p]=saved[p];
+        });
+        t.primaryPath=td.primaryPath;
+        t.secondaryPath=td.secondaryPath;
+        t.fgbTimer=td.fgbTimer||0;
+        towers.push(t);
+      });
+
+      applyAmpBoosts();
+      updateHUD();
+      buildShop();
+      showUpPanel(false);
+
+      // Update speed button
+      document.getElementById('speedBtn').textContent=`SPEED ×${speed}`;
+      // Update auto button
+      document.getElementById('autoBtn').textContent=autoWave?'AUTO ON':'AUTO OFF';
+      document.getElementById('autoBtn').classList.toggle('on',autoWave);
+      // Update wave button
+      document.getElementById('waveBtn').textContent=state.sandbox?'SPAWN ENEMIES':`SEND WAVE ${wave}`;
+      document.getElementById('waveBtn').disabled=false;
+
+      msg(`Resumed from wave ${wave}. Game paused — press Send Wave to continue.`);
+
+      lastTs=performance.now();
+      if(animId)cancelAnimationFrame(animId);
+      animId=requestAnimationFrame(loop);
+      return true;
+    }catch(e){
+      console.error('[Resume] Failed:',e);
+      localStorage.removeItem(SAVE_KEY);
+      return false;
+    }
+  };
+
+  // ── Check for saved state on load ────────
+  function checkResume(){
+    const raw=localStorage.getItem(SAVE_KEY);
+    if(!raw)return;
+    try{
+      const state=JSON.parse(raw);
+      const map=MAPS.find(m=>m.name===state.mapName);
+      if(!map){localStorage.removeItem(SAVE_KEY);return;}
+
+      // Build info chips
+      const meta=document.getElementById('resumeMeta');
+      const chips=[
+        state.mapName,
+        state.endless?'Endless':state.sandbox?'Sandbox':'Normal',
+        `Wave ${state.wave}`,
+        `${state.gold}g`,
+        `${state.lives} lives`,
+        `${state.towers.length} towers`,
+      ];
+      meta.innerHTML=chips.map(c=>`<span class="resume-chip">${c}</span>`).join('');
+
+      document.getElementById('resumeOverlay').classList.add('open');
+
+      document.getElementById('resumeYes').onclick=()=>{
+        document.getElementById('resumeOverlay').classList.remove('open');
+        restoreGameFromSave();
+      };
+      document.getElementById('resumeNo').onclick=()=>{
+        localStorage.removeItem(SAVE_KEY);
+        document.getElementById('resumeOverlay').classList.remove('open');
+      };
+    }catch(e){
+      localStorage.removeItem(SAVE_KEY);
+    }
+  }
+
+  // ── Update check ─────────────────────────
+  let updatePending=false;
+  async function checkForUpdate(){
+    if(updatePending)return;
+    try{
+      const res=await fetch(RAW_URL+'?_='+Date.now(),{cache:'no-store'});
+      if(!res.ok)return;
+      const remoteText=await res.text();
+      if(hashStr(remoteText)===localHash)return;
+
+      updatePending=true;
+      const inGame=document.getElementById('gameScreen').classList.contains('active');
+
+      if(inGame){
+        // Show popup instead of auto-reloading
+        document.getElementById('updateOverlay').classList.add('open');
+
+        document.getElementById('updateNow').onclick=()=>{
+          saveGameForUpdate();
+          setTimeout(()=>location.reload(true),200);
+        };
+        document.getElementById('updateLater').onclick=()=>{
+          document.getElementById('updateOverlay').classList.remove('open');
+          updatePending=false; // allow re-prompt next check
+        };
+      } else {
+        // Not in game — reload silently
+        setTimeout(()=>location.reload(true),800);
+      }
+    }catch(e){}
+  }
+
+  // ── Save on refresh/close ────────────────
+  window.addEventListener('beforeunload',()=>{
+    const inGame=document.getElementById('gameScreen').classList.contains('active');
+    if(inGame) saveGameForUpdate();
+  });
+
+  // ── Periodic auto-save every 15s while in game ──
+  setInterval(()=>{
+    const inGame=document.getElementById('gameScreen').classList.contains('active');
+    if(inGame) saveGameForUpdate();
+  },15000);
+
+  // Run on boot
+  checkResume();
+  checkForUpdate();
+  setInterval(checkForUpdate,CHECK_INTERVAL);
+})();
+</script>
 
 <script>
 // Build watermark rows
@@ -951,6 +1226,7 @@ function updateHUD(){
   document.getElementById('livesEl').textContent=lives;
   document.getElementById('scoreEl').textContent=score;
   document.getElementById('waveEl').textContent=isEndless||isSandbox?`${wave}/∞`:`${wave}/${TOTAL_WAVES}`;
+  if(selTower&&document.getElementById('upgradePanel').style.display!=='none') renderUpPanel(selTower);
 }
 function msg(t){document.getElementById('msgEl').textContent=t;}
 
@@ -992,6 +1268,7 @@ function doUpgrade(t, path) {
   const up=ups[lvl];
   if (!isSandbox&&gold<up.c){msg(`Need ${up.c}g.`);return;}
   if(!isSandbox) gold-=up.c; up.f(t);
+  t.fgbTimer=0; // buying an upgrade ends Full Goldback
   if(path==='A')t.pA=(t.pA||0)+1;
   else if(path==='B')t.pB=(t.pB||0)+1;
   else t.pC=(t.pC||0)+1;
@@ -1042,6 +1319,19 @@ function update(ts){
 
   for(const t of towers){
     if(TDEFS[t.type].isAmplifier) continue;
+    // Tick Full Goldback timer (real time, not game-speed time)
+    if(t.fgbTimer>0){
+      t.fgbTimer=Math.max(0,t.fgbTimer-rawDt);
+      // Only patch the FGB elements in-place — don't rebuild the whole panel
+      if(selTower===t){
+        const timerEl=document.getElementById('fgbTimerEl');
+        const fillEl=document.getElementById('fgbFillEl');
+        if(timerEl) timerEl.textContent=Math.ceil(t.fgbTimer)+'s';
+        if(fillEl) fillEl.style.width=((t.fgbTimer/30)*100)+'%';
+        if(t.fgbTimer===0) renderUpPanel(t); // final re-render when it expires
+      }
+      continue; // don't shoot during FGB
+    }
     t.cd=(t.cd||0)-dt;
     if(t.cd>0)continue;
     if(TDEFS[t.type].tacMode){
@@ -1312,6 +1602,16 @@ function draw(ts){
 function drawTower(t){
   const cx=t.col*CS+CS/2,cy=t.row*CS+CS/2,clr=TDEFS[t.type].clr;
   const ang=t.ang||(-Math.PI/2);
+  // Full Goldback glow ring
+  if((t.fgbTimer||0)>0){
+    const fgbAlpha=0.35+0.2*Math.sin(Date.now()/300);
+    ctx.beginPath();ctx.arc(cx,cy,18,0,Math.PI*2);
+    ctx.strokeStyle=`rgba(22,163,74,${fgbAlpha})`;ctx.lineWidth=3;ctx.stroke();
+    // tiny countdown arc
+    const frac=(t.fgbTimer||0)/30;
+    ctx.beginPath();ctx.arc(cx,cy,20,-Math.PI/2,-Math.PI/2+Math.PI*2*frac);
+    ctx.strokeStyle='rgba(22,163,74,0.7)';ctx.lineWidth=2;ctx.stroke();
+  }
   if(selTower===t){ctx.strokeStyle=clr+'88';ctx.lineWidth=3;ctx.beginPath();ctx.arc(cx,cy,17,0,Math.PI*2);ctx.stroke();}
   ctx.save();ctx.translate(cx,cy);
   ctx.fillStyle=dark?'#16161a':'#fff';ctx.beginPath();ctx.arc(0,0,14,0,Math.PI*2);ctx.fill();
@@ -1501,16 +1801,25 @@ function renderUpPanel(tower){
     </div>`;
   }
 
-  const sell=Math.floor(TDEFS[tower.type].cost*.55);
+  const isFGB=(tower.fgbTimer||0)>0;
+  const fgbSec=Math.ceil(tower.fgbTimer||0);
+  const fgbPct=((tower.fgbTimer||0)/30)*100;
+  const sell=isFGB?TDEFS[tower.type].cost:(Math.floor(TDEFS[tower.type].cost*.55));
   let upgSpend=0;
   for(let i=0;i<pa;i++)upgSpend+=def.pA[i].c;
   for(let i=0;i<pb;i++)upgSpend+=def.pB[i].c;
   for(let i=0;i<pc;i++)upgSpend+=def.pC[i].c;
+  const sellLabel=isFGB?`SELL ${sell}g ✦`:`SELL ${sell+Math.floor(upgSpend*.4)}g`;
+  const fgbHTML=isFGB?`<div class="fgb-bar">
+    <div class="fgb-bar-top"><span class="fgb-label">✦ Full Goldback</span><span class="fgb-timer" id="fgbTimerEl">${fgbSec}s</span></div>
+    <div class="fgb-track"><div class="fgb-fill" id="fgbFillEl" style="width:${fgbPct}%"></div></div>
+  </div>`:'';
   p.innerHTML=`
     <div class="up-head">
       <div><div class="up-name">${def.name}</div><div class="up-sub">Path ${pa}-${pb}-${pc}</div></div>
-      <button class="sell-btn" onclick="sellTower()">SELL ${sell+Math.floor(upgSpend*.4)}g</button>
+      <button class="sell-btn${isFGB?' fgb':''}" onclick="sellTower()">${sellLabel}</button>
     </div>
+    ${fgbHTML}
     ${pathSection('A',def.pathA||'PATH A')}
     ${pathSection('B',def.pathB||'PATH B')}
     ${pathSection('C',def.pathC||'PATH C')}
@@ -1525,9 +1834,10 @@ function sellTower(){
   for(let i=0;i<pa;i++)sp+=def.pA[i].c;
   for(let i=0;i<pb;i++)sp+=def.pB[i].c;
   for(let i=0;i<pc;i++)sp+=def.pC[i].c;
-  gold+=Math.floor(def.cost*.6)+Math.floor(sp*.4);
+  const isFGB=(selTower.fgbTimer||0)>0;
+  gold+=isFGB?def.cost:(Math.floor(def.cost*.6)+Math.floor(sp*.4));
   towers=towers.filter(t=>t!==selTower);
-  deselTower();updateHUD();buildShop();msg('Tower sold.');
+  deselTower();updateHUD();buildShop();msg(isFGB?'Tower sold — Full Goldback refund!':'Tower sold.');
 }
 
 // ── Input ──────────────────────────────────
@@ -1621,7 +1931,8 @@ canvas.addEventListener('click',e=>{
     slow:def.slow,chain:def.chain,burn:def.burn,stun:def.stun,
     pierce:def.pierce,multi:def.multi||1,
     bankIncome:def.bankIncome||0,bankInterest:0,
-    ampBoost:def.ampBoost||0,ampRadius:def.ampRadius||1};
+    ampBoost:def.ampBoost||0,ampRadius:def.ampRadius||1,
+    fgbTimer:30};
   towers.push(newTower);
   updateHUD();buildShop();applyAmpBoosts();msg(`${def.name} placed.`);
 });
@@ -1658,10 +1969,11 @@ canvas.addEventListener('contextmenu',e=>{
   for(let i=0;i<(t.pA||0);i++)sp+=def.pA[i].c;
   for(let i=0;i<(t.pB||0);i++)sp+=def.pB[i].c;
   for(let i=0;i<(t.pC||0);i++)sp+=def.pC[i].c;
-  gold+=Math.floor(def.cost*.6)+Math.floor(sp*.4);
+  const isFGB=(t.fgbTimer||0)>0;
+  gold+=isFGB?def.cost:(Math.floor(def.cost*.6)+Math.floor(sp*.4));
   towers.splice(idx,1);
   if(selTower===t)deselTower();
-  updateHUD();buildShop();applyAmpBoosts();msg('Tower sold.');
+  updateHUD();buildShop();applyAmpBoosts();msg(isFGB?'Tower sold — Full Goldback refund!':'Tower sold.');
 });
 
 function rebuildTowerStats(t, useOrig=false){
@@ -1705,6 +2017,7 @@ document.getElementById('speedBtn').addEventListener('click',()=>{
 });
 document.getElementById('menuBackBtn').addEventListener('click',()=>{
   if(animId){cancelAnimationFrame(animId);animId=null;}
+  localStorage.removeItem('htl_resume_state');
   showScreen('menu');closeMapDetail();
 });
 document.getElementById('gameSettingsBtn').addEventListener('click',()=>openSettings());
@@ -1923,12 +2236,14 @@ document.getElementById('mdPlaySandbox').addEventListener('click',()=>startGameF
 // ── Game Over / Retry ──────────────────────
 document.getElementById('goRetry').addEventListener('click',()=>{
   document.getElementById('goOverlay').classList.remove('open');
+  localStorage.removeItem('htl_resume_state');
   initGame(curMap);lastTs=performance.now();
   animId=requestAnimationFrame(loop);
 });
 document.getElementById('goMenu').addEventListener('click',()=>{
   document.getElementById('goOverlay').classList.remove('open');
   if(animId){cancelAnimationFrame(animId);animId=null;}
+  localStorage.removeItem('htl_resume_state');
   showScreen('menu');closeMapDetail();
 });
 
