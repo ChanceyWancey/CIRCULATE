@@ -32,6 +32,7 @@ body{background:var(--bg);min-height:100vh;display:flex;align-items:center;justi
   transform:translate(-50%,-50%);
   transition:opacity .12s;
   will-change:transform;
+  color:var(--ink);
 }
 #cursor svg{display:block;width:100%;height:100%}
 #cursor .c-ring{
@@ -394,12 +395,12 @@ body{background:var(--bg);min-height:100vh;display:flex;align-items:center;justi
       stroke="#3b82f6" stroke-width="1" stroke-dasharray="6 3" stroke-linecap="round"
       fill="none" opacity="0"/>
     <circle class="c-ring" cx="16" cy="16" r="9"
-      stroke="#1a1714" stroke-width="1.5" fill="none" opacity="0.75"/>
-    <line class="c-cross" x1="16" y1="2"  x2="16" y2="10" stroke="#1a1714" stroke-width="1.5" stroke-linecap="round"/>
-    <line class="c-cross" x1="22" y1="16" x2="30" y2="16" stroke="#1a1714" stroke-width="1.5" stroke-linecap="round"/>
-    <line class="c-cross" x1="16" y1="22" x2="16" y2="30" stroke="#1a1714" stroke-width="1.5" stroke-linecap="round"/>
-    <line class="c-cross" x1="2"  y1="16" x2="10" y2="16" stroke="#1a1714" stroke-width="1.5" stroke-linecap="round"/>
-    <circle class="c-dot" cx="16" cy="16" r="1.8" fill="#1a1714"/>
+      stroke="currentColor" stroke-width="1.5" fill="none" opacity="0.75"/>
+    <line class="c-cross" x1="16" y1="2"  x2="16" y2="10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+    <line class="c-cross" x1="22" y1="16" x2="30" y2="16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+    <line class="c-cross" x1="16" y1="22" x2="16" y2="30" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+    <line class="c-cross" x1="2"  y1="16" x2="10" y2="16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+    <circle class="c-dot" cx="16" cy="16" r="1.8" fill="currentColor"/>
   </svg>
 </div>
 
@@ -908,7 +909,9 @@ let towers,enemies,bullets,particles;
 let waveQueue,waveTimer;
 let selShopType=0,selTower=null,hoverCell=null,moveTowerMode=false,dragTower=null,dragOffset=[0,0];
 let curMap=MAPS[0],pathCells,pathSet;
-let animId=null,lastTs=0,dark=false,selMapIdx=0,selDiff='Starter';
+let animId=null,lastTs=0,dark=localStorage.getItem('darkMode')==='1',selMapIdx=0,selDiff='Starter';
+// Apply saved dark mode immediately
+if(dark){document.documentElement.dataset.theme='dark';document.getElementById('darkToggle').classList.add('on');}
 const TOTAL_WAVES=10;
 
 function buildPath(wp){
@@ -1249,7 +1252,9 @@ function draw(ts){
   // Hover
   if(hoverCell&&!moveTowerMode){
     const[hc,hr]=hoverCell;
-    const def=TDEFS[selShopType];
+    const def=selShopType!==null?TDEFS[selShopType]:null;
+    if(!def||selTower){/* no hover ghost when no tower selected or tower selected */}
+    else {
     const isLargeHover=def.isBank||def.isAmplifier;
     if(isLargeHover){
       let fits=true;
@@ -1278,6 +1283,7 @@ function draw(ts){
         ctx.strokeStyle=def.clr+'33';ctx.lineWidth=1.5;ctx.setLineDash([4,4]);ctx.stroke();ctx.setLineDash([]);
       }
     }
+    } // end else (def exists)
   }
 
   // Selected tower range ring
@@ -1437,11 +1443,11 @@ function buildShop(){
     const req=td.requires;
     const reqOk=!req||(req.towers===undefined||towerCount>=req.towers);
     const d=document.createElement('div');
-    const isPlacing=i===selShopType&&!selTower&&!moveTowerMode;
+    const isPlacing=selShopType!==null&&i===selShopType&&!selTower&&!moveTowerMode;
     d.className=`tc${isPlacing?' sel placing':''}${!reqOk?' locked':gold<td.cost?' unafford':''}`;
     const reqLabel=(!reqOk&&req&&req.towers)?`<div class="tc-req">Requires ${req.towers} towers (${towerCount}/${req.towers})</div>`:'';
     d.innerHTML=`<div class="tc-main"><span class="tc-dot" style="background:${td.clr}"></span><div class="tc-info"><div class="tc-name">${td.name}</div><div class="tc-cost">${td.cost}g</div></div></div>${reqLabel}`;
-    if(gold>=td.cost&&reqOk) d.addEventListener('click',()=>{selShopType=i;selTower=null;moveTowerMode=false;showUpPanel(false);buildShop();msg(`${td.name} — click to place. Right-click to cancel.`);});
+    if(gold>=td.cost&&reqOk) d.addEventListener('click',()=>{selShopType=i;selTower=null;moveTowerMode=false;showUpPanel(false);buildShop();msg(`${td.name} — click to place. Press S to cancel.`);});
     p.appendChild(d);
   });
 }
@@ -1591,6 +1597,7 @@ canvas.addEventListener('click',e=>{
   if(clicked){selTower=clicked;renderUpPanel(clicked);return;}
   if(selTower){deselTower();return;}
 
+  if(selShopType===null){return;}
   const def=TDEFS[selShopType];
   const isLarge=def.isBank||def.isAmplifier;
   const cells=isLarge?getBankCells(col,row):[[col,row]];
@@ -1710,6 +1717,9 @@ document.addEventListener('keydown',e=>{
       document.getElementById('moveTowerBtn').textContent='MOVE';
       document.getElementById('moveTowerBtn').classList.remove('on-move');
       buildShop();msg('');
+    } else if(selShopType!==null){
+      selShopType=null;
+      buildShop();msg('Placement cancelled.');
     }
   }
 });
@@ -1777,6 +1787,7 @@ document.getElementById('darkToggle').addEventListener('click',()=>{
   dark=!dark;
   document.documentElement.dataset.theme=dark?'dark':'light';
   document.getElementById('darkToggle').classList.toggle('on',dark);
+  localStorage.setItem('darkMode',dark?'1':'0');
   buildMenuMaps();
 });
 
@@ -1932,7 +1943,7 @@ document.getElementById('goMenu').addEventListener('click',()=>{
   const dot=el.querySelector('.c-dot');
 
   let mx=window.innerWidth/2, my=window.innerHeight/2;
-  let cursorColor='#1a1714';
+  let cursorColor=document.documentElement.dataset.theme==='dark'?'#f0eee9':'#1a1714';
 
   document.addEventListener('mousemove',e=>{
     mx=e.clientX; my=e.clientY;
@@ -1972,7 +1983,7 @@ document.getElementById('goMenu').addEventListener('click',()=>{
     }
 
     // In-game
-    const def=TDEFS[selShopType];
+    const def=selShopType!==null?TDEFS[selShopType]:null;
     const towerClr=def?def.clr:base;
 
     if(moveTowerMode){
@@ -2006,7 +2017,18 @@ document.getElementById('goMenu').addEventListener('click',()=>{
       return;
     }
 
-    // Placing mode: tower color, spinning outer ring
+    // Placing mode: tower color, spinning outer ring (only if a tower is selected)
+    if(selShopType===null){
+      el.className='';
+      setColor(base);
+      ring.setAttribute('r','9');
+      ring.setAttribute('stroke-width','1.5');
+      ring.setAttribute('opacity','0.6');
+      outer.setAttribute('opacity','0');
+      dot.setAttribute('r','1.8');
+      cross.forEach(l=>l.setAttribute('opacity','0.6'));
+      return;
+    }
     el.className='placing';
     setColor(towerClr);
     ring.setAttribute('r','10');
