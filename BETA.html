@@ -469,15 +469,16 @@ body{background:var(--bg);min-height:100vh;display:flex;align-items:center;justi
   const RAW_URL='https://raw.githubusercontent.com/ChanceyWancey/CIRCULATE/main/BETA.html';
   const CHECK_INTERVAL=60000;
   const SAVE_KEY='htl_resume_state';
+  const BASELINE_KEY='htl_version_baseline';
 
   function hashStr(s){
     let h=0;
     for(let i=0;i<s.length;i++) h=(Math.imul(31,h)+s.charCodeAt(i))|0;
     return h;
   }
-  const localHash=hashStr(document.documentElement.outerHTML);
 
-  // ── Save game state ──────────────────────
+  let baselineHash=null;
+  let updatePending=false;
   window.saveGameForUpdate=function(){
     try{
       // Serialize towers (only data, no functions)
@@ -629,32 +630,37 @@ body{background:var(--bg);min-height:100vh;display:flex;align-items:center;justi
   }
 
   // ── Update check ─────────────────────────
-  let updatePending=false;
   async function checkForUpdate(){
     if(updatePending)return;
     try{
       const res=await fetch(RAW_URL+'?_='+Date.now(),{cache:'no-store'});
       if(!res.ok)return;
       const remoteText=await res.text();
-      if(hashStr(remoteText)===localHash)return;
+      const remoteHash=hashStr(remoteText);
+
+      // First fetch: store as baseline (this IS the current version)
+      if(baselineHash===null){
+        baselineHash=remoteHash;
+        return;
+      }
+
+      // Subsequent fetches: if GitHub changed, trigger update
+      if(remoteHash===baselineHash)return;
 
       updatePending=true;
       const inGame=document.getElementById('gameScreen').classList.contains('active');
 
       if(inGame){
-        // Show popup instead of auto-reloading
         document.getElementById('updateOverlay').classList.add('open');
-
         document.getElementById('updateNow').onclick=()=>{
           saveGameForUpdate();
           setTimeout(()=>location.reload(true),200);
         };
         document.getElementById('updateLater').onclick=()=>{
           document.getElementById('updateOverlay').classList.remove('open');
-          updatePending=false; // allow re-prompt next check
+          updatePending=false;
         };
       } else {
-        // Not in game — reload silently
         setTimeout(()=>location.reload(true),800);
       }
     }catch(e){}
