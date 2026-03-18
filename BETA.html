@@ -23,7 +23,7 @@
 body{background:var(--bg);min-height:100vh;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;color:var(--ink);transition:background .2s,color .2s;user-select:none;cursor:none}
 *{cursor:none!important}
 
-/* ──- CUSTOM CURSOR ────────────────────────── */
+/* ── CUSTOM CURSOR ────────────────────────── */
 #cursor{
   position:fixed;top:0;left:0;
   width:32px;height:32px;
@@ -311,6 +311,44 @@ body{background:var(--bg);min-height:100vh;display:flex;align-items:center;justi
 .resume-chip{font-family:'DM Mono',monospace;font-size:9px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:3px 8px;color:var(--ink2)}
 .resume-box-btns{display:flex;gap:8px;margin-top:6px}
 .resume-box-btns .mbtn{flex:1;padding:10px;font-size:10px;text-align:center}
+
+/* ── MULTIPLAYER ──────────────────────────── */
+#mpOverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:400;align-items:center;justify-content:center}
+#mpOverlay.open{display:flex}
+.mp-box{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:30px 32px;width:380px;box-shadow:0 16px 56px var(--shadow);display:flex;flex-direction:column;gap:14px}
+.mp-title{font-size:22px;font-weight:700;letter-spacing:-.02em;color:var(--ink)}
+.mp-sub{font-family:'DM Mono',monospace;font-size:10px;color:var(--ink2);line-height:1.7}
+.mp-tabs{display:flex;gap:6px}
+.mp-tab{flex:1;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;padding:8px;border-radius:5px;border:1.5px solid var(--border);background:transparent;color:var(--ink2);cursor:pointer;transition:all .12s;font-weight:600}
+.mp-tab.active{background:var(--ink);border-color:var(--ink);color:var(--surface)}
+.mp-section{display:flex;flex-direction:column;gap:10px}
+.mp-input{width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:6px;background:var(--surface2);color:var(--ink);font-family:'DM Mono',monospace;font-size:14px;letter-spacing:.1em;text-align:center;outline:none;transition:border-color .15s}
+.mp-input:focus{border-color:var(--ink)}
+.mp-code-display{font-family:'DM Mono',monospace;font-size:32px;font-weight:500;letter-spacing:.18em;text-align:center;color:var(--ink);background:var(--surface2);border:1.5px solid var(--border);border-radius:8px;padding:14px;user-select:all}
+.mp-status{font-family:'DM Mono',monospace;font-size:10px;color:var(--ink2);text-align:center;min-height:16px}
+.mp-status.ok{color:var(--green)}
+.mp-status.err{color:var(--red)}
+.mp-players{display:flex;flex-direction:column;gap:6px}
+.mp-player{display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--surface2);border-radius:6px;font-family:'DM Mono',monospace;font-size:10px;color:var(--ink2)}
+.mp-player-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.mp-player-name{flex:1}
+.mp-player-you{font-size:8px;background:var(--surface);border:1px solid var(--border);padding:1px 5px;border-radius:3px;color:var(--ink3)}
+.mp-player-host{font-size:8px;color:var(--gold);letter-spacing:.06em}
+.mp-divider{height:1px;background:var(--border)}
+
+/* Multiplayer HUD bar */
+#mpBar{display:none;position:absolute;top:0;left:0;right:0;background:var(--surface2);border-bottom:1px solid var(--border);padding:4px 10px;z-index:10;flex-direction:row;gap:8px;align-items:center}
+#mpBar.visible{display:flex}
+.mp-bar-player{display:flex;align-items:center;gap:4px;font-family:'DM Mono',monospace;font-size:9px;color:var(--ink2)}
+.mp-bar-dot{width:7px;height:7px;border-radius:50%}
+.mp-bar-gold{color:var(--gold);font-weight:500}
+.mp-bar-sep{color:var(--border);font-size:8px}
+
+/* Player colored tower rings */
+.mp-btn{flex:1;padding:10px;border:1.5px solid var(--ink);background:var(--ink);color:var(--surface);font-family:'DM Mono',monospace;font-size:10px;cursor:pointer;border-radius:5px;letter-spacing:.06em;transition:all .1s}
+.mp-btn:hover{opacity:.85}
+.mp-btn.out{background:transparent;color:var(--ink)}
+.mp-btn.out:hover{background:var(--surface2)}
 </style>
 </head>
 <body>
@@ -361,6 +399,10 @@ body{background:var(--bg);min-height:100vh;display:flex;align-items:center;justi
         <span class="md-play-sub">unlimited gold · no waves · build freely</span>
       </button>
     </div>
+    <button class="md-play-btn" id="mdPlayMulti" style="border:2px solid #3b82f6;color:#3b82f6;background:transparent;margin-top:4px">
+      <span class="md-play-label">⚡ MULTIPLAYER</span>
+      <span class="md-play-sub">co-op · up to 4 players · shared map · own gold</span>
+    </button>
     <button class="md-back" id="mdBack">← back to maps</button>
   </div>
 
@@ -390,6 +432,7 @@ body{background:var(--bg);min-height:100vh;display:flex;align-items:center;justi
 
 <!-- ══════════ GAME ══════════ -->
 <div id="gameScreen">
+  <div id="mpBar"></div>
   <canvas id="gameCanvas" width="600" height="420"></canvas>
   <div id="sidebar">
     <div id="sandboxBanner">⚗ SANDBOX MODE — unlimited gold · no lives · spawn enemies manually</div>
@@ -467,6 +510,51 @@ body{background:var(--bg);min-height:100vh;display:flex;align-items:center;justi
     <div class="update-box-btns">
       <button class="mbtn" id="updateNow">UPDATE NOW</button>
       <button class="mbtn out" id="updateLater">LATER</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ MULTIPLAYER MODAL ══════════ -->
+<div id="mpOverlay">
+  <div class="mp-box">
+    <div class="mp-title">Multiplayer</div>
+    <div class="mp-tabs">
+      <button class="mp-tab active" id="mpTabHost">Host Game</button>
+      <button class="mp-tab" id="mpTabJoin">Join Game</button>
+      <button class="mp-tab" id="mpTabQuick">Quick Join</button>
+    </div>
+    <div class="mp-divider"></div>
+
+    <!-- Host section -->
+    <div class="mp-section" id="mpSectionHost">
+      <div class="mp-sub">Share this code with friends. Start when ready.</div>
+      <div class="mp-code-display" id="mpCodeDisplay">----</div>
+      <div class="mp-status" id="mpHostStatus">Creating room...</div>
+      <div class="mp-players" id="mpPlayerList"></div>
+      <div style="display:flex;gap:8px;margin-top:4px">
+        <button class="mp-btn" id="mpStartBtn" disabled>START GAME</button>
+        <button class="mp-btn out" id="mpCancelBtn">CANCEL</button>
+      </div>
+    </div>
+
+    <!-- Join section -->
+    <div class="mp-section" id="mpSectionJoin" style="display:none">
+      <div class="mp-sub">Enter the 4-digit room code from the host.</div>
+      <input class="mp-input" id="mpCodeInput" maxlength="4" placeholder="XXXX" autocomplete="off" spellcheck="false">
+      <div class="mp-status" id="mpJoinStatus"></div>
+      <div style="display:flex;gap:8px">
+        <button class="mp-btn" id="mpJoinBtn">JOIN</button>
+        <button class="mp-btn out" id="mpJoinCancelBtn">CANCEL</button>
+      </div>
+    </div>
+
+    <!-- Quick join section -->
+    <div class="mp-section" id="mpSectionQuick" style="display:none">
+      <div class="mp-sub">Looking for an open room on this map...</div>
+      <div class="mp-status" id="mpQuickStatus">Searching...</div>
+      <div style="display:flex;gap:8px;margin-top:4px">
+        <button class="mp-btn out" id="mpQuickCancelBtn">CANCEL</button>
+      </div>
     </div>
   </div>
 </div>
@@ -2860,9 +2948,489 @@ document.getElementById('goMenu').addEventListener('click',()=>{
   cursorTick();
 })();
 
+document.getElementById('mdPlayMulti').addEventListener('click',()=>openMpOverlay());
+
 // ── Boot ───────────────────────────────────
 buildMenuMaps();
 showScreen('menu');
 </script>
-</body>
-</html>
+<script>
+// ═══════════════════════════════════════════
+// MULTIPLAYER ENGINE  (Supabase Realtime)
+// ═══════════════════════════════════════════
+// !! REPLACE THESE WITH YOUR NEW KEY/URL !!
+const SB_URL = 'https://ewodyutaxootqtowwsqb.supabase.co';
+const SB_KEY = 'sb_publishable_ipFifO9sPynZdj8j32dKhg_QnGhVVh5';
+
+const PLAYER_COLORS = ['#3b82f6','#f97316','#22c55e','#a855f7'];
+const PLAYER_NAMES  = ['Player 1','Player 2','Player 3','Player 4'];
+
+let mp = {
+  active: false,
+  isHost: false,
+  roomCode: null,
+  myId: null,        // uuid
+  mySlot: 0,         // 0-3
+  players: {},       // id -> {slot,name,gold}
+  channel: null,
+  client: null,
+  pendingMap: null,
+};
+
+// ── Supabase client loader ─────────────────
+function loadSupabase(){
+  return new Promise((res,rej)=>{
+    if(window.supabase){res();return;}
+    const s=document.createElement('script');
+    s.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js';
+    s.onload=()=>res();
+    s.onerror=()=>rej(new Error('Failed to load Supabase SDK'));
+    document.head.appendChild(s);
+  });
+}
+
+function sbClient(){
+  if(!mp.client) mp.client=window.supabase.createClient(SB_URL,SB_KEY);
+  return mp.client;
+}
+
+// ── Room codes ─────────────────────────────
+function genCode(){
+  const chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let c='';for(let i=0;i<4;i++)c+=chars[Math.floor(Math.random()*chars.length)];
+  return c;
+}
+function genId(){return crypto.randomUUID();}
+
+// ── Open the multiplayer modal ─────────────
+async function openMpOverlay(){
+  const map=MAPS[selMapIdx];
+  mp.pendingMap=map;
+  document.getElementById('mpOverlay').classList.add('open');
+  setMpTab('host');
+  await loadSupabase().catch(e=>{
+    setMpStatus('mpHostStatus','Failed to load network library. Check your connection.','err');
+  });
+  hostRoom();
+}
+
+function closeMpOverlay(){
+  document.getElementById('mpOverlay').classList.remove('open');
+  leaveRoom();
+}
+
+// ── Tab switching ──────────────────────────
+function setMpTab(tab){
+  ['host','join','quick'].forEach(t=>{
+    document.getElementById('mpTab'+cap(t)).classList.toggle('active',t===tab);
+    document.getElementById('mpSection'+cap(t)).style.display=t===tab?'flex':'none';
+  });
+}
+function cap(s){return s[0].toUpperCase()+s.slice(1);}
+
+document.getElementById('mpTabHost').onclick=()=>{setMpTab('host');hostRoom();};
+document.getElementById('mpTabJoin').onclick=()=>{setMpTab('join');};
+document.getElementById('mpTabQuick').onclick=()=>{setMpTab('quick');quickJoin();};
+document.getElementById('mpCancelBtn').onclick=closeMpOverlay;
+document.getElementById('mpJoinCancelBtn').onclick=closeMpOverlay;
+document.getElementById('mpQuickCancelBtn').onclick=closeMpOverlay;
+
+document.getElementById('mpJoinBtn').onclick=()=>{
+  const code=document.getElementById('mpCodeInput').value.trim().toUpperCase();
+  if(code.length!==4){setMpStatus('mpJoinStatus','Enter a 4-letter code.','err');return;}
+  joinRoom(code);
+};
+document.getElementById('mpCodeInput').addEventListener('input',e=>{
+  e.target.value=e.target.value.toUpperCase().replace(/[^A-Z0-9]/g,'');
+});
+
+// ── Status helper ─────────────────────────
+function setMpStatus(id,msg,type=''){
+  const el=document.getElementById(id);
+  if(!el)return;
+  el.textContent=msg;
+  el.className='mp-status'+(type?' '+type:'');
+}
+
+// ── Host a room ────────────────────────────
+async function hostRoom(){
+  leaveRoom(false);
+  mp.isHost=true;
+  mp.myId=genId();
+  mp.mySlot=0;
+  mp.roomCode=genCode();
+  mp.players={};
+  mp.players[mp.myId]={slot:0,name:PLAYER_NAMES[0],gold:mp.pendingMap?mp.pendingMap.gold:500};
+
+  document.getElementById('mpCodeDisplay').textContent=mp.roomCode;
+  setMpStatus('mpHostStatus','Waiting for players... (1/4)');
+  document.getElementById('mpStartBtn').disabled=true;
+  renderPlayerList();
+
+  try{
+    await loadSupabase();
+    const ch=sbClient().channel('htl-room-'+mp.roomCode,{config:{presence:{key:mp.myId}}});
+
+    ch.on('presence','sync',()=>{
+      const state=ch.presenceState();
+      mp.players={};
+      let slot=0;
+      Object.entries(state).forEach(([id,arr])=>{
+        const p=arr[0];
+        mp.players[id]={slot:slot,name:p.name||PLAYER_NAMES[slot],gold:mp.pendingMap?mp.pendingMap.gold:500};
+        slot++;
+      });
+      const count=Object.keys(mp.players).length;
+      setMpStatus('mpHostStatus',`Waiting for players... (${count}/4)`);
+      document.getElementById('mpStartBtn').disabled=count<2;
+      renderPlayerList();
+    });
+
+    ch.on('broadcast',{event:'game_start'},(payload)=>{
+      if(!mp.isHost) launchMultiplayer(payload.payload);
+    });
+
+    ch.on('broadcast',{event:'tower_place'},(payload)=>{
+      if(mp.active) handleRemoteTower(payload.payload);
+    });
+
+    ch.on('broadcast',{event:'wave_start'},(payload)=>{
+      if(mp.active&&!mp.isHost) startWave();
+    });
+
+    ch.on('broadcast',{event:'game_state'},(payload)=>{
+      if(mp.active&&!mp.isHost) syncGameState(payload.payload);
+    });
+
+    ch.on('broadcast',{event:'player_gold'},(payload)=>{
+      if(mp.active) updateRemoteGold(payload.payload);
+    });
+
+    await ch.subscribe(async(status)=>{
+      if(status==='SUBSCRIBED'){
+        await ch.track({name:PLAYER_NAMES[0]});
+        mp.channel=ch;
+      }
+    });
+  }catch(e){
+    setMpStatus('mpHostStatus','Connection failed: '+e.message,'err');
+  }
+}
+
+// ── Join by code ───────────────────────────
+async function joinRoom(code){
+  leaveRoom(false);
+  mp.isHost=false;
+  mp.myId=genId();
+  mp.roomCode=code;
+  setMpStatus('mpJoinStatus','Connecting...','');
+
+  try{
+    await loadSupabase();
+    const ch=sbClient().channel('htl-room-'+code,{config:{presence:{key:mp.myId}}});
+
+    ch.on('presence','sync',()=>{
+      const state=ch.presenceState();
+      const count=Object.keys(state).length;
+      if(count===0){setMpStatus('mpJoinStatus','Room not found.','err');return;}
+      setMpStatus('mpJoinStatus',`In lobby — ${count}/4 players`,'ok');
+    });
+
+    ch.on('broadcast',{event:'game_start'},(payload)=>{
+      launchMultiplayer(payload.payload);
+    });
+
+    ch.on('broadcast',{event:'tower_place'},(payload)=>{
+      if(mp.active) handleRemoteTower(payload.payload);
+    });
+
+    ch.on('broadcast',{event:'wave_start'},()=>{
+      if(mp.active) startWave();
+    });
+
+    ch.on('broadcast',{event:'game_state'},(payload)=>{
+      if(mp.active) syncGameState(payload.payload);
+    });
+
+    ch.on('broadcast',{event:'player_gold'},(payload)=>{
+      if(mp.active) updateRemoteGold(payload.payload);
+    });
+
+    await ch.subscribe(async(status)=>{
+      if(status==='SUBSCRIBED'){
+        const slot=Object.keys(ch.presenceState()).length;
+        mp.mySlot=Math.min(slot,3);
+        await ch.track({name:PLAYER_NAMES[mp.mySlot]});
+        mp.channel=ch;
+        setMpStatus('mpJoinStatus','Joined! Waiting for host to start...','ok');
+      } else if(status==='CHANNEL_ERROR'){
+        setMpStatus('mpJoinStatus','Could not connect to room.','err');
+      }
+    });
+  }catch(e){
+    setMpStatus('mpJoinStatus','Error: '+e.message,'err');
+  }
+}
+
+// ── Quick join ─────────────────────────────
+async function quickJoin(){
+  setMpStatus('mpQuickStatus','Searching for open rooms...');
+  // Try a few random codes from recent sessions stored in localStorage
+  const recent=JSON.parse(localStorage.getItem('htl_mp_rooms')||'[]');
+  for(const code of recent){
+    try{
+      await loadSupabase();
+      const {data}=await sbClient().from('_realtime').select('*').limit(1).maybeSingle();
+      // Just try joining — presence sync will tell us if it exists
+      setMpStatus('mpQuickStatus','Trying room '+code+'...');
+      setMpTab('join');
+      document.getElementById('mpCodeInput').value=code;
+      joinRoom(code);
+      return;
+    }catch(e){}
+  }
+  setMpStatus('mpQuickStatus','No open rooms found. Host one instead!','err');
+}
+
+// ── Host starts the game ───────────────────
+document.getElementById('mpStartBtn').onclick=async()=>{
+  if(!mp.channel)return;
+  const map=mp.pendingMap;
+  // Store this room code for quick join future use
+  const recent=JSON.parse(localStorage.getItem('htl_mp_rooms')||'[]');
+  if(!recent.includes(mp.roomCode)){recent.unshift(mp.roomCode);localStorage.setItem('htl_mp_rooms',JSON.stringify(recent.slice(0,10)));}
+
+  const payload={
+    mapName:map.name,
+    players:mp.players,
+    hostId:mp.myId,
+  };
+  await mp.channel.send({type:'broadcast',event:'game_start',payload});
+  launchMultiplayer(payload);
+};
+
+// ── Launch multiplayer game ────────────────
+function launchMultiplayer(payload){
+  document.getElementById('mpOverlay').classList.remove('open');
+  mp.active=true;
+
+  const map=MAPS.find(m=>m.name===payload.mapName)||mp.pendingMap||MAPS[selMapIdx];
+  mp.players=payload.players||mp.players;
+
+  // Assign my slot from players list
+  const myEntry=mp.players[mp.myId];
+  mp.mySlot=myEntry?myEntry.slot:0;
+
+  showScreen('game');
+  initGame({...map,endless:false,sandbox:false});
+  lastTs=performance.now();
+  if(animId)cancelAnimationFrame(animId);
+  animId=requestAnimationFrame(loop);
+
+  showMpBar();
+
+  // Host drives the game state sync
+  if(mp.isHost){
+    setInterval(()=>{
+      if(!mp.active||!mp.channel)return;
+      broadcastGameState();
+    },500);
+  }
+}
+
+// ── Render player list in lobby ────────────
+function renderPlayerList(){
+  const el=document.getElementById('mpPlayerList');
+  if(!el)return;
+  el.innerHTML='';
+  Object.entries(mp.players).forEach(([id,p])=>{
+    const div=document.createElement('div');
+    div.className='mp-player';
+    const isYou=id===mp.myId;
+    const isHost=mp.isHost&&isYou;
+    div.innerHTML=`
+      <div class="mp-player-dot" style="background:${PLAYER_COLORS[p.slot]||'#888'}"></div>
+      <div class="mp-player-name">${p.name}</div>
+      ${isYou?'<span class="mp-player-you">YOU</span>':''}
+      ${isHost?'<span class="mp-player-host">HOST</span>':''}`;
+    el.appendChild(div);
+  });
+}
+
+// ── MP HUD bar ─────────────────────────────
+function showMpBar(){
+  const bar=document.getElementById('mpBar');
+  bar.classList.add('visible');
+  renderMpBar();
+}
+
+function renderMpBar(){
+  const bar=document.getElementById('mpBar');
+  if(!bar.classList.contains('visible'))return;
+  bar.innerHTML='';
+  Object.entries(mp.players).forEach(([id,p],i)=>{
+    const isYou=id===mp.myId;
+    const g=isYou?gold:(p.gold||'?');
+    const el=document.createElement('div');
+    el.className='mp-bar-player';
+    el.innerHTML=`<div class="mp-bar-dot" style="background:${PLAYER_COLORS[p.slot]||'#888'}"></div>
+      <span>${p.name}${isYou?' (you)':''}</span>
+      <span class="mp-bar-gold">${g}g</span>`;
+    bar.appendChild(el);
+    if(i<Object.keys(mp.players).length-1){
+      const sep=document.createElement('div');sep.className='mp-bar-sep';sep.textContent='·';bar.appendChild(sep);
+    }
+  });
+}
+
+// ── Broadcast a placed tower to all others ─
+function broadcastTowerPlace(t){
+  if(!mp.active||!mp.channel)return;
+  mp.channel.send({type:'broadcast',event:'tower_place',payload:{
+    col:t.col,row:t.row,type:t.type,
+    playerId:mp.myId,slot:mp.mySlot,
+  }});
+}
+
+// ── Receive a remote tower placement ───────
+function handleRemoteTower(data){
+  // Don't place if cell already occupied
+  if(towers.some(t=>t.col===data.col&&t.row===data.row))return;
+  const def=TDEFS[data.type];
+  if(!def)return;
+  const t={col:data.col,row:data.row,type:data.type,cd:0,ang:-Math.PI/2,pA:0,pB:0,pC:0,
+    dmg:def.dmg,rate:def.rate,range:def.range,splash:def.splash,
+    slow:def.slow,chain:def.chain,burn:def.burn,stun:def.stun,
+    pierce:def.pierce,multi:def.multi||1,
+    bankIncome:def.bankIncome||0,bankInterest:0,
+    ampBoost:def.ampBoost||0,ampRadius:def.ampRadius||1,
+    beaconBoost:def.beaconBoost||0,beaconRadius:def.beaconRadius||2.5,
+    wallHp:def.wallHp||0,wallHpBase:def.wallHp||0,wallDmg:def.wallDmg||0,wallRegen:0,
+    fgbTimer:0,
+    mpOwner:data.playerId,mpSlot:data.slot,
+  };
+  towers.push(t);
+  applyAmpBoosts();applyBeaconBoosts();
+}
+
+// ── Host broadcasts full game state to clients ──
+function broadcastGameState(){
+  if(!mp.channel)return;
+  const state={
+    wave,lives,waveActive,
+    enemies:enemies.map(e=>({
+      type:e.type,hp:e.hp,maxHp:e.maxHp,pi:e.pi,x:e.x,y:e.y,
+      slowT:e.slowT,slowM:e.slowM,burnT:e.burnT,stunT:e.stunT,dead:e.dead,reached:e.reached,
+    })),
+  };
+  mp.channel.send({type:'broadcast',event:'game_state',payload:state});
+}
+
+// ── Clients sync game state from host ──────
+function syncGameState(state){
+  if(mp.isHost)return;
+  lives=state.lives;
+  wave=state.wave;
+  waveActive=state.waveActive;
+  // Sync enemies — update positions of existing, add new
+  state.enemies.forEach(se=>{
+    // match by approximate position since no id
+    const match=enemies.find(e=>!e.dead&&e.type===se.type&&Math.abs(e.pi-se.pi)<=2);
+    if(match){
+      match.x=se.x;match.y=se.y;match.hp=se.hp;match.pi=se.pi;
+      match.slowT=se.slowT;match.slowM=se.slowM;
+      match.burnT=se.burnT;match.stunT=se.stunT;
+      if(se.dead)match.dead=true;
+      if(se.reached)match.reached=true;
+    }
+  });
+  updateHUD();
+}
+
+// ── Broadcast wave start (host only) ───────
+const origStartWave=window.startWave;
+// Patch the wave button to broadcast
+document.getElementById('waveBtn').addEventListener('click',()=>{
+  if(mp.active&&mp.isHost&&mp.channel){
+    mp.channel.send({type:'broadcast',event:'wave_start',payload:{}});
+  }
+},{capture:true});
+
+// ── Broadcast gold after kills/wave bonuses ─
+function broadcastMyGold(){
+  if(!mp.active||!mp.channel)return;
+  mp.channel.send({type:'broadcast',event:'player_gold',payload:{id:mp.myId,gold}});
+}
+
+function updateRemoteGold(data){
+  if(mp.players[data.id]) mp.players[data.id].gold=data.gold;
+  renderMpBar();
+}
+
+// ── Hook into tower placement ───────────────
+const _origClick=canvas.onclick;
+canvas.addEventListener('click',()=>{
+  if(!mp.active)return;
+  // Broadcast happens after tower is added — we catch it next frame
+  setTimeout(()=>{
+    const lastTower=towers[towers.length-1];
+    if(lastTower&&!lastTower.mpOwner){
+      lastTower.mpOwner=mp.myId;
+      lastTower.mpSlot=mp.mySlot;
+      broadcastTowerPlace(lastTower);
+    }
+    broadcastMyGold();
+    renderMpBar();
+  },50);
+},{capture:false});
+
+// ── Draw player ownership ring on towers ───
+const _origDrawTower=drawTower;
+// Patch: add colored ownership dot to mp towers
+const __origDraw=draw;
+window.draw=function(ts){
+  __origDraw(ts);
+  if(!mp.active)return;
+  towers.forEach(t=>{
+    if(t.mpSlot===undefined)return;
+    const cx=t.col*CS+CS/2,cy=t.row*CS+CS/2;
+    const clr=PLAYER_COLORS[t.mpSlot]||'#888';
+    ctx.beginPath();ctx.arc(cx,cy,16,0,Math.PI*2);
+    ctx.strokeStyle=clr+'88';ctx.lineWidth=2;ctx.stroke();
+  });
+};
+
+// Broadcast gold on wave clear
+const _origUpdate=update;
+window.update=function(ts){
+  const goldBefore=gold;
+  _origUpdate(ts);
+  if(mp.active&&gold!==goldBefore){
+    broadcastMyGold();
+    renderMpBar();
+  }
+};
+
+// ── Leave / cleanup ────────────────────────
+function leaveRoom(clearActive=true){
+  if(mp.channel){
+    mp.channel.unsubscribe();
+    mp.channel=null;
+  }
+  if(clearActive){
+    mp.active=false;
+    mp.isHost=false;
+    mp.roomCode=null;
+    mp.myId=null;
+    mp.players={};
+    document.getElementById('mpBar').classList.remove('visible');
+  }
+}
+
+// Leave on menu return
+const _origMenuBack=document.getElementById('menuBackBtn').onclick;
+document.getElementById('menuBackBtn').addEventListener('click',()=>{
+  if(mp.active) leaveRoom();
+});
+</script>
+</body></html>
