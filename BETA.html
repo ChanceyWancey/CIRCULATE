@@ -507,7 +507,7 @@ body{background:var(--bg);min-height:100vh;display:flex;align-items:center;justi
 // ═══════════════════════════════════════════
 (function(){
   const RAW_URL='https://raw.githubusercontent.com/ChanceyWancey/CIRCULATE/main/BETA.html';
-  const CHECK_INTERVAL=60000;
+  const CHECK_INTERVAL=5000;
   const SAVE_KEY='htl_resume_state';
   const BASELINE_KEY='htl_version_baseline';
   const CHANGELOG_KEY='htl_seen_changelog';
@@ -515,25 +515,15 @@ body{background:var(--bg);min-height:100vh;display:flex;align-items:center;justi
   // ── Changelog entries ────────────────────
   const VERSION='ALPHA v2';
   const CHANGELOG=[
-    // ── ALPHA v2 ──────────────────────────────
-    {type:'feature', text:'Wall tower — place directly ON the enemy path. Has HP, slows enemies passing through, and gets destroyed when depleted.'},
-    {type:'feature', text:'Wall upgrades: Reinforcement (HP + regen), Spikes (chip damage, burn, stun), Slowing (up to 99% slow).'},
-    {type:'feature', text:'Bosses instantly smash any wall on contact. Tanks drain walls fast; grunts and scouts chip away slowly.'},
-    {type:'change',  text:'All 15 map stone walls moved to sit adjacent to path bends — they now meaningfully block tower line-of-sight around corners.'},
-    {type:'fix',     text:'Syntax errors from prior update resolved — game loads cleanly again.'},
-    {type:'change',  text:'Em dashes removed from stat display fields.'},
-    // ── ALPHA v1 ──────────────────────────────
-    {type:'feature', text:'Dark mode — persists across sessions via localStorage.'},
-    {type:'feature', text:'S key deselects active tower placement or cancels move mode.'},
-    {type:'feature', text:'Auto-update checker — detects new GitHub versions every 60 seconds.'},
-    {type:'feature', text:'Resume from last session — game state auto-saved on refresh or update.'},
-    {type:'feature', text:'Full Goldback — 30s grace period on new towers: full refund, no shooting. Ends on first upgrade.'},
-    {type:'feature', text:'SKIP button above towers in Full Goldback to end the timer early.'},
-    {type:'feature', text:'Tower targeting modes — FIRST, LAST, WEAK, STRONG, BOSS — cycling button in upgrade panel.'},
-    {type:'change',  text:'Right-click to cancel placement replaced by S key.'},
-    {type:'fix',     text:'Update checker no longer causes infinite reloads.'},
-    {type:'fix',     text:'Resume popup now appears correctly.'},
-    {type:'fix',     text:'Sell button clickable during Full Goldback.'},
+    {type:'feature', text:'Wall tower — place directly ON the enemy path. Slows enemies, takes damage, gets destroyed when HP hits zero.'},
+    {type:'feature', text:'Wall upgrades: Reinforcement (HP + regen), Spikes (damage + stun), Slowing (up to 99%).'},
+    {type:'feature', text:'Bosses instantly smash walls. Tanks drain them fast; grunts chip slowly.'},
+    {type:'change',  text:'Map stone walls repositioned to path bends — now actually block tower line-of-sight.'},
+    {type:'feature', text:'Full Goldback — 30s grace period on new towers: full refund, no shooting. Ends on upgrade.'},
+    {type:'feature', text:'Tower targeting modes — FIRST, LAST, WEAK, STRONG, BOSS.'},
+    {type:'feature', text:'Resume from last session — state auto-saved on refresh.'},
+    {type:'feature', text:'Dark mode, S key deselect, auto-update checker, MOVE tool.'},
+    {type:'fix',     text:'Various syntax and stability fixes.'},
   ];
 
   function showChangelog(){
