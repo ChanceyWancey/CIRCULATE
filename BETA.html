@@ -518,6 +518,9 @@ body{background:var(--bg);min-height:100vh;display:flex;align-items:center;justi
 <div id="mpOverlay">
   <div class="mp-box">
     <div class="mp-title">Multiplayer</div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <input class="mp-input" id="mpNameInput" maxlength="16" placeholder="Your name..." autocomplete="off" spellcheck="false" style="font-size:12px;letter-spacing:.04em;text-align:left;padding:8px 12px">
+    </div>
     <div class="mp-tabs">
       <button class="mp-tab active" id="mpTabHost">Host Game</button>
       <button class="mp-tab" id="mpTabJoin">Join Game</button>
@@ -2960,7 +2963,7 @@ showScreen('menu');
 // ═══════════════════════════════════════════
 // !! REPLACE THESE WITH YOUR NEW KEY/URL !!
 const SB_URL = 'https://ewodyutaxootqtowwsqb.supabase.co';
-const SB_KEY = 'sb_publishable_ipFifO9sPynZdj8j32dKhg_QnGhVVh5';
+const SB_KEY = 'REPLACE_WITH_NEW_KEY';
 
 const PLAYER_COLORS = ['#3b82f6','#f97316','#22c55e','#a855f7'];
 const PLAYER_NAMES  = ['Player 1','Player 2','Player 3','Player 4'];
@@ -3071,46 +3074,34 @@ async function hostRoom(){
     await loadSupabase();
     const ch=sbClient().channel('htl-room-'+mp.roomCode,{config:{presence:{key:mp.myId}}});
 
+    await ch.subscribe(async(status)=>{
+      if(status==='SUBSCRIBED'){
+        const myName=document.getElementById('mpNameInput').value.trim()||'Player 1';
+        await ch.track({name:myName,id:mp.myId});
+        mp.channel=ch;
+        setMpStatus('mpHostStatus','Waiting for players... (1/4)');
+        renderPlayerList();
+      }
+    });
+
     ch.on('presence','sync',()=>{
       const state=ch.presenceState();
       mp.players={};
       let slot=0;
-      Object.entries(state).forEach(([id,arr])=>{
+      Object.entries(state).forEach(([presKey,arr])=>{
         const p=arr[0];
-        mp.players[id]={slot:slot,name:p.name||PLAYER_NAMES[slot],gold:mp.pendingMap?mp.pendingMap.gold:500};
+        const id=p.id||presKey;
+        mp.players[id]={slot,name:p.name||PLAYER_NAMES[slot],gold:mp.pendingMap?mp.pendingMap.gold:500};
         slot++;
       });
+      // Make sure our own entry is always present
+      if(!mp.players[mp.myId]){
+        mp.players[mp.myId]={slot:0,name:PLAYER_NAMES[0],gold:mp.pendingMap?mp.pendingMap.gold:500};
+      }
       const count=Object.keys(mp.players).length;
       setMpStatus('mpHostStatus',`Waiting for players... (${count}/4)`);
-      document.getElementById('mpStartBtn').disabled=count<2;
+      document.getElementById('mpStartBtn').disabled=count<1;
       renderPlayerList();
-    });
-
-    ch.on('broadcast',{event:'game_start'},(payload)=>{
-      if(!mp.isHost) launchMultiplayer(payload.payload);
-    });
-
-    ch.on('broadcast',{event:'tower_place'},(payload)=>{
-      if(mp.active) handleRemoteTower(payload.payload);
-    });
-
-    ch.on('broadcast',{event:'wave_start'},(payload)=>{
-      if(mp.active&&!mp.isHost) startWave();
-    });
-
-    ch.on('broadcast',{event:'game_state'},(payload)=>{
-      if(mp.active&&!mp.isHost) syncGameState(payload.payload);
-    });
-
-    ch.on('broadcast',{event:'player_gold'},(payload)=>{
-      if(mp.active) updateRemoteGold(payload.payload);
-    });
-
-    await ch.subscribe(async(status)=>{
-      if(status==='SUBSCRIBED'){
-        await ch.track({name:PLAYER_NAMES[0]});
-        mp.channel=ch;
-      }
     });
   }catch(e){
     setMpStatus('mpHostStatus','Connection failed: '+e.message,'err');
@@ -3129,43 +3120,24 @@ async function joinRoom(code){
     await loadSupabase();
     const ch=sbClient().channel('htl-room-'+code,{config:{presence:{key:mp.myId}}});
 
-    ch.on('presence','sync',()=>{
-      const state=ch.presenceState();
-      const count=Object.keys(state).length;
-      if(count===0){setMpStatus('mpJoinStatus','Room not found.','err');return;}
-      setMpStatus('mpJoinStatus',`In lobby — ${count}/4 players`,'ok');
-    });
-
-    ch.on('broadcast',{event:'game_start'},(payload)=>{
-      launchMultiplayer(payload.payload);
-    });
-
-    ch.on('broadcast',{event:'tower_place'},(payload)=>{
-      if(mp.active) handleRemoteTower(payload.payload);
-    });
-
-    ch.on('broadcast',{event:'wave_start'},()=>{
-      if(mp.active) startWave();
-    });
-
-    ch.on('broadcast',{event:'game_state'},(payload)=>{
-      if(mp.active) syncGameState(payload.payload);
-    });
-
-    ch.on('broadcast',{event:'player_gold'},(payload)=>{
-      if(mp.active) updateRemoteGold(payload.payload);
-    });
-
     await ch.subscribe(async(status)=>{
       if(status==='SUBSCRIBED'){
         const slot=Object.keys(ch.presenceState()).length;
         mp.mySlot=Math.min(slot,3);
-        await ch.track({name:PLAYER_NAMES[mp.mySlot]});
+        const myName=document.getElementById('mpNameInput').value.trim()||PLAYER_NAMES[mp.mySlot];
+        await ch.track({name:myName,id:mp.myId});
         mp.channel=ch;
         setMpStatus('mpJoinStatus','Joined! Waiting for host to start...','ok');
       } else if(status==='CHANNEL_ERROR'){
         setMpStatus('mpJoinStatus','Could not connect to room.','err');
       }
+    });
+
+    ch.on('presence','sync',()=>{
+      const state=ch.presenceState();
+      const count=Object.keys(state).length;
+      if(count===0){setMpStatus('mpJoinStatus','Room not found.','err');return;}
+      setMpStatus('mpJoinStatus',`In lobby — ${count}/4 players`,'ok');
     });
   }catch(e){
     setMpStatus('mpJoinStatus','Error: '+e.message,'err');
@@ -3196,16 +3168,28 @@ async function quickJoin(){
 document.getElementById('mpStartBtn').onclick=async()=>{
   if(!mp.channel)return;
   const map=mp.pendingMap;
-  // Store this room code for quick join future use
   const recent=JSON.parse(localStorage.getItem('htl_mp_rooms')||'[]');
   if(!recent.includes(mp.roomCode)){recent.unshift(mp.roomCode);localStorage.setItem('htl_mp_rooms',JSON.stringify(recent.slice(0,10)));}
 
-  const payload={
-    mapName:map.name,
-    players:mp.players,
-    hostId:mp.myId,
-  };
+  // Snapshot current presence as the authoritative player list
+  const state=mp.channel.presenceState();
+  const players={};
+  let slot=0;
+  Object.entries(state).forEach(([presKey,arr])=>{
+    const p=arr[0];
+    const id=p.id||presKey;
+    players[id]={slot,name:p.name||PLAYER_NAMES[slot],gold:map?map.gold:500};
+    slot++;
+  });
+  // Always ensure host is in the list
+  if(!players[mp.myId]){
+    players[mp.myId]={slot:0,name:PLAYER_NAMES[0],gold:map?map.gold:500};
+  }
+  mp.players=players;
+
+  const payload={mapName:map.name,players,hostId:mp.myId};
   await mp.channel.send({type:'broadcast',event:'game_start',payload});
+  // Host launches for themselves too
   launchMultiplayer(payload);
 };
 
