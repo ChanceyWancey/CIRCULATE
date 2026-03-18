@@ -341,8 +341,8 @@ body{background:var(--bg);min-height:100vh;display:flex;align-items:center;justi
         <div class="md-stats">
           <div class="md-stat"><span class="md-stat-label">Lives</span><span class="md-stat-val" id="mdLives">20</span></div>
           <div class="md-stat"><span class="md-stat-label">Start Gold</span><span class="md-stat-val" id="mdGold">500g</span></div>
-          <div class="md-stat"><span class="md-stat-label">Length</span><span class="md-stat-val" id="mdLength">—</span></div>
-          <div class="md-stat"><span class="md-stat-label">Turns</span><span class="md-stat-val" id="mdTurns">—</span></div>
+          <div class="md-stat"><span class="md-stat-label">Length</span><span class="md-stat-val" id="mdLength">-</span></div>
+          <div class="md-stat"><span class="md-stat-label">Turns</span><span class="md-stat-val" id="mdTurns">-</span></div>
         </div>
         <div class="md-desc-text" id="mdDesc"></div>
       </div>
@@ -452,7 +452,7 @@ body{background:var(--bg);min-height:100vh;display:flex;align-items:center;justi
     <div class="changelog-head">
       <div>
         <div class="changelog-title">What's New</div>
-        <div class="changelog-ver" id="changelogVer">ALPHA v1</div>
+        <div class="changelog-ver" id="changelogVer">ALPHA v2</div>
       </div>
       <button class="mbtn out" id="changelogClose" style="padding:7px 16px;font-size:10px">CLOSE</button>
     </div>
@@ -513,22 +513,27 @@ body{background:var(--bg);min-height:100vh;display:flex;align-items:center;justi
   const CHANGELOG_KEY='htl_seen_changelog';
 
   // ── Changelog entries ────────────────────
-  const VERSION='ALPHA v1';
+  const VERSION='ALPHA v2';
   const CHANGELOG=[
-    {type:'feature', text:'Dark mode — persists across sessions via localStorage'},
-    {type:'feature', text:'S key deselects active tower placement'},
-    {type:'feature', text:'Auto-update checker — detects new GitHub versions every 60s'},
-    {type:'feature', text:'Resume from last session — game state saved on refresh or update'},
-    {type:'feature', text:'Full Goldback — 30s grace period on new towers: full refund, no shooting, ends on upgrade'},
-    {type:'feature', text:'SKIP button above towers in Full Goldback state to end it early'},
-    {type:'feature', text:'Tower targeting modes — FIRST, LAST, WEAK, STRONG, BOSS — cycling button in upgrade panel'},
-    {type:'feature', text:'Upgrade panel refreshes live as gold changes — buttons enable/disable instantly'},
-    {type:'change', text:'Right-click to cancel placement replaced by S key'},
-    {type:'change', text:'Cursor color correctly inherits theme on load — no more dark cursor in dark mode'},
-    {type:'change', text:'Watermark renamed from BETA to ALPHA v1'},
-    {type:'fix',    text:'Update checker no longer causes infinite reloads — now compares remote-vs-remote'},
-    {type:'fix',    text:'Resume popup now appears correctly — was failing silently due to script load order'},
-    {type:'fix',    text:'Sell button clickable during Full Goldback — panel no longer rebuilds every frame'},
+    // ── ALPHA v2 ──────────────────────────────
+    {type:'feature', text:'Wall tower — place directly ON the enemy path. Has HP, slows enemies passing through, and gets destroyed when depleted.'},
+    {type:'feature', text:'Wall upgrades: Reinforcement (HP + regen), Spikes (chip damage, burn, stun), Slowing (up to 99% slow).'},
+    {type:'feature', text:'Bosses instantly smash any wall on contact. Tanks drain walls fast; grunts and scouts chip away slowly.'},
+    {type:'change',  text:'All 15 map stone walls moved to sit adjacent to path bends — they now meaningfully block tower line-of-sight around corners.'},
+    {type:'fix',     text:'Syntax errors from prior update resolved — game loads cleanly again.'},
+    {type:'change',  text:'Em dashes removed from stat display fields.'},
+    // ── ALPHA v1 ──────────────────────────────
+    {type:'feature', text:'Dark mode — persists across sessions via localStorage.'},
+    {type:'feature', text:'S key deselects active tower placement or cancels move mode.'},
+    {type:'feature', text:'Auto-update checker — detects new GitHub versions every 60 seconds.'},
+    {type:'feature', text:'Resume from last session — game state auto-saved on refresh or update.'},
+    {type:'feature', text:'Full Goldback — 30s grace period on new towers: full refund, no shooting. Ends on first upgrade.'},
+    {type:'feature', text:'SKIP button above towers in Full Goldback to end the timer early.'},
+    {type:'feature', text:'Tower targeting modes — FIRST, LAST, WEAK, STRONG, BOSS — cycling button in upgrade panel.'},
+    {type:'change',  text:'Right-click to cancel placement replaced by S key.'},
+    {type:'fix',     text:'Update checker no longer causes infinite reloads.'},
+    {type:'fix',     text:'Resume popup now appears correctly.'},
+    {type:'fix',     text:'Sell button clickable during Full Goldback.'},
   ];
 
   function showChangelog(){
@@ -646,7 +651,7 @@ body{background:var(--bg);min-height:100vh;display:flex;align-items:center;justi
         towers.push(t);
       });
 
-      applyAmpBoosts();
+      applyAmpBoosts();applyBeaconBoosts();
       updateHUD();
       buildShop();
       showUpPanel(false);
@@ -792,7 +797,7 @@ body{background:var(--bg);min-height:100vh;display:flex;align-items:center;justi
     row.className='beta-row';
     for(let c=0;c<cols;c++){
       const s=document.createElement('span');
-      s.textContent='ALPHA v1';
+      s.textContent='ALPHA v2';
       row.appendChild(s);
     }
     track.appendChild(row);
@@ -1142,6 +1147,62 @@ const TDEFS=[
     {n:'Hellfire',     c:2000,d:'Burn 30s, Dmg×2, Splash×2',f:t=>{t.burn=30;t.dmg*=2;t.splash*=2}},
     {n:'Sun Strike',   c:4000,d:'Burn 60s, Dmg×4, Splash×3',f:t=>{t.burn=60;t.dmg*=4;t.splash*=3}},
    ]},
+  {id:15,name:'Beacon',cost:175,clr:'#06b6d4',
+   desc:'Support tower. Pulses an aura that boosts fire rate of nearby towers. Does not attack.',
+   pathA:'Aura Strength',pathB:'Aura Radius',pathC:'Efficiency',
+   isBeacon:true, beaconBoost:0.20, beaconRadius:2.5,
+   dmg:0,rate:0,range:0,splash:0,slow:0,chain:0,burn:0,stun:0,pierce:0,multi:1,
+   requires:{towers:2},
+   pA:[
+    {n:'Stronger Pulse',c:140, d:'Rate boost +10%',  f:t=>{t.beaconBoost+=0.10}},
+    {n:'Resonance',     c:280, d:'Rate boost +15%',  f:t=>{t.beaconBoost+=0.15}},
+    {n:'Overcharge',    c:560, d:'Rate boost +20%',  f:t=>{t.beaconBoost+=0.20}},
+    {n:'Surge',         c:1120,d:'Rate boost +25%',  f:t=>{t.beaconBoost+=0.25}},
+    {n:'MAX PULSE',     c:2240,d:'Rate boost ×2',    f:t=>{t.beaconBoost*=2}},
+   ],
+   pB:[
+    {n:'Wide Signal',   c:120, d:'Radius +1 cell',   f:t=>{t.beaconRadius+=1}},
+    {n:'Broadcast',     c:250, d:'Radius +1.5 cells', f:t=>{t.beaconRadius+=1.5}},
+    {n:'Tower Range',   c:500, d:'Radius +2 cells',  f:t=>{t.beaconRadius+=2}},
+    {n:'Long Wave',     c:1000,d:'Radius +2 cells',  f:t=>{t.beaconRadius+=2}},
+    {n:'MAX REACH',     c:2000,d:'Radius +3 cells',  f:t=>{t.beaconRadius+=3}},
+   ],
+   pC:[
+    {n:'Efficiency I',  c:100, d:'Also boosts Dmg +8%', f:t=>{t.beaconDmgBoost=(t.beaconDmgBoost||0)+0.08}},
+    {n:'Efficiency II', c:200, d:'Dmg boost +8%',    f:t=>{t.beaconDmgBoost=(t.beaconDmgBoost||0)+0.08}},
+    {n:'Efficiency III',c:400, d:'Dmg boost +10%',   f:t=>{t.beaconDmgBoost=(t.beaconDmgBoost||0)+0.10}},
+    {n:'Efficiency IV', c:800, d:'Dmg boost +10%',   f:t=>{t.beaconDmgBoost=(t.beaconDmgBoost||0)+0.10}},
+    {n:'MAX EFFICIENCY',c:1600,d:'Dmg boost +15%',   f:t=>{t.beaconDmgBoost=(t.beaconDmgBoost||0)+0.15}},
+   ]},
+
+  {id:16,name:'Overwatch',cost:220,clr:'#84cc16',
+   desc:'Covers the spawn-side half of the path only. Massive damage — your last line of defense.',
+   pathA:'Damage',pathB:'Range & Speed',pathC:'Emergency Protocol',
+   overwatchMode:true,
+   dmg:90,rate:0.5,range:6.0,splash:0,slow:0,chain:0,burn:0,stun:0,pierce:2,multi:1,
+   requires:{towers:3},
+   pA:[
+    {n:'Heavy Rounds',  c:180, d:'Dmg +80%',         f:t=>{t.dmg*=1.8}},
+    {n:'Armor Pierce',  c:360, d:'Dmg ×2, Pierce 5', f:t=>{t.dmg*=2;t.pierce=5}},
+    {n:'Payback',       c:720, d:'Dmg ×2.5',         f:t=>{t.dmg*=2.5}},
+    {n:'Last Resort',   c:1440,d:'Rate ×1.5, Dmg ×2',f:t=>{t.rate*=1.5;t.dmg*=2}, fOrig:t=>{t.rate*=2;t.dmg*=2}},
+    {n:'Obliterator',   c:2880,d:'Dmg ×4, Pierce 10',f:t=>{t.dmg*=4;t.pierce=10}},
+   ],
+   pB:[
+    {n:'Extended Cover',c:160, d:'Range +40%',       f:t=>{t.range*=1.4}},
+    {n:'Scout Lens',    c:320, d:'Covers 60% of path',f:t=>{t.overwatchZone=0.6}},
+    {n:'Eagle Eye',     c:640, d:'Range ×1.5, Rate+20%',f:t=>{t.range*=1.5;t.rate*=1.2}},
+    {n:'Full Coverage', c:1280,d:'Covers 75% of path',f:t=>{t.overwatchZone=0.75}},
+    {n:'Omniscient',    c:2560,d:'Covers entire path',f:t=>{t.overwatchZone=1.0}},
+   ],
+   pC:[
+    {n:'Alert Mode',    c:150, d:'Stun 0.5s on hit', f:t=>{t.stun=0.5}},
+    {n:'Suppression',   c:300, d:'Slow 50% on hit',  f:t=>{t.slow=0.5}},
+    {n:'Overload',      c:600, d:'Multi 2, Rate+25%',f:t=>{t.multi=2;t.rate*=1.25}},
+    {n:'Emergency Fire',c:1200,d:'Rate ×2 when lives < 5',f:t=>{t._emergencyFire=true}},
+    {n:'Final Stand',   c:2400,d:'Dmg ×3 when lives < 3',f:t=>{t._finalStand=true}},
+   ]},
+
   {id:13,name:'Bank',cost:300,clr:'#f59e0b',
    desc:'Earns gold every wave. Occupies a 3×3 area. Does not shoot.',
    pathA:'Income',pathB:'Interest',pathC:'Capacity',
@@ -1196,6 +1257,32 @@ const TDEFS=[
     {n:'Efficiency IV', c:12000,d:'Upgrade costs -15%',f:t=>{t._effDisc=(t._effDisc||0)+0.15}},
     {n:'MAX EFFICIENCY',c:18000,d:'Upgrade costs -25%',f:t=>{t._effDisc=(t._effDisc||0)+0.25}},
    ]},
+  {id:15,name:'Wall',cost:80,clr:'#64748b',
+   desc:'Placed ON path cells. Has HP. Slows and chips enemies passing through. Tanks hit hard; bosses insta-break it.',
+   pathA:'Reinforcement',pathB:'Spikes',pathC:'Slowing',
+   isWall:true,wallHp:120,wallDmg:4,
+   dmg:0,rate:0,range:0,splash:0,slow:0.55,chain:0,burn:0,stun:0,pierce:0,multi:1,
+   pA:[
+    {n:'Steel Frame',   c:80,  d:'HP +80',                   f:t=>{t.wallHp+=80;t.wallHpBase+=80}},
+    {n:'Reinforced',    c:160, d:'HP +160',                  f:t=>{t.wallHp+=160;t.wallHpBase+=160}},
+    {n:'Fortified',     c:320, d:'HP +320',                  f:t=>{t.wallHp+=320;t.wallHpBase+=320}},
+    {n:'Bunker',        c:640, d:'HP +600, regen 5/s',       f:t=>{t.wallHp+=600;t.wallHpBase+=600;t.wallRegen=5}},
+    {n:'Impenetrable',  c:1280,d:'HP +1200',                 f:t=>{t.wallHp+=1200;t.wallHpBase+=1200}},
+   ],
+   pB:[
+    {n:'Barbed Wire',   c:80,  d:'+4 dmg/s to enemies',     f:t=>{t.wallDmg+=4}},
+    {n:'Spikes',        c:160, d:'+8 dmg/s to enemies',     f:t=>{t.wallDmg+=8}},
+    {n:'Razor Wire',    c:320, d:'+14 dmg/s, Bleed 3s',     f:t=>{t.wallDmg+=14;t.burn=3}},
+    {n:'Electrified',   c:640, d:'Stun 0.3s on contact',    f:t=>{t.stun=0.3;t.wallDmg+=20}},
+    {n:'Death Fence',   c:1280,d:'Dmg x2, Stun 0.8s',       f:t=>{t.wallDmg*=2;t.stun=0.8}},
+   ],
+   pC:[
+    {n:'Tar Pit',       c:80,  d:'Slow 70%',                f:t=>{t.slow=0.7}},
+    {n:'Quicksand',     c:160, d:'Slow 85%',                f:t=>{t.slow=0.85}},
+    {n:'Sticky Mud',    c:320, d:'Slow 92%',                f:t=>{t.slow=0.92}},
+    {n:'Time Field',    c:640, d:'Slow 97%',                f:t=>{t.slow=0.97}},
+    {n:'Frozen Zone',   c:1280,d:'Slow 99%',                f:t=>{t.slow=0.99}},
+   ]},
 ];
 
 // ── Maps ──────────────────────────────────
@@ -1203,53 +1290,80 @@ const MAPS=[
   // ── STARTER ──────────────────────────────
   {name:'Meadow',    desc:'A gentle S-curve through open grassland. Perfect for learning.',
    diff:'Starter',clr:'#16a34a', lives:20,gold:500,
-   wp:[[0,3],[5,3],[5,9],[14,9],[14,3],[19,3]]},
+   wp:[[0,3],[5,3],[5,9],[14,9],[14,3],[19,3]],
+   walls:[[5,2],[6,3],[4,2],[4,4],[4,9],[5,10],[4,8],[6,8],[14,10],[15,9],[13,8],[13,10],[13,3],[14,2],[13,4],[15,2]]},
+
   {name:'Brook',     desc:'A long straight stretch with a single deep dip.',
    diff:'Starter',clr:'#0891b2', lives:20,gold:500,
-   wp:[[0,2],[8,2],[8,11],[19,11]]},
+   wp:[[0,2],[8,2],[8,11],[19,11]],
+   walls:[[8,1],[9,2],[7,1],[7,3],[7,11],[8,12],[7,10],[9,10]]},
+
   {name:'Field',     desc:'Wide open U-bend from one side to the other.',
    diff:'Starter',clr:'#65a30d', lives:20,gold:500,
-   wp:[[0,7],[3,7],[3,2],[16,2],[16,7],[19,7]]},
+   wp:[[0,7],[3,7],[3,2],[16,2],[16,7],[19,7]],
+   walls:[[3,8],[4,7],[2,6],[2,8],[2,2],[3,1],[2,3],[4,1],[16,1],[17,2],[15,1],[15,3],[15,7],[16,8],[15,6],[17,6]]},
+
   {name:'Hollow',    desc:'Mirror S-curve — gentle and predictable.',
    diff:'Starter',clr:'#0d9488', lives:20,gold:500,
-   wp:[[0,10],[6,10],[6,4],[13,4],[13,10],[19,10]]},
+   wp:[[0,10],[6,10],[6,4],[13,4],[13,10],[19,10]],
+   walls:[[6,11],[7,10],[5,9],[5,11],[5,4],[6,3],[5,5],[7,3],[13,3],[14,4],[12,3],[12,5],[12,10],[13,11],[12,9],[14,9]]},
+
   {name:'Slope',     desc:'Twin step descent across the map.',
    diff:'Starter',clr:'#7c3aed', lives:20,gold:500,
-   wp:[[0,5],[7,5],[7,11],[14,11],[14,3],[19,3]]},
+   wp:[[0,5],[7,5],[7,11],[14,11],[14,3],[19,3]],
+   walls:[[7,4],[8,5],[6,4],[6,6],[6,11],[7,12],[6,10],[8,10],[14,12],[15,11],[13,10],[13,12],[13,3],[14,2],[13,4],[15,2]]},
 
   // ── MEDIUM ───────────────────────────────
   {name:'Canyon',    desc:'A winding ravine with tight switchbacks.',
    diff:'Medium',clr:'#d97706', lives:15,gold:250,
-   wp:[[0,1],[4,1],[4,6],[8,6],[8,2],[13,2],[13,10],[17,10],[17,6],[19,6]]},
+   wp:[[0,1],[4,1],[4,6],[8,6],[8,2],[13,2],[13,10],[17,10],[17,6],[19,6]],
+   walls:[[4,0],[5,1],[3,0],[3,2],[3,6],[4,7],[3,5],[5,5],[8,7],[9,6],[7,5],[7,7],[7,2],[8,1],[7,3],[9,1],[13,1],[14,2],[12,1],[12,3],[12,10],[13,11],[12,9],[14,9],[17,11],[18,10],[16,9],[16,11],[16,6],[17,5],[16,7],[18,5]]},
+
   {name:'River',     desc:'Sweeping U-bends like a river delta.',
    diff:'Medium',clr:'#2563eb', lives:15,gold:250,
-   wp:[[0,6],[3,6],[3,2],[10,2],[10,11],[17,11],[17,6],[19,6]]},
+   wp:[[0,6],[3,6],[3,2],[10,2],[10,11],[17,11],[17,6],[19,6]],
+   walls:[[3,7],[4,6],[2,5],[2,7],[2,2],[3,1],[2,3],[4,1],[10,1],[11,2],[9,1],[9,3],[9,11],[10,12],[9,10],[11,10],[17,12],[18,11],[16,10],[16,12],[16,6],[17,5],[16,7],[18,5]]},
+
   {name:'Ridge',     desc:'A long serpentine trail over high ground.',
    diff:'Medium',clr:'#db2777', lives:15,gold:250,
-   wp:[[0,5],[4,5],[4,1],[9,1],[9,9],[14,9],[14,3],[17,3],[17,8],[19,8]]},
+   wp:[[0,5],[4,5],[4,1],[9,1],[9,9],[14,9],[14,3],[17,3],[17,8],[19,8]],
+   walls:[[4,6],[5,5],[3,4],[3,6],[3,1],[4,0],[3,2],[5,0],[9,0],[10,1],[8,0],[8,2],[8,9],[9,10],[8,8],[10,8],[14,10],[15,9],[13,8],[13,10],[13,3],[14,2],[13,4],[15,2],[17,2],[18,3],[16,2],[16,4],[16,8],[17,9],[15,8],[16,7]]},
+
   {name:'Gorge',     desc:'Deep cuts through rocky terrain, bottom to top.',
    diff:'Medium',clr:'#ea580c', lives:15,gold:250,
-   wp:[[0,11],[4,11],[4,5],[8,5],[8,12],[12,12],[12,4],[16,4],[16,9],[19,9]]},
+   wp:[[0,11],[4,11],[4,5],[8,5],[8,12],[12,12],[12,4],[16,4],[16,9],[19,9]],
+   walls:[[4,12],[5,11],[3,10],[3,12],[3,5],[4,4],[3,6],[5,4],[8,4],[9,5],[7,4],[7,6],[7,12],[8,13],[7,11],[9,11],[12,13],[13,12],[11,11],[11,13],[11,4],[12,3],[11,5],[13,3],[16,3],[17,4],[15,3],[15,5],[15,9],[16,10],[15,8],[17,8]]},
+
   {name:'Delta',     desc:'Five-bend path through a river delta.',
    diff:'Medium',clr:'#0284c7', lives:15,gold:250,
-   wp:[[0,4],[3,4],[3,10],[7,10],[7,3],[12,3],[12,10],[16,10],[16,5],[19,5]]},
+   wp:[[0,4],[3,4],[3,10],[7,10],[7,3],[12,3],[12,10],[16,10],[16,5],[19,5]],
+   walls:[[3,3],[4,4],[2,3],[2,5],[2,10],[3,11],[2,9],[4,9],[7,11],[8,10],[6,9],[6,11],[6,3],[7,2],[6,4],[8,2],[12,2],[13,3],[11,2],[11,4],[11,10],[12,11],[11,9],[13,9],[16,11],[17,10],[15,9],[15,11],[15,5],[16,4],[15,6],[17,4]]},
 
   // ── HARD ─────────────────────────────────
   {name:'Labyrinth', desc:'A dense grid maze with minimal breathing room.',
    diff:'Hard',clr:'#dc2626', lives:10,gold:100,
-   wp:[[0,4],[3,4],[3,11],[8,11],[8,7],[13,7],[13,2],[17,2],[17,9],[19,9]]},
+   wp:[[0,4],[3,4],[3,11],[8,11],[8,7],[13,7],[13,2],[17,2],[17,9],[19,9]],
+   walls:[[3,3],[4,4],[2,3],[2,5],[2,11],[3,12],[2,10],[4,10],[8,12],[9,11],[7,10],[7,12],[7,7],[8,6],[7,8],[9,6],[13,8],[14,7],[12,6],[12,8],[12,2],[13,1],[12,3],[14,1],[17,1],[18,2],[16,1],[16,3],[16,9],[17,10],[16,8],[18,8]]},
+
   {name:'Gauntlet',  desc:'A brutal zigzag that crosses the entire grid.',
    diff:'Hard',clr:'#c026d3', lives:10,gold:100,
-   wp:[[0,7],[2,7],[2,1],[6,1],[6,12],[9,12],[9,4],[13,4],[13,11],[16,11],[16,3],[19,3]]},
+   wp:[[0,7],[2,7],[2,1],[6,1],[6,12],[9,12],[9,4],[13,4],[13,11],[16,11],[16,3],[19,3]],
+   walls:[[2,8],[3,7],[1,6],[1,8],[1,1],[2,0],[1,2],[3,0],[6,0],[7,1],[5,0],[5,2],[5,12],[6,13],[5,11],[7,11],[9,13],[10,12],[8,11],[8,13],[8,4],[9,3],[7,4],[8,5],[13,3],[14,4],[12,3],[12,5],[12,11],[13,12],[12,10],[14,10],[16,12],[17,11],[15,10],[15,12],[15,3],[16,2],[15,4],[17,2]]},
+
   {name:'Citadel',   desc:'Fortress walls force enemies through narrow killing zones.',
    diff:'Hard',clr:'#b45309', lives:10,gold:100,
-   wp:[[0,3],[2,3],[2,10],[5,10],[5,5],[9,5],[9,12],[13,12],[13,2],[16,2],[16,9],[19,9]]},
+   wp:[[0,3],[2,3],[2,10],[5,10],[5,5],[9,5],[9,12],[13,12],[13,2],[16,2],[16,9],[19,9]],
+   walls:[[2,2],[3,3],[1,2],[1,4],[1,10],[2,11],[1,9],[3,9],[5,11],[6,10],[4,9],[4,11],[4,5],[5,4],[3,5],[4,6],[9,4],[10,5],[8,4],[8,6],[8,12],[9,13],[8,11],[10,11],[13,13],[14,12],[12,11],[12,13],[12,2],[13,1],[12,3],[14,1],[16,1],[17,2],[15,1],[15,3],[15,9],[16,10],[14,9],[15,8]]},
+
   {name:'Maze',      desc:'Seven sharp turns. One mistake and it all falls apart.',
    diff:'Hard',clr:'#0f766e', lives:10,gold:100,
-   wp:[[0,2],[2,2],[2,11],[5,11],[5,4],[8,4],[8,12],[12,12],[12,1],[15,1],[15,8],[18,8],[18,5],[19,5]]},
+   wp:[[0,2],[2,2],[2,11],[5,11],[5,4],[8,4],[8,12],[12,12],[12,1],[15,1],[15,8],[18,8],[18,5],[19,5]],
+   walls:[[2,1],[3,2],[1,1],[1,3],[1,11],[2,12],[1,10],[3,10],[5,12],[6,11],[4,10],[4,12],[4,4],[5,3],[3,4],[4,5],[8,3],[9,4],[7,3],[7,5],[7,12],[8,13],[7,11],[9,11],[12,13],[13,12],[11,11],[11,13],[11,1],[12,0],[11,2],[13,0],[15,0],[16,1],[14,0],[14,2],[14,8],[15,9],[13,8],[14,7],[18,9],[19,8],[17,7],[17,9],[17,5],[18,4],[16,5],[17,6]]},
+
   {name:'Fortress',  desc:'Maximum complexity. No mercy.',
    diff:'Hard',clr:'#7c3aed', lives:10,gold:100,
-   wp:[[0,6],[1,6],[1,1],[5,1],[5,10],[8,10],[8,3],[12,3],[12,11],[15,11],[15,5],[18,5],[18,8],[19,8]]},
+   wp:[[0,6],[1,6],[1,1],[5,1],[5,10],[8,10],[8,3],[12,3],[12,11],[15,11],[15,5],[18,5],[18,8],[19,8]],
+   walls:[[1,7],[2,6],[0,5],[0,7],[0,1],[1,0],[0,2],[2,0],[5,0],[6,1],[4,0],[4,2],[4,10],[5,11],[4,9],[6,9],[8,11],[9,10],[7,9],[7,11],[7,3],[8,2],[6,3],[7,4],[12,2],[13,3],[11,2],[11,4],[11,11],[12,12],[11,10],[13,10],[15,12],[16,11],[14,10],[14,12],[14,5],[15,4],[13,5],[14,6],[18,4],[19,5],[17,4],[17,6],[17,8],[18,9],[16,8],[17,7]]},
 ];
 
 // ── Enemy types ───────────────────────────
@@ -1286,7 +1400,7 @@ let gold,lives,score,wave,waveActive,speed,autoWave,isEndless,isSandbox;
 let towers,enemies,bullets,particles;
 let waveQueue,waveTimer;
 let selShopType=0,selTower=null,hoverCell=null,moveTowerMode=false,dragTower=null,dragOffset=[0,0];
-let curMap=MAPS[0],pathCells,pathSet;
+let curMap=MAPS[0],pathCells,pathSet,wallSet;
 let animId=null,lastTs=0,dark=localStorage.getItem('darkMode')==='1',selMapIdx=0,selDiff='Starter';
 // Apply saved dark mode immediately
 if(dark){document.documentElement.dataset.theme='dark';document.getElementById('darkToggle').classList.add('on');}
@@ -1310,6 +1424,7 @@ function initGame(map){
   isSandbox=map.sandbox||false;
   pathCells=buildPath(map.wp);
   pathSet=new Set(pathCells.map(([c,r])=>`${c},${r}`));
+  wallSet=new Set((map.walls||[]).map(([c,r])=>`${c},${r}`));
   gold=isSandbox?999999:map.gold; lives=isSandbox?999:map.lives; score=0; wave=1;
   waveActive=false; speed=1; autoWave=false;
   towers=[]; enemies=[]; bullets=[]; particles=[];
@@ -1377,7 +1492,7 @@ function doUpgrade(t, path) {
   else t.pC=(t.pC||0)+1;
   const newLvl=path==='A'?t.pA:path==='B'?t.pB:t.pC;
   if (!t.primaryPath && newLvl >= 3) t.primaryPath = path;
-  score+=5; updateHUD(); renderUpPanel(t); applyAmpBoosts(); msg(`Upgraded: ${up.n}`);
+  score+=5; updateHUD(); renderUpPanel(t); applyAmpBoosts();applyBeaconBoosts(); msg(`Upgraded: ${up.n}`);
 }
 
 // ═══════════════════════════════════════════
@@ -1421,7 +1536,41 @@ function update(ts){
   });
 
   for(const t of towers){
-    if(TDEFS[t.type].isAmplifier) continue;
+    if(TDEFS[t.type].isAmplifier||TDEFS[t.type].isBeacon) continue;
+    // ── Wall logic ───────────────────────────────────
+    if(TDEFS[t.type].isWall){
+      if(t.wallRegen>0&&t.wallHp<t.wallHpBase)
+        t.wallHp=Math.min(t.wallHpBase,t.wallHp+t.wallRegen*dt);
+      const wcx=t.col*CS+CS/2,wcy=t.row*CS+CS/2;
+      let wallBroken=false;
+      for(const e of enemies){
+        if(e.dead||e.reached)continue;
+        if(Math.hypot(e.x-wcx,e.y-wcy)<CS*0.65){
+          if(e.type===3){wallBroken=true;break;}
+          if(t.slow>0){e.slowT=ts+400;e.slowM=1-t.slow;}
+          const dmgToWall=e.type===2?t.wallHpBase*0.25*dt:t.wallHpBase*0.04*dt;
+          t.wallHp-=dmgToWall;
+          if(t.wallDmg>0){e.hp-=t.wallDmg*dt;if(e.hp<=0&&!e.dead)killEnemy(e);}
+          if(t.burn>0){e.burnT=ts+(t.burn*1000);e.burnDmg=t.wallDmg*0.05;}
+          if(t.stun>0&&e.stunT<ts){e.stunT=ts+(t.stun*1000);}
+        }
+      }
+      if(t.wallHp<=0||wallBroken){
+        towers=towers.filter(w=>w!==t);
+        if(selTower===t)deselTower();
+        spawnFX(wcx,wcy,'#94a3b8',wallBroken?12:5);
+        msg(wallBroken?'Boss smashed the wall!':'Wall destroyed!');
+        buildShop();
+      } else if(selTower===t){
+        const hpFill=document.getElementById('wallHpFillEl');
+        const hpText=document.getElementById('wallHpTextEl');
+        const pct=Math.max(0,t.wallHp/t.wallHpBase);
+        const clr=pct>0.5?'#22c55e':pct>0.25?'#f59e0b':'#ef4444';
+        if(hpFill){hpFill.style.width=(pct*100)+'%';hpFill.style.background=clr;}
+        if(hpText) hpText.textContent=Math.ceil(t.wallHp)+' / '+t.wallHpBase;
+      }
+      continue;
+    }
     // Tick Full Goldback timer (real time, not game-speed time)
     if(t.fgbTimer>0){
       t.fgbTimer=Math.max(0,t.fgbTimer-rawDt);
@@ -1499,8 +1648,31 @@ function update(ts){
     document.getElementById('waveBtn').disabled=false;
     document.getElementById('waveBtn').textContent=isSandbox?`SPAWN WAVE ${wave}`:`SEND WAVE ${wave}`;
     if(bankTotal===0) msg(`Wave ${wave-1} cleared! +${bonus}g`);
-    applyAmpBoosts();
+    applyAmpBoosts();applyBeaconBoosts();
     if(autoWave) setTimeout(()=>{if(!waveActive)startWave();},800);
+  }
+}
+
+function applyBeaconBoosts(){
+  const beaconMap=new Map(); // tower -> {rate, dmg}
+  for(const b of towers){
+    if(!TDEFS[b.type].isBeacon)continue;
+    const radius=(b.beaconRadius||2.5)*CS;
+    const bcx=b.col*CS+CS/2,bcy=b.row*CS+CS/2;
+    for(const t of towers){
+      const def=TDEFS[t.type];
+      if(def.isBeacon||def.isBank||def.isAmplifier)continue;
+      if(Math.hypot(t.col*CS+CS/2-bcx,t.row*CS+CS/2-bcy)<=radius){
+        const cur=beaconMap.get(t)||{rate:0,dmg:0};
+        cur.rate+=b.beaconBoost||0.20;
+        cur.dmg+=(b.beaconDmgBoost||0);
+        beaconMap.set(t,cur);
+      }
+    }
+  }
+  for(const t of towers){
+    t._beaconRateBoost=beaconMap.has(t)?beaconMap.get(t).rate:0;
+    t._beaconDmgBoost=beaconMap.has(t)?beaconMap.get(t).dmg:0;
   }
 }
 
@@ -1518,7 +1690,7 @@ function applyAmpBoosts(){
   }
   for(const t of towers){
     const def=TDEFS[t.type];
-    if(def.isAmplifier||def.isBank)continue;
+    if(def.isAmplifier||def.isBank||def.isWall)continue;
     const boosted=inAmpRange.has(t);
     rebuildTowerStats(t, boosted);
     t._ampBoosted=boosted;
@@ -1536,11 +1708,40 @@ function cycleTarget(t){
   renderUpPanel(t);
 }
 
+// Line-of-sight check: returns false if any wall cell blocks the shot
+function hasLOS(x1,y1,x2,y2){
+  if(!wallSet||wallSet.size===0) return true;
+  const dx=x2-x1, dy=y2-y1;
+  const steps=Math.ceil(Math.max(Math.abs(dx),Math.abs(dy))/CS*2);
+  for(let i=1;i<steps;i++){
+    const t=i/steps;
+    const cx=Math.floor((x1+dx*t)/CS);
+    const cy=Math.floor((y1+dy*t)/CS);
+    if(wallSet.has(`${cx},${cy}`)) return false;
+  }
+  return true;
+}
+
 function findTargets(t){
-  if(TDEFS[t.type].isBank||TDEFS[t.type].isAmplifier) return [];
+  const def=TDEFS[t.type];
+  if(def.isBank||def.isAmplifier||def.isBeacon) return [];
   const cx=t.col*CS+CS/2,cy=t.row*CS+CS/2,rp=t.range*CS;
-  const inRange=enemies.filter(e=>!e.dead&&!e.reached&&Math.hypot(e.x-cx,e.y-cy)<=rp);
+  let inRange=enemies.filter(e=>!e.dead&&!e.reached&&Math.hypot(e.x-cx,e.y-cy)<=rp);
   if(!inRange.length) return [];
+  // Filter by line of sight through walls
+  inRange=inRange.filter(e=>hasLOS(cx,cy,e.x,e.y));
+  if(!inRange.length) return [];
+  // Overwatch: only target enemies in spawn-side portion of path
+  if(def.overwatchMode){
+    const zone=t.overwatchZone||0.5;
+    const cutoff=Math.floor(pathCells.length*zone);
+    inRange=inRange.filter(e=>e.pi<cutoff);
+    if(!inRange.length) return [];
+  }
+  // Emergency fire / final stand bonuses
+  if(t._emergencyFire&&lives<5) t._rateMultiplier=2;
+  else if(t._finalStand&&lives<3){ t._rateMultiplier=1; t._dmgMultiplier=3; }
+  else { t._rateMultiplier=1; t._dmgMultiplier=1; }
   const mode=t.targetMode||'first';
   let sorted;
   if(mode==='first')      sorted=inRange.slice().sort((a,b)=>b.pi-a.pi);
@@ -1555,9 +1756,10 @@ function findTargets(t){
 }
 
 function makeBullet(t,tgt){
+  const dmgMult=(t._dmgMultiplier||1);
   return{x:t.col*CS+CS/2,y:t.row*CS+CS/2,tx:tgt.x,ty:tgt.y,tgt,
     spd:290,type:t.type,clr:TDEFS[t.type].clr,
-    dmg:t.dmg,splash:t.splash||0,slow:t.slow||0,
+    dmg:t.dmg*dmgMult,splash:t.splash||0,slow:t.slow||0,
     chain:t.chain||0,burn:t.burn||0,stun:t.stun||0,done:false};
 }
 
@@ -1649,6 +1851,21 @@ function draw(ts){
   const[ec,er]=pathCells[0],[xc,xr]=pathCells[pathCells.length-1];
   ctx.fillText('IN',ec*CS+CS/2,er*CS+CS/2);ctx.fillText('OUT',xc*CS+CS/2,xr*CS+CS/2);
 
+  // Walls
+  for(const[c,r] of (curMap.walls||[])){
+    const wx=c*CS,wy=r*CS;
+    ctx.fillStyle=dark?'#1a1a22':'#ccc8be';
+    ctx.fillRect(wx,wy,CS,CS);
+    ctx.fillStyle=dark?'#222228':'#b8b4aa';
+    ctx.fillRect(wx+2,wy+2,CS-4,CS-4);
+    // stone texture dots
+    ctx.fillStyle=dark?'#2a2a32':'#aaa69f';
+    ctx.fillRect(wx+5,wy+5,3,3);
+    ctx.fillRect(wx+CS-8,wy+CS-8,3,3);
+    ctx.fillRect(wx+CS-8,wy+5,3,3);
+    ctx.fillRect(wx+5,wy+CS-8,3,3);
+  }
+
   // Move mode
   if(moveTowerMode&&dragTower){
     const def=TDEFS[dragTower.type];
@@ -1685,7 +1902,7 @@ function draw(ts){
       ctx.strokeStyle=fits?'rgba(245,158,11,.4)':'rgba(220,38,38,.4)';
       ctx.lineWidth=1.5;ctx.setLineDash([4,4]);ctx.strokeRect(hc*CS,hr*CS,CS*3,CS*3);ctx.setLineDash([]);
     } else {
-      const ok=!pathSet.has(`${hc},${hr}`)&&!towers.some(t=>{
+      const ok=!pathSet.has(`${hc},${hr}`)&&!wallSet.has(`${hc},${hr}`)&&!towers.some(t=>{
         const d=TDEFS[t.type];
         if(d.isBank||d.isAmplifier) return hc>=t.col&&hc<t.col+3&&hr>=t.row&&hr<t.row+3;
         return t.col===hc&&t.row===hr;
@@ -1744,7 +1961,31 @@ function drawTower(t){
     ctx.textAlign='center';ctx.textBaseline='middle';
     ctx.fillText('SKIP',cx,by+bh/2);
   }
-  if(selTower===t){ctx.strokeStyle=clr+'88';ctx.lineWidth=3;ctx.beginPath();ctx.arc(cx,cy,17,0,Math.PI*2);ctx.stroke();}
+  if(selTower===t&&!TDEFS[t.type].isWall){ctx.strokeStyle=clr+'88';ctx.lineWidth=3;ctx.beginPath();ctx.arc(cx,cy,17,0,Math.PI*2);ctx.stroke();}
+  if(TDEFS[t.type].isWall){
+    const pct=Math.max(0,t.wallHp/t.wallHpBase);
+    const wclr=pct>0.6?'#64748b':pct>0.3?'#b45309':'#dc2626';
+    ctx.fillStyle=dark?'#1e293b':'#e2e8f0';ctx.fillRect(t.col*CS+2,t.row*CS+2,CS-4,CS-4);
+    ctx.fillStyle=wclr+(dark?'cc':'bb');ctx.fillRect(t.col*CS+3,t.row*CS+3,CS-6,CS-6);
+    ctx.strokeStyle=dark?'#0f172a':'#94a3b8';ctx.lineWidth=1;ctx.beginPath();
+    ctx.moveTo(t.col*CS+3,t.row*CS+CS/2);ctx.lineTo(t.col*CS+CS-3,t.row*CS+CS/2);
+    ctx.moveTo(t.col*CS+CS/2,t.row*CS+3);ctx.lineTo(t.col*CS+CS/2,t.row*CS+CS/2);
+    ctx.moveTo(t.col*CS+CS/4,t.row*CS+CS/2);ctx.lineTo(t.col*CS+CS/4,t.row*CS+CS-3);
+    ctx.moveTo(t.col*CS+CS*3/4,t.row*CS+CS/2);ctx.lineTo(t.col*CS+CS*3/4,t.row*CS+CS-3);
+    ctx.stroke();
+    ctx.fillStyle=dark?'#0f172a':'#cbd5e1';ctx.fillRect(t.col*CS+2,t.row*CS+CS-6,CS-4,4);
+    ctx.fillStyle=pct>0.5?'#22c55e':pct>0.25?'#f59e0b':'#ef4444';
+    ctx.fillRect(t.col*CS+2,t.row*CS+CS-6,(CS-4)*pct,4);
+    if(selTower===t){ctx.strokeStyle=wclr;ctx.lineWidth=2;ctx.strokeRect(t.col*CS+1,t.row*CS+1,CS-2,CS-2);}
+    const pa=t.pA||0,pb=t.pB||0,pc=t.pC||0;
+    ctx.fillStyle='#64748b';
+    for(let i=0;i<pa;i++){ctx.beginPath();ctx.arc(t.col*CS+5+i*5,t.row*CS+5,2,0,Math.PI*2);ctx.fill();}
+    ctx.fillStyle='#64748b99';
+    for(let i=0;i<pb;i++){ctx.beginPath();ctx.arc(t.col*CS+5+i*5,t.row*CS+10,2,0,Math.PI*2);ctx.fill();}
+    ctx.fillStyle='#64748b55';
+    for(let i=0;i<pc;i++){ctx.beginPath();ctx.arc(t.col*CS+5+i*5,t.row*CS+15,2,0,Math.PI*2);ctx.fill();}
+    return;
+  }
   ctx.save();ctx.translate(cx,cy);
   ctx.fillStyle=dark?'#16161a':'#fff';ctx.beginPath();ctx.arc(0,0,14,0,Math.PI*2);ctx.fill();
   ctx.strokeStyle=clr;ctx.lineWidth=2;ctx.stroke();
@@ -1763,6 +2004,43 @@ function drawTower(t){
   else if(id===10){ctx.beginPath();ctx.arc(0,0,7,0,Math.PI*2);ctx.fill();ctx.fillStyle='#312e81';ctx.beginPath();ctx.moveTo(-5,0);ctx.lineTo(0,-11);ctx.lineTo(5,0);ctx.closePath();ctx.fill();}
   else if(id===11){ctx.beginPath();ctx.arc(0,0,7,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(-4,-4);ctx.lineTo(4,4);ctx.moveTo(4,-4);ctx.lineTo(-4,4);ctx.stroke();}
   else if(id===12){ctx.beginPath();ctx.moveTo(-7+3,-6);ctx.lineTo(7-3,-6);ctx.quadraticCurveTo(7,-6,7,-6+3);ctx.lineTo(7,6-3);ctx.quadraticCurveTo(7,6,7-3,6);ctx.lineTo(-7+3,6);ctx.quadraticCurveTo(-7,6,-7,6-3);ctx.lineTo(-7,-6+3);ctx.quadraticCurveTo(-7,-6,-7+3,-6);ctx.closePath();ctx.fill();}
+  else if(id===15){
+    // Beacon: pulsing ring showing aura radius
+    ctx.restore();
+    const pulse=0.7+0.3*Math.sin(Date.now()/500);
+    const brad=(t.beaconRadius||2.5)*CS;
+    ctx.beginPath();ctx.arc(cx,cy,brad,0,Math.PI*2);
+    ctx.strokeStyle=`rgba(6,182,212,${0.12*pulse})`;ctx.lineWidth=2;ctx.setLineDash([4,6]);ctx.stroke();ctx.setLineDash([]);
+    ctx.beginPath();ctx.arc(cx,cy,brad,0,Math.PI*2);
+    ctx.strokeStyle=`rgba(6,182,212,${0.25*pulse})`;ctx.lineWidth=1;ctx.stroke();
+    if(selTower===t){ctx.strokeStyle=TDEFS[15].clr+'88';ctx.lineWidth=3;ctx.beginPath();ctx.arc(cx,cy,17,0,Math.PI*2);ctx.stroke();}
+    ctx.save();ctx.translate(cx,cy);
+    ctx.fillStyle=dark?'#0a2a30':'#e0f9ff';ctx.beginPath();ctx.arc(0,0,14,0,Math.PI*2);ctx.fill();
+    ctx.strokeStyle=TDEFS[15].clr;ctx.lineWidth=2;ctx.stroke();
+    ctx.fillStyle=TDEFS[15].clr;
+    // concentric rings icon
+    for(const r of [3,6,9]){ctx.beginPath();ctx.arc(0,0,r,0,Math.PI*2);ctx.strokeStyle=TDEFS[15].clr+(r===9?'99':'55');ctx.lineWidth=1.5;ctx.stroke();}
+    ctx.restore();
+    ctx.font=`600 8px "DM Mono",monospace`;ctx.fillStyle=dark?'#67e8f9':'#0891b2';
+    ctx.textAlign='center';ctx.textBaseline='top';
+    ctx.fillText(`+${Math.round((t.beaconBoost||0.2)*100)}%`,cx,cy+16);
+    return;
+  }
+  else if(id===16){
+    // Overwatch: show restricted coverage zone on path when selected
+    const zone=t.overwatchZone||0.5;
+    const cutoff=Math.floor(pathCells.length*zone);
+    if(selTower===t){
+      ctx.fillStyle='rgba(132,204,22,0.08)';
+      for(let i=0;i<cutoff;i++){
+        const[pc,pr]=pathCells[i];
+        ctx.fillRect(pc*CS-t.col*CS-CS/2,pr*CS-t.row*CS-CS/2,CS,CS);
+      }
+    }
+    ctx.beginPath();ctx.arc(0,0,9,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#fff';ctx.font='bold 10px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText('👁',0,1);
+  }
   else if(id===14){
     ctx.restore();
     const bx=t.col*CS,by=t.row*CS,bw=CS*3,bh=CS*3;
@@ -1946,8 +2224,15 @@ function renderUpPanel(tower){
     <div class="fgb-bar-top"><span class="fgb-label">✦ Full Goldback</span><span class="fgb-timer" id="fgbTimerEl">${fgbSec}s</span></div>
     <div class="fgb-track"><div class="fgb-fill" id="fgbFillEl" style="width:${fgbPct}%"></div></div>
   </div>`:'';
+  const isWall=TDEFS[tower.type].isWall;
+  const wallHpPct=isWall?Math.max(0,tower.wallHp/tower.wallHpBase):0;
+  const wallHpClr=wallHpPct>0.5?'#22c55e':wallHpPct>0.25?'#f59e0b':'#ef4444';
+  const wallHpHTML=isWall?`<div class="fgb-bar">
+    <div class="fgb-bar-top"><span class="fgb-label" style="color:#64748b">WALL HP</span><span class="fgb-timer" id="wallHpTextEl" style="color:#64748b">${Math.ceil(tower.wallHp)} / ${tower.wallHpBase}</span></div>
+    <div class="fgb-track"><div class="fgb-fill" id="wallHpFillEl" style="width:${wallHpPct*100}%;background:${wallHpClr}"></div></div>
+  </div>`:'' ;
   const curTarget=tower.targetMode||'first';
-  const targetRowHTML=`<div class="target-row">
+  const targetRowHTML=isWall?'':`<div class="target-row">
     <span class="target-lbl">Target</span>
     <button class="target-btn active-${curTarget}" onclick="setTowerTarget(null)" title="Click to cycle targeting mode">${TARGET_ICONS[curTarget]} ${TARGET_LABELS[curTarget]} ↻</button>
   </div>`;
@@ -1957,6 +2242,7 @@ function renderUpPanel(tower){
       <button class="sell-btn${isFGB?' fgb':''}" onclick="sellTower()">${sellLabel}</button>
     </div>
     ${fgbHTML}
+    ${wallHpHTML}
     ${targetRowHTML}
     ${pathSection('A',def.pathA||'PATH A')}
     ${pathSection('B',def.pathB||'PATH B')}
@@ -2048,7 +2334,7 @@ canvas.addEventListener('click',e=>{
     dragTower=null;moveTowerMode=false;
     document.getElementById('moveTowerBtn').textContent='MOVE';
     document.getElementById('moveTowerBtn').classList.remove('on-move');
-    updateHUD();buildShop();applyAmpBoosts();
+    updateHUD();buildShop();applyAmpBoosts();applyBeaconBoosts();
     return;
   }
 
@@ -2061,7 +2347,7 @@ canvas.addEventListener('click',e=>{
   });
 
   if(moveTowerMode&&!dragTower){
-    if(clicked){dragTower=clicked;msg('Click new location to place. Right-click to cancel.');return;}
+    if(clicked){if(TDEFS[clicked.type].isWall){msg("Walls can't be moved.");return;}dragTower=clicked;msg('Click new location to place. Right-click to cancel.');return;}
     moveTowerMode=false;document.getElementById('moveTowerBtn').textContent='MOVE';
     document.getElementById('moveTowerBtn').classList.remove('on-move');
     return;
@@ -2077,7 +2363,12 @@ canvas.addEventListener('click',e=>{
 
   for(const[c,r2] of cells){
     if(c<0||c>=COLS||r2<0||r2>=ROWS){msg("Doesn't fit here.");return;}
-    if(pathSet.has(`${c},${r2}`)){msg("Can't build on the path.");return;}
+    if(def.isWall){
+      if(!pathSet.has(`${c},${r2}`)){msg("Walls must be placed on the path.");return;}
+    } else {
+      if(pathSet.has(`${c},${r2}`)){msg("Can't build on the path.");return;}
+    }
+    if(towers.some(wt=>TDEFS[wt.type].isWall&&wt.col===c&&wt.row===r2)){msg("Already a wall there.");return;}
     if(towers.some(t=>{
       const d=TDEFS[t.type];
       if(d.isBank||d.isAmplifier) return c>=t.col&&c<t.col+3&&r2>=t.row&&r2<t.row+3;
@@ -2095,9 +2386,16 @@ canvas.addEventListener('click',e=>{
     pierce:def.pierce,multi:def.multi||1,
     bankIncome:def.bankIncome||0,bankInterest:0,
     ampBoost:def.ampBoost||0,ampRadius:def.ampRadius||1,
+    beaconBoost:def.beaconBoost||0,beaconRadius:def.beaconRadius||2.5,
+    wallHp:def.wallHp||0,wallHpBase:def.wallHp||0,wallDmg:def.wallDmg||0,wallRegen:0,
     fgbTimer:30};
+  // Hard mode difficulty modifiers
+  if(curMap.diff==='Hard'){
+    if(def.isAmplifier) newTower.ampBoost*=0.85;
+    else if(!def.isBank&&!def.isBeacon){ newTower.dmg*=1.25; newTower.rate*=1.25; }
+  }
   towers.push(newTower);
-  updateHUD();buildShop();applyAmpBoosts();msg(`${def.name} placed.`);
+  updateHUD();buildShop();applyAmpBoosts();applyBeaconBoosts();msg(`${def.name} placed.`);
 });
 
 canvas.addEventListener('contextmenu',e2=>{
@@ -2136,7 +2434,7 @@ canvas.addEventListener('contextmenu',e=>{
   gold+=isFGB?def.cost:(Math.floor(def.cost*.6)+Math.floor(sp*.4));
   towers.splice(idx,1);
   if(selTower===t)deselTower();
-  updateHUD();buildShop();applyAmpBoosts();msg(isFGB?'Tower sold — Full Goldback refund!':'Tower sold.');
+  updateHUD();buildShop();applyAmpBoosts();applyBeaconBoosts();msg(isFGB?'Tower sold — Full Goldback refund!':'Tower sold.');
 });
 
 function rebuildTowerStats(t, useOrig=false){
@@ -2145,6 +2443,7 @@ function rebuildTowerStats(t, useOrig=false){
   t.slow=def.slow;t.chain=def.chain;t.burn=def.burn;t.stun=def.stun;
   t.pierce=def.pierce;t.multi=def.multi||1;
   t.bankIncome=def.bankIncome||0;t.ampBoost=def.ampBoost||0;t.ampRadius=def.ampRadius||1;
+  t.wallHp=def.wallHp||0;t.wallHpBase=def.wallHp||0;t.wallDmg=def.wallDmg||0;t.wallRegen=0;
   t._ampOrig=null;t._ampBoosted=false;
   const apply=(path,cnt)=>{
     const key=path==='A'?'pA':path==='B'?'pB':'pC';
@@ -2154,6 +2453,19 @@ function rebuildTowerStats(t, useOrig=false){
     }
   };
   apply('A',t.pA||0);apply('B',t.pB||0);apply('C',t.pC||0);
+  // Hard mode: +25% dmg/rate for combat towers, -15% amp boost
+  if(curMap&&curMap.diff==='Hard'){
+    if(def.isAmplifier){
+      t.ampBoost*=0.85;
+    } else if(!def.isBank&&!def.isBeacon){
+      t.dmg*=1.25;
+      t.rate*=1.25;
+    }
+  }
+  // Apply beacon boost on top
+  if((t._beaconRateBoost||0)>0) t.rate*=(1+t._beaconRateBoost);
+  if((t._beaconDmgBoost||0)>0) t.dmg*=(1+t._beaconDmgBoost);
+  // Apply amp boost on top
 }
 
 document.getElementById('moveTowerBtn').addEventListener('click',()=>{
@@ -2313,6 +2625,12 @@ function drawMapPreview(i,canvasId,sw,sh){
   cx.strokeStyle=dark?'#2a2a32':'#e8e5df';cx.lineWidth=.4;
   for(let c=0;c<=COLS;c++){cx.beginPath();cx.moveTo(c*CS*sx,0);cx.lineTo(c*CS*sx,sh);cx.stroke();}
   for(let r=0;r<=ROWS;r++){cx.beginPath();cx.moveTo(0,r*CS*sy);cx.lineTo(sw,r*CS*sy);cx.stroke();}
+
+  // Walls
+  for(const[c,r] of (map.walls||[])){
+    cx.fillStyle=dark?'#2a2a36':'#b8b4aa';
+    cx.fillRect(c*CS*sx,r*CS*sy,CS*sx,CS*sy);
+  }
 
   // Path cells — bold colored fill
   for(const[c,r] of cells){
