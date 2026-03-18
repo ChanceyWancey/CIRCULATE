@@ -678,8 +678,8 @@ body{background:var(--bg);min-height:100vh;display:flex;align-items:center;justi
     if(inGame) saveGameForUpdate();
   },15000);
 
-  // Run on boot
-  checkResume();
+  // Run on boot — defer checkResume until after main game scripts load
+  window.addEventListener('load', checkResume);
   checkForUpdate();
   setInterval(checkForUpdate,CHECK_INTERVAL);
 })();
