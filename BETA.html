@@ -30,10 +30,10 @@ body{background:var(--bg);min-height:100vh;display:flex;align-items:center;justi
 
 /* Diff tabs */
 .diff-tabs{display:flex;gap:6px;margin-bottom:14px}
-.diff-tab{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;padding:7px 20px;border-radius:5px;border:1.5px solid var(--border);background:transparent;cursor:pointer;transition:all .15s;font-weight:600}
-.diff-tab[data-diff="Starter"]{color:#16a34a}
-.diff-tab[data-diff="Medium"]{color:#d97706}
-.diff-tab[data-diff="Hard"]{color:#dc2626}
+.diff-tab{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;padding:7px 20px;border-radius:5px;border:1.5px solid var(--border);background:transparent;cursor:pointer;transition:all .15s;font-weight:600;color:var(--ink2)}
+.diff-tab[data-diff="Starter"]{color:#16a34a;border-color:#16a34a44}
+.diff-tab[data-diff="Medium"]{color:#d97706;border-color:#d9770644}
+.diff-tab[data-diff="Hard"]{color:#dc2626;border-color:#dc262644}
 .diff-tab:hover{background:var(--surface2)}
 .diff-tab[data-diff="Starter"].active{background:#16a34a;border-color:#16a34a;color:#fff}
 .diff-tab[data-diff="Medium"].active{background:#d97706;border-color:#d97706;color:#fff}
@@ -43,10 +43,10 @@ body{background:var(--bg);min-height:100vh;display:flex;align-items:center;justi
 #mapBrowser{width:100%;max-width:820px}
 .map-grid-5{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;width:100%}
 .map-card{border:2px solid var(--border);border-radius:10px;padding:10px;cursor:pointer;transition:all .15s;background:var(--surface);overflow:hidden;position:relative}
-.map-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:10px 10px 0 0;background:var(--card-clr,var(--border));opacity:.7}
+.map-card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;border-radius:10px 10px 0 0;background:var(--card-clr,var(--border));opacity:.9}
 .map-card:hover{transform:translateY(-2px);box-shadow:0 6px 20px var(--shadow)}
 .map-card.sel{box-shadow:0 0 0 2px var(--card-clr,var(--ink))}
-.map-card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;margin-top:4px}
+.map-card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;margin-top:6px}
 .map-card-name{font-size:11px;font-weight:700;color:var(--card-clr,var(--ink))}
 .map-card-turns{font-family:'DM Mono',monospace;font-size:8px;color:var(--ink3);background:var(--surface2);padding:1px 5px;border-radius:3px}
 .map-card-desc{font-family:'DM Mono',monospace;font-size:8px;color:var(--ink3);margin-bottom:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.4}
@@ -67,12 +67,12 @@ body{background:var(--bg);min-height:100vh;display:flex;align-items:center;justi
 .md-stat-val{font-family:'DM Mono',monospace;font-size:14px;font-weight:600;color:var(--ink)}
 .md-desc-text{font-family:'DM Mono',monospace;font-size:10px;color:var(--ink2);line-height:1.7;background:var(--surface2);padding:10px 12px;border-radius:6px}
 .md-play-btns{display:flex;gap:10px;width:100%}
-.md-play-btn{flex:1;padding:16px;border-radius:8px;cursor:pointer;font-family:'DM Mono',monospace;letter-spacing:.06em;text-transform:uppercase;transition:all .15s;display:flex;flex-direction:column;align-items:center;gap:5px;border:none}
+.md-play-btn{flex:1;padding:16px;border-radius:8px;cursor:pointer;font-family:'DM Mono',monospace;letter-spacing:.06em;text-transform:uppercase;transition:all .15s;display:flex;flex-direction:column;align-items:center;gap:5px;border:none;background:transparent}
 .md-play-btn:hover{transform:translateY(-1px);opacity:.92}
 .md-play-btn.normal{color:#fff}
-.md-play-btn.endless{color:var(--ink);border:2px dashed var(--border)}
-.md-play-btn.endless:hover{border-color:var(--ink2);background:var(--surface2)}
-.md-play-btn.sandbox{color:#a855f7;border:2px dashed #a855f7}
+.md-play-btn.endless{color:var(--ink);border:2px dashed var(--border);background:var(--surface2)}
+.md-play-btn.endless:hover{border-color:var(--ink2);background:var(--surface)}
+.md-play-btn.sandbox{color:#a855f7;border:2px dashed #a855f7;background:transparent}
 .md-play-btn.sandbox:hover{border-color:#a855f7;background:#a855f711}
 #sandboxBanner{display:none;background:#a855f7;color:#fff;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.12em;text-transform:uppercase;text-align:center;padding:3px 0;flex-shrink:0}
 .md-play-label{font-size:15px;font-weight:700;letter-spacing:-.01em}
@@ -146,7 +146,7 @@ body{background:var(--bg);min-height:100vh;display:flex;align-items:center;justi
 /* ── TOWERS MODAL ─────────────────────────── */
 #towersModal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;align-items:center;justify-content:center}
 #towersModal.open{display:flex}
-.towers-modal{width:440px;max-height:82vh;overflow:hidden;display:flex;flex-direction:column}
+.towers-modal{width:440px;max-height:82vh;overflow:hidden;display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:26px;box-shadow:0 8px 40px var(--shadow)}
 .upg-system-box{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:12px;margin-bottom:14px;font-family:'DM Mono',monospace;font-size:10px;line-height:1.8;color:var(--ink2)}
 .upg-system-title{font-size:10px;font-weight:600;letter-spacing:.1em;color:var(--ink);margin-bottom:5px;text-transform:uppercase}
 .badge-primary{background:#854d0e;color:#fed7aa;padding:1px 6px;border-radius:3px;font-size:9px;font-family:'DM Mono',monospace;letter-spacing:.06em}
@@ -155,11 +155,11 @@ body{background:var(--bg);min-height:100vh;display:flex;align-items:center;justi
 .tower-list{overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:5px;padding-right:4px}
 .tower-list::-webkit-scrollbar{width:3px}
 .tower-list::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
-.tower-entry{border:1px solid var(--border);border-radius:5px;padding:9px 11px;display:flex;align-items:flex-start;gap:10px}
+.tower-entry{border:1px solid var(--border);border-radius:5px;padding:9px 11px;display:flex;align-items:flex-start;gap:10px;background:var(--surface)}
 .tower-entry-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;margin-top:3px}
 .tower-entry-body{flex:1;min-width:0}
 .tower-entry-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:2px}
-.tower-entry-name{font-size:12px;font-weight:600}
+.tower-entry-name{font-size:12px;font-weight:600;color:var(--ink)}
 .tower-entry-cost{font-family:'DM Mono',monospace;font-size:10px;color:var(--gold)}
 .tower-entry-desc{font-family:'DM Mono',monospace;font-size:10px;color:var(--ink3);line-height:1.5}
 .tower-paths{display:flex;gap:5px;margin-top:6px;flex-wrap:wrap}
@@ -167,17 +167,17 @@ body{background:var(--bg);min-height:100vh;display:flex;align-items:center;justi
 .path-box.cutoff{opacity:.45;pointer-events:none}
 .path-status{font-size:8px;font-family:'DM Mono',monospace;letter-spacing:.08em;text-transform:uppercase;padding:1px 5px;border-radius:2px;margin-left:4px;vertical-align:middle}
 .path-status.primary{background:#854d0e;color:#fed7aa}
-.path-status.secondary{background:var(--surface2);color:var(--ink2);border:1px solid var(--border)}
+.path-status.secondary{background:var(--surface);color:var(--ink2);border:1px solid var(--border)}
 .path-status.cutoff{background:#450a0a;color:#fca5a5}
 
 /* ── SETTINGS MODAL ───────────────────────── */
 #settingsModal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;align-items:center;justify-content:center}
 #settingsModal.open{display:flex}
 .modal{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:26px;width:320px;box-shadow:0 8px 40px var(--shadow)}
-.modal-title{font-size:18px;font-weight:700;margin-bottom:20px;letter-spacing:-.02em}
+.modal-title{font-size:18px;font-weight:700;margin-bottom:20px;letter-spacing:-.02em;color:var(--ink)}
 .s-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)}
 .s-row:last-of-type{border-bottom:none}
-.s-name{font-size:13px;font-weight:600}.s-desc{font-family:'DM Mono',monospace;font-size:10px;color:var(--ink3);margin-top:1px}
+.s-name{font-size:13px;font-weight:600;color:var(--ink)}.s-desc{font-family:'DM Mono',monospace;font-size:10px;color:var(--ink3);margin-top:1px}
 .toggle{width:42px;height:24px;background:var(--border);border:none;border-radius:12px;cursor:pointer;position:relative;transition:background .15s;flex-shrink:0}
 .toggle::after{content:'';position:absolute;left:3px;top:3px;width:18px;height:18px;background:#fff;border-radius:50%;transition:transform .15s}
 .toggle.on{background:var(--ink)}.toggle.on::after{transform:translateX(18px)}
@@ -221,7 +221,7 @@ body{background:var(--bg);min-height:100vh;display:flex;align-items:center;justi
 #goOverlay{display:none;position:fixed;inset:0;background:rgba(245,243,239,.92);z-index:100;align-items:center;justify-content:center;flex-direction:column;gap:14px;font-family:'Syne',sans-serif}
 [data-theme="dark"] #goOverlay{background:rgba(14,14,16,.92)}
 #goOverlay.open{display:flex}
-#goOverlay h2{font-size:36px;font-weight:700;letter-spacing:-.03em}
+#goOverlay h2{font-size:36px;font-weight:700;letter-spacing:-.03em;color:var(--ink)}
 #goOverlay p{font-family:'DM Mono',monospace;font-size:12px;color:var(--ink2)}
 .go-btns{display:flex;gap:8px;margin-top:6px}
 </style>
@@ -285,7 +285,7 @@ body{background:var(--bg);min-height:100vh;display:flex;align-items:center;justi
 
 <!-- ══════════ TOWERS MODAL ══════════ -->
 <div id="towersModal">
-  <div class="modal towers-modal">
+  <div class="towers-modal">
     <div class="modal-title">Tower Guide</div>
     <div class="upg-system-box">
       <div class="upg-system-title">UPGRADE SYSTEM — 5 · 3 · CUT OFF</div>
@@ -907,13 +907,7 @@ function updateHUD(){
 }
 function msg(t){document.getElementById('msgEl').textContent=t;}
 
-// ── Upgrade logic (5-5-5, one primary to max, one secondary to 3, one cut off) ──
-// Rules:
-//   - While only 1 path is active, all 3 are still choosable (up to tier 3)
-//   - The moment a SECOND path gets any upgrade, the THIRD is permanently CUT OFF
-//   - First of the two active paths to reach tier 3 becomes PRIMARY → goes to tier 5
-//   - The other active path is SECONDARY → capped at tier 3
-
+// ── Upgrade logic ──
 function getPathStatus(t, path) {
   const a=t.pA||0, b=t.pB||0, c=t.pC||0;
   const lvl = path==='A'?a:path==='B'?b:c;
@@ -921,17 +915,11 @@ function getPathStatus(t, path) {
 
   if (t.primaryPath) {
     if (path === t.primaryPath) return 'primary';
-    // Count non-primary paths that have been upgraded
     const nonPrimaryStarted = ['A','B','C'].filter(p=>p!==t.primaryPath&&(p==='A'?a:p==='B'?b:c)>0).length;
-    if (nonPrimaryStarted === 0) {
-      // No secondary chosen yet — both remaining paths stay open until one is picked
-      return 'open';
-    }
-    // A secondary has been chosen
+    if (nonPrimaryStarted === 0) return 'open';
     if (lvl > 0) return 'secondary';
     return 'cutoff';
   }
-  // No primary yet
   if (started <= 1) return 'open';
   if (lvl === 0) return 'cutoff';
   return 'open';
@@ -946,7 +934,7 @@ function canUp(t, path) {
   if (status === 'cutoff') return false;
   if (status === 'primary') return lvl < 5;
   if (status === 'secondary') return lvl < 3;
-  return lvl < 3; // 'open'
+  return lvl < 3;
 }
 
 function doUpgrade(t, path) {
@@ -980,13 +968,11 @@ function update(ts){
   lastTs=ts;
   const dt=rawDt*speed;
 
-  // Spawn
   if(waveActive&&waveQueue.length>0){
     waveTimer+=dt;
     while(waveQueue.length>0&&waveTimer>=waveQueue[0].delay) spawnEnemy(waveQueue.shift().type);
   }
 
-  // Move enemies
   for(const e of enemies){
     if(e.dead||e.reached)continue;
     if(e.stunT>ts)continue;
@@ -1001,20 +987,17 @@ function update(ts){
     if(e.burnT>ts){e.hp-=e.burnDmg*dt;if(e.hp<=0)killEnemy(e);}
   }
 
-  // Reached end
   enemies.filter(e=>e.reached&&!e.dead).forEach(e=>{
     e.dead=true;
     if(!isSandbox){lives--;updateHUD();if(lives<=0){endGame(false);return;}}
     else updateHUD();
   });
 
-  // Towers shoot
   for(const t of towers){
     if(TDEFS[t.type].isAmplifier) continue;
     t.cd=(t.cd||0)-dt;
     if(t.cd>0)continue;
     if(TDEFS[t.type].tacMode){
-      // TAC shooter: fires 8 directional tacks, each piercing all enemies in that direction
       const cx=t.col*CS+CS/2,cy=t.row*CS+CS/2,rp=t.range*CS;
       const anyNearby=enemies.some(e=>!e.dead&&!e.reached&&Math.hypot(e.x-cx,e.y-cy)<=rp);
       if(anyNearby){
@@ -1023,14 +1006,13 @@ function update(ts){
         for(let d=0;d<dirs;d++){
           const ang=d*Math.PI*2/dirs;
           const dx=Math.cos(ang),dy=Math.sin(ang);
-          // find enemies approximately along this direction
           const tgtsInDir=enemies.filter(e=>{
             if(e.dead||e.reached)return false;
             const ex=e.x-cx,ey=e.y-cy;
             const dist=Math.hypot(ex,ey);
             if(dist>rp)return false;
             const dot=(ex*dx+ey*dy)/dist;
-            return dot>0.7; // within ~45deg cone of this direction
+            return dot>0.7;
           });
           tgtsInDir.forEach(tgt=>{
             bullets.push(makeBullet(t,tgt));
@@ -1047,7 +1029,6 @@ function update(ts){
     }
   }
 
-  // Move bullets
   for(const b of bullets){
     if(b.done)continue;
     if(!b.tgt.dead){b.tx=b.tgt.x;b.ty=b.tgt.y;}
@@ -1063,7 +1044,6 @@ function update(ts){
 
   if(waveActive&&waveQueue.length===0&&enemies.length===0){
     waveActive=false;
-    // Pay out bank income
     let bankTotal=0;
     for(const t of towers){
       if(TDEFS[t.type].isBank&&!TDEFS[t.type].isAmplifier){
@@ -1084,9 +1064,7 @@ function update(ts){
   }
 }
 
-// ── Amplifier boost system ─────────────────
 function applyAmpBoosts(){
-  // Figure out which towers are in any amplifier's range
   const inAmpRange=new Set();
   for(const amp of towers){
     if(!TDEFS[amp.type].isAmplifier)continue;
@@ -1098,7 +1076,6 @@ function applyAmpBoosts(){
       if(Math.hypot(tcx-acx,tcy-acy)<=radius) inAmpRange.add(t);
     }
   }
-  // Rebuild every non-amp tower: use fOrig if in range (un-nerfs upgrades), normal f if not
   for(const t of towers){
     const def=TDEFS[t.type];
     if(def.isAmplifier||def.isBank)continue;
@@ -1174,37 +1151,49 @@ function spawnFX(x,y,clr,n){
 function draw(ts){
   const bg=dark?'#0e0e10':'#f5f3ef';
   const gridC=dark?'#1e1e24':'#e5e2db';
-  const pathC=dark?'#252530':'#ddd9ce';
+  const pathBase=dark?'#252530':'#ddd9ce';
 
   ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
   ctx.strokeStyle=gridC;ctx.lineWidth=1;
   for(let c=0;c<=COLS;c++){ctx.beginPath();ctx.moveTo(c*CS,0);ctx.lineTo(c*CS,H);ctx.stroke();}
   for(let r=0;r<=ROWS;r++){ctx.beginPath();ctx.moveTo(0,r*CS);ctx.lineTo(W,r*CS);ctx.stroke();}
 
-  for(const[c,r] of pathCells){ctx.fillStyle=pathC;ctx.fillRect(c*CS+1,r*CS+1,CS-2,CS-2);}
+  // Path: base color then map color tint
+  for(const[c,r] of pathCells){
+    ctx.fillStyle=pathBase;
+    ctx.fillRect(c*CS+1,r*CS+1,CS-2,CS-2);
+    ctx.fillStyle=curMap.clr+(dark?'30':'20');
+    ctx.fillRect(c*CS+1,r*CS+1,CS-2,CS-2);
+  }
+  // Path center line
+  ctx.beginPath();
+  pathCells.forEach(([c,r],i)=>{
+    const px=c*CS+CS/2,py=r*CS+CS/2;
+    i===0?ctx.moveTo(px,py):ctx.lineTo(px,py);
+  });
+  ctx.strokeStyle=curMap.clr+(dark?'55':'40');
+  ctx.lineWidth=2;ctx.lineJoin='round';ctx.lineCap='round';
+  ctx.setLineDash([4,6]);ctx.stroke();ctx.setLineDash([]);ctx.lineWidth=1;
 
   // Path arrows
-  ctx.fillStyle=dark?'#2e2e3a':'#ccc8be';
+  ctx.fillStyle=dark?curMap.clr+'66':curMap.clr+'55';
   ctx.font='11px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
   for(let i=0;i<pathCells.length-1;i+=3){
     const[c,r]=pathCells[i],[nc,nr]=pathCells[i+1];
     ctx.save();ctx.translate(c*CS+CS/2,r*CS+CS/2);ctx.rotate(Math.atan2(nr-r,nc-c));
     ctx.fillText('›',0,0);ctx.restore();
   }
-  const ic=dark?'#4a4640':'#aaa69f';
+  const ic=dark?curMap.clr+'99':curMap.clr+'bb';
   ctx.fillStyle=ic;ctx.font='600 8px "DM Mono",monospace';ctx.textAlign='center';ctx.textBaseline='middle';
   const[ec,er]=pathCells[0],[xc,xr]=pathCells[pathCells.length-1];
   ctx.fillText('IN',ec*CS+CS/2,er*CS+CS/2);ctx.fillText('OUT',xc*CS+CS/2,xr*CS+CS/2);
 
-  // Move mode: highlight tower being dragged
+  // Move mode
   if(moveTowerMode&&dragTower){
     const def=TDEFS[dragTower.type];
-    ctx.save();
-    ctx.globalAlpha=0.4;
+    ctx.save();ctx.globalAlpha=0.4;
     drawTower({...dragTower,col:dragTower.col,row:dragTower.row});
-    ctx.globalAlpha=1;
-    ctx.restore();
-    // Show ghost at hover
+    ctx.globalAlpha=1;ctx.restore();
     if(hoverCell){
       const[hc,hr]=hoverCell;
       ctx.fillStyle='rgba(168,85,247,0.15)';
@@ -1219,7 +1208,6 @@ function draw(ts){
     const def=TDEFS[selShopType];
     const isLargeHover=def.isBank||def.isAmplifier;
     if(isLargeHover){
-      // Show 3x3 footprint preview
       let fits=true;
       for(let dc=0;dc<3;dc++) for(let dr=0;dr<3;dr++){
         const cc=hc+dc,rr=hr+dr;
@@ -1248,7 +1236,7 @@ function draw(ts){
     }
   }
 
-  // Selected tower range ring (skip bank)
+  // Selected tower range ring
   if(selTower&&!TDEFS[selTower.type].isBank&&!TDEFS[selTower.type].isAmplifier){
     const t=selTower;
     ctx.beginPath();ctx.arc(t.col*CS+CS/2,t.row*CS+CS/2,t.range*CS,0,Math.PI*2);
@@ -1294,28 +1282,22 @@ function drawTower(t){
   else if(id===11){ctx.beginPath();ctx.arc(0,0,7,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(-4,-4);ctx.lineTo(4,4);ctx.moveTo(4,-4);ctx.lineTo(-4,4);ctx.stroke();}
   else if(id===12){ctx.beginPath();ctx.moveTo(-7+3,-6);ctx.lineTo(7-3,-6);ctx.quadraticCurveTo(7,-6,7,-6+3);ctx.lineTo(7,6-3);ctx.quadraticCurveTo(7,6,7-3,6);ctx.lineTo(-7+3,6);ctx.quadraticCurveTo(-7,6,-7,6-3);ctx.lineTo(-7,-6+3);ctx.quadraticCurveTo(-7,-6,-7+3,-6);ctx.closePath();ctx.fill();}
   else if(id===14){
-    // Amplifier: 3x3 support tower drawn like bank but purple
     ctx.restore();
     const bx=t.col*CS,by=t.row*CS,bw=CS*3,bh=CS*3;
     ctx.fillStyle='rgba(0,0,0,0.07)';ctx.fillRect(bx+3,by+3,bw,bh);
     ctx.fillStyle=dark?'#1a0f2e':'#f3e8ff';ctx.fillRect(bx,by,bw,bh);
     ctx.strokeStyle=TDEFS[14].clr;ctx.lineWidth=2;ctx.strokeRect(bx,by,bw,bh);
     if(selTower===t){ctx.strokeStyle=TDEFS[14].clr+'88';ctx.lineWidth=3;ctx.strokeRect(bx-2,by-2,bw+4,bh+4);}
-    // Aura ring
     const arad=(t.ampRadius||1)*CS+CS*1.5;
     ctx.beginPath();ctx.arc(bx+bw/2,by+bh/2,arad,0,Math.PI*2);
     ctx.strokeStyle=TDEFS[14].clr+'33';ctx.lineWidth=1.5;ctx.setLineDash([3,4]);ctx.stroke();ctx.setLineDash([]);
-    // Columns
     ctx.strokeStyle=TDEFS[14].clr+'55';ctx.lineWidth=1;
     ctx.beginPath();ctx.moveTo(bx+CS,by+4);ctx.lineTo(bx+CS,by+bh-4);ctx.stroke();
     ctx.beginPath();ctx.moveTo(bx+CS*2,by+4);ctx.lineTo(bx+CS*2,by+bh-4);ctx.stroke();
-    // ⚡ symbol
     ctx.fillStyle=TDEFS[14].clr;ctx.font=`bold ${CS}px sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';
     ctx.fillText('⚡',bx+bw/2,by+bh/2);
-    // boost label
     ctx.font=`600 8px "DM Mono",monospace`;ctx.fillStyle=dark?'#c084fc':'#7e22ce';
     ctx.fillText(`+${Math.round((t.ampBoost||0.5)*100)}% boost`,bx+bw/2,by+bh-8);
-    // Upgrade dots
     ctx.fillStyle=TDEFS[14].clr;
     const pa14=t.pA||0,pb14=t.pB||0,pc14=t.pC||0;
     for(let i=0;i<pa14;i++){ctx.beginPath();ctx.arc(bx+8+i*6,by+8,3,0,Math.PI*2);ctx.fill();}
@@ -1326,26 +1308,19 @@ function drawTower(t){
     return;
   }
   else if(id===13){
-    // Bank: draw as 3x3 building centered at top-left cell origin
-    ctx.restore(); // exit the translated context first
+    ctx.restore();
     const bx=t.col*CS, by=t.row*CS, bw=CS*3, bh=CS*3;
-    // Shadow
     ctx.fillStyle='rgba(0,0,0,0.07)';ctx.fillRect(bx+3,by+3,bw,bh);
-    // Base
     ctx.fillStyle=dark?'#1c1a12':'#fef3c7';ctx.fillRect(bx,by,bw,bh);
     ctx.strokeStyle=TDEFS[13].clr;ctx.lineWidth=2;ctx.strokeRect(bx,by,bw,bh);
     if(selTower===t){ctx.strokeStyle=TDEFS[13].clr+'88';ctx.lineWidth=3;ctx.strokeRect(bx-2,by-2,bw+4,bh+4);}
-    // Columns
     ctx.strokeStyle=TDEFS[13].clr+'66';ctx.lineWidth=1;
     ctx.beginPath();ctx.moveTo(bx+CS,by+4);ctx.lineTo(bx+CS,by+bh-4);ctx.stroke();
     ctx.beginPath();ctx.moveTo(bx+CS*2,by+4);ctx.lineTo(bx+CS*2,by+bh-4);ctx.stroke();
-    // $ symbol
     ctx.fillStyle=TDEFS[13].clr;ctx.font=`bold ${CS}px sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';
     ctx.fillText('$',bx+bw/2,by+bh/2);
-    // Income label
     ctx.font=`600 8px "DM Mono",monospace`;ctx.fillStyle=dark?'#fbbf24':'#92400e';
     ctx.fillText(`+${t.bankIncome}g/wave`,bx+bw/2,by+bh-8);
-    // Upgrade dots
     ctx.fillStyle=TDEFS[13].clr;
     const pa=t.pA||0,pb=t.pB||0,pc=t.pC||0;
     for(let i=0;i<pa;i++){ctx.beginPath();ctx.arc(bx+8+i*6,by+8,3,0,Math.PI*2);ctx.fill();}
@@ -1353,17 +1328,15 @@ function drawTower(t){
     for(let i=0;i<pb;i++){ctx.beginPath();ctx.arc(bx+8+i*6,by+16,3,0,Math.PI*2);ctx.fill();}
     ctx.fillStyle=TDEFS[13].clr+'55';
     for(let i=0;i<pc;i++){ctx.beginPath();ctx.arc(bx+8+i*6,by+24,3,0,Math.PI*2);ctx.fill();}
-    return; // skip the rest of drawTower
+    return;
   }
 
-  // Barrel
   if(![5,9].includes(id)){
     const bl=id===1?18:id===7?14:12;
     ctx.strokeStyle=clr;ctx.lineWidth=id===2||id===12?4:3;ctx.lineCap='round';
     ctx.beginPath();ctx.moveTo(Math.cos(ang)*6,Math.sin(ang)*6);ctx.lineTo(Math.cos(ang)*bl,Math.sin(ang)*bl);ctx.stroke();
   }
 
-  // Upgrade dots
   const pa=t.pA||0,pb=t.pB||0,pc=t.pC||0;
   if(pa>0||pb>0||pc>0){
     ctx.fillStyle=clr;
@@ -1451,7 +1424,6 @@ function renderUpPanel(tower){
     const capLvl=isPrimary?5:3;
     const canBuy=canUp(tower,path);
     const nextUp=lvl<maxLvl?ups[lvl]:null;
-    const nextUpAfterCap = lvl>=capLvl&&lvl<maxLvl?ups[lvl]:null;
 
     let statusLabel='';
     if(isPrimary) statusLabel=`<span class="path-status primary">★ PRIMARY</span>`;
@@ -1521,7 +1493,6 @@ canvas.addEventListener('click',e=>{
   const col=Math.floor((e.clientX-r.left)/CS),row=Math.floor((e.clientY-r.top)/CS);
   if(col<0||col>=COLS||row<0||row>=ROWS)return;
 
-  // Move mode: place dragged tower at new location, cost one upgrade
   if(moveTowerMode&&dragTower){
     const def=TDEFS[dragTower.type];
     const isLarge=def.isBank||def.isAmplifier;
@@ -1535,10 +1506,8 @@ canvas.addEventListener('click',e=>{
         return t.col===c&&t.row===r2;
       })())){msg("Already occupied.");return;}
     }
-    // Remove one upgrade from the tower (most recent path)
     const pa=dragTower.pA||0,pb=dragTower.pB||0,pc=dragTower.pC||0;
     if(pa>0||pb>0||pc>0){
-      // Find path with highest level and remove last upgrade
       const paths=[['A',pa],['B',pb],['C',pc]].filter(x=>x[1]>0);
       paths.sort((a,b)=>b[1]-a[1]);
       const [lostPath,lostLvl]=paths[0];
@@ -1547,9 +1516,7 @@ canvas.addEventListener('click',e=>{
       if(lostPath==='A')dragTower.pA--;
       else if(lostPath==='B')dragTower.pB--;
       else dragTower.pC--;
-      // If primary path lost its t3 status, clear primary
       if(dragTower.primaryPath===lostPath&&(dragTower[lostKey]||0)<3)dragTower.primaryPath=null;
-      // Rebuild tower stats from scratch
       rebuildTowerStats(dragTower);
       msg(`Tower moved! Lost: ${lostUp.n}`);
     } else {
@@ -1563,7 +1530,6 @@ canvas.addEventListener('click',e=>{
     return;
   }
 
-  // Check if click lands on any tower cell (including 3x3 banks/amplifiers)
   const clicked=towers.find(t=>{
     const def=TDEFS[t.type];
     if(def.isBank||def.isAmplifier){
@@ -1572,7 +1538,6 @@ canvas.addEventListener('click',e=>{
     return t.col===col&&t.row===row;
   });
 
-  // Move mode: picking up a tower
   if(moveTowerMode&&!dragTower){
     if(clicked){dragTower=clicked;msg('Click new location to place. Right-click to cancel.');return;}
     moveTowerMode=false;document.getElementById('moveTowerBtn').textContent='MOVE';
@@ -1587,7 +1552,6 @@ canvas.addEventListener('click',e=>{
   const isLarge=def.isBank||def.isAmplifier;
   const cells=isLarge?getBankCells(col,row):[[col,row]];
 
-  // Validate all cells
   for(const[c,r2] of cells){
     if(c<0||c>=COLS||r2<0||r2>=ROWS){msg("Doesn't fit here.");return;}
     if(pathSet.has(`${c},${r2}`)){msg("Can't build on the path.");return;}
@@ -1612,7 +1576,6 @@ canvas.addEventListener('click',e=>{
   updateHUD();buildShop();applyAmpBoosts();msg(`${def.name} placed.`);
 });
 
-// Right-click cancels placement or move
 canvas.addEventListener('contextmenu',e2=>{
   if(moveTowerMode){
     e2.preventDefault();
@@ -1629,9 +1592,8 @@ function getBankCells(col,row){
   return cells;
 }
 
-// Right-click on canvas: sell tower (if not in move mode)
 canvas.addEventListener('contextmenu',e=>{
-  if(moveTowerMode)return; // handled above
+  if(moveTowerMode)return;
   e.preventDefault();
   const r=canvas.getBoundingClientRect();
   const col=Math.floor((e.clientX-r.left)/CS),row=Math.floor((e.clientY-r.top)/CS);
@@ -1652,7 +1614,6 @@ canvas.addEventListener('contextmenu',e=>{
   updateHUD();buildShop();applyAmpBoosts();msg('Tower sold.');
 });
 
-// Rebuild tower stats from scratch after moving (re-apply all upgrades)
 function rebuildTowerStats(t, useOrig=false){
   const def=TDEFS[t.type];
   t.dmg=def.dmg;t.rate=def.rate;t.range=def.range;t.splash=def.splash;
@@ -1726,7 +1687,6 @@ function buildTowerList(){
   TDEFS.forEach(td=>{
     const entry=document.createElement('div');
     entry.className='tower-entry';
-    // Summarize stats
     const stats=[];
     if(td.isAmplifier){
       stats.push(`+${Math.round(td.ampBoost*100)}% boost`,`${td.ampRadius} cell radius`,'3×3 area','no attacks');
@@ -1793,11 +1753,12 @@ function buildMenuMaps(){
     const card=document.createElement('div');
     card.className=`map-card${i===selMapIdx?' sel':''}`;
     card.style.setProperty('--card-clr',m.clr);
-    card.style.borderColor=m.clr+'44';
-    card.style.background=dark?`${m.clr}10`:`${m.clr}08`;
+    // More vivid color tinting for cards
+    card.style.borderColor=m.clr+'88';
+    card.style.background=dark?`${m.clr}18`:`${m.clr}10`;
     card.innerHTML=`
       <div class="map-card-top">
-        <div class="map-card-name">${m.name}</div>
+        <div class="map-card-name" style="color:${m.clr}">${m.name}</div>
         <div class="map-card-turns">${turns} turns</div>
       </div>
       <div class="map-card-desc">${m.desc}</div>
@@ -1813,59 +1774,62 @@ function drawMapPreview(i,canvasId,sw,sh){
   const cx=cv.getContext('2d');
   const map=MAPS[i],cells=buildPath(map.wp);
   const sx=sw/W,sy=sh/H;
-  // Background
+
+  // Background — tinted per map
   cx.fillStyle=dark?'#1e1e24':'#f8f7f4';cx.fillRect(0,0,sw,sh);
-  // Subtle tinted bg
-  cx.fillStyle=map.clr+'0c';cx.fillRect(0,0,sw,sh);
-  // Grid
+  cx.fillStyle=map.clr+(dark?'22':'18');cx.fillRect(0,0,sw,sh);
+
+  // Grid lines
   cx.strokeStyle=dark?'#2a2a32':'#e8e5df';cx.lineWidth=.4;
   for(let c=0;c<=COLS;c++){cx.beginPath();cx.moveTo(c*CS*sx,0);cx.lineTo(c*CS*sx,sh);cx.stroke();}
   for(let r=0;r<=ROWS;r++){cx.beginPath();cx.moveTo(0,r*CS*sy);cx.lineTo(sw,r*CS*sy);cx.stroke();}
-  // Path cells with color
+
+  // Path cells — bold colored fill
   for(const[c,r] of cells){
-    cx.fillStyle=map.clr+'30';
+    cx.fillStyle=map.clr+(dark?'55':'44');
     cx.fillRect(c*CS*sx+.5,r*CS*sy+.5,CS*sx-1,CS*sy-1);
   }
-  // Path outline as a line
+
+  // Path center line — bright and clear
   cx.beginPath();
   cells.forEach(([c,r],idx)=>{
     const px=c*CS*sx+CS*sx/2, py=r*CS*sy+CS*sy/2;
     idx===0?cx.moveTo(px,py):cx.lineTo(px,py);
   });
-  cx.strokeStyle=map.clr+'88';cx.lineWidth=1.5;cx.lineJoin='round';cx.stroke();
-  // Entry/exit dots
+  cx.strokeStyle=map.clr+(dark?'ee':'cc');cx.lineWidth=1.8;cx.lineJoin='round';cx.stroke();
+
+  // Entry dot (hollow) and exit dot (filled)
   const[ec,er]=cells[0],[xcc,xr]=cells[cells.length-1];
-  cx.fillStyle=map.clr+'66';cx.beginPath();cx.arc(ec*CS*sx+CS*sx/2,er*CS*sy+CS*sy/2,3,0,Math.PI*2);cx.fill();
-  cx.fillStyle=map.clr;cx.beginPath();cx.arc(xcc*CS*sx+CS*sx/2,xr*CS*sy+CS*sy/2,3,0,Math.PI*2);cx.fill();
+  cx.strokeStyle=map.clr;cx.lineWidth=1.2;
+  cx.beginPath();cx.arc(ec*CS*sx+CS*sx/2,er*CS*sy+CS*sy/2,3,0,Math.PI*2);cx.stroke();
+  cx.fillStyle=map.clr;cx.beginPath();cx.arc(xcc*CS*sx+CS*sx/2,xr*CS*sy+CS*sy/2,3.5,0,Math.PI*2);cx.fill();
 }
 
 function openMapDetail(i){
   const m=MAPS[i];
   const cells=buildPath(m.wp);
-  // Set color variable on the panel
   const panel=document.getElementById('mapDetail');
   panel.style.setProperty('--md-clr',m.clr);
-  // Populate info
   document.getElementById('mdName').textContent=m.name;
   document.getElementById('mdName').style.color=m.clr;
   const badge=document.getElementById('mdBadge');
   badge.textContent=m.diff;
-  badge.style.background=m.clr+'22';
+  badge.style.background=m.clr+'28';
   badge.style.color=m.clr;
   document.getElementById('mdLives').textContent=m.lives;
   document.getElementById('mdGold').textContent=m.gold+'g';
   document.getElementById('mdLength').textContent=cells.length+' cells';
   document.getElementById('mdTurns').textContent=(m.wp.length-2)+' turns';
   document.getElementById('mdDesc').textContent=m.desc;
-  // Color the Normal play button with the map color
   const normalBtn=document.getElementById('mdPlayNormal');
   normalBtn.style.background=m.clr;
   normalBtn.style.boxShadow=`0 4px 18px ${m.clr}55`;
-  // Preview wrap border
+  // Tint the endless button with map color for flair
+  const endlessBtn=document.getElementById('mdPlayEndless');
+  endlessBtn.style.borderColor=m.clr+'66';
+  endlessBtn.style.color='var(--ink)';
   document.getElementById('mdPreviewWrap').style.borderColor=m.clr+'66';
-  // Draw large preview
   setTimeout(()=>drawMapPreview(i,'mdCanvas',340,119),0);
-  // Show detail, hide browser
   document.getElementById('mapBrowser').style.display='none';
   panel.classList.add('open');
 }
@@ -1901,6 +1865,7 @@ document.getElementById('mdBack').addEventListener('click',closeMapDetail);
 document.getElementById('mdPlayNormal').addEventListener('click',()=>startGameFromMenu(false));
 document.getElementById('mdPlayEndless').addEventListener('click',()=>startGameFromMenu(true));
 document.getElementById('mdPlaySandbox').addEventListener('click',()=>startGameFromMenu(false,true));
+
 // ── Game Over / Retry ──────────────────────
 document.getElementById('goRetry').addEventListener('click',()=>{
   document.getElementById('goOverlay').classList.remove('open');
