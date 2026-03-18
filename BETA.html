@@ -1137,62 +1137,6 @@ const TDEFS=[
     {n:'Hellfire',     c:2000,d:'Burn 30s, Dmg×2, Splash×2',f:t=>{t.burn=30;t.dmg*=2;t.splash*=2}},
     {n:'Sun Strike',   c:4000,d:'Burn 60s, Dmg×4, Splash×3',f:t=>{t.burn=60;t.dmg*=4;t.splash*=3}},
    ]},
-  {id:15,name:'Beacon',cost:175,clr:'#06b6d4',
-   desc:'Support tower. Pulses an aura that boosts fire rate of nearby towers. Does not attack.',
-   pathA:'Aura Strength',pathB:'Aura Radius',pathC:'Efficiency',
-   isBeacon:true, beaconBoost:0.20, beaconRadius:2.5,
-   dmg:0,rate:0,range:0,splash:0,slow:0,chain:0,burn:0,stun:0,pierce:0,multi:1,
-   requires:{towers:2},
-   pA:[
-    {n:'Stronger Pulse',c:140, d:'Rate boost +10%',  f:t=>{t.beaconBoost+=0.10}},
-    {n:'Resonance',     c:280, d:'Rate boost +15%',  f:t=>{t.beaconBoost+=0.15}},
-    {n:'Overcharge',    c:560, d:'Rate boost +20%',  f:t=>{t.beaconBoost+=0.20}},
-    {n:'Surge',         c:1120,d:'Rate boost +25%',  f:t=>{t.beaconBoost+=0.25}},
-    {n:'MAX PULSE',     c:2240,d:'Rate boost ×2',    f:t=>{t.beaconBoost*=2}},
-   ],
-   pB:[
-    {n:'Wide Signal',   c:120, d:'Radius +1 cell',   f:t=>{t.beaconRadius+=1}},
-    {n:'Broadcast',     c:250, d:'Radius +1.5 cells', f:t=>{t.beaconRadius+=1.5}},
-    {n:'Tower Range',   c:500, d:'Radius +2 cells',  f:t=>{t.beaconRadius+=2}},
-    {n:'Long Wave',     c:1000,d:'Radius +2 cells',  f:t=>{t.beaconRadius+=2}},
-    {n:'MAX REACH',     c:2000,d:'Radius +3 cells',  f:t=>{t.beaconRadius+=3}},
-   ],
-   pC:[
-    {n:'Efficiency I',  c:100, d:'Also boosts Dmg +8%', f:t=>{t.beaconDmgBoost=(t.beaconDmgBoost||0)+0.08}},
-    {n:'Efficiency II', c:200, d:'Dmg boost +8%',    f:t=>{t.beaconDmgBoost=(t.beaconDmgBoost||0)+0.08}},
-    {n:'Efficiency III',c:400, d:'Dmg boost +10%',   f:t=>{t.beaconDmgBoost=(t.beaconDmgBoost||0)+0.10}},
-    {n:'Efficiency IV', c:800, d:'Dmg boost +10%',   f:t=>{t.beaconDmgBoost=(t.beaconDmgBoost||0)+0.10}},
-    {n:'MAX EFFICIENCY',c:1600,d:'Dmg boost +15%',   f:t=>{t.beaconDmgBoost=(t.beaconDmgBoost||0)+0.15}},
-   ]},
-
-  {id:16,name:'Overwatch',cost:220,clr:'#84cc16',
-   desc:'Covers the spawn-side half of the path only. Massive damage — your last line of defense.',
-   pathA:'Damage',pathB:'Range & Speed',pathC:'Emergency Protocol',
-   overwatchMode:true,
-   dmg:90,rate:0.5,range:6.0,splash:0,slow:0,chain:0,burn:0,stun:0,pierce:2,multi:1,
-   requires:{towers:3},
-   pA:[
-    {n:'Heavy Rounds',  c:180, d:'Dmg +80%',         f:t=>{t.dmg*=1.8}},
-    {n:'Armor Pierce',  c:360, d:'Dmg ×2, Pierce 5', f:t=>{t.dmg*=2;t.pierce=5}},
-    {n:'Payback',       c:720, d:'Dmg ×2.5',         f:t=>{t.dmg*=2.5}},
-    {n:'Last Resort',   c:1440,d:'Rate ×1.5, Dmg ×2',f:t=>{t.rate*=1.5;t.dmg*=2}, fOrig:t=>{t.rate*=2;t.dmg*=2}},
-    {n:'Obliterator',   c:2880,d:'Dmg ×4, Pierce 10',f:t=>{t.dmg*=4;t.pierce=10}},
-   ],
-   pB:[
-    {n:'Extended Cover',c:160, d:'Range +40%',       f:t=>{t.range*=1.4}},
-    {n:'Scout Lens',    c:320, d:'Covers 60% of path',f:t=>{t.overwatchZone=0.6}},
-    {n:'Eagle Eye',     c:640, d:'Range ×1.5, Rate+20%',f:t=>{t.range*=1.5;t.rate*=1.2}},
-    {n:'Full Coverage', c:1280,d:'Covers 75% of path',f:t=>{t.overwatchZone=0.75}},
-    {n:'Omniscient',    c:2560,d:'Covers entire path',f:t=>{t.overwatchZone=1.0}},
-   ],
-   pC:[
-    {n:'Alert Mode',    c:150, d:'Stun 0.5s on hit', f:t=>{t.stun=0.5}},
-    {n:'Suppression',   c:300, d:'Slow 50% on hit',  f:t=>{t.slow=0.5}},
-    {n:'Overload',      c:600, d:'Multi 2, Rate+25%',f:t=>{t.multi=2;t.rate*=1.25}},
-    {n:'Emergency Fire',c:1200,d:'Rate ×2 when lives < 5',f:t=>{t._emergencyFire=true}},
-    {n:'Final Stand',   c:2400,d:'Dmg ×3 when lives < 3',f:t=>{t._finalStand=true}},
-   ]},
-
   {id:13,name:'Bank',cost:300,clr:'#f59e0b',
    desc:'Earns gold every wave. Occupies a 3×3 area. Does not shoot.',
    pathA:'Income',pathB:'Interest',pathC:'Capacity',
@@ -1430,8 +1374,8 @@ function initGame(map){
 }
 
 function updateHUD(){
-  document.getElementById('goldEl').textContent=gold;
-  document.getElementById('livesEl').textContent=lives;
+  document.getElementById('goldEl').textContent=isSandbox?'∞':gold;
+  document.getElementById('livesEl').textContent=isSandbox?'∞':lives;
   document.getElementById('scoreEl').textContent=score;
   document.getElementById('waveEl').textContent=isEndless||isSandbox?`${wave}/∞`:`${wave}/${TOTAL_WAVES}`;
   if(selTower&&document.getElementById('upgradePanel').style.display!=='none') renderUpPanel(selTower);
@@ -2051,11 +1995,59 @@ function drawTower(t){
     for(let i=0;i<pc;i++){ctx.beginPath();ctx.arc(t.col*CS+5+i*5,t.row*CS+15,2,0,Math.PI*2);ctx.fill();}
     return;
   }
+  const id=t.type;
+  // ── Large 3×3 towers: draw before ctx.save/translate ──
+  if(id===13){
+    const bx=t.col*CS, by=t.row*CS, bw=CS*3, bh=CS*3;
+    ctx.fillStyle='rgba(0,0,0,0.07)';ctx.fillRect(bx+3,by+3,bw,bh);
+    ctx.fillStyle=dark?'#1c1a12':'#fef3c7';ctx.fillRect(bx,by,bw,bh);
+    ctx.strokeStyle=TDEFS[13].clr;ctx.lineWidth=2;ctx.strokeRect(bx,by,bw,bh);
+    if(selTower===t){ctx.strokeStyle=TDEFS[13].clr+'88';ctx.lineWidth=3;ctx.strokeRect(bx-2,by-2,bw+4,bh+4);}
+    ctx.strokeStyle=TDEFS[13].clr+'66';ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(bx+CS,by+4);ctx.lineTo(bx+CS,by+bh-4);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(bx+CS*2,by+4);ctx.lineTo(bx+CS*2,by+bh-4);ctx.stroke();
+    ctx.fillStyle=TDEFS[13].clr;ctx.font=`bold ${CS}px sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText('$',bx+bw/2,by+bh/2);
+    ctx.font=`600 8px "DM Mono",monospace`;ctx.fillStyle=dark?'#fbbf24':'#92400e';
+    ctx.fillText(`+${t.bankIncome}g/wave`,bx+bw/2,by+bh-8);
+    ctx.fillStyle=TDEFS[13].clr;
+    const pa=t.pA||0,pb=t.pB||0,pc=t.pC||0;
+    for(let i=0;i<pa;i++){ctx.beginPath();ctx.arc(bx+8+i*6,by+8,3,0,Math.PI*2);ctx.fill();}
+    ctx.fillStyle=TDEFS[13].clr+'99';
+    for(let i=0;i<pb;i++){ctx.beginPath();ctx.arc(bx+8+i*6,by+16,3,0,Math.PI*2);ctx.fill();}
+    ctx.fillStyle=TDEFS[13].clr+'55';
+    for(let i=0;i<pc;i++){ctx.beginPath();ctx.arc(bx+8+i*6,by+24,3,0,Math.PI*2);ctx.fill();}
+    return;
+  }
+  if(id===14){
+    const bx=t.col*CS,by=t.row*CS,bw=CS*3,bh=CS*3;
+    ctx.fillStyle='rgba(0,0,0,0.07)';ctx.fillRect(bx+3,by+3,bw,bh);
+    ctx.fillStyle=dark?'#1a0f2e':'#f3e8ff';ctx.fillRect(bx,by,bw,bh);
+    ctx.strokeStyle=TDEFS[14].clr;ctx.lineWidth=2;ctx.strokeRect(bx,by,bw,bh);
+    if(selTower===t){ctx.strokeStyle=TDEFS[14].clr+'88';ctx.lineWidth=3;ctx.strokeRect(bx-2,by-2,bw+4,bh+4);}
+    const arad=(t.ampRadius||1)*CS+CS*1.5;
+    ctx.beginPath();ctx.arc(bx+bw/2,by+bh/2,arad,0,Math.PI*2);
+    ctx.strokeStyle=TDEFS[14].clr+'33';ctx.lineWidth=1.5;ctx.setLineDash([3,4]);ctx.stroke();ctx.setLineDash([]);
+    ctx.strokeStyle=TDEFS[14].clr+'55';ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(bx+CS,by+4);ctx.lineTo(bx+CS,by+bh-4);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(bx+CS*2,by+4);ctx.lineTo(bx+CS*2,by+bh-4);ctx.stroke();
+    ctx.fillStyle=TDEFS[14].clr;ctx.font=`bold ${CS}px sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText('⚡',bx+bw/2,by+bh/2);
+    ctx.font=`600 8px "DM Mono",monospace`;ctx.fillStyle=dark?'#c084fc':'#7e22ce';
+    ctx.fillText(`+${Math.round((t.ampBoost||0.5)*100)}% boost`,bx+bw/2,by+bh-8);
+    ctx.fillStyle=TDEFS[14].clr;
+    const pa14=t.pA||0,pb14=t.pB||0,pc14=t.pC||0;
+    for(let i=0;i<pa14;i++){ctx.beginPath();ctx.arc(bx+8+i*6,by+8,3,0,Math.PI*2);ctx.fill();}
+    ctx.fillStyle=TDEFS[14].clr+'99';
+    for(let i=0;i<pb14;i++){ctx.beginPath();ctx.arc(bx+8+i*6,by+16,3,0,Math.PI*2);ctx.fill();}
+    ctx.fillStyle=TDEFS[14].clr+'55';
+    for(let i=0;i<pc14;i++){ctx.beginPath();ctx.arc(bx+8+i*6,by+24,3,0,Math.PI*2);ctx.fill();}
+    return;
+  }
   ctx.save();ctx.translate(cx,cy);
   ctx.fillStyle=dark?'#16161a':'#fff';ctx.beginPath();ctx.arc(0,0,14,0,Math.PI*2);ctx.fill();
   ctx.strokeStyle=clr;ctx.lineWidth=2;ctx.stroke();
   ctx.fillStyle=clr;
-  const id=t.type;
   if(id===0){ctx.beginPath();ctx.arc(0,0,7,0,Math.PI*2);ctx.fill();}
   else if(id===1){ctx.beginPath();ctx.moveTo(0,-9);ctx.lineTo(6,0);ctx.lineTo(0,9);ctx.lineTo(-6,0);ctx.closePath();ctx.fill();}
   else if(id===2){ctx.fillRect(-6,-6,12,12);}
@@ -2106,57 +2098,8 @@ function drawTower(t){
     ctx.fillStyle='#fff';ctx.font='bold 10px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
     ctx.fillText('👁',0,1);
   }
-  else if(id===14){
-    ctx.restore();
-    const bx=t.col*CS,by=t.row*CS,bw=CS*3,bh=CS*3;
-    ctx.fillStyle='rgba(0,0,0,0.07)';ctx.fillRect(bx+3,by+3,bw,bh);
-    ctx.fillStyle=dark?'#1a0f2e':'#f3e8ff';ctx.fillRect(bx,by,bw,bh);
-    ctx.strokeStyle=TDEFS[14].clr;ctx.lineWidth=2;ctx.strokeRect(bx,by,bw,bh);
-    if(selTower===t){ctx.strokeStyle=TDEFS[14].clr+'88';ctx.lineWidth=3;ctx.strokeRect(bx-2,by-2,bw+4,bh+4);}
-    const arad=(t.ampRadius||1)*CS+CS*1.5;
-    ctx.beginPath();ctx.arc(bx+bw/2,by+bh/2,arad,0,Math.PI*2);
-    ctx.strokeStyle=TDEFS[14].clr+'33';ctx.lineWidth=1.5;ctx.setLineDash([3,4]);ctx.stroke();ctx.setLineDash([]);
-    ctx.strokeStyle=TDEFS[14].clr+'55';ctx.lineWidth=1;
-    ctx.beginPath();ctx.moveTo(bx+CS,by+4);ctx.lineTo(bx+CS,by+bh-4);ctx.stroke();
-    ctx.beginPath();ctx.moveTo(bx+CS*2,by+4);ctx.lineTo(bx+CS*2,by+bh-4);ctx.stroke();
-    ctx.fillStyle=TDEFS[14].clr;ctx.font=`bold ${CS}px sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';
-    ctx.fillText('⚡',bx+bw/2,by+bh/2);
-    ctx.font=`600 8px "DM Mono",monospace`;ctx.fillStyle=dark?'#c084fc':'#7e22ce';
-    ctx.fillText(`+${Math.round((t.ampBoost||0.5)*100)}% boost`,bx+bw/2,by+bh-8);
-    ctx.fillStyle=TDEFS[14].clr;
-    const pa14=t.pA||0,pb14=t.pB||0,pc14=t.pC||0;
-    for(let i=0;i<pa14;i++){ctx.beginPath();ctx.arc(bx+8+i*6,by+8,3,0,Math.PI*2);ctx.fill();}
-    ctx.fillStyle=TDEFS[14].clr+'99';
-    for(let i=0;i<pb14;i++){ctx.beginPath();ctx.arc(bx+8+i*6,by+16,3,0,Math.PI*2);ctx.fill();}
-    ctx.fillStyle=TDEFS[14].clr+'55';
-    for(let i=0;i<pc14;i++){ctx.beginPath();ctx.arc(bx+8+i*6,by+24,3,0,Math.PI*2);ctx.fill();}
-    return;
-  }
-  else if(id===13){
-    ctx.restore();
-    const bx=t.col*CS, by=t.row*CS, bw=CS*3, bh=CS*3;
-    ctx.fillStyle='rgba(0,0,0,0.07)';ctx.fillRect(bx+3,by+3,bw,bh);
-    ctx.fillStyle=dark?'#1c1a12':'#fef3c7';ctx.fillRect(bx,by,bw,bh);
-    ctx.strokeStyle=TDEFS[13].clr;ctx.lineWidth=2;ctx.strokeRect(bx,by,bw,bh);
-    if(selTower===t){ctx.strokeStyle=TDEFS[13].clr+'88';ctx.lineWidth=3;ctx.strokeRect(bx-2,by-2,bw+4,bh+4);}
-    ctx.strokeStyle=TDEFS[13].clr+'66';ctx.lineWidth=1;
-    ctx.beginPath();ctx.moveTo(bx+CS,by+4);ctx.lineTo(bx+CS,by+bh-4);ctx.stroke();
-    ctx.beginPath();ctx.moveTo(bx+CS*2,by+4);ctx.lineTo(bx+CS*2,by+bh-4);ctx.stroke();
-    ctx.fillStyle=TDEFS[13].clr;ctx.font=`bold ${CS}px sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';
-    ctx.fillText('$',bx+bw/2,by+bh/2);
-    ctx.font=`600 8px "DM Mono",monospace`;ctx.fillStyle=dark?'#fbbf24':'#92400e';
-    ctx.fillText(`+${t.bankIncome}g/wave`,bx+bw/2,by+bh-8);
-    ctx.fillStyle=TDEFS[13].clr;
-    const pa=t.pA||0,pb=t.pB||0,pc=t.pC||0;
-    for(let i=0;i<pa;i++){ctx.beginPath();ctx.arc(bx+8+i*6,by+8,3,0,Math.PI*2);ctx.fill();}
-    ctx.fillStyle=TDEFS[13].clr+'99';
-    for(let i=0;i<pb;i++){ctx.beginPath();ctx.arc(bx+8+i*6,by+16,3,0,Math.PI*2);ctx.fill();}
-    ctx.fillStyle=TDEFS[13].clr+'55';
-    for(let i=0;i<pc;i++){ctx.beginPath();ctx.arc(bx+8+i*6,by+24,3,0,Math.PI*2);ctx.fill();}
-    return;
-  }
 
-  if(![5,9].includes(id)){
+  if(![5,9,16].includes(id)){
     const bl=id===1?18:id===7?14:12;
     ctx.strokeStyle=clr;ctx.lineWidth=id===2||id===12?4:3;ctx.lineCap='round';
     ctx.beginPath();ctx.moveTo(Math.cos(ang)*6,Math.sin(ang)*6);ctx.lineTo(Math.cos(ang)*bl,Math.sin(ang)*bl);ctx.stroke();
@@ -2196,8 +2139,13 @@ function drawPoly(ctx,x,y,r,n){ctx.beginPath();for(let i=0;i<n;i++){const a=i*Ma
 // ═══════════════════════════════════════════
 // LOOP
 // ═══════════════════════════════════════════
+let _lastShopGold=-1;
 function loop(ts){
   update(ts);draw(ts);
+  if(gold!==_lastShopGold){
+    _lastShopGold=gold;
+    if(document.getElementById('shopPanel').style.display!=='none') buildShop();
+  }
   animId=requestAnimationFrame(loop);
 }
 
