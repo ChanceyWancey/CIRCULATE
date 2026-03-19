@@ -953,8 +953,26 @@ const TARGET_ICONS={first:'→',last:'←',weak:'♡',strong:'★',boss:'👑'};
 
 function hasLOS(x1,y1,x2,y2){
   if(!wallSet||wallSet.size===0)return true;
-  const dx=x2-x1,dy=y2-y1;const steps=Math.ceil(Math.max(Math.abs(dx),Math.abs(dy))/CS*2);
-  for(let i=1;i<steps;i++){const t=i/steps;const cx=Math.floor((x1+dx*t)/CS);const cy=Math.floor((y1+dy*t)/CS);if(wallSet.has(`${cx},${cy}`))return false;}
+  // DDA grid traversal — checks every cell the ray passes through
+  let cx=Math.floor(x1/CS), cy=Math.floor(y1/CS);
+  const ex=Math.floor(x2/CS), ey=Math.floor(y2/CS);
+  const dx=x2-x1, dy=y2-y1;
+  const stepX=dx>0?1:-1, stepY=dy>0?1:-1;
+  // How far along the ray (in t 0..1) until we cross a vertical/horizontal grid line
+  const tDeltaX=Math.abs(CS/dx)||Infinity;
+  const tDeltaY=Math.abs(CS/dy)||Infinity;
+  let tMaxX=dx===0?Infinity:((dx>0?(Math.ceil(x1/CS)*CS-x1):(x1-Math.floor(x1/CS)*CS))/Math.abs(dx));
+  let tMaxY=dy===0?Infinity:((dy>0?(Math.ceil(y1/CS)*CS-y1):(y1-Math.floor(y1/CS)*CS))/Math.abs(dy));
+  // Walk the grid
+  for(let guard=0;guard<64;guard++){
+    // Check current cell (skip tower's own cell and target's cell)
+    if((cx!==Math.floor(x1/CS)||cy!==Math.floor(y1/CS))&&(cx!==ex||cy!==ey)){
+      if(wallSet.has(`${cx},${cy}`))return false;
+    }
+    if(cx===ex&&cy===ey)break;
+    if(tMaxX<tMaxY){tMaxX+=tDeltaX;cx+=stepX;}
+    else{tMaxY+=tDeltaY;cy+=stepY;}
+  }
   return true;
 }
 
@@ -1372,10 +1390,16 @@ document.getElementById('moveTowerBtn').addEventListener('click',()=>{
 });
 document.getElementById('waveBtn').addEventListener('click',()=>{if(!waveActive)startWave();});
 document.getElementById('autoBtn').addEventListener('click',()=>{
+  if(mp.active&&!mp.isHost)return;
   autoWave=!autoWave;const btn=document.getElementById('autoBtn');btn.textContent=autoWave?'AUTO ON':'AUTO OFF';btn.classList.toggle('on',autoWave);
   if(autoWave&&!waveActive)setTimeout(()=>{if(!waveActive)startWave();},200);
+  if(mp.active&&mp.isHost)mpSend('auto_change',{autoWave});
 });
-document.getElementById('speedBtn').addEventListener('click',()=>{speed=speed===1?2:speed===2?3:1;document.getElementById('speedBtn').textContent=`SPEED ×${speed}`;});
+document.getElementById('speedBtn').addEventListener('click',()=>{
+  if(mp.active&&!mp.isHost)return;
+  speed=speed===1?2:speed===2?3:1;document.getElementById('speedBtn').textContent=`SPEED ×${speed}`;
+  if(mp.active&&mp.isHost)mpSend('speed_change',{speed});
+});
 document.getElementById('menuBackBtn').addEventListener('click',()=>{if(animId){cancelAnimationFrame(animId);animId=null;}localStorage.removeItem('htl_resume_state');showScreen('menu');closeMapDetail();});
 document.getElementById('gameSettingsBtn').addEventListener('click',()=>openSettings());
 document.addEventListener('keydown',e=>{
@@ -1687,7 +1711,7 @@ async function hostRoom(){
     const myRef=roomRef.child('players/'+mp.myId);
     await myRef.set({name:myName,slot:0,gold:mp.pendingMap.gold});
     myRef.onDisconnect().remove();
-    roomRef.onDisconnect().remove();
+    // Do NOT delete the whole room on disconnect - other players should keep playing
 
     // Watch player list
     addListener(roomRef.child('players'),'value',snap=>{
@@ -1813,6 +1837,28 @@ function handleMpEvent(ev){
     case 'wave_start':
       if(mp.active&&!mp.isHost&&!waveActive)startWave();
       break;
+    case 'speed_change':
+      if(mp.active&&!mp.isHost){
+        speed=ev.payload.speed;
+        document.getElementById('speedBtn').textContent=`SPEED ×${speed}`;
+      }
+      break;
+    case 'auto_change':
+      if(mp.active&&!mp.isHost){
+        autoWave=ev.payload.autoWave;
+        const btn=document.getElementById('autoBtn');
+        btn.textContent=autoWave?'AUTO ON':'AUTO OFF';
+        btn.classList.toggle('on',autoWave);
+      }
+      break;
+    case 'new_host':
+      if(mp.active&&ev.payload.newHostId!==mp.myId){
+        showPlayerLeftToast('New host: '+(mp.players[ev.payload.newHostId]?.name||'another player'));
+        if(mp._syncInterval){clearInterval(mp._syncInterval);mp._syncInterval=null;}
+        mp.isHost=false;
+        updateMpButtonStates();
+      }
+      break;
     case 'player_gold':
       if(mp.active)updateRemoteGold(ev.payload);
       break;
@@ -1829,11 +1875,26 @@ document.getElementById('mpStartBtn').onclick=async()=>{
   launchMultiplayer(payload);
 };
 
+// ── Update button lock state based on host status ──
+function updateMpButtonStates(){
+  if(!mp.active)return;
+  const isHost=mp.isHost;
+  const waveBtn=document.getElementById('waveBtn');
+  const autoBtn=document.getElementById('autoBtn');
+  const speedBtn=document.getElementById('speedBtn');
+  waveBtn.disabled=!isHost&&!waveActive; // clients can't start waves
+  autoBtn.style.opacity=isHost?'1':'0.4';
+  autoBtn.title=isHost?'':'Only the host can change auto wave';
+  speedBtn.style.opacity=isHost?'1':'0.4';
+  speedBtn.title=isHost?'':'Only the host can change speed';
+}
+
 // ── Launch the multiplayer game ───────────
 function launchMultiplayer(payload){
   document.getElementById('mpOverlay').classList.remove('open');
   mp.active=true;
   mp.players=payload.players||mp.players;
+  mp.hostId=payload.hostId||mp.myId;
   const myEntry=mp.players[mp.myId];
   mp.mySlot=myEntry?myEntry.slot:0;
 
@@ -1846,13 +1907,14 @@ function launchMultiplayer(payload){
   showMpBar();
   watchForDisconnects();
   document.getElementById('mpDisconnectBtn').style.display='block';
+  updateMpButtonStates();
 
   // Host syncs enemy/wave state every 500ms
   if(mp.isHost){
     mp._syncInterval=setInterval(()=>{
       if(!mp.active)return;
       mpSend('game_state',{
-        wave,lives,waveActive,
+        wave,lives,waveActive,speed,autoWave,
         enemies:enemies.map(e=>({
           type:e.type,hp:e.hp,maxHp:e.maxHp,
           pi:e.pi,x:e.x,y:e.y,
@@ -1966,51 +2028,114 @@ function redistributeLeftPlayerTowers(goneId, goneName){
   if(!mp.isHost)return;
   const orphans=towers.filter(t=>t.mpOwner===goneId);
   if(!orphans.length)return;
-  const remaining=Object.entries(mp.players)
-    .filter(([id])=>id!==goneId)
-    .map(([id,p])=>({id,slot:p.slot}));
+  // mp.players already has gone player removed at this point
+  const remaining=Object.entries(mp.players).map(([id,p])=>({id,slot:p.slot}));
   if(!remaining.length)return;
-  // round-robin assignment
+  // Round-robin split across remaining players
   const assignments=orphans.map((t,i)=>{
     const heir=remaining[i%remaining.length];
     return{col:t.col,row:t.row,newOwnerId:heir.id,newSlot:heir.slot};
   });
-  // apply locally on host
-  applyTowerAdoption({assignments});
-  // broadcast to clients
-  mpSend('towers_adopt',{assignments,goneName});
+  applyTowerAdoption({assignments,goneName,goneId});
+  mpSend('towers_adopt',{assignments,goneName,goneId});
 }
 
 function applyTowerAdoption(data){
-  const{assignments,goneName}=data;
+  const{assignments,goneName,goneId}=data;
+  // Remove gone player from local map on clients (host already did this)
+  if(goneId&&mp.players[goneId]&&!mp.isHost)delete mp.players[goneId];
   assignments.forEach(a=>{
     const t=towers.find(t=>t.col===a.col&&t.row===a.row);
     if(!t)return;
     t.mpOwner=a.newOwnerId;
     t.mpSlot=a.newSlot;
   });
-  // if it's our towers being inherited, show a specific message
   const myNewCount=assignments.filter(a=>a.newOwnerId===mp.myId).length;
   if(myNewCount>0){
     const who=goneName||'A player';
     showPlayerLeftToast(`${who} left — you inherited ${myNewCount} tower${myNewCount>1?'s':''}!`);
   }
+  renderMpBar();
   if(selTower)renderUpPanel(selTower);
 }
 function watchForDisconnects(){
   if(!mp.active||!mp.db||!mp.roomCode)return;
   const playersRef=mp.db.ref(`rooms/${mp.roomCode}/players`);
+  const roomRef=mp.db.ref(`rooms/${mp.roomCode}`);
+
+  // Watch for the hostId changing in Firebase (means a new host was promoted)
+  addListener(roomRef.child('hostId'),'value',snap=>{
+    const newHostId=snap.val();
+    if(!newHostId||newHostId===mp.myId)return;
+    // Someone else became host — make sure we're not acting as host
+    if(mp.isHost){
+      mp.isHost=false;
+      if(mp._syncInterval){clearInterval(mp._syncInterval);mp._syncInterval=null;}
+    }
+  });
+
   addListener(playersRef,'child_removed',snap=>{
     const gone=snap.val();
     if(!gone||snap.key===mp.myId)return;
+    const goneId=snap.key;
     const name=gone.name||'A player';
-    // Redistribute orphaned towers (host only — broadcast covers clients)
-    redistributeLeftPlayerTowers(snap.key,name);
-    showPlayerLeftToast(name+' left the game');
-    // host broadcasts player_left so non-host clients show the toast
-    if(mp.isHost)mpSend('player_left',{name,playerId:snap.key});
-    if(mp.players[snap.key])delete mp.players[snap.key];
+    const wasHost=gone.slot===0||(mp.players[goneId]&&mp.players[goneId].isHost);
+
+    // Remove from local players map FIRST
+    delete mp.players[goneId];
     renderMpBar();
+    showPlayerLeftToast(name+' left the game');
+
+    // Check if the host just left — promote the next player
+    checkAndPromoteHost(goneId);
+
+    // Only current host computes + broadcasts redistribution
+    redistributeLeftPlayerTowers(goneId,name);
+    if(mp.isHost)mpSend('player_left',{name,playerId:goneId});
+  });
+}
+
+// ── Host promotion ────────────────────────
+function checkAndPromoteHost(goneId){
+  if(!mp.db||!mp.roomCode)return;
+  // Read current hostId from Firebase to check if the leaver was the host
+  mp.db.ref(`rooms/${mp.roomCode}/hostId`).once('value',snap=>{
+    const currentHostId=snap.val();
+    if(currentHostId!==goneId)return; // Host didn't leave, nothing to do
+
+    // Pick the remaining player with the lowest slot as the new host
+    const remaining=Object.entries(mp.players);
+    if(!remaining.length)return;
+    remaining.sort((a,b)=>(a[1].slot||0)-(b[1].slot||0));
+    const [newHostId]=remaining[0];
+
+    if(newHostId!==mp.myId)return; // Someone else will be promoted, not us
+
+    // We are the new host
+    mp.isHost=true;
+    showPlayerLeftToast('You are now the host!');
+    updateMpButtonStates();
+
+    // Update Firebase so everyone knows
+    mp.db.ref(`rooms/${mp.roomCode}/hostId`).set(mp.myId);
+
+    // Start the game state sync interval
+    if(mp._syncInterval)clearInterval(mp._syncInterval);
+    mp._syncInterval=setInterval(()=>{
+      if(!mp.active)return;
+      mpSend('game_state',{
+        wave,lives,waveActive,speed,autoWave,
+        enemies:enemies.map(e=>({
+          type:e.type,hp:e.hp,maxHp:e.maxHp,
+          pi:e.pi,x:e.x,y:e.y,
+          slowT:e.slowT,slowM:e.slowM,burnT:e.burnT,stunT:e.stunT,
+          dead:e.dead,reached:e.reached,
+        })),
+      });
+    },500);
+
+    // Wire up the wave button for the new host
+    mpSend('new_host',{newHostId:mp.myId});
   });
 }
 
@@ -2018,6 +2143,26 @@ function watchForDisconnects(){
 function syncGameState(state){
   if(mp.isHost)return;
   lives=state.lives;wave=state.wave;waveActive=state.waveActive;
+  // Sync speed and auto from host
+  if(state.speed!==undefined&&state.speed!==speed){
+    speed=state.speed;
+    document.getElementById('speedBtn').textContent=`SPEED ×${speed}`;
+  }
+  if(state.autoWave!==undefined&&state.autoWave!==autoWave){
+    autoWave=state.autoWave;
+    const btn=document.getElementById('autoBtn');
+    btn.textContent=autoWave?'AUTO ON':'AUTO OFF';
+    btn.classList.toggle('on',autoWave);
+  }
+  // Sync wave button text
+  const waveBtn=document.getElementById('waveBtn');
+  if(waveActive){
+    waveBtn.disabled=true;
+    waveBtn.textContent=`WAVE ${wave}`;
+  } else {
+    waveBtn.disabled=true; // non-hosts always disabled
+    waveBtn.textContent=`SEND WAVE ${wave}`;
+  }
   state.enemies.forEach(se=>{
     const match=enemies.find(e=>!e.dead&&e.type===se.type&&Math.abs(e.pi-se.pi)<=2);
     if(match){
@@ -2048,9 +2193,10 @@ function leaveRoom(clearActive=true){
   document.getElementById('mpDisconnectBtn').style.display='none';
   if(clearActive){
     try{
-      if(mp.db&&mp.roomCode){
-        if(mp.isHost) mp.db.ref('rooms/'+mp.roomCode).remove();
-        else mp.db.ref(`rooms/${mp.roomCode}/players/${mp.myId}`).remove();
+      if(mp.db&&mp.roomCode&&mp.myId){
+        // Always just remove our own player — never delete the whole room
+        // so remaining players can keep going regardless of who leaves
+        mp.db.ref(`rooms/${mp.roomCode}/players/${mp.myId}`).remove();
       }
     }catch(e){}
     mp.active=false;mp.isHost=false;mp.roomCode=null;mp.myId=null;
@@ -2111,14 +2257,15 @@ window.update=function(ts){
   if(mp.active&&gold!==gb){broadcastMyGold();renderMpBar();}
 };
 
-// ── Wave button: host broadcasts to clients ──
+// ── Wave button: host (or promoted host) broadcasts to clients ──
 document.getElementById('waveBtn').addEventListener('click',()=>{
   if(mp.active&&mp.isHost)mpSend('wave_start',{});
 },{capture:true});
 
-// ── Leave on menu back ────────────────────
+// ── Leave on menu back — blocked in multiplayer ──
 document.getElementById('menuBackBtn').addEventListener('click',()=>{
-  if(mp.active)leaveRoom();
+  if(mp.active){msg('Cannot return to menu during multiplayer. Use Disconnect instead.');return;}
+  leaveRoom();
 });
 
 // ── Disconnect button ─────────────────────
