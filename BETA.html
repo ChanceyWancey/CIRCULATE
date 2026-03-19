@@ -497,7 +497,9 @@ body{background:var(--bg);min-height:100vh;display:flex;align-items:center;justi
   }
   function maybeShowChangelog(){if(localStorage.getItem(CHANGELOG_KEY)!==VERSION)showChangelog();}
   function hashStr(s){let h=0;for(let i=0;i<s.length;i++)h=(Math.imul(31,h)+s.charCodeAt(i))|0;return h;}
-  let baselineHash=null,updatePending=false;
+  // Hash THIS page's own source as the true baseline — anything different on GitHub = update
+  const baselineHash=hashStr(document.documentElement.outerHTML);
+  let updatePending=false;
   window.saveGameForUpdate=function(){
     try{
       const towersData=towers.map(t=>({col:t.col,row:t.row,type:t.type,pA:t.pA,pB:t.pB,pC:t.pC,primaryPath:t.primaryPath||null,secondaryPath:t.secondaryPath||null,fgbTimer:t.fgbTimer||0,targetMode:t.targetMode||'first'}));
@@ -550,7 +552,6 @@ body{background:var(--bg);min-height:100vh;display:flex;align-items:center;justi
     try{
       const res=await fetch(RAW_URL+'?_='+Date.now(),{cache:'no-store'});if(!res.ok)return;
       const remoteText=await res.text();const remoteHash=hashStr(remoteText);
-      if(baselineHash===null){baselineHash=remoteHash;return;}
       if(remoteHash===baselineHash)return;
       updatePending=true;
       const inGame=document.getElementById('gameScreen').classList.contains('active');
