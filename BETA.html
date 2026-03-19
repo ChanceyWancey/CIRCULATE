@@ -901,6 +901,8 @@ function update(ts){
     }
     if(t.fgbTimer>0){
       t.fgbTimer=Math.max(0,t.fgbTimer-rawDt);
+      // Tick spawn animation
+      if(t._spawnAnim>0)t._spawnAnim=Math.max(0,t._spawnAnim-rawDt*2.5);
       if(selTower===t){
         const timerEl=document.getElementById('fgbTimerEl');const fillEl=document.getElementById('fgbFillEl');
         if(timerEl)timerEl.textContent=Math.ceil(t.fgbTimer)+'s';
@@ -1159,6 +1161,24 @@ function draw(ts){
 
 function drawTower(t){
   const cx=t.col*CS+CS/2,cy=t.row*CS+CS/2,clr=TDEFS[t.type].clr;const ang=t.ang||(-Math.PI/2);
+
+  // ── Spawn pop animation ────────────────────
+  if((t._spawnAnim||0)>0){
+    const s=t._spawnAnim; // 1→0
+    // Expanding ring that fades out
+    const ringR=14+s*22;
+    ctx.save();
+    ctx.globalAlpha=s*0.7;
+    ctx.beginPath();ctx.arc(cx,cy,ringR,0,Math.PI*2);
+    ctx.strokeStyle=clr;ctx.lineWidth=3-s*2;ctx.stroke();
+    // Second smaller ring
+    ctx.globalAlpha=s*0.4;
+    ctx.beginPath();ctx.arc(cx,cy,ringR*0.6,0,Math.PI*2);
+    ctx.strokeStyle='#fff';ctx.lineWidth=1.5;ctx.stroke();
+    ctx.restore();
+  }
+
+  // ── FGB mode visual ───────────────────────
   if((t.fgbTimer||0)>0){
     const fgbAlpha=0.35+0.2*Math.sin(Date.now()/300);
     ctx.beginPath();ctx.arc(cx,cy,18,0,Math.PI*2);ctx.strokeStyle=`rgba(22,163,74,${fgbAlpha})`;ctx.lineWidth=3;ctx.stroke();
@@ -1214,7 +1234,10 @@ function drawTower(t){
     for(let i=0;i<pb14;i++){ctx.beginPath();ctx.arc(bx+8+i*6,by+16,3,0,Math.PI*2);ctx.fill();}ctx.fillStyle=TDEFS[14].clr+'55';
     for(let i=0;i<pc14;i++){ctx.beginPath();ctx.arc(bx+8+i*6,by+24,3,0,Math.PI*2);ctx.fill();}return;
   }
+  // Apply scale pop during spawn — tower bounces in from 0 to 1.1 then settles to 1
+  const spawnScale=t._spawnAnim>0?(1+(Math.sin((1-t._spawnAnim)*Math.PI)*0.18)):1;
   ctx.save();ctx.translate(cx,cy);
+  if(spawnScale!==1)ctx.scale(spawnScale,spawnScale);
   ctx.fillStyle=dark?'#16161a':'#fff';ctx.beginPath();ctx.arc(0,0,14,0,Math.PI*2);ctx.fill();ctx.strokeStyle=clr;ctx.lineWidth=2;ctx.stroke();ctx.fillStyle=clr;
   if(id===0){ctx.beginPath();ctx.arc(0,0,7,0,Math.PI*2);ctx.fill();}
   else if(id===1){ctx.beginPath();ctx.moveTo(0,-9);ctx.lineTo(6,0);ctx.lineTo(0,9);ctx.lineTo(-6,0);ctx.closePath();ctx.fill();}
@@ -1429,7 +1452,7 @@ canvas.addEventListener('click',e=>{
   const cost=def.cost;if(!isSandbox&&gold<cost){msg(`Need ${cost}g.`);return;}
   const req=def.requires;if(req&&req.towers!==undefined&&towers.length<req.towers){msg(`Need ${req.towers} towers placed first.`);return;}
   if(!isSandbox)gold-=cost;
-  const newTower={col,row,type:selShopType,cd:0,ang:-Math.PI/2,pA:0,pB:0,pC:0,dmg:def.dmg,rate:def.rate,range:def.range,splash:def.splash,slow:def.slow,chain:def.chain,burn:def.burn,stun:def.stun,pierce:def.pierce,multi:def.multi||1,bankIncome:def.bankIncome||0,bankInterest:0,ampBoost:def.ampBoost||0,ampRadius:def.ampRadius||1,beaconBoost:def.beaconBoost||0,beaconRadius:def.beaconRadius||2.5,wallHp:def.wallHp||0,wallHpBase:def.wallHp||0,wallDmg:def.wallDmg||0,wallRegen:0,fgbTimer:30};
+  const newTower={col,row,type:selShopType,cd:0,ang:-Math.PI/2,pA:0,pB:0,pC:0,dmg:def.dmg,rate:def.rate,range:def.range,splash:def.splash,slow:def.slow,chain:def.chain,burn:def.burn,stun:def.stun,pierce:def.pierce,multi:def.multi||1,bankIncome:def.bankIncome||0,bankInterest:0,ampBoost:def.ampBoost||0,ampRadius:def.ampRadius||1,beaconBoost:def.beaconBoost||0,beaconRadius:def.beaconRadius||2.5,wallHp:def.wallHp||0,wallHpBase:def.wallHp||0,wallDmg:def.wallDmg||0,wallRegen:0,fgbTimer:30,_spawnAnim:1.0};
   if(curMap.diff==='Hard'){if(def.isAmplifier)newTower.ampBoost*=0.85;else if(!def.isBank&&!def.isBeacon){newTower.dmg*=1.25;newTower.rate*=1.25;}}
   towers.push(newTower);updateHUD();buildShop();applyAmpBoosts();applyBeaconBoosts();msg(`${def.name} placed.`);
 });
