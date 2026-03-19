@@ -45,6 +45,8 @@ body{background:var(--bg);min-height:100vh;display:flex;align-items:center;justi
 .diff-tab[data-diff="Starter"].active{background:#16a34a;border-color:#16a34a;color:#fff}
 .diff-tab[data-diff="Medium"].active{background:#d97706;border-color:#d97706;color:#fff}
 .diff-tab[data-diff="Hard"].active{background:#dc2626;border-color:#dc2626;color:#fff}
+.diff-tab[data-diff="Co-op"]{color:#22c55e;border-color:#22c55e44}
+.diff-tab[data-diff="Co-op"].active{background:#22c55e;border-color:#22c55e;color:#fff}
 #mapBrowser{width:100%;max-width:820px}
 .map-grid-5{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;width:100%}
 .map-card{border:2px solid var(--border);border-radius:10px;padding:10px;cursor:pointer;transition:all .15s;background:var(--surface);overflow:hidden;position:relative}
@@ -88,7 +90,7 @@ body{background:var(--bg);min-height:100vh;display:flex;align-items:center;justi
 #gameScreen{display:none;box-shadow:0 4px 40px var(--shadow);border:1px solid var(--border);background:var(--surface);flex-direction:row;align-items:flex-start}
 #gameScreen.active{display:flex}
 #gameCanvas{display:block;cursor:crosshair;background:var(--bg);flex-shrink:0;transition:cursor .1s}
-#sidebar{width:172px;height:420px;background:var(--surface);border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;flex-shrink:0}
+#sidebar{width:172px;height:420px;background:var(--surface);border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;flex-shrink:0;transition:height 0.2s}
 .sb-stats{padding:9px 11px;border-bottom:1px solid var(--border);display:grid;grid-template-columns:1fr 1fr;gap:4px 2px}
 .stat{display:flex;flex-direction:column}
 .sl{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3)}
@@ -274,6 +276,7 @@ body{background:var(--bg);min-height:100vh;display:flex;align-items:center;justi
       <button class="diff-tab active" data-diff="Starter">Starter</button>
       <button class="diff-tab" data-diff="Medium">Medium</button>
       <button class="diff-tab" data-diff="Hard">Hard</button>
+      <button class="diff-tab" data-diff="Co-op" style="color:#22c55e;border-color:#22c55e44">Co-op</button>
     </div>
     <div class="map-grid-5" id="mapGrid"></div>
   </div>
@@ -311,7 +314,7 @@ body{background:var(--bg);min-height:100vh;display:flex;align-items:center;justi
   </div>
 </div>
 
-<!-- ═══════════ TOWERS MODAL ══════════ -->
+<!-- ══════════ TOWERS MODAL ══════════ -->
 <div id="towersModal">
   <div class="towers-modal">
     <div class="modal-title">Tower Guide</div>
@@ -429,6 +432,10 @@ body{background:var(--bg);min-height:100vh;display:flex;align-items:center;justi
       <div style="display:flex;gap:8px;margin-top:4px">
         <button class="mp-btn" id="mpStartBtn" disabled>START GAME</button>
         <button class="mp-btn out" id="mpCancelBtn">CANCEL</button>
+      </div>
+      <div id="mpModeRow" style="display:flex;gap:6px;margin-top:4px;">
+        <button id="mpModeNormal" class="mp-tab active" onclick="mpSetMode('normal')" style="flex:1;font-size:9px;padding:5px;letter-spacing:.06em">▶ NORMAL</button>
+        <button id="mpModeEndless" class="mp-tab" onclick="mpSetMode('endless')" style="flex:1;font-size:9px;padding:5px;letter-spacing:.06em">∞ ENDLESS</button>
       </div>
     </div>
     <!-- JOIN ENTRY -->
@@ -593,7 +600,8 @@ body{background:var(--bg);min-height:100vh;display:flex;align-items:center;justi
 </script>
 
 <script>
-const COLS=20,ROWS=14,CS=30,W=600,H=420;
+const CS=30;
+let COLS=20,ROWS=14,W=600,H=420;
 const TDEFS=[
   {id:0,name:'Guard',cost:50,clr:'#3b82f6',desc:'Reliable infantry. Fast rate, flexible paths.',pathA:'Damage',pathB:'Range & Pierce',pathC:'Rate & Multi',dmg:10,rate:0.95,range:3.2,splash:0,slow:0,chain:0,burn:0,stun:0,pierce:0,multi:1,
    pA:[{n:'Speed Clip',c:80,d:'+8% rate',f:t=>{t.rate*=1.08},fOrig:t=>{t.rate*=1.35}},{n:'Sharp Tips',c:150,d:'+60% damage',f:t=>{t.dmg*=1.6}},{n:'Quad Barrel',c:320,d:'Fires 2 shots',f:t=>{t.multi=2},fOrig:t=>{t.multi=4}},{n:'Hollow Point',c:600,d:'Damage ×2',f:t=>{t.dmg*=2}},{n:'Commando',c:1200,d:'Rate ×1.2, Dmg ×2',f:t=>{t.rate*=1.2;t.dmg*=2},fOrig:t=>{t.rate*=2.5;t.dmg*=2}}],
@@ -677,6 +685,25 @@ const MAPS=[
   {name:'Citadel',desc:'Fortress walls force enemies through narrow killing zones.',diff:'Hard',clr:'#b45309',lives:10,gold:125,wp:[[0,3],[2,3],[2,10],[5,10],[5,5],[9,5],[9,12],[13,12],[13,2],[16,2],[16,9],[19,9]],walls:[[2,2],[3,3],[1,2],[1,4],[1,10],[2,11],[1,9],[3,9],[5,11],[6,10],[4,9],[4,11],[4,5],[5,4],[3,5],[4,6],[9,4],[10,5],[8,4],[8,6],[8,12],[9,13],[8,11],[10,11],[13,13],[14,12],[12,11],[12,13],[12,2],[13,1],[12,3],[14,1],[16,1],[17,2],[15,1],[15,3],[15,9],[16,10],[14,9],[15,8]]},
   {name:'Maze',desc:'Seven sharp turns. One mistake and it all falls apart.',diff:'Hard',clr:'#0f766e',lives:10,gold:125,wp:[[0,2],[2,2],[2,11],[5,11],[5,4],[8,4],[8,12],[12,12],[12,1],[15,1],[15,8],[18,8],[18,5],[19,5]],walls:[[2,1],[3,2],[1,1],[1,3],[1,11],[2,12],[1,10],[3,10],[5,12],[6,11],[4,10],[4,12],[4,4],[5,3],[3,4],[4,5],[8,3],[9,4],[7,3],[7,5],[7,12],[8,13],[7,11],[9,11],[12,13],[13,12],[11,11],[11,13],[11,1],[12,0],[11,2],[13,0],[15,0],[16,1],[14,0],[14,2],[14,8],[15,9],[13,8],[14,7],[18,9],[19,8],[17,7],[17,9],[17,5],[18,4],[16,5],[17,6]]},
   {name:'Fortress',desc:'Maximum complexity. No mercy.',diff:'Hard',clr:'#7c3aed',lives:10,gold:125,wp:[[0,6],[1,6],[1,1],[5,1],[5,10],[8,10],[8,3],[12,3],[12,11],[15,11],[15,5],[18,5],[18,8],[19,8]],walls:[[1,7],[2,6],[0,5],[0,7],[0,1],[1,0],[0,2],[2,0],[5,0],[6,1],[4,0],[4,2],[4,10],[5,11],[4,9],[6,9],[8,11],[9,10],[7,9],[7,11],[7,3],[8,2],[6,3],[7,4],[12,2],[13,3],[11,2],[11,4],[11,11],[12,12],[11,10],[13,10],[15,12],[16,11],[14,10],[14,12],[14,5],[15,4],[13,5],[14,6],[18,4],[19,5],[17,4],[17,6],[17,8],[18,9],[16,8],[17,7]]},
+  // ── CO-OP MAPS (40×28 grid) ──────────────
+  {name:'Grand Valley',desc:'A sweeping co-op arena. Two long corridors merge into a brutal finale.',diff:'Co-op',clr:'#22c55e',lives:40,gold:1250,coop:true,
+   wp:[[0,6],[10,6],[10,14],[20,14],[20,6],[30,6],[30,21],[39,21]],
+   walls:[[10,5],[11,6],[9,5],[9,7],[10,15],[11,14],[9,13],[9,15],[19,14],[20,13],[19,15],[21,13],[19,6],[20,5],[19,7],[21,5],[30,5],[31,6],[29,5],[29,7],[29,21],[30,22],[29,20],[31,20],[20,21],[21,20],[19,20],[19,22]]},
+  {name:'Twin Rivers',desc:'Two parallel rivers converge. Cover both lanes or be overwhelmed.',diff:'Co-op',clr:'#0891b2',lives:40,gold:1250,coop:true,
+   wp:[[0,5],[8,5],[8,22],[16,22],[16,5],[24,5],[24,22],[32,22],[32,5],[39,5]],
+   walls:[[8,4],[9,5],[7,4],[7,6],[7,22],[8,23],[7,21],[9,21],[15,22],[16,21],[15,23],[17,21],[15,5],[16,4],[15,6],[17,4],[24,4],[25,5],[23,4],[23,6],[23,22],[24,23],[23,21],[25,21],[31,22],[32,21],[31,23],[33,21],[31,5],[32,4],[31,6],[33,4]]},
+  {name:'The Colosseum',desc:'A grand arena with paths spiraling inward from all sides.',diff:'Co-op',clr:'#dc2626',lives:40,gold:1250,coop:true,
+   wp:[[0,14],[6,14],[6,4],[14,4],[14,14],[20,14],[20,24],[28,24],[28,14],[34,14],[34,4],[39,4]],
+   walls:[[6,3],[7,4],[5,3],[5,5],[6,15],[7,14],[5,13],[5,15],[13,4],[14,3],[13,5],[15,3],[13,14],[14,15],[13,13],[15,13],[19,14],[20,13],[19,15],[21,13],[19,24],[20,25],[19,23],[21,23],[27,24],[28,23],[27,25],[29,23],[27,14],[28,15],[27,13],[29,13],[34,3],[35,4],[33,3],[33,5],[33,14],[34,15],[33,13],[35,13]]},
+  {name:'Serpentine',desc:'A massive winding serpent path that tests every tower placement.',diff:'Co-op',clr:'#a855f7',lives:40,gold:1250,coop:true,
+   wp:[[0,3],[5,3],[5,13],[10,13],[10,3],[15,3],[15,20],[20,20],[20,8],[25,8],[25,24],[30,24],[30,10],[35,10],[35,18],[39,18]],
+   walls:[[5,2],[6,3],[4,2],[4,4],[4,13],[5,14],[4,12],[6,12],[9,13],[10,12],[9,14],[11,12],[9,3],[10,2],[9,4],[11,2],[14,3],[15,2],[14,4],[16,2],[14,20],[15,21],[14,19],[16,19],[19,20],[20,19],[19,21],[21,19],[19,8],[20,7],[19,9],[21,7],[24,8],[25,7],[24,9],[26,7],[24,24],[25,25],[24,23],[26,23],[29,24],[30,23],[29,25],[31,23],[29,10],[30,9],[29,11],[31,9],[34,10],[35,9],[34,11],[36,9],[34,18],[35,19],[34,17],[36,17]]},
+  {name:'Warfront',desc:'A sprawling battlefield with multiple kill zones. Teamwork essential.',diff:'Co-op',clr:'#f97316',lives:40,gold:1250,coop:true,
+   wp:[[0,10],[7,10],[7,3],[15,3],[15,18],[22,18],[22,8],[30,8],[30,20],[37,20],[37,10],[39,10]],
+   walls:[[7,9],[8,10],[6,9],[6,11],[6,3],[7,2],[6,4],[8,2],[14,3],[15,2],[14,4],[16,2],[14,18],[15,19],[14,17],[16,17],[21,18],[22,17],[21,19],[23,17],[21,8],[22,7],[21,9],[23,7],[29,8],[30,7],[29,9],[31,7],[29,20],[30,21],[29,19],[31,19],[37,9],[38,10],[36,9],[36,11],[36,20],[37,21],[36,19],[38,19]]},
+  {name:'Doomsday',desc:'The ultimate co-op challenge. Maximum size, maximum enemies, maximum pain.',diff:'Co-op',clr:'#450a0a',lives:40,gold:1250,coop:true,
+   wp:[[0,2],[4,2],[4,14],[8,14],[8,5],[12,5],[12,22],[16,22],[16,9],[20,9],[20,26],[24,26],[24,4],[28,4],[28,18],[32,18],[32,7],[36,7],[36,22],[39,22]],
+   walls:[[4,1],[5,2],[3,1],[3,3],[3,14],[4,15],[3,13],[5,13],[8,15],[9,14],[7,13],[7,15],[7,5],[8,4],[7,6],[9,4],[12,4],[13,5],[11,4],[11,6],[11,22],[12,23],[11,21],[13,21],[16,23],[17,22],[15,21],[15,23],[15,9],[16,8],[15,10],[17,8],[20,8],[21,9],[19,8],[19,10],[19,26],[20,27],[19,25],[21,25],[24,25],[25,26],[23,25],[23,27],[23,4],[24,3],[23,5],[25,3],[28,3],[29,4],[27,3],[27,5],[27,18],[28,19],[27,17],[29,17],[32,19],[33,18],[31,17],[31,19],[31,7],[32,6],[31,8],[33,6],[36,6],[37,7],[35,6],[35,8],[35,22],[36,23],[35,21],[37,21]]},
 ];
 
 const EDEFS=[
@@ -688,12 +715,19 @@ const EDEFS=[
 
 function makeWave(w){
   const list=[];const gap=Math.max(.2,.72-w*.03);
-  const g=6+w*2,f=Math.max(0,w*2-2),k=Math.max(0,w-2);
+  // Co-op maps get 2x enemies to fill the bigger arena
+  const coopMult=curMap&&curMap.coop?2:1;
+  const g=(6+w*2)*coopMult,f=Math.max(0,w*2-2)*coopMult,k=Math.max(0,w-2)*coopMult;
   let d=0;for(let i=0;i<g;i++){list.push({type:0,delay:d});d+=gap;}
   d=gap*0.5;for(let i=0;i<f;i++){list.push({type:1,delay:d+i*.28});}
   d=gap+0.5;for(let i=0;i<k;i++){list.push({type:2,delay:d+i*1.1});}
   const isBossWave=isEndless?(w%5===0):(w===5||w===10);
-  if(isBossWave)list.push({type:3,delay:Math.max(...list.map(e=>e.delay))+2.5});
+  // Co-op gets 2 bosses on boss waves
+  if(isBossWave){
+    const bossDelay=Math.max(...list.map(e=>e.delay))+2.5;
+    list.push({type:3,delay:bossDelay});
+    if(curMap&&curMap.coop)list.push({type:3,delay:bossDelay+4});
+  }
   return list.sort((a,b)=>a.delay-b.delay);
 }
 </script>
@@ -722,6 +756,16 @@ function buildPath(wp){
 }
 
 function initGame(map){
+  // Resize canvas for co-op maps (40×28) vs normal (20×14)
+  if(map.coop){
+    COLS=40;ROWS=28;W=1200;H=840;
+  } else {
+    COLS=20;ROWS=14;W=600;H=420;
+  }
+  canvas.width=W;canvas.height=H;
+  canvas.style.width=map.coop?'min(100vw,1200px)':'';
+  canvas.style.height=map.coop?'auto':'';
+  document.getElementById('sidebar').style.height=H+'px';
   curMap=map;isEndless=map.endless||false;isSandbox=map.sandbox||false;
   pathCells=buildPath(map.wp);
   pathSet=new Set(pathCells.map(([c,r])=>`${c},${r}`));
@@ -1025,7 +1069,10 @@ function dealDmg(e,d){e.hp-=d;if(e.hp<=0&&!e.dead)killEnemy(e);}
 function killEnemy(e){e.dead=true;gold+=e.rwd;score+=e.rwd*5;spawnFX(e.x,e.y,e.clr,5);updateHUD();}
 function spawnEnemy(type){
   const d=EDEFS[type],hm=1+(wave-1)*.35;
-  enemies.push({type,hp:d.hp*hm,maxHp:d.hp*hm,spd:d.spd,clr:d.clr,r:d.r,rwd:d.rwd,pi:0,x:pathCells[0][0]*CS+CS/2,y:pathCells[0][1]*CS+CS/2,dead:false,reached:false,slowT:0,slowM:1,burnT:0,burnDmg:0,stunT:0});
+  const e={type,hp:d.hp*hm,maxHp:d.hp*hm,spd:d.spd,clr:d.clr,r:d.r,rwd:d.rwd,pi:0,x:pathCells[0][0]*CS+CS/2,y:pathCells[0][1]*CS+CS/2,dead:false,reached:false,slowT:0,slowM:1,burnT:0,burnDmg:0,stunT:0};
+  // Assign unique MP ID for reliable cross-client sync
+  if(mp&&mp.active&&mp.isHost){e._mpId=mp._nextEnemyId||1;mp._nextEnemyId=(mp._nextEnemyId||1)+1;}
+  enemies.push(e);
 }
 function spawnFX(x,y,clr,n){for(let i=0;i<n;i++){const a=Math.random()*Math.PI*2,s=30+Math.random()*80;particles.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s-40,life:.3+Math.random()*.3,clr});}}
 </script>
@@ -1213,10 +1260,34 @@ function drawStar(ctx,x,y,oR,iR,pts){ctx.beginPath();for(let i=0;i<pts*2;i++){co
 function drawPoly(ctx,x,y,r,n){ctx.beginPath();for(let i=0;i<n;i++){const a=i*Math.PI*2/n-Math.PI/2;i===0?ctx.moveTo(x+r*Math.cos(a),y+r*Math.sin(a)):ctx.lineTo(x+r*Math.cos(a),y+r*Math.sin(a));}ctx.closePath();}
 
 let _lastShopGold=-1;
+let _shopRebuildTimer=null;
 function loop(ts){
   update(ts);draw(ts);
-  if(gold!==_lastShopGold){_lastShopGold=gold;if(document.getElementById('shopPanel').style.display!=='none')buildShop();}
+  if(gold!==_lastShopGold){
+    _lastShopGold=gold;
+    if(document.getElementById('shopPanel').style.display!=='none'){
+      // Instant affordability update so colours are always right
+      updateShopAffordability();
+      // Full rebuild after gold settles for 300ms (catches new unlocks etc)
+      clearTimeout(_shopRebuildTimer);
+      _shopRebuildTimer=setTimeout(()=>{
+        if(document.getElementById('shopPanel').style.display!=='none') buildShop();
+      },300);
+    }
+  }
   animId=requestAnimationFrame(loop);
+}
+
+function updateShopAffordability(){
+  const towerCount=towers.length;
+  document.querySelectorAll('#shopPanel .tc').forEach((el,i)=>{
+    const td=TDEFS[i];if(!td)return;
+    const req=td.requires;
+    const reqOk=!req||(req.towers===undefined||towerCount>=req.towers);
+    const canAfford=gold>=td.cost;
+    el.classList.toggle('unafford',reqOk&&!canAfford);
+    el.classList.toggle('locked',!reqOk);
+  });
 }
 function endGame(win){
   if(animId){cancelAnimationFrame(animId);animId=null;}
@@ -1305,7 +1376,8 @@ function sellTower(){
   const def=TDEFS[selTower.type],pa=selTower.pA||0,pb=selTower.pB||0,pc=selTower.pC||0;
   let sp=0;for(let i=0;i<pa;i++)sp+=def.pA[i].c;for(let i=0;i<pb;i++)sp+=def.pB[i].c;for(let i=0;i<pc;i++)sp+=def.pC[i].c;
   const isFGB=(selTower.fgbTimer||0)>0;gold+=isFGB?def.cost:(Math.floor(def.cost*.6)+Math.floor(sp*.4));
-  towers=towers.filter(t=>t!==selTower);deselTower();updateHUD();buildShop();msg(isFGB?'Tower sold — Full Goldback refund!':'Tower sold.');
+  if(mp.active)mpSend('tower_sell',{col:selTower.col,row:selTower.row});
+  towers=towers.filter(t=>t!==selTower);deselTower();updateHUD();buildShop();applyAmpBoosts();applyBeaconBoosts();msg(isFGB?'Tower sold — Full Goldback refund!':'Tower sold.');
 }
 
 canvas.addEventListener('mousemove',e=>{const r=canvas.getBoundingClientRect();hoverCell=[Math.floor((e.clientX-r.left)/CS),Math.floor((e.clientY-r.top)/CS)];});
@@ -1447,15 +1519,18 @@ function buildMenuMaps(){
   filtered.forEach(m=>{
     const i=MAPS.indexOf(m);const turns=m.wp.length-2;const card=document.createElement('div');
     card.className=`map-card${i===selMapIdx?' sel':''}`;card.style.setProperty('--card-clr',m.clr);card.style.borderColor=m.clr+'88';card.style.background=dark?`${m.clr}18`:`${m.clr}10`;
-    card.innerHTML=`<div class="map-card-top"><div class="map-card-name" style="color:${m.clr}">${m.name}</div><div class="map-card-turns">${turns} turns</div></div><div class="map-card-desc">${m.desc}</div><canvas id="mp${i}" width="130" height="46"></canvas>`;
+    card.innerHTML=`<div class="map-card-top"><div class="map-card-name" style="color:${m.clr}">${m.name}</div><div class="map-card-turns">${m.coop?'⚔️ CO-OP':turns+' turns'}</div></div><div class="map-card-desc">${m.desc}</div><canvas id="mp${i}" width="130" height="46"></canvas>`;
     card.addEventListener('click',()=>{selMapIdx=i;openMapDetail(i);});grid.appendChild(card);setTimeout(()=>drawMapPreview(i,'mp'+i,130,46),0);
   });
 }
 
 function drawMapPreview(i,canvasId,sw,sh){
-  const cv=document.getElementById(canvasId);if(!cv)return;const cx=cv.getContext('2d');const map=MAPS[i],cells=buildPath(map.wp);const sx=sw/W,sy=sh/H;
+  const cv=document.getElementById(canvasId);if(!cv)return;const cx=cv.getContext('2d');const map=MAPS[i],cells=buildPath(map.wp);
+  const mCols=map.coop?40:20,mRows=map.coop?28:14;
+  const mW=mCols*CS,mH=mRows*CS;
+  const sx=sw/mW,sy=sh/mH;
   cx.fillStyle=dark?'#1e1e24':'#f8f7f4';cx.fillRect(0,0,sw,sh);cx.fillStyle=map.clr+(dark?'22':'18');cx.fillRect(0,0,sw,sh);
-  cx.strokeStyle=dark?'#2a2a32':'#e8e5df';cx.lineWidth=.4;for(let c=0;c<=COLS;c++){cx.beginPath();cx.moveTo(c*CS*sx,0);cx.lineTo(c*CS*sx,sh);cx.stroke();}for(let r=0;r<=ROWS;r++){cx.beginPath();cx.moveTo(0,r*CS*sy);cx.lineTo(sw,r*CS*sy);cx.stroke();}
+  cx.strokeStyle=dark?'#2a2a32':'#e8e5df';cx.lineWidth=.4;for(let c=0;c<=mCols;c++){cx.beginPath();cx.moveTo(c*CS*sx,0);cx.lineTo(c*CS*sx,sh);cx.stroke();}for(let r=0;r<=mRows;r++){cx.beginPath();cx.moveTo(0,r*CS*sy);cx.lineTo(sw,r*CS*sy);cx.stroke();}
   for(const[c,r] of (map.walls||[])){cx.fillStyle=dark?'#2a2a36':'#b8b4aa';cx.fillRect(c*CS*sx,r*CS*sy,CS*sx,CS*sy);}
   for(const[c,r] of cells){cx.fillStyle=map.clr+(dark?'55':'44');cx.fillRect(c*CS*sx+.5,r*CS*sy+.5,CS*sx-1,CS*sy-1);}
   cx.beginPath();cells.forEach(([c,r],idx)=>{const px=c*CS*sx+CS*sx/2,py=r*CS*sy+CS*sy/2;idx===0?cx.moveTo(px,py):cx.lineTo(px,py);});
@@ -1467,8 +1542,9 @@ function drawMapPreview(i,canvasId,sw,sh){
 function openMapDetail(i){
   const m=MAPS[i];const cells=buildPath(m.wp);const panel=document.getElementById('mapDetail');panel.style.setProperty('--md-clr',m.clr);
   document.getElementById('mdName').textContent=m.name;document.getElementById('mdName').style.color=m.clr;
-  const badge=document.getElementById('mdBadge');badge.textContent=m.diff;badge.style.background=m.clr+'28';badge.style.color=m.clr;
-  document.getElementById('mdLives').textContent=m.lives;document.getElementById('mdGold').textContent=m.gold+'g';document.getElementById('mdLength').textContent=cells.length+' cells';document.getElementById('mdTurns').textContent=(m.wp.length-2)+' turns';document.getElementById('mdDesc').textContent=m.desc;
+  const badge=document.getElementById('mdBadge');badge.textContent=m.coop?'Co-op ⚔️':m.diff;badge.style.background=m.clr+'28';badge.style.color=m.clr;
+  document.getElementById('mdLives').textContent=m.lives;document.getElementById('mdGold').textContent=m.gold+'g';document.getElementById('mdLength').textContent=cells.length+' cells';document.getElementById('mdTurns').textContent=(m.wp.length-2)+' turns';
+  document.getElementById('mdDesc').textContent=(m.coop?'🗺️ 40×28 co-op map — 4× bigger! '+m.desc:m.desc);
   const normalBtn=document.getElementById('mdPlayNormal');normalBtn.style.background=m.clr;normalBtn.style.boxShadow=`0 4px 18px ${m.clr}55`;
   document.getElementById('mdPlayEndless').style.borderColor=m.clr+'66';document.getElementById('mdPreviewWrap').style.borderColor=m.clr+'66';
   setTimeout(()=>drawMapPreview(i,'mdCanvas',340,119),0);document.getElementById('mapBrowser').style.display='none';panel.classList.add('open');
@@ -1682,10 +1758,30 @@ document.getElementById('mpCodeInput').addEventListener('input',e=>{
   e.target.value=e.target.value.toUpperCase().replace(/[^A-Z0-9]/g,'');
 });
 
+// ── Mode selection (host only) ────────────
+let mpMode='normal';
+function mpSetMode(m){
+  if(!mp.isHost)return;
+  mpMode=m;
+  document.getElementById('mpModeNormal').classList.toggle('active',m==='normal');
+  document.getElementById('mpModeEndless').classList.toggle('active',m==='endless');
+  // Sync mode choice to Firebase so joiners can see it
+  if(mp.db&&mp.roomCode) mp.db.ref('rooms/'+mp.roomCode+'/mode').set(m);
+}
+
+// ── Owner name tag helpers ─────────────────
+function isOwnerName(name){return name&&name.startsWith('|')&&name.endsWith('|');}
+function displayName(name){return isOwnerName(name)?name.slice(1,-1):name;}
+function ownerStyle(name){
+  if(!isOwnerName(name))return'';
+  return'background:#7f1d1d;color:#fca5a5;padding:1px 5px;border-radius:3px;font-size:9px;margin-left:4px;';
+}
+
 // ── Host a room ───────────────────────────
 async function hostRoom(){
   leaveRoom(false);
   mp.isHost=true;
+  mpMode='normal';
   mp.myId=genId();
   mp.mySlot=0;
   mp.roomCode=genCode();
@@ -1696,26 +1792,32 @@ async function hostRoom(){
   document.getElementById('mpStartBtn').disabled=true;
   document.getElementById('mpStartBtn').style.display='';
   document.getElementById('mpLobbySubtitle').textContent='Share this code with friends. Start when ready.';
+  const modeRow=document.getElementById('mpModeRow');
+  if(modeRow)modeRow.style.display='flex';
 
   try{
     await loadFirebase();
     const db=fbDb();
-    const myName=document.getElementById('mpNameInput').value.trim()||PLAYER_NAMES[0];
+    const rawName=document.getElementById('mpNameInput').value.trim()||PLAYER_NAMES[0];
     const roomRef=db.ref('rooms/'+mp.roomCode);
 
-    // Write room + host player; both auto-delete on disconnect
     await roomRef.set({
       hostId:mp.myId,
       mapName:mp.pendingMap.name,
       status:'lobby',
+      mode:'normal',
       createdAt:firebase.database.ServerValue.TIMESTAMP,
     });
     const myRef=roomRef.child('players/'+mp.myId);
-    await myRef.set({name:myName,slot:0,gold:mp.pendingMap.gold});
+    await myRef.set({name:rawName,slot:0,gold:mp.pendingMap.gold});
     myRef.onDisconnect().remove();
-    // Do NOT delete the whole room on disconnect - other players should keep playing
 
-    // Watch player list
+    // Keepalive — write a heartbeat every 10s to prevent Firebase idle disconnect
+    mp._keepalive=setInterval(()=>{
+      if(!mp.db||!mp.roomCode)return;
+      mp.db.ref('rooms/'+mp.roomCode+'/heartbeat').set(firebase.database.ServerValue.TIMESTAMP);
+    },10000);
+
     addListener(roomRef.child('players'),'value',snap=>{
       const data=snap.val()||{};
       mp.players={};
@@ -1726,17 +1828,21 @@ async function hostRoom(){
       renderPlayerList();
     });
 
-    // Watch events channel
+    // Watch mode changes
+    addListener(roomRef.child('mode'),'value',snap=>{
+      const m=snap.val();if(m&&mp.isHost){mpMode=m;}
+    });
+
     mp.eventsRef=roomRef.child('events');
     const joinTime=Date.now();
     addListener(mp.eventsRef,'child_added',snap=>{
       const ev=snap.val();
       if(!ev||ev.from===mp.myId)return;
-      if(ev.ts&&ev.ts<joinTime-3000)return;
+      if(ev.ts&&ev.ts<joinTime-5000)return;
       handleMpEvent(ev);
     });
 
-    mp.players[mp.myId]={name:myName,slot:0,gold:mp.pendingMap.gold};
+    mp.players[mp.myId]={name:rawName,slot:0,gold:mp.pendingMap.gold};
     setMpStatus('mpHostStatus','Waiting for players… (1/4)');
     renderPlayerList();
   }catch(e){
@@ -1762,27 +1868,27 @@ async function joinRoom(code){
     const roomData=snap.val();
     if(roomData.status==='playing'){setMpStatus('mpJoinStatus','Game already in progress.','err');return;}
 
-    // Pick a free slot
     const taken=Object.values(roomData.players||{}).map(p=>p.slot);
     let slot=0;while(taken.includes(slot))slot++;
     if(slot>=4){setMpStatus('mpJoinStatus','Room is full.','err');return;}
     mp.mySlot=slot;
 
-    const mapGold=(MAPS.find(m=>m.name===roomData.mapName)||{}).gold||500;
+    mpMode=roomData.mode||'normal';
     mp.pendingMap=MAPS.find(m=>m.name===roomData.mapName)||MAPS[selMapIdx];
-    const myName=document.getElementById('mpNameInput').value.trim()||PLAYER_NAMES[slot];
+    const mapGold=mp.pendingMap.gold||500;
+    const rawName=document.getElementById('mpNameInput').value.trim()||PLAYER_NAMES[slot];
     const myRef=roomRef.child('players/'+mp.myId);
-    await myRef.set({name:myName,slot,gold:mapGold});
+    await myRef.set({name:rawName,slot,gold:mapGold});
     myRef.onDisconnect().remove();
 
-    // Switch to lobby view (shared host panel, client mode)
     setMpTab('host');
     document.getElementById('mpLobbySubtitle').textContent='You joined! Waiting for the host to start.';
     document.getElementById('mpCodeDisplay').textContent=code;
     document.getElementById('mpStartBtn').style.display='none';
+    const modeRow=document.getElementById('mpModeRow');
+    if(modeRow)modeRow.style.display='none';
     setMpStatus('mpHostStatus','','');
 
-    // Watch player list
     addListener(roomRef.child('players'),'value',snap2=>{
       const data=snap2.val()||{};
       mp.players={};
@@ -1792,13 +1898,17 @@ async function joinRoom(code){
       renderPlayerList();
     });
 
-    // Watch events
+    // Watch mode so joiner can see it change
+    addListener(roomRef.child('mode'),'value',snap2=>{
+      const m=snap2.val();if(m)mpMode=m;
+    });
+
     mp.eventsRef=roomRef.child('events');
     const joinTime=Date.now();
     addListener(mp.eventsRef,'child_added',snap2=>{
       const ev=snap2.val();
       if(!ev||ev.from===mp.myId)return;
-      if(ev.ts&&ev.ts<joinTime-3000)return;
+      if(ev.ts&&ev.ts<joinTime-5000)return;
       handleMpEvent(ev);
     });
 
@@ -1830,39 +1940,37 @@ function handleMpEvent(ev){
     case 'towers_adopt':
       if(mp.active)applyTowerAdoption(ev.payload);
       break;
+    case 'tower_sell':
+      if(mp.active){const t=towers.find(t=>t.col===ev.payload.col&&t.row===ev.payload.row);if(t){towers=towers.filter(x=>x!==t);if(selTower===t)deselTower();applyAmpBoosts();applyBeaconBoosts();}}
+      break;
     case 'player_left':
-      if(mp.active&&ev.from!==mp.myId)showPlayerLeftToast(ev.payload.name);
+      if(mp.active&&ev.from!==mp.myId)showPlayerLeftToast(displayName(ev.payload.name)+' left the game');
       break;
     case 'game_state':
-      if(mp.active)syncGameState(ev.payload);
+      if(mp.active&&!mp.isHost)syncGameState(ev.payload);
       break;
     case 'wave_start':
       if(mp.active&&!mp.isHost&&!waveActive)startWave();
       break;
     case 'speed_change':
-      if(mp.active&&!mp.isHost){
-        speed=ev.payload.speed;
-        document.getElementById('speedBtn').textContent=`SPEED ×${speed}`;
-      }
+      if(mp.active&&!mp.isHost){speed=ev.payload.speed;document.getElementById('speedBtn').textContent=`SPEED ×${speed}`;}
       break;
     case 'auto_change':
-      if(mp.active&&!mp.isHost){
-        autoWave=ev.payload.autoWave;
-        const btn=document.getElementById('autoBtn');
-        btn.textContent=autoWave?'AUTO ON':'AUTO OFF';
-        btn.classList.toggle('on',autoWave);
-      }
+      if(mp.active&&!mp.isHost){autoWave=ev.payload.autoWave;const b=document.getElementById('autoBtn');b.textContent=autoWave?'AUTO ON':'AUTO OFF';b.classList.toggle('on',autoWave);}
       break;
     case 'new_host':
       if(mp.active&&ev.payload.newHostId!==mp.myId){
-        showPlayerLeftToast('New host: '+(mp.players[ev.payload.newHostId]?.name||'another player'));
+        showPlayerLeftToast('New host: '+displayName(mp.players[ev.payload.newHostId]?.name||'another player'));
         if(mp._syncInterval){clearInterval(mp._syncInterval);mp._syncInterval=null;}
-        mp.isHost=false;
-        updateMpButtonStates();
+        mp.isHost=false;updateMpButtonStates();
       }
       break;
     case 'player_gold':
       if(mp.active)updateRemoteGold(ev.payload);
+      break;
+    case 'full_tower_sync':
+      // Full tower state sync — authoritative, replaces local list for non-placed towers
+      if(mp.active&&!mp.isHost)applyFullTowerSync(ev.payload);
       break;
   }
 }
@@ -1871,24 +1979,25 @@ function handleMpEvent(ev){
 document.getElementById('mpStartBtn').onclick=async()=>{
   if(!mp.eventsRef)return;
   const db=fbDb();
-  await db.ref('rooms/'+mp.roomCode).update({status:'playing'});
-  const payload={mapName:mp.pendingMap.name,players:mp.players,hostId:mp.myId};
+  const state=db.ref('rooms/'+mp.roomCode);
+  await state.update({status:'playing',mode:mpMode});
+  const payload={mapName:mp.pendingMap.name,players:mp.players,hostId:mp.myId,mode:mpMode};
   mpSend('game_start',payload);
   launchMultiplayer(payload);
 };
 
-// ── Update button lock state based on host status ──
+// ── Update button lock state ───────────────
 function updateMpButtonStates(){
   if(!mp.active)return;
-  const isHost=mp.isHost;
-  const waveBtn=document.getElementById('waveBtn');
-  const autoBtn=document.getElementById('autoBtn');
-  const speedBtn=document.getElementById('speedBtn');
-  waveBtn.disabled=!isHost&&!waveActive; // clients can't start waves
-  autoBtn.style.opacity=isHost?'1':'0.4';
-  autoBtn.title=isHost?'':'Only the host can change auto wave';
-  speedBtn.style.opacity=isHost?'1':'0.4';
-  speedBtn.title=isHost?'':'Only the host can change speed';
+  const h=mp.isHost;
+  const wb=document.getElementById('waveBtn');
+  const ab=document.getElementById('autoBtn');
+  const sb=document.getElementById('speedBtn');
+  wb.disabled=!h&&!waveActive;
+  ab.style.opacity=h?'1':'0.4';
+  ab.title=h?'':'Only the host can change auto wave';
+  sb.style.opacity=h?'1':'0.4';
+  sb.title=h?'':'Only the host can change speed';
 }
 
 // ── Launch the multiplayer game ───────────
@@ -1897,12 +2006,13 @@ function launchMultiplayer(payload){
   mp.active=true;
   mp.players=payload.players||mp.players;
   mp.hostId=payload.hostId||mp.myId;
+  const endless=payload.mode==='endless';
   const myEntry=mp.players[mp.myId];
   mp.mySlot=myEntry?myEntry.slot:0;
 
   const map=MAPS.find(m=>m.name===payload.mapName)||mp.pendingMap||MAPS[selMapIdx];
   showScreen('game');
-  initGame({...map,endless:false,sandbox:false});
+  initGame({...map,endless,sandbox:false});
   lastTs=performance.now();
   if(animId)cancelAnimationFrame(animId);
   animId=requestAnimationFrame(loop);
@@ -1911,20 +2021,44 @@ function launchMultiplayer(payload){
   document.getElementById('mpDisconnectBtn').style.display='block';
   updateMpButtonStates();
 
-  // Host syncs enemy/wave state every 500ms
   if(mp.isHost){
+    // Assign unique IDs to enemies as they spawn — patched in spawnEnemy
+    mp._nextEnemyId=1;
+
+    // Full game state sync every 200ms (reduced from 500ms for smoother sync)
     mp._syncInterval=setInterval(()=>{
       if(!mp.active)return;
       mpSend('game_state',{
         wave,lives,waveActive,speed,autoWave,
         enemies:enemies.map(e=>({
-          type:e.type,hp:e.hp,maxHp:e.maxHp,
-          pi:e.pi,x:e.x,y:e.y,
+          id:e._mpId,type:e.type,hp:e.hp,maxHp:e.maxHp,
+          pi:e.pi,x:Math.round(e.x),y:Math.round(e.y),
           slowT:e.slowT,slowM:e.slowM,burnT:e.burnT,stunT:e.stunT,
           dead:e.dead,reached:e.reached,
         })),
       });
-    },500);
+    },200);
+
+    // Full tower sync every 5s as a safety net to fix desync
+    mp._towerSyncInterval=setInterval(()=>{
+      if(!mp.active)return;
+      mpSend('full_tower_sync',{
+        towers:towers.map(t=>({
+          col:t.col,row:t.row,type:t.type,
+          pA:t.pA||0,pB:t.pB||0,pC:t.pC||0,
+          primaryPath:t.primaryPath||null,
+          mpOwner:t.mpOwner,mpSlot:t.mpSlot,
+          dmg:t.dmg,rate:t.rate,range:t.range,splash:t.splash,
+          slow:t.slow,chain:t.chain,burn:t.burn,stun:t.stun,
+          pierce:t.pierce,multi:t.multi||1,
+          bankIncome:t.bankIncome||0,bankInterest:t.bankInterest||0,
+          ampBoost:t.ampBoost||0,ampRadius:t.ampRadius||1,
+          beaconBoost:t.beaconBoost||0,beaconRadius:t.beaconRadius||2.5,
+          wallHp:t.wallHp||0,wallHpBase:t.wallHpBase||0,
+          wallDmg:t.wallDmg||0,wallRegen:t.wallRegen||0,
+        })),
+      });
+    },5000);
   }
 }
 
@@ -1937,9 +2071,13 @@ function renderPlayerList(){
     const div=document.createElement('div');
     div.className='mp-player';
     const isYou=id===mp.myId,isHost=mp.isHost&&isYou;
+    const owner=isOwnerName(p.name);
+    const nameHtml=owner
+      ?`<span style="background:#7f1d1d;color:#fca5a5;padding:1px 6px;border-radius:3px;font-size:9px;font-family:'DM Mono',monospace;letter-spacing:.06em;">👑 ${displayName(p.name)}</span>`
+      :p.name;
     div.innerHTML=`
       <div class="mp-player-dot" style="background:${PLAYER_COLORS[p.slot]||'#888'}"></div>
-      <div class="mp-player-name">${p.name}</div>
+      <div class="mp-player-name">${nameHtml}</div>
       ${isYou?'<span class="mp-player-you">YOU</span>':''}
       ${isHost?'<span class="mp-player-host">HOST</span>':''}`;
     el.appendChild(div);
@@ -1958,10 +2096,14 @@ function renderMpBar(){
   Object.entries(mp.players).forEach(([id,p],i)=>{
     const isYou=id===mp.myId;
     const g=isYou?gold:(p.gold||'?');
+    const owner=isOwnerName(p.name);
     const el=document.createElement('div');
     el.className='mp-bar-player';
+    const nameSpan=owner
+      ?`<span style="background:#7f1d1d;color:#fca5a5;padding:0 4px;border-radius:2px;font-size:8px;">👑 ${displayName(p.name)}${isYou?' (you)':''}</span>`
+      :`<span>${p.name}${isYou?' (you)':''}</span>`;
     el.innerHTML=`<div class="mp-bar-dot" style="background:${PLAYER_COLORS[p.slot]||'#888'}"></div>
-      <span>${p.name}${isYou?' (you)':''}</span>
+      ${nameSpan}
       <span class="mp-bar-gold">${g}g</span>`;
     bar.appendChild(el);
     if(i<Object.keys(mp.players).length-1){
@@ -1993,6 +2135,42 @@ function handleRemoteTower(data){
   applyAmpBoosts();applyBeaconBoosts();
 }
 
+// ── Full tower sync (safety net every 5s) ─
+function applyFullTowerSync(data){
+  // For each tower in the host's list, ensure it exists locally with correct stats
+  data.towers.forEach(td=>{
+    let t=towers.find(x=>x.col===td.col&&x.row===td.row);
+    if(!t){
+      const def=TDEFS[td.type];if(!def)return;
+      t={col:td.col,row:td.row,type:td.type,cd:0,ang:-Math.PI/2,
+        pA:0,pB:0,pC:0,primaryPath:null,
+        dmg:def.dmg,rate:def.rate,range:def.range,splash:def.splash,
+        slow:def.slow,chain:def.chain,burn:def.burn,stun:def.stun,
+        pierce:def.pierce,multi:def.multi||1,
+        bankIncome:def.bankIncome||0,bankInterest:0,
+        ampBoost:def.ampBoost||0,ampRadius:def.ampRadius||1,
+        beaconBoost:def.beaconBoost||0,beaconRadius:def.beaconRadius||2.5,
+        wallHp:def.wallHp||0,wallHpBase:def.wallHp||0,wallDmg:def.wallDmg||0,wallRegen:0,
+        fgbTimer:0};
+      towers.push(t);
+    }
+    // Sync stats that may have changed via upgrades
+    t.dmg=td.dmg;t.rate=td.rate;t.range=td.range;t.splash=td.splash;
+    t.slow=td.slow;t.chain=td.chain;t.burn=td.burn;t.stun=td.stun;
+    t.pierce=td.pierce;t.multi=td.multi;
+    t.pA=td.pA;t.pB=td.pB;t.pC=td.pC;t.primaryPath=td.primaryPath;
+    t.mpOwner=td.mpOwner;t.mpSlot=td.mpSlot;
+    t.bankIncome=td.bankIncome;t.bankInterest=td.bankInterest;
+    t.ampBoost=td.ampBoost;t.ampRadius=td.ampRadius;
+    t.wallHp=td.wallHp;t.wallHpBase=td.wallHpBase;
+  });
+  // Remove towers that host no longer has
+  const hostCells=new Set(data.towers.map(t=>`${t.col},${t.row}`));
+  towers=towers.filter(t=>hostCells.has(`${t.col},${t.row}`));
+  applyAmpBoosts();applyBeaconBoosts();
+  if(selTower&&!towers.includes(selTower))deselTower();
+}
+
 // ── Remote upgrade ────────────────────────
 function handleRemoteUpgrade(data){
   const t=towers.find(t=>t.col===data.col&&t.row===data.row);
@@ -2003,8 +2181,7 @@ function handleRemoteUpgrade(data){
   const ups=TDEFS[t.type][pathKey];
   if(!ups||lvl>=ups.length)return;
   const up=ups[lvl];
-  up.f(t);
-  t.fgbTimer=0;
+  up.f(t);t.fgbTimer=0;
   if(path==='A')t.pA=(t.pA||0)+1;
   else if(path==='B')t.pB=(t.pB||0)+1;
   else t.pC=(t.pC||0)+1;
@@ -2018,22 +2195,18 @@ function handleRemoteUpgrade(data){
 let _plToastTimer=null;
 function showPlayerLeftToast(name){
   const el=document.getElementById('playerLeftToast');
-  el.textContent=`${name} left the game`;
-  el.classList.add('show');
+  el.textContent=name;el.classList.add('show');
   if(_plToastTimer)clearTimeout(_plToastTimer);
   _plToastTimer=setTimeout(()=>{el.classList.remove('show');},4000);
 }
 
 // ── Tower redistribution when player leaves ──
-function redistributeLeftPlayerTowers(goneId, goneName){
-  // Only the host computes & broadcasts redistribution
+function redistributeLeftPlayerTowers(goneId,goneName){
   if(!mp.isHost)return;
   const orphans=towers.filter(t=>t.mpOwner===goneId);
   if(!orphans.length)return;
-  // mp.players already has gone player removed at this point
   const remaining=Object.entries(mp.players).map(([id,p])=>({id,slot:p.slot}));
   if(!remaining.length)return;
-  // Round-robin split across remaining players
   const assignments=orphans.map((t,i)=>{
     const heir=remaining[i%remaining.length];
     return{col:t.col,row:t.row,newOwnerId:heir.id,newSlot:heir.slot};
@@ -2044,54 +2217,35 @@ function redistributeLeftPlayerTowers(goneId, goneName){
 
 function applyTowerAdoption(data){
   const{assignments,goneName,goneId}=data;
-  // Remove gone player from local map on clients (host already did this)
   if(goneId&&mp.players[goneId]&&!mp.isHost)delete mp.players[goneId];
   assignments.forEach(a=>{
     const t=towers.find(t=>t.col===a.col&&t.row===a.row);
-    if(!t)return;
-    t.mpOwner=a.newOwnerId;
-    t.mpSlot=a.newSlot;
+    if(!t)return;t.mpOwner=a.newOwnerId;t.mpSlot=a.newSlot;
   });
   const myNewCount=assignments.filter(a=>a.newOwnerId===mp.myId).length;
-  if(myNewCount>0){
-    const who=goneName||'A player';
-    showPlayerLeftToast(`${who} left — you inherited ${myNewCount} tower${myNewCount>1?'s':''}!`);
-  }
-  renderMpBar();
-  if(selTower)renderUpPanel(selTower);
+  if(myNewCount>0)showPlayerLeftToast(`${displayName(goneName||'A player')} left — you inherited ${myNewCount} tower${myNewCount>1?'s':''}!`);
+  renderMpBar();if(selTower)renderUpPanel(selTower);
 }
+
 function watchForDisconnects(){
   if(!mp.active||!mp.db||!mp.roomCode)return;
   const playersRef=mp.db.ref(`rooms/${mp.roomCode}/players`);
   const roomRef=mp.db.ref(`rooms/${mp.roomCode}`);
 
-  // Watch for the hostId changing in Firebase (means a new host was promoted)
   addListener(roomRef.child('hostId'),'value',snap=>{
     const newHostId=snap.val();
     if(!newHostId||newHostId===mp.myId)return;
-    // Someone else became host — make sure we're not acting as host
-    if(mp.isHost){
-      mp.isHost=false;
-      if(mp._syncInterval){clearInterval(mp._syncInterval);mp._syncInterval=null;}
-    }
+    if(mp.isHost){mp.isHost=false;if(mp._syncInterval){clearInterval(mp._syncInterval);mp._syncInterval=null;}if(mp._towerSyncInterval){clearInterval(mp._towerSyncInterval);mp._towerSyncInterval=null;}}
   });
 
   addListener(playersRef,'child_removed',snap=>{
     const gone=snap.val();
     if(!gone||snap.key===mp.myId)return;
-    const goneId=snap.key;
-    const name=gone.name||'A player';
-    const wasHost=gone.slot===0||(mp.players[goneId]&&mp.players[goneId].isHost);
-
-    // Remove from local players map FIRST
+    const goneId=snap.key;const name=gone.name||'A player';
     delete mp.players[goneId];
     renderMpBar();
-    showPlayerLeftToast(name+' left the game');
-
-    // Check if the host just left — promote the next player
+    showPlayerLeftToast(displayName(name)+' left the game');
     checkAndPromoteHost(goneId);
-
-    // Only current host computes + broadcasts redistribution
     redistributeLeftPlayerTowers(goneId,name);
     if(mp.isHost)mpSend('player_left',{name,playerId:goneId});
   });
@@ -2100,43 +2254,36 @@ function watchForDisconnects(){
 // ── Host promotion ────────────────────────
 function checkAndPromoteHost(goneId){
   if(!mp.db||!mp.roomCode)return;
-  // Read current hostId from Firebase to check if the leaver was the host
   mp.db.ref(`rooms/${mp.roomCode}/hostId`).once('value',snap=>{
     const currentHostId=snap.val();
-    if(currentHostId!==goneId)return; // Host didn't leave, nothing to do
-
-    // Pick the remaining player with the lowest slot as the new host
+    if(currentHostId!==goneId)return;
     const remaining=Object.entries(mp.players);
     if(!remaining.length)return;
     remaining.sort((a,b)=>(a[1].slot||0)-(b[1].slot||0));
-    const [newHostId]=remaining[0];
-
-    if(newHostId!==mp.myId)return; // Someone else will be promoted, not us
-
-    // We are the new host
+    const[newHostId]=remaining[0];
+    if(newHostId!==mp.myId)return;
     mp.isHost=true;
     showPlayerLeftToast('You are now the host!');
     updateMpButtonStates();
-
-    // Update Firebase so everyone knows
     mp.db.ref(`rooms/${mp.roomCode}/hostId`).set(mp.myId);
-
-    // Start the game state sync interval
     if(mp._syncInterval)clearInterval(mp._syncInterval);
     mp._syncInterval=setInterval(()=>{
       if(!mp.active)return;
       mpSend('game_state',{
         wave,lives,waveActive,speed,autoWave,
         enemies:enemies.map(e=>({
-          type:e.type,hp:e.hp,maxHp:e.maxHp,
-          pi:e.pi,x:e.x,y:e.y,
+          id:e._mpId,type:e.type,hp:e.hp,maxHp:e.maxHp,
+          pi:e.pi,x:Math.round(e.x),y:Math.round(e.y),
           slowT:e.slowT,slowM:e.slowM,burnT:e.burnT,stunT:e.stunT,
           dead:e.dead,reached:e.reached,
         })),
       });
-    },500);
-
-    // Wire up the wave button for the new host
+    },200);
+    if(mp._towerSyncInterval)clearInterval(mp._towerSyncInterval);
+    mp._towerSyncInterval=setInterval(()=>{
+      if(!mp.active)return;
+      mpSend('full_tower_sync',{towers:towers.map(t=>({col:t.col,row:t.row,type:t.type,pA:t.pA||0,pB:t.pB||0,pC:t.pC||0,primaryPath:t.primaryPath||null,mpOwner:t.mpOwner,mpSlot:t.mpSlot,dmg:t.dmg,rate:t.rate,range:t.range,splash:t.splash,slow:t.slow,chain:t.chain,burn:t.burn,stun:t.stun,pierce:t.pierce,multi:t.multi||1,bankIncome:t.bankIncome||0,bankInterest:t.bankInterest||0,ampBoost:t.ampBoost||0,ampRadius:t.ampRadius||1,beaconBoost:t.beaconBoost||0,beaconRadius:t.beaconRadius||2.5,wallHp:t.wallHp||0,wallHpBase:t.wallHpBase||0,wallDmg:t.wallDmg||0,wallRegen:t.wallRegen||0}))});
+    },5000);
     mpSend('new_host',{newHostId:mp.myId});
   });
 }
@@ -2145,34 +2292,41 @@ function checkAndPromoteHost(goneId){
 function syncGameState(state){
   if(mp.isHost)return;
   lives=state.lives;wave=state.wave;waveActive=state.waveActive;
-  // Sync speed and auto from host
-  if(state.speed!==undefined&&state.speed!==speed){
-    speed=state.speed;
-    document.getElementById('speedBtn').textContent=`SPEED ×${speed}`;
-  }
-  if(state.autoWave!==undefined&&state.autoWave!==autoWave){
-    autoWave=state.autoWave;
-    const btn=document.getElementById('autoBtn');
-    btn.textContent=autoWave?'AUTO ON':'AUTO OFF';
-    btn.classList.toggle('on',autoWave);
-  }
-  // Sync wave button text
+  if(state.speed!==undefined&&state.speed!==speed){speed=state.speed;document.getElementById('speedBtn').textContent=`SPEED ×${speed}`;}
+  if(state.autoWave!==undefined&&state.autoWave!==autoWave){autoWave=state.autoWave;const b=document.getElementById('autoBtn');b.textContent=autoWave?'AUTO ON':'AUTO OFF';b.classList.toggle('on',autoWave);}
   const waveBtn=document.getElementById('waveBtn');
-  if(waveActive){
-    waveBtn.disabled=true;
-    waveBtn.textContent=`WAVE ${wave}`;
-  } else {
-    waveBtn.disabled=true; // non-hosts always disabled
-    waveBtn.textContent=`SEND WAVE ${wave}`;
-  }
-  state.enemies.forEach(se=>{
-    const match=enemies.find(e=>!e.dead&&e.type===se.type&&Math.abs(e.pi-se.pi)<=2);
-    if(match){
-      match.x=se.x;match.y=se.y;match.hp=se.hp;match.pi=se.pi;
-      match.slowT=se.slowT;match.slowM=se.slowM;match.burnT=se.burnT;match.stunT=se.stunT;
-      if(se.dead)match.dead=true;if(se.reached)match.reached=true;
+  waveBtn.disabled=true;
+  waveBtn.textContent=waveActive?`WAVE ${wave}`:`SEND WAVE ${wave}`;
+
+  // Sync enemies by unique ID — much more reliable than fuzzy matching
+  const hostEnemies=state.enemies||[];
+  const localById=new Map(enemies.map(e=>[e._mpId,e]));
+
+  hostEnemies.forEach(se=>{
+    if(se.dead||se.reached){
+      const e=localById.get(se.id);if(e){e.dead=se.dead;e.reached=se.reached;}
+      return;
+    }
+    let e=localById.get(se.id);
+    if(!e){
+      // Spawn missing enemy
+      const def=EDEFS[se.type];if(!def)return;
+      const hm=1+(wave-1)*.35;
+      e={type:se.type,hp:se.hp,maxHp:se.maxHp||def.hp*hm,spd:def.spd,clr:def.clr,r:def.r,rwd:def.rwd,
+        pi:se.pi,x:se.x,y:se.y,dead:false,reached:false,
+        slowT:se.slowT||0,slowM:se.slowM||1,burnT:se.burnT||0,burnDmg:0,stunT:se.stunT||0,
+        _mpId:se.id};
+      enemies.push(e);
+    } else {
+      e.x=se.x;e.y=se.y;e.hp=se.hp;e.pi=se.pi;
+      e.slowT=se.slowT;e.slowM=se.slowM;e.burnT=se.burnT;e.stunT=se.stunT;
+      if(se.dead)e.dead=true;if(se.reached)e.reached=true;
     }
   });
+
+  // Remove enemies that host no longer has
+  const hostIds=new Set(hostEnemies.map(e=>e.id));
+  enemies=enemies.filter(e=>!e._mpId||hostIds.has(e._mpId));
   updateHUD();
 }
 
@@ -2180,7 +2334,6 @@ function syncGameState(state){
 function broadcastMyGold(){
   if(!mp.active)return;
   mpSend('player_gold',{id:mp.myId,gold});
-  // Also update in DB so new joiners see it
   try{fbDb().ref(`rooms/${mp.roomCode}/players/${mp.myId}/gold`).set(gold);}catch(e){}
 }
 function updateRemoteGold(data){
@@ -2192,15 +2345,11 @@ function updateRemoteGold(data){
 function leaveRoom(clearActive=true){
   removeListeners();
   if(mp._syncInterval){clearInterval(mp._syncInterval);mp._syncInterval=null;}
+  if(mp._towerSyncInterval){clearInterval(mp._towerSyncInterval);mp._towerSyncInterval=null;}
+  if(mp._keepalive){clearInterval(mp._keepalive);mp._keepalive=null;}
   document.getElementById('mpDisconnectBtn').style.display='none';
   if(clearActive){
-    try{
-      if(mp.db&&mp.roomCode&&mp.myId){
-        // Always just remove our own player — never delete the whole room
-        // so remaining players can keep going regardless of who leaves
-        mp.db.ref(`rooms/${mp.roomCode}/players/${mp.myId}`).remove();
-      }
-    }catch(e){}
+    try{if(mp.db&&mp.roomCode&&mp.myId)mp.db.ref(`rooms/${mp.roomCode}/players/${mp.myId}`).remove();}catch(e){}
     mp.active=false;mp.isHost=false;mp.roomCode=null;mp.myId=null;
     mp.players={};mp.eventsRef=null;
     document.getElementById('mpBar').classList.remove('visible');
