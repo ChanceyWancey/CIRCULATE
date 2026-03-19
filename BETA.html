@@ -258,6 +258,10 @@ body{background:var(--bg);min-height:100vh;display:flex;align-items:center;justi
 .mp-btn:hover{opacity:.85}
 .mp-btn.out{background:transparent;color:var(--ink)}
 .mp-btn.out:hover{background:var(--surface2)}
+#mpDisconnectBtn{display:none}
+#playerLeftToast{display:none;position:fixed;top:56px;left:50%;transform:translateX(-50%);z-index:600;background:var(--surface);border:1.5px solid var(--red);border-radius:8px;padding:10px 18px;font-family:'DM Mono',monospace;font-size:11px;color:var(--red);box-shadow:0 4px 20px var(--shadow);pointer-events:none;text-align:center;white-space:nowrap}
+#playerLeftToast.show{display:block;animation:plToastIn .3s ease forwards}
+@keyframes plToastIn{from{opacity:0;transform:translateX(-50%) translateY(-6px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
 </style>
 </head>
 <body>
@@ -326,6 +330,7 @@ body{background:var(--bg);min-height:100vh;display:flex;align-items:center;justi
 <!-- ══════════ GAME ══════════ -->
 <div id="gameScreen">
   <div id="mpBar"></div>
+  <div id="playerLeftToast"></div>
   <canvas id="gameCanvas" width="600" height="420"></canvas>
   <div id="sidebar">
     <div id="sandboxBanner">⚗ SANDBOX MODE — unlimited gold · no lives · spawn enemies manually</div>
@@ -348,6 +353,7 @@ body{background:var(--bg);min-height:100vh;display:flex;align-items:center;justi
         <button class="gbtn out" id="moveTowerBtn" style="flex:1">MOVE</button>
         <button class="gbtn out" id="menuBackBtn" style="flex:1">MENU</button>
       </div>
+      <button class="gbtn out" id="mpDisconnectBtn" style="color:#dc2626;border-color:#dc2626">⊗ DISCONNECT</button>
       <div id="msgEl">Place towers, then send the wave.</div>
     </div>
   </div>
@@ -408,14 +414,15 @@ body{background:var(--bg);min-height:100vh;display:flex;align-items:center;justi
     <div style="display:flex;align-items:center;gap:8px">
       <input class="mp-input" id="mpNameInput" maxlength="16" placeholder="Your name..." autocomplete="off" spellcheck="false" style="font-size:12px;letter-spacing:.04em;text-align:left;padding:8px 12px">
     </div>
+    <div id="mpNameHint" style="font-family:'DM Mono',monospace;font-size:9px;min-height:13px;padding-left:2px"></div>
     <div class="mp-tabs">
       <button class="mp-tab active" id="mpTabHost">Host Game</button>
       <button class="mp-tab" id="mpTabJoin">Join Game</button>
-      <button class="mp-tab" id="mpTabQuick">Quick Join</button>
     </div>
     <div class="mp-divider"></div>
+    <!-- HOST + JOINED LOBBY (shared) -->
     <div class="mp-section" id="mpSectionHost">
-      <div class="mp-sub">Share this code with friends. Start when ready.</div>
+      <div class="mp-sub" id="mpLobbySubtitle">Share this code with friends. Start when ready.</div>
       <div class="mp-code-display" id="mpCodeDisplay">----</div>
       <div class="mp-status" id="mpHostStatus">Creating room...</div>
       <div class="mp-players" id="mpPlayerList"></div>
@@ -424,20 +431,14 @@ body{background:var(--bg);min-height:100vh;display:flex;align-items:center;justi
         <button class="mp-btn out" id="mpCancelBtn">CANCEL</button>
       </div>
     </div>
+    <!-- JOIN ENTRY -->
     <div class="mp-section" id="mpSectionJoin" style="display:none">
-      <div class="mp-sub">Enter the 4-digit room code from the host.</div>
+      <div class="mp-sub">Enter the 4-character room code from the host.</div>
       <input class="mp-input" id="mpCodeInput" maxlength="4" placeholder="XXXX" autocomplete="off" spellcheck="false">
       <div class="mp-status" id="mpJoinStatus"></div>
       <div style="display:flex;gap:8px">
         <button class="mp-btn" id="mpJoinBtn">JOIN</button>
         <button class="mp-btn out" id="mpJoinCancelBtn">CANCEL</button>
-      </div>
-    </div>
-    <div class="mp-section" id="mpSectionQuick" style="display:none">
-      <div class="mp-sub">Looking for an open room on this map...</div>
-      <div class="mp-status" id="mpQuickStatus">Searching...</div>
-      <div style="display:flex;gap:8px;margin-top:4px">
-        <button class="mp-btn out" id="mpQuickCancelBtn">CANCEL</button>
       </div>
     </div>
   </div>
@@ -774,6 +775,7 @@ function canUp(t,path){
 }
 
 function doUpgrade(t,path){
+  if(mp.active&&t.mpOwner&&t.mpOwner!==mp.myId){msg("That's not your tower!");return;}
   const pathKey=path==='A'?'pA':path==='B'?'pB':'pC';
   const lvl=path==='A'?(t.pA||0):path==='B'?(t.pB||0):(t.pC||0);
   const ups=TDEFS[t.type][pathKey];
@@ -788,6 +790,8 @@ function doUpgrade(t,path){
   const newLvl=path==='A'?t.pA:path==='B'?t.pB:t.pC;
   if(!t.primaryPath&&newLvl>=3)t.primaryPath=path;
   score+=5;updateHUD();renderUpPanel(t);applyAmpBoosts();applyBeaconBoosts();msg(`Upgraded: ${up.n}`);
+  if(mp.active)mpSend('tower_upgrade',{col:t.col,row:t.row,path,playerId:mp.myId});
+  if(mp.active)broadcastMyGold();
 }
 
 function startWave(){
@@ -988,7 +992,7 @@ function hitBullet(b,ts){
   });
   if(b.chain>0&&!b.tgt.dead){
     let last=b.tgt,chains=b.chain;const hit=new Set([last]);
-    while(chains-->0){
+    while(chains-- >0){
       const nxt=enemies.filter(e=>!e.dead&&!hit.has(e)).sort((a,c)=>Math.hypot(a.x-last.x,a.y-last.y)-Math.hypot(c.x-last.x,c.y-last.y))[0];
       if(!nxt||Math.hypot(nxt.x-last.x,nxt.y-last.y)>3.2*CS)break;
       dealDmg(nxt,b.dmg*.6);if(b.slow>0){nxt.slowT=ts+1500;nxt.slowM=1-b.slow;}if(b.stun>0)nxt.stunT=ts+(b.stun*500);
@@ -1243,11 +1247,11 @@ function renderUpPanel(tower){
     }
     const nm=isCutoff?'CUT OFF':nextUp&&canBuy?nextUp.n:lvl>=maxLvl?'MAXED':nextUp?nextUp.n:'MAXED';
     const desc=(!isCutoff&&nextUp&&canBuy)?nextUp.d:isCutoff?'Path locked — another path is primary':'';
-    const canAfford=nextUp&&gold>=nextUp.c;const btnDis=!nextUp||!canBuy||!canAfford;
+    const canAfford=nextUp&&gold>=nextUp.c;const btnDis=!nextUp||!canBuy||!canAfford||isOtherPlayerTower;
     return`<div class="path-box${isCutoff?' cutoff':''}">
       <div class="path-lbl">${label}${statusLabel}</div><div class="tiers">${tHTML}</div>
       <div class="up-next-name">${nm}</div><div class="up-next-desc">${desc}</div>
-      ${!isCutoff&&nextUp&&canBuy?`<button class="buy-btn" ${btnDis?'disabled':''} onclick="doUpgrade(selTower,'${path}')">${canAfford?nextUp.c+'g':'Need '+nextUp.c+'g'}</button>`:''}
+      ${!isCutoff&&nextUp&&canBuy&&!isOtherPlayerTower?`<button class="buy-btn" ${btnDis?'disabled':''} onclick="doUpgrade(selTower,'${path}')">${canAfford?nextUp.c+'g':'Need '+nextUp.c+'g'}</button>`:''}
     </div>`;
   }
   const isFGB=(tower.fgbTimer||0)>0;const fgbSec=Math.ceil(tower.fgbTimer||0);const fgbPct=((tower.fgbTimer||0)/30)*100;
@@ -1259,7 +1263,13 @@ function renderUpPanel(tower){
   const wallHpHTML=isWall?`<div class="fgb-bar"><div class="fgb-bar-top"><span class="fgb-label" style="color:#64748b">WALL HP</span><span class="fgb-timer" id="wallHpTextEl" style="color:#64748b">${Math.ceil(tower.wallHp)} / ${tower.wallHpBase}</span></div><div class="fgb-track"><div class="fgb-fill" id="wallHpFillEl" style="width:${wallHpPct*100}%;background:${wallHpClr}"></div></div></div>`:'';
   const curTarget=tower.targetMode||'first';
   const targetRowHTML=isWall?'':`<div class="target-row"><span class="target-lbl">Target</span><button class="target-btn active-${curTarget}" onclick="setTowerTarget(null)">${TARGET_ICONS[curTarget]} ${TARGET_LABELS[curTarget]} ↻</button></div>`;
-  p.innerHTML=`<div class="up-head"><div><div class="up-name">${def.name}</div><div class="up-sub">Path ${pa}-${pb}-${pc}</div></div><button class="sell-btn${isFGB?' fgb':''}" onclick="sellTower()">${sellLabel}</button></div>${fgbHTML}${wallHpHTML}${targetRowHTML}${pathSection('A',def.pathA||'PATH A')}${pathSection('B',def.pathB||'PATH B')}${pathSection('C',def.pathC||'PATH C')}<button class="back-btn" onclick="deselTower()">← SHOP</button>`;
+  // MP ownership — lock controls if this isn't our tower
+  const isOtherPlayerTower=mp.active&&tower.mpOwner&&tower.mpOwner!==mp.myId;
+  const ownerEntry=isOtherPlayerTower?Object.values(mp.players).find(pl=>pl.slot===tower.mpSlot):null;
+  const ownerName=ownerEntry?ownerEntry.name:'Teammate';
+  const ownerColor=isOtherPlayerTower?(PLAYER_COLORS[tower.mpSlot]||'#888'):'';
+  const ownerBannerHTML=isOtherPlayerTower?`<div style="font-family:'DM Mono',monospace;font-size:9px;padding:5px 8px;background:${ownerColor}22;border:1px solid ${ownerColor}55;border-radius:4px;color:${ownerColor};margin-bottom:4px;text-align:center">🔒 ${ownerName}'s Tower — view only</div>`:'';
+  p.innerHTML=`<div class="up-head"><div><div class="up-name">${def.name}</div><div class="up-sub">Path ${pa}-${pb}-${pc}</div></div>${!isOtherPlayerTower?`<button class="sell-btn${isFGB?' fgb':''}" onclick="sellTower()">${sellLabel}</button>`:''}</div>${ownerBannerHTML}${fgbHTML}${wallHpHTML}${!isOtherPlayerTower?targetRowHTML:''}${pathSection('A',def.pathA||'PATH A')}${pathSection('B',def.pathB||'PATH B')}${pathSection('C',def.pathC||'PATH C')}<button class="back-btn" onclick="deselTower()">← SHOP</button>`;
 }
 
 function deselTower(){selTower=null;showUpPanel(false);buildShop();}
@@ -1270,7 +1280,9 @@ function setTowerTarget(mode){
   renderUpPanel(selTower);
 }
 function sellTower(){
-  if(!selTower)return;const def=TDEFS[selTower.type],pa=selTower.pA||0,pb=selTower.pB||0,pc=selTower.pC||0;
+  if(!selTower)return;
+  if(mp.active&&selTower.mpOwner&&selTower.mpOwner!==mp.myId){msg("That's not your tower!");return;}
+  const def=TDEFS[selTower.type],pa=selTower.pA||0,pb=selTower.pB||0,pc=selTower.pC||0;
   let sp=0;for(let i=0;i<pa;i++)sp+=def.pA[i].c;for(let i=0;i<pb;i++)sp+=def.pB[i].c;for(let i=0;i<pc;i++)sp+=def.pC[i].c;
   const isFGB=(selTower.fgbTimer||0)>0;gold+=isFGB?def.cost:(Math.floor(def.cost*.6)+Math.floor(sp*.4));
   towers=towers.filter(t=>t!==selTower);deselTower();updateHUD();buildShop();msg(isFGB?'Tower sold — Full Goldback refund!':'Tower sold.');
@@ -1339,6 +1351,7 @@ canvas.addEventListener('contextmenu',e=>{
   const r=canvas.getBoundingClientRect();const col=Math.floor((e.clientX-r.left)/CS),row=Math.floor((e.clientY-r.top)/CS);
   const idx=towers.findIndex(t=>{const def=TDEFS[t.type];if(def.isBank||def.isAmplifier)return col>=t.col&&col<t.col+3&&row>=t.row&&row<t.row+3;return t.col===col&&t.row===row;});
   if(idx===-1)return;const t=towers[idx],def=TDEFS[t.type];
+  if(mp.active&&t.mpOwner&&t.mpOwner!==mp.myId){msg("That's not your tower!");return;}
   let sp=0;for(let i=0;i<(t.pA||0);i++)sp+=def.pA[i].c;for(let i=0;i<(t.pB||0);i++)sp+=def.pB[i].c;for(let i=0;i<(t.pC||0);i++)sp+=def.pC[i].c;
   const isFGB=(t.fgbTimer||0)>0;gold+=isFGB?def.cost:(Math.floor(def.cost*.6)+Math.floor(sp*.4));
   towers.splice(idx,1);if(selTower===t)deselTower();updateHUD();buildShop();applyAmpBoosts();applyBeaconBoosts();msg(isFGB?'Tower sold — Full Goldback refund!':'Tower sold.');
@@ -1469,6 +1482,7 @@ document.getElementById('goMenu').addEventListener('click',()=>{document.getElem
 })();
 
 document.getElementById('mdPlayMulti').addEventListener('click',()=>openMpOverlay());
+
 buildMenuMaps();showScreen('menu');
 </script>
 <script>
@@ -1566,23 +1580,74 @@ function closeMpOverlay(){
   leaveRoom();
 }
 
+// ── Hardcoded name filter ─────────────────
+const BAD_WORDS=[
+  'fuck','shit','ass','bitch','cunt','dick','cock','pussy','nigger','nigga','faggot','fag',
+  'retard','whore','slut','bastard','twat','prick','asshole','motherfucker','fucker',
+  'kike','spic','chink','gook','wetback','tranny','dyke','cracker','nazi','rape',
+  'hitler','pedo','pedophile','nonce',
+];
+function namePassesFilter(name){
+  const lower=name.toLowerCase().replace(/[^a-z0-9]/g,'');
+  return !BAD_WORDS.some(w=>lower.includes(w));
+}
+
+// ── Persist + filter player name ─────────
+(function(){
+  const inp=document.getElementById('mpNameInput');
+  const hint=document.getElementById('mpNameHint');
+  const saved=localStorage.getItem('htl_mp_name');
+  if(saved)inp.value=saved;
+
+  function validate(v){
+    if(!v){hint.textContent='';inp.style.borderColor='';return true;}
+    if(!namePassesFilter(v)){
+      hint.textContent='⚠ Name contains inappropriate content';
+      hint.style.color='var(--red)';inp.style.borderColor='var(--red)';return false;
+    }
+    hint.textContent='';inp.style.borderColor='';
+    localStorage.setItem('htl_mp_name',v);
+    return true;
+  }
+
+  inp.addEventListener('input',()=>{
+    const v=inp.value.trim();
+    if(validate(v)&&mp.myId&&mp.roomCode&&mp.db){
+      try{mp.db.ref(`rooms/${mp.roomCode}/players/${mp.myId}/name`).set(v||PLAYER_NAMES[mp.mySlot]);}catch(e){}
+      const myEntry=mp.players[mp.myId];
+      if(myEntry)myEntry.name=v||PLAYER_NAMES[mp.mySlot];
+      renderPlayerList();renderMpBar();
+    }
+  });
+
+  window._nameOk=()=>namePassesFilter(inp.value.trim()||'ok');
+})();
+
 // ── Tab switching ─────────────────────────
 function setMpTab(tab){
-  ['host','join','quick'].forEach(t=>{
+  ['host','join'].forEach(t=>{
     document.getElementById('mpTab'+cap(t)).classList.toggle('active',t===tab);
     document.getElementById('mpSection'+cap(t)).style.display=t===tab?'flex':'none';
   });
 }
 function cap(s){return s[0].toUpperCase()+s.slice(1);}
 
-document.getElementById('mpTabHost').onclick=()=>{setMpTab('host');hostRoom();};
+document.getElementById('mpTabHost').onclick=()=>{
+  if(!window._nameOk()){
+    document.getElementById('mpNameHint').textContent='⚠ Fix your name first';
+    document.getElementById('mpNameHint').style.color='var(--red)';
+    return;
+  }
+  setMpTab('host');hostRoom();
+};
 document.getElementById('mpTabJoin').onclick=()=>setMpTab('join');
-document.getElementById('mpTabQuick').onclick=()=>{setMpTab('quick');quickJoin();};
 document.getElementById('mpCancelBtn').onclick=closeMpOverlay;
 document.getElementById('mpJoinCancelBtn').onclick=closeMpOverlay;
-document.getElementById('mpQuickCancelBtn').onclick=closeMpOverlay;
 
 document.getElementById('mpJoinBtn').onclick=()=>{
+  if(!window._nameOk()){
+    setMpStatus('mpJoinStatus','Fix your name first.','err');return;
+  }
   const code=document.getElementById('mpCodeInput').value.trim().toUpperCase();
   if(code.length!==4){setMpStatus('mpJoinStatus','Enter a 4-character code.','err');return;}
   joinRoom(code);
@@ -1603,11 +1668,13 @@ async function hostRoom(){
   document.getElementById('mpCodeDisplay').textContent=mp.roomCode;
   setMpStatus('mpHostStatus','Creating room...');
   document.getElementById('mpStartBtn').disabled=true;
+  document.getElementById('mpStartBtn').style.display='';
+  document.getElementById('mpLobbySubtitle').textContent='Share this code with friends. Start when ready.';
 
   try{
     await loadFirebase();
     const db=fbDb();
-    const myName=document.getElementById('mpNameInput').value.trim()||'Player 1';
+    const myName=document.getElementById('mpNameInput').value.trim()||PLAYER_NAMES[0];
     const roomRef=db.ref('rooms/'+mp.roomCode);
 
     // Write room + host player; both auto-delete on disconnect
@@ -1682,13 +1749,20 @@ async function joinRoom(code){
     await myRef.set({name:myName,slot,gold:mapGold});
     myRef.onDisconnect().remove();
 
+    // Switch to lobby view (shared host panel, client mode)
+    setMpTab('host');
+    document.getElementById('mpLobbySubtitle').textContent='You joined! Waiting for the host to start.';
+    document.getElementById('mpCodeDisplay').textContent=code;
+    document.getElementById('mpStartBtn').style.display='none';
+    setMpStatus('mpHostStatus','','');
+
     // Watch player list
     addListener(roomRef.child('players'),'value',snap2=>{
       const data=snap2.val()||{};
       mp.players={};
       Object.entries(data).forEach(([id,p])=>{mp.players[id]=p;});
       const n=Object.keys(mp.players).length;
-      setMpStatus('mpJoinStatus',`In lobby — ${n}/4 players`,'ok');
+      setMpStatus('mpHostStatus',`${n}/4 players in lobby`,'ok');
       renderPlayerList();
     });
 
@@ -1702,27 +1776,9 @@ async function joinRoom(code){
       handleMpEvent(ev);
     });
 
-    setMpStatus('mpJoinStatus','Joined! Waiting for host to start…','ok');
   }catch(e){
     setMpStatus('mpJoinStatus','Error: '+e.message,'err');
-  }
-}
-
-// ── Quick join ────────────────────────────
-async function quickJoin(){
-  setMpStatus('mpQuickStatus','Searching for open rooms…');
-  try{
-    await loadFirebase();
-    const db=fbDb();
-    const snap=await db.ref('rooms').orderByChild('status').equalTo('lobby').limitToFirst(5).once('value');
-    if(!snap.exists()){setMpStatus('mpQuickStatus','No open rooms found. Host one instead!','err');return;}
-    const code=Object.keys(snap.val())[0];
-    setMpStatus('mpQuickStatus','Found room '+code+'!','ok');
     setMpTab('join');
-    document.getElementById('mpCodeInput').value=code;
-    joinRoom(code);
-  }catch(e){
-    setMpStatus('mpQuickStatus','Error: '+e.message,'err');
   }
 }
 
@@ -1741,6 +1797,15 @@ function handleMpEvent(ev){
       break;
     case 'tower_place':
       if(mp.active)handleRemoteTower(ev.payload);
+      break;
+    case 'tower_upgrade':
+      if(mp.active)handleRemoteUpgrade(ev.payload);
+      break;
+    case 'towers_adopt':
+      if(mp.active)applyTowerAdoption(ev.payload);
+      break;
+    case 'player_left':
+      if(mp.active&&ev.from!==mp.myId)showPlayerLeftToast(ev.payload.name);
       break;
     case 'game_state':
       if(mp.active)syncGameState(ev.payload);
@@ -1779,6 +1844,8 @@ function launchMultiplayer(payload){
   if(animId)cancelAnimationFrame(animId);
   animId=requestAnimationFrame(loop);
   showMpBar();
+  watchForDisconnects();
+  document.getElementById('mpDisconnectBtn').style.display='block';
 
   // Host syncs enemy/wave state every 500ms
   if(mp.isHost){
@@ -1862,6 +1929,91 @@ function handleRemoteTower(data){
   applyAmpBoosts();applyBeaconBoosts();
 }
 
+// ── Remote upgrade ────────────────────────
+function handleRemoteUpgrade(data){
+  const t=towers.find(t=>t.col===data.col&&t.row===data.row);
+  if(!t)return;
+  const path=data.path;
+  const pathKey=path==='A'?'pA':path==='B'?'pB':'pC';
+  const lvl=path==='A'?(t.pA||0):path==='B'?(t.pB||0):(t.pC||0);
+  const ups=TDEFS[t.type][pathKey];
+  if(!ups||lvl>=ups.length)return;
+  const up=ups[lvl];
+  up.f(t);
+  t.fgbTimer=0;
+  if(path==='A')t.pA=(t.pA||0)+1;
+  else if(path==='B')t.pB=(t.pB||0)+1;
+  else t.pC=(t.pC||0)+1;
+  const newLvl=path==='A'?t.pA:path==='B'?t.pB:t.pC;
+  if(!t.primaryPath&&newLvl>=3)t.primaryPath=path;
+  applyAmpBoosts();applyBeaconBoosts();
+  if(selTower===t)renderUpPanel(t);
+}
+
+// ── Player-left toast ─────────────────────
+let _plToastTimer=null;
+function showPlayerLeftToast(name){
+  const el=document.getElementById('playerLeftToast');
+  el.textContent=`${name} left the game`;
+  el.classList.add('show');
+  if(_plToastTimer)clearTimeout(_plToastTimer);
+  _plToastTimer=setTimeout(()=>{el.classList.remove('show');},4000);
+}
+
+// ── Tower redistribution when player leaves ──
+function redistributeLeftPlayerTowers(goneId, goneName){
+  // Only the host computes & broadcasts redistribution
+  if(!mp.isHost)return;
+  const orphans=towers.filter(t=>t.mpOwner===goneId);
+  if(!orphans.length)return;
+  const remaining=Object.entries(mp.players)
+    .filter(([id])=>id!==goneId)
+    .map(([id,p])=>({id,slot:p.slot}));
+  if(!remaining.length)return;
+  // round-robin assignment
+  const assignments=orphans.map((t,i)=>{
+    const heir=remaining[i%remaining.length];
+    return{col:t.col,row:t.row,newOwnerId:heir.id,newSlot:heir.slot};
+  });
+  // apply locally on host
+  applyTowerAdoption({assignments});
+  // broadcast to clients
+  mpSend('towers_adopt',{assignments,goneName});
+}
+
+function applyTowerAdoption(data){
+  const{assignments,goneName}=data;
+  assignments.forEach(a=>{
+    const t=towers.find(t=>t.col===a.col&&t.row===a.row);
+    if(!t)return;
+    t.mpOwner=a.newOwnerId;
+    t.mpSlot=a.newSlot;
+  });
+  // if it's our towers being inherited, show a specific message
+  const myNewCount=assignments.filter(a=>a.newOwnerId===mp.myId).length;
+  if(myNewCount>0){
+    const who=goneName||'A player';
+    showPlayerLeftToast(`${who} left — you inherited ${myNewCount} tower${myNewCount>1?'s':''}!`);
+  }
+  if(selTower)renderUpPanel(selTower);
+}
+function watchForDisconnects(){
+  if(!mp.active||!mp.db||!mp.roomCode)return;
+  const playersRef=mp.db.ref(`rooms/${mp.roomCode}/players`);
+  addListener(playersRef,'child_removed',snap=>{
+    const gone=snap.val();
+    if(!gone||snap.key===mp.myId)return;
+    const name=gone.name||'A player';
+    // Redistribute orphaned towers (host only — broadcast covers clients)
+    redistributeLeftPlayerTowers(snap.key,name);
+    showPlayerLeftToast(name+' left the game');
+    // host broadcasts player_left so non-host clients show the toast
+    if(mp.isHost)mpSend('player_left',{name,playerId:snap.key});
+    if(mp.players[snap.key])delete mp.players[snap.key];
+    renderMpBar();
+  });
+}
+
 // ── Game state sync (host→clients) ───────
 function syncGameState(state){
   if(mp.isHost)return;
@@ -1893,6 +2045,7 @@ function updateRemoteGold(data){
 function leaveRoom(clearActive=true){
   removeListeners();
   if(mp._syncInterval){clearInterval(mp._syncInterval);mp._syncInterval=null;}
+  document.getElementById('mpDisconnectBtn').style.display='none';
   if(clearActive){
     try{
       if(mp.db&&mp.roomCode){
@@ -1919,7 +2072,7 @@ canvas.addEventListener('click',()=>{
   },50);
 },{capture:false});
 
-// ── Draw colored ownership rings ──────────
+// ── Draw colored ownership rings + name labels ──
 const __origDraw=draw;
 window.draw=function(ts){
   __origDraw(ts);
@@ -1927,8 +2080,26 @@ window.draw=function(ts){
   towers.forEach(t=>{
     if(t.mpSlot===undefined)return;
     const cx=t.col*CS+CS/2,cy=t.row*CS+CS/2;
+    const color=PLAYER_COLORS[t.mpSlot]||'#888';
+    // ownership ring
     ctx.beginPath();ctx.arc(cx,cy,16,0,Math.PI*2);
-    ctx.strokeStyle=(PLAYER_COLORS[t.mpSlot]||'#888')+'88';ctx.lineWidth=2;ctx.stroke();
+    ctx.strokeStyle=color+'88';ctx.lineWidth=2;ctx.stroke();
+    // player name label above tower
+    const ownerEntry=Object.values(mp.players).find(p=>p.slot===t.mpSlot);
+    const name=ownerEntry?ownerEntry.name:`P${t.mpSlot+1}`;
+    const isMe=t.mpOwner===mp.myId;
+    const labelText=isMe?'you':name;
+    ctx.font=`600 7px "DM Mono",monospace`;
+    ctx.textAlign='center';ctx.textBaseline='bottom';
+    const tw=ctx.measureText(labelText).width;
+    const lx=cx,ly=cy-18;
+    // pill background
+    ctx.fillStyle=color+(isMe?'cc':'88');
+    const pad=3,rr=4;
+    ctx.beginPath();ctx.roundRect(lx-tw/2-pad,ly-8,tw+pad*2,9,rr);ctx.fill();
+    // label text
+    ctx.fillStyle=isMe?'#fff':'#fff';
+    ctx.fillText(labelText,lx,ly);
   });
 };
 
@@ -1948,6 +2119,33 @@ document.getElementById('waveBtn').addEventListener('click',()=>{
 // ── Leave on menu back ────────────────────
 document.getElementById('menuBackBtn').addEventListener('click',()=>{
   if(mp.active)leaveRoom();
+});
+
+// ── Disconnect button ─────────────────────
+document.getElementById('mpDisconnectBtn').addEventListener('click',()=>{
+  if(!mp.active)return;
+  const myEntry=mp.players[mp.myId];
+  const myName=myEntry?myEntry.name:'A player';
+  // If we're the host, redistributeLeftPlayerTowers won't fire for us (it only handles child_removed for others)
+  // So we need to manually compute & broadcast redistribution for our own towers
+  const myOrphans=towers.filter(t=>t.mpOwner===mp.myId);
+  if(myOrphans.length){
+    const remaining=Object.entries(mp.players)
+      .filter(([id])=>id!==mp.myId)
+      .map(([id,p])=>({id,slot:p.slot}));
+    if(remaining.length){
+      const assignments=myOrphans.map((t,i)=>{
+        const heir=remaining[i%remaining.length];
+        return{col:t.col,row:t.row,newOwnerId:heir.id,newSlot:heir.slot};
+      });
+      mpSend('towers_adopt',{assignments,goneName:myName});
+    }
+  }
+  mpSend('player_left',{name:myName,playerId:mp.myId});
+  leaveRoom();
+  if(animId){cancelAnimationFrame(animId);animId=null;}
+  localStorage.removeItem('htl_resume_state');
+  showScreen('menu');closeMapDetail();
 });
 </script>
 </body></html>
