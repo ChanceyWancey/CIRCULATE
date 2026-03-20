@@ -592,6 +592,7 @@ body{background:var(--bg);min-height:100vh;display:flex;align-items:center;justi
   }
   async function checkForUpdate(){
     if(updatePending)return;
+    if(typeof mp!=='undefined'&&mp.active)return; // never auto-update during multiplayer
     try{
       const res=await fetch(RAW_URL+'?_='+Date.now(),{cache:'no-store'});if(!res.ok)return;
       const remoteText=await res.text();const remoteHash=hashStr(remoteText);
@@ -2311,6 +2312,7 @@ let mpMode='normal';
 function mpSetMode(m){
   if(!mp.isHost)return;
   mpMode=m;
+  mp.mode=m; // mirror on mp object in case mpMode gets overwritten
   document.getElementById('mpModeNormal').classList.toggle('active',m==='normal');
   document.getElementById('mpModeEndless').classList.toggle('active',m==='endless');
   // Sync mode choice to Firebase so joiners can see it
@@ -2360,11 +2362,11 @@ async function hostRoom(){
     await myRef.set({name:rawName,slot:0,gold:mp.pendingMap.gold});
     myRef.onDisconnect().remove();
 
-    // Keepalive — write a heartbeat every 10s to prevent Firebase idle disconnect
+    // Keepalive — write a heartbeat every 3s to prevent Firebase idle disconnect
     mp._keepalive=setInterval(()=>{
       if(!mp.db||!mp.roomCode)return;
       mp.db.ref('rooms/'+mp.roomCode+'/heartbeat').set(firebase.database.ServerValue.TIMESTAMP);
-    },10000);
+    },3000);
 
     addListener(roomRef.child('players'),'value',snap=>{
       const data=snap.val()||{};
@@ -2376,9 +2378,9 @@ async function hostRoom(){
       renderPlayerList();
     });
 
-    // Watch mode changes
+    // Watch mode changes (lobby only — once game starts, mode is locked)
     addListener(roomRef.child('mode'),'value',snap=>{
-      const m=snap.val();if(m&&mp.isHost){mpMode=m;}
+      const m=snap.val();if(m&&mp.isHost&&!mp.active){mpMode=m;mp.mode=m;}
     });
 
     mp.eventsRef=roomRef.child('events');
@@ -2446,9 +2448,9 @@ async function joinRoom(code){
       renderPlayerList();
     });
 
-    // Watch mode so joiner can see it change
+    // Watch mode so joiner can see it change (lobby only)
     addListener(roomRef.child('mode'),'value',snap2=>{
-      const m=snap2.val();if(m)mpMode=m;
+      const m=snap2.val();if(m&&!mp.active){mpMode=m;mp.mode=m;}
     });
 
     mp.eventsRef=roomRef.child('events');
@@ -2529,10 +2531,13 @@ function handleMpEvent(ev){
 // ── Host starts the game ──────────────────
 document.getElementById('mpStartBtn').onclick=async()=>{
   if(!mp.eventsRef)return;
+  // Snapshot mode BEFORE any async gaps — the mode listener can overwrite mpMode during await
+  const modeSnap=mpMode;
+  mp.mode=modeSnap; // also store on mp object for reliability
   const db=fbDb();
   const state=db.ref('rooms/'+mp.roomCode);
-  await state.update({status:'playing',mode:mpMode});
-  const payload={mapName:mp.pendingMap.name,players:mp.players,hostId:mp.myId,mode:mpMode};
+  await state.update({status:'playing',mode:modeSnap});
+  const payload={mapName:mp.pendingMap.name,players:mp.players,hostId:mp.myId,mode:modeSnap};
   mpSend('game_start',payload);
   launchMultiplayer(payload);
 };
@@ -2556,8 +2561,14 @@ function launchMultiplayer(payload){
   document.getElementById('mpOverlay').classList.remove('open');
   mp.active=true;
   mp.players=payload.players||mp.players;
+  // Re-register onDisconnect after game starts so lobby-phase registration stays fresh
+  if(mp.db&&mp.roomCode&&mp.myId){
+    const _myGameRef=mp.db.ref('rooms/'+mp.roomCode+'/players/'+mp.myId);
+    _myGameRef.onDisconnect().remove();
+  }
   mp.hostId=payload.hostId||mp.myId;
   const endless=payload.mode==='endless';
+  mp.mode=payload.mode||'normal'; // persist for state syncs
   const myEntry=mp.players[mp.myId];
   mp.mySlot=myEntry?myEntry.slot:0;
 
@@ -2570,18 +2581,46 @@ function launchMultiplayer(payload){
   showMpBar();
   showChatPanel();
   watchForDisconnects();
+  // Monitor Firebase connection state — catch silent drops and show a warning
+  if(mp.db){
+    mp.db.ref('.info/connected').on('value',snap=>{
+      if(!mp.active)return;
+      const connected=snap.val();
+      if(!connected){
+        addSystemMsg('⚠ Connection lost — reconnecting…');
+      }else{
+        addSystemMsg('✓ Connected');
+        // Re-register onDisconnect after any reconnect
+        if(mp.roomCode&&mp.myId){
+          mp.db.ref('rooms/'+mp.roomCode+'/players/'+mp.myId).onDisconnect().remove();
+        }
+      }
+    });
+  }
   document.getElementById('mpDisconnectBtn').style.display='block';
   updateMpButtonStates();
 
   if(mp.isHost){
     // Assign unique IDs to enemies as they spawn — patched in spawnEnemy
     mp._nextEnemyId=1;
+    // Prune events node every 20s — prevents unbounded growth that slows Firebase
+    mp._pruneInterval=setInterval(()=>{
+      if(!mp.active||!mp.db||!mp.roomCode)return;
+      const cutoff=Date.now()-60000;
+      mp.db.ref('rooms/'+mp.roomCode+'/events').orderByChild('ts').endAt(cutoff).once('value',snap=>{
+        const updates={};
+        snap.forEach(child=>{updates[child.key]=null;});
+        if(Object.keys(updates).length>0)mp.db.ref('rooms/'+mp.roomCode+'/events').update(updates);
+      });
+    },20000);
 
-    // Full game state sync every 200ms (reduced from 500ms for smoother sync)
+    // Full game state sync every 400ms — enough for smooth play, avoids Firebase write throttle
     mp._syncInterval=setInterval(()=>{
       if(!mp.active)return;
+      // Skip write when there is nothing moving — saves ~70% of writes between waves
+      if(!waveActive&&enemies.length===0)return;
       mpSend('game_state',{
-        wave,lives,waveActive,speed,autoWave,
+        wave,lives,waveActive,speed,autoWave,isEndless,
         enemies:enemies.map(e=>({
           id:e._mpId,type:e.type,hp:e.hp,maxHp:e.maxHp,
           pi:e.pi,x:Math.round(e.x),y:Math.round(e.y),
@@ -2822,7 +2861,7 @@ function checkAndPromoteHost(goneId){
     mp._syncInterval=setInterval(()=>{
       if(!mp.active)return;
       mpSend('game_state',{
-        wave,lives,waveActive,speed,autoWave,
+        wave,lives,waveActive,speed,autoWave,isEndless,
         enemies:enemies.map(e=>({
           id:e._mpId,type:e.type,hp:e.hp,maxHp:e.maxHp,
           pi:e.pi,x:Math.round(e.x),y:Math.round(e.y),
@@ -2831,6 +2870,16 @@ function checkAndPromoteHost(goneId){
         })),
       });
     },200);
+    if(mp._pruneInterval)clearInterval(mp._pruneInterval);
+    mp._pruneInterval=setInterval(()=>{
+      if(!mp.active||!mp.db||!mp.roomCode)return;
+      const cutoff=Date.now()-60000;
+      mp.db.ref('rooms/'+mp.roomCode+'/events').orderByChild('ts').endAt(cutoff).once('value',snap=>{
+        const updates={};
+        snap.forEach(child=>{updates[child.key]=null;});
+        if(Object.keys(updates).length>0)mp.db.ref('rooms/'+mp.roomCode+'/events').update(updates);
+      });
+    },20000);
     if(mp._towerSyncInterval)clearInterval(mp._towerSyncInterval);
     mp._towerSyncInterval=setInterval(()=>{
       if(!mp.active)return;
@@ -2844,6 +2893,7 @@ function checkAndPromoteHost(goneId){
 function syncGameState(state){
   if(mp.isHost)return;
   lives=state.lives;wave=state.wave;waveActive=state.waveActive;
+  if(state.isEndless!==undefined)isEndless=state.isEndless;
   if(state.speed!==undefined&&state.speed!==speed){speed=state.speed;document.getElementById('speedBtn').textContent=`SPEED ×${speed}`;}
   if(state.autoWave!==undefined&&state.autoWave!==autoWave){autoWave=state.autoWave;const b=document.getElementById('autoBtn');b.textContent=autoWave?'AUTO ON':'AUTO OFF';b.classList.toggle('on',autoWave);}
   const waveBtn=document.getElementById('waveBtn');
@@ -2883,8 +2933,12 @@ function syncGameState(state){
 }
 
 // ── Gold sync ─────────────────────────────
+let _lastGoldBroadcast=0;
 function broadcastMyGold(){
   if(!mp.active)return;
+  const now=Date.now();
+  if(now-_lastGoldBroadcast<800)return; // throttle to max ~1/s
+  _lastGoldBroadcast=now;
   mpSend('player_gold',{id:mp.myId,gold});
   try{fbDb().ref(`rooms/${mp.roomCode}/players/${mp.myId}/gold`).set(gold);}catch(e){}
 }
@@ -2899,9 +2953,11 @@ function leaveRoom(clearActive=true){
   if(mp._syncInterval){clearInterval(mp._syncInterval);mp._syncInterval=null;}
   if(mp._towerSyncInterval){clearInterval(mp._towerSyncInterval);mp._towerSyncInterval=null;}
   if(mp._keepalive){clearInterval(mp._keepalive);mp._keepalive=null;}
+  if(mp._pruneInterval){clearInterval(mp._pruneInterval);mp._pruneInterval=null;}
   document.getElementById('mpDisconnectBtn').style.display='none';
   if(clearActive){
     try{if(mp.db&&mp.roomCode&&mp.myId)mp.db.ref(`rooms/${mp.roomCode}/players/${mp.myId}`).remove();}catch(e){}
+    if(mp.db)mp.db.ref('.info/connected').off();
     mp.active=false;mp.isHost=false;mp.roomCode=null;mp.myId=null;
     mp.players={};mp.eventsRef=null;
     document.getElementById('mpBar').classList.remove('visible');
