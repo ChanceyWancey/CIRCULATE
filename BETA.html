@@ -788,7 +788,34 @@ function updateHUD(){
   document.getElementById('livesEl').textContent=isSandbox?'∞':lives;
   document.getElementById('scoreEl').textContent=score;
   document.getElementById('waveEl').textContent=isEndless||isSandbox?`${wave}/∞`:`${wave}/${TOTAL_WAVES}`;
-  if(selTower&&document.getElementById('upgradePanel').style.display!=='none')renderUpPanel(selTower);
+  // Only re-render upgrade panel if gold crossed an affordability boundary for the selected tower
+  if(selTower&&document.getElementById('upgradePanel').style.display!=='none'){
+    upPanelAffordabilityCheck(selTower);
+  }
+}
+
+// Track last gold value that triggered a full upgrade panel render
+let _lastUpGold=-1;
+let _lastUpTower=null;
+function upPanelAffordabilityCheck(tower){
+  if(!tower)return;
+  // Always rebuild when tower changes
+  if(tower!==_lastUpTower){_lastUpTower=tower;_lastUpGold=gold;renderUpPanel(tower);return;}
+  // Check if any next-upgrade cost crosses the gold threshold since last render
+  const def=TDEFS[tower.type];
+  const paths=['A','B','C'];
+  let crossedThreshold=false;
+  for(const p of paths){
+    const pathKey=p==='A'?'pA':p==='B'?'pB':'pC';
+    const lvl=tower[pathKey]||0;
+    const ups=def[pathKey];
+    if(!ups||lvl>=ups.length)continue;
+    const cost=ups[lvl].c;
+    const couldAffordBefore=_lastUpGold>=cost;
+    const canAffordNow=gold>=cost;
+    if(couldAffordBefore!==canAffordNow){crossedThreshold=true;break;}
+  }
+  if(crossedThreshold){_lastUpGold=gold;renderUpPanel(tower);}
 }
 function msg(t){document.getElementById('msgEl').textContent=t;}
 
@@ -1386,7 +1413,7 @@ function renderUpPanel(tower){
   p.innerHTML=`<div class="up-head"><div><div class="up-name">${def.name}</div><div class="up-sub">Path ${pa}-${pb}-${pc}</div></div>${!isOtherPlayerTower?`<button class="sell-btn${isFGB?' fgb':''}" onclick="sellTower()">${sellLabel}</button>`:''}</div>${ownerBannerHTML}${fgbHTML}${wallHpHTML}${!isOtherPlayerTower?targetRowHTML:''}${pathSection('A',def.pathA||'PATH A')}${pathSection('B',def.pathB||'PATH B')}${pathSection('C',def.pathC||'PATH C')}<button class="back-btn" onclick="deselTower()">← SHOP</button>`;
 }
 
-function deselTower(){selTower=null;showUpPanel(false);buildShop();}
+function deselTower(){selTower=null;_lastUpTower=null;_lastUpGold=-1;showUpPanel(false);buildShop();}
 function setTowerTarget(mode){
   if(!selTower)return;
   if(mode===null){const idx=TARGET_MODES.indexOf(selTower.targetMode||'first');selTower.targetMode=TARGET_MODES[(idx+1)%TARGET_MODES.length];}
