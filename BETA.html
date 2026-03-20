@@ -677,8 +677,32 @@ const TDEFS=[
   {id:15,name:'Wall',cost:80,clr:'#64748b',desc:'Placed ON path cells. Has HP. Slows and chips enemies passing through. Bosses insta-break it.',pathA:'Reinforcement',pathB:'Spikes',pathC:'Slowing',isWall:true,wallHp:120,wallDmg:4,dmg:0,rate:0,range:0,splash:0,slow:0.55,chain:0,burn:0,stun:0,pierce:0,multi:1,
    pA:[{n:'Steel Frame',c:80,d:'HP +80',f:t=>{t.wallHp+=80;t.wallHpBase+=80}},{n:'Reinforced',c:160,d:'HP +160',f:t=>{t.wallHp+=160;t.wallHpBase+=160}},{n:'Fortified',c:320,d:'HP +320',f:t=>{t.wallHp+=320;t.wallHpBase+=320}},{n:'Bunker',c:640,d:'HP +600, regen 5/s',f:t=>{t.wallHp+=600;t.wallHpBase+=600;t.wallRegen=5}},{n:'Impenetrable',c:1280,d:'HP +1200',f:t=>{t.wallHp+=1200;t.wallHpBase+=1200}}],
    pB:[{n:'Barbed Wire',c:80,d:'+4 dmg/s to enemies',f:t=>{t.wallDmg+=4}},{n:'Spikes',c:160,d:'+8 dmg/s to enemies',f:t=>{t.wallDmg+=8}},{n:'Razor Wire',c:320,d:'+14 dmg/s, Bleed 3s',f:t=>{t.wallDmg+=14;t.burn=3}},{n:'Electrified',c:640,d:'Stun 0.3s on contact',f:t=>{t.stun=0.3;t.wallDmg+=20}},{n:'Death Fence',c:1280,d:'Dmg x2, Stun 0.8s',f:t=>{t.wallDmg*=2;t.stun=0.8}}],
-   pC:[{n:'Tar Pit',c:80,d:'Slow 70%',f:t=>{t.slow=0.7}},{n:'Quicksand',c:160,d:'Slow 85%',f:t=>{t.slow=0.85}},{n:'Sticky Mud',c:320,d:'Slow 92%',f:t=>{t.slow=0.92}},{n:'Time Field',c:640,d:'Slow 97%',f:t=>{t.slow=0.97}},{n:'Frozen Zone',c:1280,d:'Slow 99%',f:t=>{t.slow=0.99}}]},
-];
+   pC:[{n:'Tar Pit',c:80,d:'Slow 70%',f:t=>{t.slow=0.7}},{n:'Quicksand',c:160,d:'Slow 85%',f:t=>{t.slow=0.85}},{n:'Sticky Mud',c:320,d:'Slow 92%',f:t=>{t.slow=0.92}},{n:'Time Field',c:640,d:'Slow 97%',f:t=>{t.slow=0.97}},{n:'Frozen Zone',c:1280,d:'Slow 99%',f:t=>{t.slow=0.99}}]},,
+  {id:16,name:'Ghost',cost:500,clr:'#a5b4fc',devOnly:true,wallPiercing:true,
+   desc:'[DEV] Spectral unit. Fires through walls. Haunts enemies (increased dmg taken). Withers max-HP. Curse spreads debuffs on kill.',
+   pathA:'Soul Drain',pathB:'Haunt',pathC:'Spectral Barrage',
+   dmg:65,rate:0.85,range:6.5,splash:0,slow:0,chain:0,burn:0,stun:0,pierce:99,multi:1,
+   haunt:3,hauntMult:1.4,wither:0,requires:{towers:2},
+   pA:[{n:'Spectral Edge',c:200,d:'Dmg+80%, Burn 6s',f:t=>{t.dmg*=1.8;t.burn=6}},{n:'Soul Leech',c:400,d:'Dmg x2, Burn 10s',f:t=>{t.dmg*=2;t.burn=10}},{n:'Void Drain',c:800,d:'Dmg x2, Burn 18s',f:t=>{t.dmg*=2;t.burn=18}},{n:'Death Mark',c:1600,d:'Dmg x3, Burn 30s, Rate+30%',f:t=>{t.dmg*=3;t.burn=30;t.rate*=1.3}},{n:'Soul Annihilation',c:3200,d:'Dmg x5, Burn 60s, Splash 2',f:t=>{t.dmg*=5;t.burn=60;t.splash=2}}],
+   pB:[{n:'Haunt I',c:180,d:'Haunt 4s: +50% dmg taken',f:t=>{t.haunt=4;t.hauntMult=1.5}},{n:'Haunt II',c:360,d:'Haunt 6s: +80% dmg taken',f:t=>{t.haunt=6;t.hauntMult=1.8}},{n:'Wither I',c:720,d:'Wither 5% maxHP/s',f:t=>{t.haunt=6;t.hauntMult=2.0;t.wither=0.05}},{n:'Wither II',c:1440,d:'Wither 10% maxHP/s, Haunt x2',f:t=>{t.haunt=8;t.hauntMult=2.5;t.wither=0.10}},{n:'Curse',c:2880,d:'Curse: spreads debuffs on kill',f:t=>{t.haunt=10;t.hauntMult=3.0;t.wither=0.15;t.curseSplash=true}}],
+   pC:[{n:'Phase Step',c:180,d:'Rate x1.3',f:t=>{t.rate*=1.3}},{n:'Twin Wraith',c:360,d:'Rate x1.5, Multi 2',f:t=>{t.rate*=1.5;t.multi=2}},{n:'Blink Volley',c:720,d:'Rate x2, Multi 3',f:t=>{t.rate*=2;t.multi=3}},{n:'Specter Storm',c:1440,d:'Multi 4, Rate x1.5',f:t=>{t.multi=4;t.rate*=1.5}},{n:'Ghost Apocalypse',c:2880,d:'Multi 6, Rate x2, Dmg x2',f:t=>{t.multi=6;t.rate*=2;t.dmg*=2}}]},
+  {id:17,name:'God Wall',cost:100,clr:'#fde68a',devOnly:true,
+   desc:'[DEV] Indestructible divine barrier. Infinite HP. Obliterates everything that touches it.',
+   pathA:'Divine Smite',pathB:'Sacred Aura',pathC:'Eternal Barrier',
+   isWall:true,godWall:true,
+   wallHp:2000000000,wallDmg:9999999,
+   dmg:0,rate:0,range:0,splash:0,slow:0.99,chain:0,burn:0,stun:0.5,pierce:0,multi:1,
+   pA:[{n:'Smite I',c:1,d:'Dmg x2 on contact',f:t=>{t.wallDmg*=2}},{n:'Smite II',c:1,d:'Dmg x2 on contact',f:t=>{t.wallDmg*=2}},{n:'Smite III',c:1,d:'Dmg x2 on contact',f:t=>{t.wallDmg*=2}},{n:'Judgment',c:1,d:'Insta-kills all',f:t=>{t.wallDmg*=99}},{n:'Divine Wrath',c:1,d:'Burn 60s on contact',f:t=>{t.burn=60}}],
+   pB:[{n:'Holy Aura I',c:1,d:'Slow 99%',f:t=>{t.slow=0.99}},{n:'Holy Aura II',c:1,d:'Stun 1s',f:t=>{t.stun=1}},{n:'Holy Aura III',c:1,d:'Stun 2s',f:t=>{t.stun=2}},{n:'Holy Aura IV',c:1,d:'Stun 3s',f:t=>{t.stun=3}},{n:'God Presence',c:1,d:'Stun 9s',f:t=>{t.stun=9}}],
+   pC:[{n:'Eternal I',c:1,d:'HP regen 1B/s',f:t=>{t.wallRegen=1000000000}},{n:'Eternal II',c:1,d:'HP x Inf',f:t=>{t.wallHp=9e15;t.wallHpBase=9e15}},{n:'Eternal III',c:1,d:'HP x Inf',f:t=>{t.wallHp=9e18;t.wallHpBase=9e18}},{n:'Eternal IV',c:1,d:'HP x Inf',f:t=>{t.wallHp=9e21;t.wallHpBase=9e21}},{n:'Omnipotent',c:1,d:'Truly Infinite',f:t=>{t.wallHp=Infinity;t.wallHpBase=Infinity}}]},
+  {id:18,name:'Nuke',cost:1000,clr:'#4ade80',devOnly:true,
+   desc:'[DEV] Tactical nuclear launcher. Warheads vaporise the entire map instantly.',
+   pathA:'Yield',pathB:'Fallout',pathC:'Launch Rate',
+   dmg:9999999,rate:0.15,range:99,splash:22,slow:0,chain:0,burn:0,stun:0,pierce:0,multi:1,requires:{towers:3},
+   pA:[{n:'Dirty Bomb',c:500,d:'Dmg x2, Burn 15s',f:t=>{t.dmg*=2;t.burn=15}},{n:'Tactical Nuke',c:1000,d:'Dmg x5, Burn 30s',f:t=>{t.dmg*=5;t.burn=30}},{n:'Strategic Nuke',c:2000,d:'Dmg x10, Splash x1.5',f:t=>{t.dmg*=10;t.splash*=1.5}},{n:'City Buster',c:4000,d:'Dmg x20, Stun 3s',f:t=>{t.dmg*=20;t.stun=3}},{n:'Planet Cracker',c:8000,d:'Dmg x100, Burn 120s',f:t=>{t.dmg*=100;t.burn=120}}],
+   pB:[{n:'Fallout I',c:400,d:'Burn 10s on all hit',f:t=>{t.burn=10}},{n:'Fallout II',c:800,d:'Burn 20s, Slow 50%',f:t=>{t.burn=20;t.slow=0.5}},{n:'Fallout III',c:1600,d:'Burn 40s, Slow 80%',f:t=>{t.burn=40;t.slow=0.8}},{n:'Dead Zone',c:3200,d:'Burn 60s, Stun 2s',f:t=>{t.burn=60;t.stun=2}},{n:'Extinction Event',c:6400,d:'Burn 999s, Slow 99%, Stun 5s',f:t=>{t.burn=999;t.slow=0.99;t.stun=5}}],
+   pC:[{n:'Fast Reload',c:400,d:'Rate x1.5',f:t=>{t.rate*=1.5}},{n:'Auto Silo',c:800,d:'Rate x2, Multi 2',f:t=>{t.rate*=2;t.multi=2}},{n:'Volley',c:1600,d:'Multi 3, Rate x1.5',f:t=>{t.multi=3;t.rate*=1.5}},{n:'Carpet Nuke',c:3200,d:'Multi 4, Rate x2',f:t=>{t.multi=4;t.rate*=2}},{n:'Armageddon Protocol',c:6400,d:'Multi 6, Rate x3, Dmg x5',f:t=>{t.multi=6;t.rate*=3;t.dmg*=5}}]}];
+const IS_DEV_BUILD = true; // injected per build
 
 const MAPS=[
   {name:'Meadow',desc:'A gentle S-curve through open grassland. Perfect for learning.',diff:'Starter',clr:'#16a34a',lives:20,gold:625,wp:[[0,3],[5,3],[5,9],[14,9],[14,3],[19,3]],walls:[[5,2],[6,3],[4,2],[4,4],[4,9],[5,10],[4,8],[6,8],[14,10],[15,9],[13,8],[13,10],[13,3],[14,2],[13,4],[15,2]]},
@@ -1009,6 +1033,7 @@ function canUp(t,path){
 }
 
 function doUpgrade(t,path){
+  if(!IS_DEV_BUILD&&TDEFS[t.type].devOnly){msg('Dev tower — view only in this version.');return;}
   if(mp.active&&t.mpOwner&&t.mpOwner!==mp.myId){msg("That's not your tower!");return;}
   const pathKey=path==='A'?'pA':path==='B'?'pB':'pC';
   const lvl=path==='A'?(t.pA||0):path==='B'?(t.pB||0):(t.pC||0);
@@ -1052,6 +1077,7 @@ function update(ts){
     if(step>=dist){e.x=tx;e.y=ty;e.pi++;if(e.pi>=pathCells.length-1)e.reached=true;}
     else{e.x+=dx/dist*step;e.y+=dy/dist*step;}
     if(e.burnT>ts){e.hp-=e.burnDmg*dt;if(e.hp<=0)killEnemy(e);}
+    if((e.witherRate||0)>0){e.maxHp=Math.max(1,e.maxHp-e.witherRate*e.maxHp*dt);if(e.hp>e.maxHp){e.hp=e.maxHp;if(e.hp<=0)killEnemy(e);}}
   }
   enemies.filter(e=>e.reached&&!e.dead).forEach(e=>{
     e.dead=true;
@@ -1066,7 +1092,8 @@ function update(ts){
       for(const e of enemies){
         if(e.dead||e.reached)continue;
         if(Math.hypot(e.x-wcx,e.y-wcy)<CS*0.65){
-          if(e.type===3){wallBroken=true;break;}
+          if(e.type===3&&!TDEFS[t.type].godWall){wallBroken=true;break;}
+          if(TDEFS[t.type].godWall){e.hp=0;if(!e.dead)killEnemy(e);continue;}
           if(t.slow>0){e.slowT=ts+400;e.slowM=1-t.slow;}
           const dmgToWall=e.type===2?t.wallHpBase*0.25*dt:t.wallHpBase*0.04*dt;
           t.wallHp-=dmgToWall;
@@ -1075,7 +1102,7 @@ function update(ts){
           if(t.stun>0&&e.stunT<ts)e.stunT=ts+(t.stun*1000);
         }
       }
-      if(t.wallHp<=0||wallBroken){
+      if((t.wallHp<=0||wallBroken)&&!TDEFS[t.type].godWall){
         towers=towers.filter(w=>w!==t);if(selTower===t)deselTower();
         spawnFX(wcx,wcy,'#94a3b8',wallBroken?12:5);
         msg(wallBroken?'Boss smashed the wall!':'Wall destroyed!');buildShop();
@@ -1217,7 +1244,7 @@ function findTargets(t){
   const cx=t.col*CS+CS/2,cy=t.row*CS+CS/2,rp=t.range*CS;
   let inRange=enemies.filter(e=>!e.dead&&!e.reached&&Math.hypot(e.x-cx,e.y-cy)<=rp);
   if(!inRange.length)return[];
-  inRange=inRange.filter(e=>hasLOS(cx,cy,e.x,e.y));if(!inRange.length)return[];
+  if(!TDEFS[t.type].wallPiercing){inRange=inRange.filter(e=>hasLOS(cx,cy,e.x,e.y));if(!inRange.length)return[];}
   t._rateMultiplier=1;t._dmgMultiplier=1;
   const mode=t.targetMode||'first';let sorted;
   if(mode==='first')sorted=inRange.slice().sort((a,b)=>b.pi-a.pi);
@@ -1231,7 +1258,7 @@ function findTargets(t){
 
 function makeBullet(t,tgt){
   const dmgMult=(t._dmgMultiplier||1);
-  return{x:t.col*CS+CS/2,y:t.row*CS+CS/2,tx:tgt.x,ty:tgt.y,tgt,spd:290,type:t.type,clr:TDEFS[t.type].clr,dmg:t.dmg*dmgMult,splash:t.splash||0,slow:t.slow||0,chain:t.chain||0,burn:t.burn||0,stun:t.stun||0,done:false};
+  return{x:t.col*CS+CS/2,y:t.row*CS+CS/2,tx:tgt.x,ty:tgt.y,tgt,spd:t.type===18?480:290,type:t.type,clr:TDEFS[t.type].clr,dmg:t.dmg*dmgMult,splash:t.splash||0,slow:t.slow||0,chain:t.chain||0,burn:t.burn||0,stun:t.stun||0,haunt:t.haunt||0,hauntMult:t.hauntMult||1.5,wither:t.wither||0,curseSplash:t.curseSplash||false,done:false};
 }
 
 function hitBullet(b,ts){
@@ -1239,10 +1266,13 @@ function hitBullet(b,ts){
   if(b.splash>0){const r=b.splash*CS;enemies.filter(e=>!e.dead&&Math.hypot(e.x-b.tx,e.y-b.ty)<=r).forEach(e=>affected.push(e));spawnFX(b.tx,b.ty,b.clr,8);}
   else{if(!b.tgt.dead)affected.push(b.tgt);spawnFX(b.tx,b.ty,b.clr,3);}
   affected.forEach(e=>{
-    dealDmg(e,b.dmg);
+    dealDmg(e,b.dmg,ts);
     if(b.slow>0){e.slowT=ts+2000;e.slowM=1-b.slow;}
     if(b.burn>0){e.burnT=ts+(b.burn*1000);e.burnDmg=b.dmg*.12;}
     if(b.stun>0)e.stunT=ts+(b.stun*1000);
+    if(b.haunt>0){e.hauntT=ts+(b.haunt*1000);e.hauntMult=b.hauntMult||1.5;}
+    if(b.wither>0)e.witherRate=Math.max(e.witherRate||0,b.wither);
+    if(b.curseSplash&&e.hp<=0){enemies.filter(en=>!en.dead&&Math.hypot(en.x-e.x,en.y-e.y)<4*CS).forEach(en=>{en.hauntT=ts+(b.haunt*500);en.hauntMult=b.hauntMult||1.5;en.witherRate=Math.max(en.witherRate||0,(b.wither||0)*0.5);});}
   });
   if(b.chain>0&&!b.tgt.dead){
     let last=b.tgt,chains=b.chain;const hit=new Set([last]);
@@ -1255,11 +1285,11 @@ function hitBullet(b,ts){
   }
 }
 
-function dealDmg(e,d){e.hp-=d;if(e.hp<=0&&!e.dead)killEnemy(e);}
+function dealDmg(e,d,_ts){const hm=(e.hauntT&&e.hauntT>(_ts||performance.now()))?(e.hauntMult||1):1;e.hp-=d*hm;if(e.hp<=0&&!e.dead)killEnemy(e);}
 function killEnemy(e){e.dead=true;gold+=e.rwd;score+=e.rwd*5;spawnFX(e.x,e.y,e.clr,5);updateHUD();}
 function spawnEnemy(type){
   const d=EDEFS[type],hm=1+(wave-1)*.35;
-  const e={type,hp:d.hp*hm,maxHp:d.hp*hm,spd:d.spd,clr:d.clr,r:d.r,rwd:d.rwd,pi:0,x:pathCells[0][0]*CS+CS/2,y:pathCells[0][1]*CS+CS/2,dead:false,reached:false,slowT:0,slowM:1,burnT:0,burnDmg:0,stunT:0};
+  const e={type,hp:d.hp*hm,maxHp:d.hp*hm,spd:d.spd,clr:d.clr,r:d.r,rwd:d.rwd,pi:0,x:pathCells[0][0]*CS+CS/2,y:pathCells[0][1]*CS+CS/2,dead:false,reached:false,slowT:0,slowM:1,burnT:0,burnDmg:0,stunT:0,hauntT:0,hauntMult:1,witherRate:0};
   // Assign unique MP ID for reliable cross-client sync
   if(mp&&mp.active&&mp.isHost){e._mpId=mp._nextEnemyId||1;mp._nextEnemyId=(mp._nextEnemyId||1)+1;}
   enemies.push(e);
@@ -1308,7 +1338,7 @@ function draw(ts){
         ctx.fillStyle=ok?'rgba(37,99,235,.08)':'rgba(220,38,38,.08)';ctx.fillRect(hc*CS,hr*CS,CS,CS);
         if(ok){
           const phcx=hc*CS+CS/2,phcy=hr*CS+CS/2,phRange=def.range*CS;
-          if(wallSet&&wallSet.size>0){
+          if(wallSet&&wallSet.size>0&&!def.wallPiercing){
             ctx.save();ctx.beginPath();ctx.arc(phcx,phcy,phRange,0,Math.PI*2);ctx.clip();
             for(const[wc,wr] of (curMap.walls||[])){
               const wallCx2=wc*CS+CS/2,wallCy2=wr*CS+CS/2;if(Math.hypot(wallCx2-phcx,wallCy2-phcy)>phRange+CS)continue;
@@ -1327,7 +1357,7 @@ function draw(ts){
   }
   if(selTower&&!TDEFS[selTower.type].isBank&&!TDEFS[selTower.type].isAmplifier){
     const t=selTower;const tcx=t.col*CS+CS/2,tcy=t.row*CS+CS/2,tRange=t.range*CS;
-    if(wallSet&&wallSet.size>0){
+    if(wallSet&&wallSet.size>0&&!TDEFS[selTower.type].wallPiercing){
       ctx.save();ctx.beginPath();ctx.arc(tcx,tcy,tRange,0,Math.PI*2);ctx.clip();
       for(const[wc,wr] of (curMap.walls||[])){
         const wallCx=wc*CS+CS/2,wallCy=wr*CS+CS/2;const wallDist=Math.hypot(wallCx-tcx,wallCy-tcy);if(wallDist>tRange+CS)continue;
@@ -1342,7 +1372,11 @@ function draw(ts){
     ctx.beginPath();ctx.arc(tcx,tcy,tRange,0,Math.PI*2);ctx.strokeStyle=TDEFS[t.type].clr+'55';ctx.lineWidth=1.5;ctx.setLineDash([4,4]);ctx.stroke();ctx.setLineDash([]);
   }
   towers.forEach(t=>drawTower(t));enemies.forEach(e=>drawEnemy(e,ts));
-  for(const b of bullets){ctx.fillStyle=b.clr;const r=([2,5,7,12].includes(b.type))?5:3;ctx.beginPath();ctx.arc(b.x,b.y,r,0,Math.PI*2);ctx.fill();}
+  for(const b of bullets){
+    if(b.type===16){ctx.save();ctx.globalAlpha=0.65;ctx.fillStyle=b.clr;ctx.beginPath();ctx.arc(b.x,b.y,5,0,Math.PI*2);ctx.fill();ctx.globalAlpha=0.35;ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(b.x,b.y,3,0,Math.PI*2);ctx.fill();ctx.restore();}
+    else if(b.type===18){ctx.save();ctx.fillStyle=b.clr;ctx.beginPath();ctx.arc(b.x,b.y,9,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.stroke();ctx.globalAlpha=0.25;ctx.beginPath();ctx.arc(b.x,b.y,16,0,Math.PI*2);ctx.fill();ctx.restore();}
+    else{ctx.fillStyle=b.clr;const r=([2,5,7,12].includes(b.type))?5:3;ctx.beginPath();ctx.arc(b.x,b.y,r,0,Math.PI*2);ctx.fill();}
+  }
   for(const p of particles){ctx.globalAlpha=Math.max(0,p.life*3);ctx.fillStyle=p.clr;ctx.beginPath();ctx.arc(p.x,p.y,2.5,0,Math.PI*2);ctx.fill();}
   ctx.globalAlpha=1;
 }
@@ -1374,8 +1408,20 @@ function drawTower(t){
     const bw=38,bh=14,bx=cx-bw/2,by=cy-34;ctx.fillStyle='#16a34a';ctx.beginPath();ctx.roundRect(bx,by,bw,bh,3);ctx.fill();
     ctx.fillStyle='#fff';ctx.font='bold 8px "DM Mono",monospace';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('SKIP',cx,by+bh/2);
   }
+  const id=t.type;
   if(selTower===t&&!TDEFS[t.type].isWall){ctx.strokeStyle=clr+'88';ctx.lineWidth=3;ctx.beginPath();ctx.arc(cx,cy,17,0,Math.PI*2);ctx.stroke();}
   if(TDEFS[t.type].isWall){
+    if(id===17){
+      const gx=t.col*CS,gy=t.row*CS,gp=Date.now()/600;
+      ctx.save();ctx.globalAlpha=0.8+0.15*Math.sin(gp);
+      const gg=ctx.createLinearGradient(gx,gy,gx+CS,gy+CS);
+      gg.addColorStop(0,'#fde68a');gg.addColorStop(0.5,'#fbbf24');gg.addColorStop(1,'#f59e0b');
+      ctx.fillStyle=gg;ctx.fillRect(gx+1,gy+1,CS-2,CS-2);
+      ctx.globalAlpha=0.55+0.2*Math.sin(gp);ctx.strokeStyle='#fde68a';ctx.lineWidth=2;ctx.strokeRect(gx+1,gy+1,CS-2,CS-2);
+      ctx.globalAlpha=1;ctx.fillStyle='#92400e';ctx.font='bold 13px serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('∞',gx+CS/2,gy+CS/2);
+      if(selTower===t){ctx.strokeStyle='#fde68a';ctx.lineWidth=3;ctx.strokeRect(gx-2,gy-2,CS+4,CS+4);}
+      ctx.restore();return;
+    }
     const pct=Math.max(0,t.wallHp/t.wallHpBase);const wclr=pct>0.6?'#64748b':pct>0.3?'#b45309':'#dc2626';
     ctx.fillStyle=dark?'#1e293b':'#e2e8f0';ctx.fillRect(t.col*CS+2,t.row*CS+2,CS-4,CS-4);
     ctx.fillStyle=wclr+(dark?'cc':'bb');ctx.fillRect(t.col*CS+3,t.row*CS+3,CS-6,CS-6);
@@ -1394,7 +1440,6 @@ function drawTower(t){
     ctx.fillStyle='#64748b55';for(let i=0;i<pc;i++){ctx.beginPath();ctx.arc(t.col*CS+5+i*5,t.row*CS+15,2,0,Math.PI*2);ctx.fill();}
     return;
   }
-  const id=t.type;
   if(id===13){
     const bx=t.col*CS,by=t.row*CS,bw=CS*3,bh=CS*3;
     ctx.fillStyle='rgba(0,0,0,0.07)';ctx.fillRect(bx+3,by+3,bw,bh);ctx.fillStyle=dark?'#1c1a12':'#fef3c7';ctx.fillRect(bx,by,bw,bh);
@@ -1440,7 +1485,23 @@ function drawTower(t){
   else if(id===10){ctx.beginPath();ctx.arc(0,0,7,0,Math.PI*2);ctx.fill();ctx.fillStyle='#312e81';ctx.beginPath();ctx.moveTo(-5,0);ctx.lineTo(0,-11);ctx.lineTo(5,0);ctx.closePath();ctx.fill();}
   else if(id===11){ctx.beginPath();ctx.arc(0,0,7,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(-4,-4);ctx.lineTo(4,4);ctx.moveTo(4,-4);ctx.lineTo(-4,4);ctx.stroke();}
   else if(id===12){ctx.beginPath();ctx.moveTo(-4,-6);ctx.lineTo(4,-6);ctx.quadraticCurveTo(7,-6,7,-3);ctx.lineTo(7,3);ctx.quadraticCurveTo(7,6,4,6);ctx.lineTo(-4,6);ctx.quadraticCurveTo(-7,6,-7,3);ctx.lineTo(-7,-3);ctx.quadraticCurveTo(-7,-6,-4,-6);ctx.closePath();ctx.fill();}
-  if(![5,9].includes(id)){
+  else if(id===16){
+    const gt=Date.now()/400;ctx.save();
+    ctx.globalAlpha=0.55+0.2*Math.sin(gt);ctx.beginPath();ctx.arc(0,0,9,0,Math.PI*2);ctx.fill();
+    ctx.globalAlpha=1;ctx.strokeStyle='rgba(255,255,255,0.9)';ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(0,0,5,0,Math.PI*2);ctx.stroke();
+    ctx.fillStyle='rgba(255,255,255,0.95)';ctx.beginPath();ctx.ellipse(-3,-2,2,2.5,0,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.ellipse(3,-2,2,2.5,0,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle=clr;ctx.beginPath();ctx.ellipse(-3,-2,1,1.5,0,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.ellipse(3,-2,1,1.5,0,0,Math.PI*2);ctx.fill();
+    for(let w=0;w<3;w++){const wa=gt+w*2.094;ctx.globalAlpha=0.3;ctx.fillStyle=clr;ctx.beginPath();ctx.arc(Math.cos(wa)*12,Math.sin(wa)*12,2.5,0,Math.PI*2);ctx.fill();}ctx.restore();
+  }
+  if(id===18){
+    const nt=Date.now()/800;ctx.fillStyle='#1a2e1a';ctx.fillRect(-7,-10,14,20);ctx.strokeStyle=clr;ctx.lineWidth=2;ctx.strokeRect(-7,-10,14,20);
+    ctx.fillStyle=clr;ctx.beginPath();ctx.moveTo(0,-16);ctx.lineTo(7,-10);ctx.lineTo(-7,-10);ctx.closePath();ctx.fill();
+    ctx.save();ctx.translate(0,2);ctx.rotate(nt);ctx.fillStyle=clr;
+    for(let i=0;i<3;i++){ctx.save();ctx.rotate(i*2.094);ctx.beginPath();ctx.moveTo(3,0);ctx.arc(0,0,6,0,Math.PI*0.6);ctx.lineTo(0,0);ctx.closePath();ctx.fill();ctx.restore();}
+    ctx.fillStyle='#1a2e1a';ctx.beginPath();ctx.arc(0,0,2.5,0,Math.PI*2);ctx.fill();ctx.restore();
+    ctx.save();ctx.globalAlpha=0.2+0.15*Math.sin(nt*3);ctx.fillStyle=clr;ctx.beginPath();ctx.arc(0,0,18,0,Math.PI*2);ctx.fill();ctx.restore();
+  }
+  if(![5,9,17,18].includes(id)){
     const bl=id===1?18:id===7?14:12;ctx.strokeStyle=clr;ctx.lineWidth=id===2||id===12?4:3;ctx.lineCap='round';
     ctx.beginPath();ctx.moveTo(Math.cos(ang)*6,Math.sin(ang)*6);ctx.lineTo(Math.cos(ang)*bl,Math.sin(ang)*bl);ctx.stroke();
   }
@@ -1454,10 +1515,12 @@ function drawTower(t){
 }
 
 function drawEnemy(e,ts){
-  if(e.dead)return;const stun=e.stunT>ts,slow=e.slowT>ts,burn=e.burnT>ts;
+  if(e.dead)return;const stun=e.stunT>ts,slow=e.slowT>ts,burn=e.burnT>ts,haunt=e.hauntT>ts,wither=(e.witherRate||0)>0;
   ctx.fillStyle='rgba(0,0,0,.1)';ctx.beginPath();ctx.ellipse(e.x,e.y+e.r-1,e.r*.7,3,0,0,Math.PI*2);ctx.fill();
   ctx.fillStyle=stun?'#a78bfa':slow?'#93c5fd':e.clr;ctx.beginPath();ctx.arc(e.x,e.y,e.r,0,Math.PI*2);ctx.fill();
   if(burn){ctx.strokeStyle='#f97316';ctx.lineWidth=2;ctx.beginPath();ctx.arc(e.x,e.y,e.r+2,0,Math.PI*2);ctx.stroke();}
+  if(haunt){const pa=0.5+0.35*Math.sin(ts/180);ctx.save();ctx.globalAlpha=pa;ctx.strokeStyle='#818cf8';ctx.lineWidth=2.5;ctx.beginPath();ctx.arc(e.x,e.y,e.r+4,0,Math.PI*2);ctx.stroke();ctx.globalAlpha=pa*0.4;ctx.fillStyle='#818cf8';ctx.beginPath();ctx.arc(e.x,e.y,e.r+4,0,Math.PI*2);ctx.fill();ctx.restore();}
+  if(wither){const wa=0.4+0.25*Math.sin(ts/220);ctx.save();ctx.globalAlpha=wa;ctx.strokeStyle='#86efac';ctx.lineWidth=1.5;ctx.setLineDash([3,3]);ctx.beginPath();ctx.arc(e.x,e.y,e.r+7,0,Math.PI*2);ctx.stroke();ctx.setLineDash([]);ctx.restore();}
   if(e.type===3){ctx.fillStyle='#fbbf24';ctx.font='bold 12px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('★',e.x,e.y-e.r-8);}
   if(e.hp<e.maxHp){
     const bw=e.r*2+4,pct=e.hp/e.maxHp;
@@ -1512,6 +1575,7 @@ function endGame(win){
 function buildShop(){
   const p=document.getElementById('shopPanel');p.innerHTML='';const towerCount=towers.length;
   TDEFS.forEach((td,i)=>{
+    if(!IS_DEV_BUILD && td.devOnly) return; // hidden in release
     const req=td.requires;const reqOk=!req||(req.towers===undefined||towerCount>=req.towers);
     const d=document.createElement('div');const isPlacing=selShopType!==null&&i===selShopType&&!selTower&&!moveTowerMode;
     d.className=`tc${isPlacing?' sel placing':''}${!reqOk?' locked':gold<td.cost?' unafford':''}`;
@@ -1528,6 +1592,26 @@ function showUpPanel(show){
 }
 
 function renderUpPanel(tower){
+  // ── Dev-only tower: show read-only preview in release build ──────────────
+  if(!IS_DEV_BUILD && TDEFS[tower.type].devOnly){
+    showUpPanel(true);
+    const p=document.getElementById('upgradePanel');
+    const def2=TDEFS[tower.type],pa2=tower.pA||0,pb2=tower.pB||0,pc2=tower.pC||0;
+    const mkTiers=(path,lvl)=>{const ups=def2['p'+path];return ups.map((u,i)=>`<div class="tier${i<lvl?' owned':i===lvl?' nxt':''}" style="${i<lvl?'background:'+def2.clr+';border-color:'+def2.clr:i===lvl?'border-color:'+def2.clr:''}">${i<lvl?'✓':i+1}</div>`).join('');};
+    const mkPath=(path,label,lvl)=>{const ups=def2['p'+path];const nxt=ups[lvl];return`<div class="path-box"><div class="path-lbl">${label}</div><div class="tiers">${mkTiers(path,lvl)}</div><div class="up-next-name">${nxt?nxt.n:' MAXED'}</div><div class="up-next-desc">${nxt?nxt.d:''}</div></div>`;};
+    p.innerHTML=`<div style="text-align:center;padding:6px 0 10px">
+      <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:#818cf8;background:#818cf822;border:1px solid #818cf855;border-radius:4px;padding:4px 10px;margin-bottom:8px;display:inline-block">🔬 DEV TOWER — VIEW ONLY</div>
+      <div class="up-name">${def2.name}</div>
+      <div class="up-sub">Path ${pa2}-${pb2}-${pc2}</div>
+      <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--ink3);margin-top:6px;line-height:1.6">${def2.desc}<br>Not available in this version — visible in multiplayer only.</div>
+    </div>
+    ${mkPath('A',def2.pathA||'Path A',pa2)}
+    ${mkPath('B',def2.pathB||'Path B',pb2)}
+    ${mkPath('C',def2.pathC||'Path C',pc2)}
+    <button class="back-btn" onclick="deselTower()">← SHOP</button>`;
+    return;
+  }
+  // ─────────────────────────────────────────────────────────────────────────
   showUpPanel(true);const p=document.getElementById('upgradePanel');
   const def=TDEFS[tower.type],pa=tower.pA||0,pb=tower.pB||0,pc=tower.pC||0;
   function pathSection(path,label){
@@ -1562,7 +1646,10 @@ function renderUpPanel(tower){
   const sellLabel=isFGB?`SELL ${sell}g ✦`:`SELL ${sell+Math.floor(upgSpend*.4)}g`;
   const fgbHTML=isFGB?`<div class="fgb-bar"><div class="fgb-bar-top"><span class="fgb-label">✦ Full Goldback</span><span class="fgb-timer" id="fgbTimerEl">${fgbSec}s</span></div><div class="fgb-track"><div class="fgb-fill" id="fgbFillEl" style="width:${fgbPct}%"></div></div></div>`:'';
   const isWall=TDEFS[tower.type].isWall;const wallHpPct=isWall?Math.max(0,tower.wallHp/tower.wallHpBase):0;const wallHpClr=wallHpPct>0.5?'#22c55e':wallHpPct>0.25?'#f59e0b':'#ef4444';
-  const wallHpHTML=isWall?`<div class="fgb-bar"><div class="fgb-bar-top"><span class="fgb-label" style="color:#64748b">WALL HP</span><span class="fgb-timer" id="wallHpTextEl" style="color:#64748b">${Math.ceil(tower.wallHp)} / ${tower.wallHpBase}</span></div><div class="fgb-track"><div class="fgb-fill" id="wallHpFillEl" style="width:${wallHpPct*100}%;background:${wallHpClr}"></div></div></div>`:'';
+  const _gw=isWall&&TDEFS[tower.type].godWall;
+  const _wTxt=_gw?"∞ / ∞":`${Math.ceil(tower.wallHp)} / ${tower.wallHpBase}`;
+  const _wPct=_gw?100:wallHpPct*100,_wC=_gw?"#fde68a":wallHpClr,_wL=_gw?"⚡ GOD WALL":"WALL HP";
+  const wallHpHTML=isWall?`<div class="fgb-bar"><div class="fgb-bar-top"><span class="fgb-label" style="color:${_wC}">${_wL}</span><span class="fgb-timer" id="wallHpTextEl" style="color:${_wC}">${_wTxt}</span></div><div class="fgb-track"><div class="fgb-fill" id="wallHpFillEl" style="width:${_wPct}%;background:${_wC}"></div></div></div>`:'';
   const curTarget=tower.targetMode||'first';
   const targetRowHTML=isWall?'':`<div class="target-row"><span class="target-lbl">Target</span><button class="target-btn active-${curTarget}" onclick="setTowerTarget(null)">${TARGET_ICONS[curTarget]} ${TARGET_LABELS[curTarget]} ↻</button></div>`;
   // MP ownership — lock controls if this isn't our tower
@@ -1583,6 +1670,7 @@ function setTowerTarget(mode){
 }
 function sellTower(){
   if(!selTower)return;
+  if(!IS_DEV_BUILD&&TDEFS[selTower.type].devOnly){msg('Dev tower — cannot sell in this version.');return;}
   if(mp.active&&selTower.mpOwner&&selTower.mpOwner!==mp.myId){msg("That's not your tower!");return;}
   const def=TDEFS[selTower.type],pa=selTower.pA||0,pb=selTower.pB||0,pc=selTower.pC||0;
   let sp=0;for(let i=0;i<pa;i++)sp+=def.pA[i].c;for(let i=0;i<pb;i++)sp+=def.pB[i].c;for(let i=0;i<pc;i++)sp+=def.pC[i].c;
@@ -1637,6 +1725,7 @@ canvas.addEventListener('click',e=>{
     if(towers.some(wt=>TDEFS[wt.type].isWall&&wt.col===c&&wt.row===r2)){msg("Already a wall there.");return;}
     if(towers.some(t=>{const d=TDEFS[t.type];if(d.isBank||d.isAmplifier)return c>=t.col&&c<t.col+3&&r2>=t.row&&r2<t.row+3;return t.col===c&&t.row===r2;})){msg("Already occupied.");return;}
   }
+  if(!IS_DEV_BUILD&&def.devOnly){msg('This tower is only available in the developer build.');return;}
   const cost=def.cost;if(!isSandbox&&gold<cost){msg(`Need ${cost}g.`);return;}
   const req=def.requires;if(req&&req.towers!==undefined&&towers.length<req.towers){msg(`Need ${req.towers} towers placed first.`);return;}
   if(!isSandbox)gold-=cost;
@@ -1654,6 +1743,7 @@ canvas.addEventListener('contextmenu',e=>{
   const r=canvas.getBoundingClientRect();const col=Math.floor((e.clientX-r.left)/CS),row=Math.floor((e.clientY-r.top)/CS);
   const idx=towers.findIndex(t=>{const def=TDEFS[t.type];if(def.isBank||def.isAmplifier)return col>=t.col&&col<t.col+3&&row>=t.row&&row<t.row+3;return t.col===col&&t.row===row;});
   if(idx===-1)return;const t=towers[idx],def=TDEFS[t.type];
+  if(!IS_DEV_BUILD&&def.devOnly){msg('Dev tower — cannot sell in this version.');return;}
   if(mp.active&&t.mpOwner&&t.mpOwner!==mp.myId){msg("That's not your tower!");return;}
   let sp=0;for(let i=0;i<(t.pA||0);i++)sp+=def.pA[i].c;for(let i=0;i<(t.pB||0);i++)sp+=def.pB[i].c;for(let i=0;i<(t.pC||0);i++)sp+=def.pC[i].c;
   const isFGB=(t.fgbTimer||0)>0;gold+=isFGB?def.cost:(Math.floor(def.cost*.6)+Math.floor(sp*.4));
@@ -2876,4 +2966,7 @@ document.getElementById('mpDisconnectBtn').addEventListener('click',()=>{
   showScreen('menu');closeMapDetail();
 });
 </script>
+<div id="devBadge" style="display:none;position:fixed;bottom:12px;left:12px;z-index:9998;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.12em;text-transform:uppercase;background:#818cf8;color:#fff;padding:4px 10px;border-radius:4px;opacity:.85;pointer-events:none">DEV BUILD — Ghost · God Wall · Nuke</div>
+
+<script>if(typeof IS_DEV_BUILD!=='undefined'&&IS_DEV_BUILD){document.getElementById('devBadge').style.display='block';}</script>
 </body></html>
