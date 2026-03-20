@@ -177,6 +177,11 @@ body{background:var(--bg);min-height:100vh;display:flex;align-items:center;justi
 .path-status.cutoff{background:#450a0a;color:#fca5a5}
 #settingsModal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;align-items:center;justify-content:center}
 #settingsModal.open{display:flex}
+.cursor-opt{border:1.5px solid var(--border);border-radius:8px;padding:8px 6px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:5px;transition:all .15s;background:var(--surface)}
+.cursor-opt:hover{border-color:var(--ink2);background:var(--surface2)}
+.cursor-opt.active{border-color:#3b82f6;background:rgba(59,130,246,.1)}
+.cursor-opt svg{width:32px;height:32px;display:block}
+.cursor-opt-label{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:.06em;color:var(--ink2);text-align:center;text-transform:uppercase}
 .modal{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:26px;width:320px;box-shadow:0 8px 40px var(--shadow)}
 .modal-title{font-size:18px;font-weight:700;margin-bottom:20px;letter-spacing:-.02em;color:var(--ink)}
 .s-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)}
@@ -371,6 +376,12 @@ body{background:var(--bg);min-height:100vh;display:flex;align-items:center;justi
       <button class="toggle" id="darkToggle"></button>
     </div>
     <div class="s-row"><div><div class="s-name">Map</div><div class="s-desc">select from main menu</div></div></div>
+
+    <div style="margin-top:16px">
+      <div class="s-name" style="margin-bottom:10px">Cursor Style</div>
+      <div id="cursorPicker" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px"></div>
+    </div>
+
     <div style="margin-top:18px"><button class="mbtn" style="width:100%" id="settingsClose">CLOSE</button></div>
   </div>
 </div>
@@ -688,22 +699,119 @@ const MAPS=[
   // ── CO-OP MAPS (40×28 grid) ──────────────
   {name:'Grand Valley',desc:'A sweeping co-op arena. Two long corridors merge into a brutal finale.',diff:'Co-op',clr:'#22c55e',lives:40,gold:1250,coop:true,
    wp:[[0,6],[10,6],[10,14],[20,14],[20,6],[30,6],[30,21],[39,21]],
-   walls:[[10,5],[11,6],[9,5],[9,7],[10,15],[11,14],[9,13],[9,15],[19,14],[20,13],[19,15],[21,13],[19,6],[20,5],[19,7],[21,5],[30,5],[31,6],[29,5],[29,7],[29,21],[30,22],[29,20],[31,20],[20,21],[21,20],[19,20],[19,22]]},
+   walls:[
+     // bend 1 — col 10 row 6
+     [10,5],[11,6],[9,5],[9,7],[8,5],[8,7],[11,5],[11,7],
+     // bend 2 — col 10 row 14
+     [10,15],[11,14],[9,13],[9,15],[8,13],[8,15],[11,13],[11,15],
+     // bend 3 — col 20 row 14
+     [19,14],[20,13],[19,15],[21,13],[19,13],[21,15],[18,13],[22,13],
+     // bend 4 — col 20 row 6
+     [19,6],[20,5],[19,7],[21,5],[18,5],[22,5],[21,7],[18,7],
+     // bend 5 — col 30 row 6
+     [30,5],[31,6],[29,5],[29,7],[28,5],[32,5],[31,7],[28,7],
+     // bend 6 — col 30 row 21
+     [29,21],[30,22],[29,20],[31,20],[28,20],[32,20],[31,22],[28,22],
+     // midfield blockers
+     [15,4],[15,3],[15,8],[15,9],[25,4],[25,3],[25,8],[25,9],
+     [5,4],[5,8],[35,19],[35,23],[20,21],[20,22],[20,20],
+   ]},
   {name:'Twin Rivers',desc:'Two parallel rivers converge. Cover both lanes or be overwhelmed.',diff:'Co-op',clr:'#0891b2',lives:40,gold:1250,coop:true,
    wp:[[0,5],[8,5],[8,22],[16,22],[16,5],[24,5],[24,22],[32,22],[32,5],[39,5]],
-   walls:[[8,4],[9,5],[7,4],[7,6],[7,22],[8,23],[7,21],[9,21],[15,22],[16,21],[15,23],[17,21],[15,5],[16,4],[15,6],[17,4],[24,4],[25,5],[23,4],[23,6],[23,22],[24,23],[23,21],[25,21],[31,22],[32,21],[31,23],[33,21],[31,5],[32,4],[31,6],[33,4]]},
+   walls:[
+     [8,4],[9,5],[7,4],[7,6],[6,4],[10,4],[6,6],[10,6],[8,3],[8,6],
+     [7,22],[8,23],[7,21],[9,21],[6,21],[10,21],[6,23],[10,23],[8,24],[8,20],
+     [15,22],[16,21],[15,23],[17,21],[14,21],[18,21],[14,23],[18,23],[16,24],[16,20],
+     [15,5],[16,4],[15,6],[17,4],[14,4],[18,4],[14,6],[18,6],[16,3],[16,7],
+     [24,4],[25,5],[23,4],[23,6],[22,4],[26,4],[22,6],[26,6],[24,3],[24,7],
+     [23,22],[24,23],[23,21],[25,21],[22,21],[26,21],[22,23],[26,23],[24,24],[24,20],
+     [31,22],[32,21],[31,23],[33,21],[30,21],[34,21],[30,23],[34,23],[32,24],[32,20],
+     [31,5],[32,4],[31,6],[33,4],[30,4],[34,4],[30,6],[34,6],[32,3],[32,7],
+     // midfield walls between lanes
+     [12,10],[12,14],[12,18],[20,10],[20,14],[20,18],[28,10],[28,14],[28,18],
+     [4,10],[4,14],[36,10],[36,14],
+   ]},
   {name:'The Colosseum',desc:'A grand arena with paths spiraling inward from all sides.',diff:'Co-op',clr:'#dc2626',lives:40,gold:1250,coop:true,
    wp:[[0,14],[6,14],[6,4],[14,4],[14,14],[20,14],[20,24],[28,24],[28,14],[34,14],[34,4],[39,4]],
-   walls:[[6,3],[7,4],[5,3],[5,5],[6,15],[7,14],[5,13],[5,15],[13,4],[14,3],[13,5],[15,3],[13,14],[14,15],[13,13],[15,13],[19,14],[20,13],[19,15],[21,13],[19,24],[20,25],[19,23],[21,23],[27,24],[28,23],[27,25],[29,23],[27,14],[28,15],[27,13],[29,13],[34,3],[35,4],[33,3],[33,5],[33,14],[34,15],[33,13],[35,13]]},
+   walls:[
+     [6,3],[7,4],[5,3],[5,5],[4,3],[8,3],[4,5],[8,5],[6,2],[6,6],
+     [6,15],[7,14],[5,13],[5,15],[4,13],[8,13],[4,15],[8,15],[6,16],[6,12],
+     [13,4],[14,3],[13,5],[15,3],[12,3],[16,3],[12,5],[16,5],[14,2],[14,6],
+     [13,14],[14,15],[13,13],[15,13],[12,13],[16,13],[12,15],[16,15],[14,16],[14,12],
+     [19,14],[20,13],[19,15],[21,13],[18,13],[22,13],[18,15],[22,15],[20,12],[20,16],
+     [19,24],[20,25],[19,23],[21,23],[18,23],[22,23],[18,25],[22,25],[20,26],[20,22],
+     [27,24],[28,23],[27,25],[29,23],[26,23],[30,23],[26,25],[30,25],[28,26],[28,22],
+     [27,14],[28,15],[27,13],[29,13],[26,13],[30,13],[26,15],[30,15],[28,16],[28,12],
+     [34,3],[35,4],[33,3],[33,5],[32,3],[36,3],[32,5],[36,5],[34,2],[34,6],
+     [33,14],[34,15],[33,13],[35,13],[32,13],[36,13],[32,15],[36,15],[34,16],[34,12],
+     // center arena walls
+     [17,9],[18,9],[19,9],[20,9],[21,9],[22,9],[17,19],[18,19],[19,19],[20,19],[21,19],[22,19],
+     [11,9],[11,10],[11,11],[29,9],[29,10],[29,11],
+   ]},
   {name:'Serpentine',desc:'A massive winding serpent path that tests every tower placement.',diff:'Co-op',clr:'#a855f7',lives:40,gold:1250,coop:true,
    wp:[[0,3],[5,3],[5,13],[10,13],[10,3],[15,3],[15,20],[20,20],[20,8],[25,8],[25,24],[30,24],[30,10],[35,10],[35,18],[39,18]],
-   walls:[[5,2],[6,3],[4,2],[4,4],[4,13],[5,14],[4,12],[6,12],[9,13],[10,12],[9,14],[11,12],[9,3],[10,2],[9,4],[11,2],[14,3],[15,2],[14,4],[16,2],[14,20],[15,21],[14,19],[16,19],[19,20],[20,19],[19,21],[21,19],[19,8],[20,7],[19,9],[21,7],[24,8],[25,7],[24,9],[26,7],[24,24],[25,25],[24,23],[26,23],[29,24],[30,23],[29,25],[31,23],[29,10],[30,9],[29,11],[31,9],[34,10],[35,9],[34,11],[36,9],[34,18],[35,19],[34,17],[36,17]]},
+   walls:[
+     [5,2],[6,3],[4,2],[4,4],[3,2],[7,2],[3,4],[7,4],[5,1],[5,5],
+     [4,13],[5,14],[4,12],[6,12],[3,12],[7,12],[3,14],[7,14],[5,15],[5,11],
+     [9,13],[10,12],[9,14],[11,12],[8,12],[12,12],[8,14],[12,14],[10,11],[10,15],
+     [9,3],[10,2],[9,4],[11,2],[8,2],[12,2],[8,4],[12,4],[10,1],[10,5],
+     [14,3],[15,2],[14,4],[16,2],[13,2],[17,2],[13,4],[17,4],[15,1],[15,5],
+     [14,20],[15,21],[14,19],[16,19],[13,19],[17,19],[13,21],[17,21],[15,22],[15,18],
+     [19,20],[20,19],[19,21],[21,19],[18,19],[22,19],[18,21],[22,21],[20,22],[20,18],
+     [19,8],[20,7],[19,9],[21,7],[18,7],[22,7],[18,9],[22,9],[20,6],[20,10],
+     [24,8],[25,7],[24,9],[26,7],[23,7],[27,7],[23,9],[27,9],[25,6],[25,10],
+     [24,24],[25,25],[24,23],[26,23],[23,23],[27,23],[23,25],[27,25],[25,26],[25,22],
+     [29,24],[30,23],[29,25],[31,23],[28,23],[32,23],[28,25],[32,25],[30,26],[30,22],
+     [29,10],[30,9],[29,11],[31,9],[28,9],[32,9],[28,11],[32,11],[30,8],[30,12],
+     [34,10],[35,9],[34,11],[36,9],[33,9],[37,9],[33,11],[37,11],[35,8],[35,12],
+     [34,18],[35,19],[34,17],[36,17],[33,17],[37,17],[33,19],[37,19],[35,20],[35,16],
+     // mid-course blockers
+     [8,8],[9,8],[8,18],[9,18],[21,14],[22,14],[30,16],[30,17],
+   ]},
   {name:'Warfront',desc:'A sprawling battlefield with multiple kill zones. Teamwork essential.',diff:'Co-op',clr:'#f97316',lives:40,gold:1250,coop:true,
    wp:[[0,10],[7,10],[7,3],[15,3],[15,18],[22,18],[22,8],[30,8],[30,20],[37,20],[37,10],[39,10]],
-   walls:[[7,9],[8,10],[6,9],[6,11],[6,3],[7,2],[6,4],[8,2],[14,3],[15,2],[14,4],[16,2],[14,18],[15,19],[14,17],[16,17],[21,18],[22,17],[21,19],[23,17],[21,8],[22,7],[21,9],[23,7],[29,8],[30,7],[29,9],[31,7],[29,20],[30,21],[29,19],[31,19],[37,9],[38,10],[36,9],[36,11],[36,20],[37,21],[36,19],[38,19]]},
+   walls:[
+     [7,9],[8,10],[6,9],[6,11],[5,9],[9,9],[5,11],[9,11],[7,8],[7,12],
+     [6,3],[7,2],[6,4],[8,2],[5,2],[9,2],[5,4],[9,4],[7,1],[7,5],
+     [14,3],[15,2],[14,4],[16,2],[13,2],[17,2],[13,4],[17,4],[15,1],[15,5],
+     [14,18],[15,19],[14,17],[16,17],[13,17],[17,17],[13,19],[17,19],[15,20],[15,16],
+     [21,18],[22,17],[21,19],[23,17],[20,17],[24,17],[20,19],[24,19],[22,20],[22,16],
+     [21,8],[22,7],[21,9],[23,7],[20,7],[24,7],[20,9],[24,9],[22,6],[22,10],
+     [29,8],[30,7],[29,9],[31,7],[28,7],[32,7],[28,9],[32,9],[30,6],[30,10],
+     [29,20],[30,21],[29,19],[31,19],[28,19],[32,19],[28,21],[32,21],[30,22],[30,18],
+     [37,9],[38,10],[36,9],[36,11],[35,9],[39,9],[35,11],[37,8],[37,12],
+     [37,20],[38,19],[36,19],[35,19],[37,21],[36,21],[35,21],
+     // fortification walls between kill zones
+     [11,6],[11,7],[11,8],[11,13],[11,14],[11,15],
+     [26,11],[26,12],[26,13],[26,15],[26,16],[26,17],
+     [19,12],[19,13],[33,12],[33,13],[33,14],
+   ]},
   {name:'Doomsday',desc:'The ultimate co-op challenge. Maximum size, maximum enemies, maximum pain.',diff:'Co-op',clr:'#450a0a',lives:40,gold:1250,coop:true,
    wp:[[0,2],[4,2],[4,14],[8,14],[8,5],[12,5],[12,22],[16,22],[16,9],[20,9],[20,26],[24,26],[24,4],[28,4],[28,18],[32,18],[32,7],[36,7],[36,22],[39,22]],
-   walls:[[4,1],[5,2],[3,1],[3,3],[3,14],[4,15],[3,13],[5,13],[8,15],[9,14],[7,13],[7,15],[7,5],[8,4],[7,6],[9,4],[12,4],[13,5],[11,4],[11,6],[11,22],[12,23],[11,21],[13,21],[16,23],[17,22],[15,21],[15,23],[15,9],[16,8],[15,10],[17,8],[20,8],[21,9],[19,8],[19,10],[19,26],[20,27],[19,25],[21,25],[24,25],[25,26],[23,25],[23,27],[23,4],[24,3],[23,5],[25,3],[28,3],[29,4],[27,3],[27,5],[27,18],[28,19],[27,17],[29,17],[32,19],[33,18],[31,17],[31,19],[31,7],[32,6],[31,8],[33,6],[36,6],[37,7],[35,6],[35,8],[35,22],[36,23],[35,21],[37,21]]},
+   walls:[
+     [4,1],[5,2],[3,1],[3,3],[2,1],[6,1],[2,3],[6,3],[4,0],[4,4],
+     [3,14],[4,15],[3,13],[5,13],[2,13],[6,13],[2,15],[6,15],[4,16],[4,12],
+     [8,15],[9,14],[7,13],[7,15],[6,13],[10,13],[6,15],[10,15],[8,16],[8,12],
+     [7,5],[8,4],[7,6],[9,4],[6,4],[10,4],[6,6],[10,6],[8,3],[8,7],
+     [12,4],[13,5],[11,4],[11,6],[10,4],[14,4],[10,6],[14,6],[12,3],[12,7],
+     [11,22],[12,23],[11,21],[13,21],[10,21],[14,21],[10,23],[14,23],[12,24],[12,20],
+     [16,23],[17,22],[15,21],[15,23],[14,21],[18,21],[14,23],[18,23],[16,24],[16,20],
+     [15,9],[16,8],[15,10],[17,8],[14,8],[18,8],[14,10],[18,10],[16,7],[16,11],
+     [20,8],[21,9],[19,8],[19,10],[18,8],[22,8],[18,10],[22,10],[20,7],[20,11],
+     [19,26],[20,27],[19,25],[21,25],[18,25],[22,25],[18,27],[22,27],[20,28],[20,24],
+     [24,25],[25,26],[23,25],[23,27],[22,25],[26,25],[22,27],[26,27],[24,27],[24,23],
+     [23,4],[24,3],[23,5],[25,3],[22,3],[26,3],[22,5],[26,5],[24,2],[24,6],
+     [28,3],[29,4],[27,3],[27,5],[26,3],[30,3],[26,5],[30,5],[28,2],[28,6],
+     [27,18],[28,19],[27,17],[29,17],[26,17],[30,17],[26,19],[30,19],[28,20],[28,16],
+     [32,19],[33,18],[31,17],[31,19],[30,17],[34,17],[30,19],[34,19],[32,20],[32,16],
+     [31,7],[32,6],[31,8],[33,6],[30,6],[34,6],[30,8],[34,8],[32,5],[32,9],
+     [36,6],[37,7],[35,6],[35,8],[34,6],[38,6],[34,8],[38,8],[36,5],[36,9],
+     [35,22],[36,23],[35,21],[37,21],[34,21],[38,21],[34,23],[38,23],[36,24],[36,20],
+     // fortress walls — dense interior blockers
+     [10,10],[10,11],[10,12],[18,14],[18,15],[18,16],[26,9],[26,10],[26,11],
+     [14,17],[14,18],[14,19],[22,20],[22,21],[22,22],[30,13],[30,14],[30,15],
+     [6,8],[6,9],[16,3],[16,4],[20,3],[20,4],[34,11],[34,12],
+   ]},
 ];
 
 const EDEFS=[
@@ -744,6 +852,57 @@ let animId=null,lastTs=0,dark=localStorage.getItem('darkMode')==='1',selMapIdx=0
 if(dark){document.documentElement.dataset.theme='dark';document.getElementById('darkToggle').classList.add('on');}
 const TOTAL_WAVES=10;
 
+function generateWalls(map, pathSet, cols, rows) {
+  const isCoop = cols >= 40;
+  const MIN_WALLS = isCoop ? 40 : 20;
+  const MAX_WALLS = isCoop ? 120 : 60;
+  const walls = [];
+  const used = new Set();
+
+  function tryAdd(c, r) {
+    if (c < 0 || c >= cols || r < 0 || r >= rows) return false;
+    if (pathSet.has(`${c},${r}`)) return false;
+    const key = `${c},${r}`;
+    if (used.has(key)) return false;
+    used.add(key); walls.push([c, r]); return true;
+  }
+
+  const wp = map.wp;
+  const offsets = [[0,0],[1,0],[0,1],[1,1],[-1,0],[0,-1],[-1,-1],[1,-1],[-1,1]];
+
+  // Cluster 2-4 walls near every path turn - always runs, guaranteed density
+  for (let i = 1; i < wp.length - 1; i++) {
+    const [x, y] = wp[i];
+    const candidates = [
+      [x-1,y],[x+1,y],[x,y-1],[x,y+1],
+      [x-1,y-1],[x+1,y-1],[x-1,y+1],[x+1,y+1]
+    ].filter(([c,r]) => c >= 0 && c < cols && r >= 0 && r < rows && !pathSet.has(`${c},${r}`));
+    for (let k = candidates.length - 1; k > 0; k--) {
+      const j = Math.floor(Math.random() * (k + 1));
+      [candidates[k], candidates[j]] = [candidates[j], candidates[k]];
+    }
+    const count = 2 + Math.floor(Math.random() * 3);
+    for (let j = 0; j < Math.min(count, candidates.length); j++) tryAdd(...candidates[j]);
+  }
+
+  // Scatter random clusters until we hit MAX, but keep looping until MIN is reached
+  for (let k = 0; walls.length < MAX_WALLS; k++) {
+    if (k > 2000) break;
+    const cx = Math.floor(Math.random() * cols);
+    const cy = Math.floor(Math.random() * rows);
+    if (pathSet.has(`${cx},${cy}`)) continue;
+    const sz = 1 + Math.floor(Math.random() * 3);
+    for (let j = 0; j < sz; j++) {
+      const [dc, dr] = offsets[Math.floor(Math.random() * offsets.length)];
+      tryAdd(cx + dc, cy + dr);
+    }
+    // Once minimum met, randomly stop
+    if (walls.length >= MIN_WALLS && Math.random() < 0.08) break;
+  }
+
+  return walls;
+}
+
 function buildPath(wp){
   const c=[];
   for(let i=0;i<wp.length-1;i++){
@@ -766,10 +925,12 @@ function initGame(map){
   canvas.style.width=map.coop?'min(100vw,1200px)':'';
   canvas.style.height=map.coop?'auto':'';
   document.getElementById('sidebar').style.height=H+'px';
-  curMap=map;isEndless=map.endless||false;isSandbox=map.sandbox||false;
+  curMap={...map};isEndless=map.endless||false;isSandbox=map.sandbox||false;
   pathCells=buildPath(map.wp);
   pathSet=new Set(pathCells.map(([c,r])=>`${c},${r}`));
-  wallSet=new Set((map.walls||[]).map(([c,r])=>`${c},${r}`));
+  // Procedural walls — random each game, never on path cells, min guaranteed
+  curMap.walls=generateWalls(curMap,pathSet,COLS,ROWS);
+  wallSet=new Set(curMap.walls.map(([c,r])=>`${c},${r}`));
   gold=isSandbox?999999:map.gold;lives=isSandbox?999:map.lives;score=0;wave=1;
   waveActive=false;speed=1;autoWave=false;
   towers=[];enemies=[];bullets=[];particles=[];waveQueue=[];waveTimer=0;
@@ -1556,7 +1717,7 @@ function buildTowerList(){
 
 function openSettings(){document.getElementById('settingsModal').classList.add('open');}
 function closeSettings(){document.getElementById('settingsModal').classList.remove('open');}
-document.getElementById('menuSettingsBtn').addEventListener('click',openSettings);
+document.getElementById('menuSettingsBtn').addEventListener('click',()=>openSettings());
 document.getElementById('settingsClose').addEventListener('click',closeSettings);
 document.getElementById('settingsModal').addEventListener('click',e=>{if(e.target===document.getElementById('settingsModal'))closeSettings();});
 document.getElementById('darkToggle').addEventListener('click',()=>{dark=!dark;document.documentElement.dataset.theme=dark?'dark':'light';document.getElementById('darkToggle').classList.toggle('on',dark);localStorage.setItem('darkMode',dark?'1':'0');buildMenuMaps();});
@@ -1615,22 +1776,241 @@ document.getElementById('goRetry').addEventListener('click',()=>{document.getEle
 document.getElementById('goMenu').addEventListener('click',()=>{document.getElementById('goOverlay').classList.remove('open');if(animId){cancelAnimationFrame(animId);animId=null;}localStorage.removeItem('htl_resume_state');showScreen('menu');closeMapDetail();});
 
 (function(){
-  const el=document.getElementById('cursor');const ring=el.querySelector('.c-ring');const outer=el.querySelector('.c-outer');const cross=el.querySelectorAll('.c-cross');const dot=el.querySelector('.c-dot');
-  let cursorColor=document.documentElement.dataset.theme==='dark'?'#f0eee9':'#1a1714';
-  document.addEventListener('mousemove',e=>{el.style.transform=`translate(${e.clientX}px,${e.clientY}px) translate(-50%,-50%)`;});
-  function syncCursorTheme(){cursorColor=document.documentElement.dataset.theme==='dark'?'#f0eee9':'#1a1714';updateCursor();}
-  document.getElementById('darkToggle').addEventListener('click',()=>setTimeout(syncCursorTheme,0));
-  function setColor(c){ring.setAttribute('stroke',c);cross.forEach(l=>l.setAttribute('stroke',c));dot.setAttribute('fill',c);}
-  function updateCursor(){
-    const onGame=document.getElementById('gameScreen').classList.contains('active');const base=cursorColor;
-    if(!onGame){el.className='';setColor(base);ring.setAttribute('r','9');ring.setAttribute('stroke-width','1.5');ring.setAttribute('opacity','0.6');outer.setAttribute('opacity','0');dot.setAttribute('r','1.8');cross.forEach(l=>l.setAttribute('opacity','0.6'));return;}
-    const def=selShopType!==null?TDEFS[selShopType]:null;const towerClr=def?def.clr:base;
-    if(moveTowerMode){el.className='move-mode';const mc='#d97706';setColor(mc);ring.setAttribute('r','11');ring.setAttribute('stroke-width','2');ring.setAttribute('opacity','0.9');outer.setAttribute('r','14');outer.setAttribute('stroke',mc);outer.setAttribute('stroke-dasharray','4 4');outer.setAttribute('opacity','0.5');dot.setAttribute('r','2.5');cross.forEach(l=>l.setAttribute('opacity','0.8'));return;}
-    if(selTower){const tc=TDEFS[selTower.type].clr;el.className='';setColor(tc);ring.setAttribute('r','7');ring.setAttribute('stroke-width','2');ring.setAttribute('opacity','1');outer.setAttribute('opacity','0');dot.setAttribute('r','2.5');cross.forEach(l=>l.setAttribute('opacity','0.5'));return;}
-    if(selShopType===null){el.className='';setColor(base);ring.setAttribute('r','9');ring.setAttribute('stroke-width','1.5');ring.setAttribute('opacity','0.6');outer.setAttribute('opacity','0');dot.setAttribute('r','1.8');cross.forEach(l=>l.setAttribute('opacity','0.6'));return;}
-    el.className='placing';setColor(towerClr);ring.setAttribute('r','10');ring.setAttribute('stroke-width','1.5');ring.setAttribute('opacity','0.85');outer.setAttribute('r','14');outer.setAttribute('stroke',towerClr);outer.setAttribute('stroke-dasharray','5 3');outer.setAttribute('opacity','0.7');dot.setAttribute('r','2');cross.forEach(l=>l.setAttribute('opacity','0.9'));
+  // ── Cursor style definitions ──────────────
+  const CURSOR_STYLES = [
+    {
+      id:'crosshair', label:'Crosshair',
+      preview:`<svg viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="9" stroke="#3b82f6" stroke-width="1.5" fill="none" opacity="0.8"/><line x1="16" y1="2" x2="16" y2="10" stroke="#3b82f6" stroke-width="1.5" stroke-linecap="round"/><line x1="22" y1="16" x2="30" y2="16" stroke="#3b82f6" stroke-width="1.5" stroke-linecap="round"/><line x1="16" y1="22" x2="16" y2="30" stroke="#3b82f6" stroke-width="1.5" stroke-linecap="round"/><line x1="2" y1="16" x2="10" y2="16" stroke="#3b82f6" stroke-width="1.5" stroke-linecap="round"/><circle cx="16" cy="16" r="1.8" fill="#3b82f6"/></svg>`,
+      apply(els, clr, state){
+        const{ring,outer,cross,dot}=els;
+        outer.setAttribute('opacity','0');
+        ring.setAttribute('r','9');ring.setAttribute('stroke-width','1.5');ring.setAttribute('stroke-dasharray','none');
+        cross.forEach(l=>{l.setAttribute('opacity','0.8');l.setAttribute('stroke-width','1.5');});
+        dot.setAttribute('r','1.8');
+        if(state==='placing'){
+          ring.setAttribute('r','11');outer.setAttribute('r','15');outer.setAttribute('stroke-dasharray','5 3');outer.setAttribute('opacity','0.6');
+        }
+      }
+    },
+    {
+      id:'dot', label:'Dot',
+      preview:`<svg viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="4" fill="#3b82f6" opacity="0.9"/><circle cx="16" cy="16" r="10" stroke="#3b82f6" stroke-width="1" fill="none" opacity="0.3"/></svg>`,
+      apply(els, clr, state){
+        const{ring,outer,cross,dot}=els;
+        cross.forEach(l=>l.setAttribute('opacity','0'));
+        outer.setAttribute('opacity','0');
+        ring.setAttribute('r','10');ring.setAttribute('stroke-width','1');ring.setAttribute('stroke-dasharray','none');ring.setAttribute('opacity','0.3');
+        dot.setAttribute('r', state==='placing'?'5':state==='selected'?'4':'3.5');
+        if(state==='placing'){ring.setAttribute('r','13');ring.setAttribute('opacity','0.5');}
+      }
+    },
+    {
+      id:'circle', label:'Circle',
+      preview:`<svg viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="12" stroke="#3b82f6" stroke-width="1.5" fill="none" opacity="0.7"/><circle cx="16" cy="16" r="1.5" fill="#3b82f6"/></svg>`,
+      apply(els, clr, state){
+        const{ring,outer,cross,dot}=els;
+        cross.forEach(l=>l.setAttribute('opacity','0'));
+        outer.setAttribute('opacity','0');
+        ring.setAttribute('r','12');ring.setAttribute('stroke-width','1.5');ring.setAttribute('stroke-dasharray','none');ring.setAttribute('opacity','0.7');
+        dot.setAttribute('r','1.5');
+        if(state==='placing'){ring.setAttribute('stroke-dasharray','4 4');ring.setAttribute('stroke-width','2');}
+      }
+    },
+    {
+      id:'diamond', label:'Diamond',
+      preview:`<svg viewBox="0 0 32 32" fill="none"><line x1="16" y1="6" x2="26" y2="16" stroke="#3b82f6" stroke-width="1.5" stroke-linecap="round" opacity="0.85"/><line x1="26" y1="16" x2="16" y2="26" stroke="#3b82f6" stroke-width="1.5" stroke-linecap="round" opacity="0.85"/><line x1="16" y1="26" x2="6" y2="16" stroke="#3b82f6" stroke-width="1.5" stroke-linecap="round" opacity="0.85"/><line x1="6" y1="16" x2="16" y2="6" stroke="#3b82f6" stroke-width="1.5" stroke-linecap="round" opacity="0.85"/><circle cx="16" cy="16" r="2" fill="#3b82f6"/></svg>`,
+      apply(els, clr, state){
+        const{ring,outer,cross,dot}=els;
+        ring.setAttribute('opacity','0');
+        outer.setAttribute('opacity','0');
+        const sz=state==='placing'?12:10;
+        // 4 lines forming an actual diamond shape
+        cross[0].setAttribute('x1','16');cross[0].setAttribute('y1',String(16-sz));cross[0].setAttribute('x2',String(16+sz));cross[0].setAttribute('y2','16');
+        cross[1].setAttribute('x1',String(16+sz));cross[1].setAttribute('y1','16');cross[1].setAttribute('x2','16');cross[1].setAttribute('y2',String(16+sz));
+        cross[2].setAttribute('x1','16');cross[2].setAttribute('y1',String(16+sz));cross[2].setAttribute('x2',String(16-sz));cross[2].setAttribute('y2','16');
+        cross[3].setAttribute('x1',String(16-sz));cross[3].setAttribute('y1','16');cross[3].setAttribute('x2','16');cross[3].setAttribute('y2',String(16-sz));
+        cross.forEach(l=>{l.setAttribute('opacity','0.85');l.setAttribute('stroke-width','1.5');});
+        dot.setAttribute('r','2');
+      }
+    },
+    {
+      id:'sniper', label:'Sniper',
+      preview:`<svg viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="10" stroke="#3b82f6" stroke-width="1.5" fill="none" opacity="0.75"/><circle cx="16" cy="16" r="13" stroke="#3b82f6" stroke-width="1" fill="none" opacity="0.2"/><line x1="16" y1="1" x2="16" y2="31" stroke="#3b82f6" stroke-width="1" stroke-linecap="round" opacity="0.9"/><line x1="1" y1="16" x2="31" y2="16" stroke="#3b82f6" stroke-width="1" stroke-linecap="round" opacity="0.9"/><circle cx="16" cy="16" r="2" fill="#3b82f6"/></svg>`,
+      apply(els, clr, state){
+        const{ring,outer,cross,dot}=els;
+        // scope lens ring
+        ring.setAttribute('r', state==='placing'?'12':'10');
+        ring.setAttribute('stroke-width','1.5');ring.setAttribute('stroke-dasharray','none');ring.setAttribute('opacity','0.75');
+        // faint outer scope housing ring
+        outer.setAttribute('r','13');outer.setAttribute('stroke',clr);outer.setAttribute('stroke-dasharray','none');
+        outer.setAttribute('stroke-width','1');outer.setAttribute('opacity', state==='placing'?'0.35':'0.2');
+        // full-length crosshair lines crossing the entire scope
+        cross[0].setAttribute('x1','16');cross[0].setAttribute('y1','1');cross[0].setAttribute('x2','16');cross[0].setAttribute('y2','31');
+        cross[1].setAttribute('x1','1');cross[1].setAttribute('y1','16');cross[1].setAttribute('x2','31');cross[1].setAttribute('y2','16');
+        cross[2].setAttribute('opacity','0');cross[3].setAttribute('opacity','0');
+        cross[0].setAttribute('opacity','0.9');cross[1].setAttribute('opacity','0.9');
+        cross[0].setAttribute('stroke-width','1');cross[1].setAttribute('stroke-width','1');
+        // center mil-dot
+        dot.setAttribute('r','2');
+      }
+    },
+    {
+      id:'minimal', label:'Minimal',
+      preview:`<svg viewBox="0 0 32 32" fill="none"><line x1="16" y1="10" x2="16" y2="22" stroke="#3b82f6" stroke-width="1.5" stroke-linecap="round" opacity="0.7"/><line x1="10" y1="16" x2="22" y2="16" stroke="#3b82f6" stroke-width="1.5" stroke-linecap="round" opacity="0.7"/></svg>`,
+      apply(els, clr, state){
+        const{ring,outer,cross,dot}=els;
+        outer.setAttribute('opacity','0');ring.setAttribute('opacity','0');dot.setAttribute('r','0');
+        cross[0].setAttribute('x1','16');cross[0].setAttribute('y1','10');cross[0].setAttribute('x2','16');cross[0].setAttribute('y2','22');
+        cross[1].setAttribute('x1','10');cross[1].setAttribute('y1','16');cross[1].setAttribute('x2','22');cross[1].setAttribute('y2','16');
+        cross[2].setAttribute('opacity','0');cross[3].setAttribute('opacity','0');
+        cross[0].setAttribute('opacity','0.8');cross[1].setAttribute('opacity','0.8');
+        cross[0].setAttribute('stroke-width', state==='placing'?'2':'1.5');
+        cross[1].setAttribute('stroke-width', state==='placing'?'2':'1.5');
+        if(state==='placing'||state==='selected'){dot.setAttribute('r','2.5');}
+      }
+    },
+    {
+      id:'arrow', label:'Arrow',
+      preview:`<svg viewBox="0 0 32 32" fill="none"><line x1="7" y1="5" x2="7" y2="22" stroke="#3b82f6" stroke-width="1.4" stroke-linecap="round" opacity="0.85"/><line x1="7" y1="5" x2="21" y2="19" stroke="#3b82f6" stroke-width="1.4" stroke-linecap="round" opacity="0.85"/><line x1="21" y1="19" x2="14" y2="26" stroke="#3b82f6" stroke-width="1.4" stroke-linecap="round" opacity="0.85"/><line x1="14" y1="26" x2="7" y2="22" stroke="#3b82f6" stroke-width="1.4" stroke-linecap="round" opacity="0.85"/><circle cx="7" cy="5" r="1.8" fill="#3b82f6"/></svg>`,
+      apply(els, clr, state){
+        const{ring,outer,cross,dot}=els;
+        outer.setAttribute('opacity','0');ring.setAttribute('opacity','0');
+        const sc=state==='placing'?1.15:1;
+        // 4 lines forming a closed arrow pointer outline
+        // tip=(7,5) left-bottom=(7,22) right-notch=(21,19) tail-bottom=(14,26)
+        cross[0].setAttribute('x1','7');cross[0].setAttribute('y1','5');
+        cross[0].setAttribute('x2','7');cross[0].setAttribute('y2','22');
+        cross[1].setAttribute('x1','7');cross[1].setAttribute('y1','5');
+        cross[1].setAttribute('x2','21');cross[1].setAttribute('y2','19');
+        cross[2].setAttribute('x1','21');cross[2].setAttribute('y1','19');
+        cross[2].setAttribute('x2','14');cross[2].setAttribute('y2','26');
+        cross[3].setAttribute('x1','14');cross[3].setAttribute('y1','26');
+        cross[3].setAttribute('x2','7');cross[3].setAttribute('y2','22');
+        cross.forEach(l=>{l.setAttribute('opacity','0.85');l.setAttribute('stroke-width', state==='placing'?'2':'1.4');});
+        // dot at tip (hotspot)
+        dot.setAttribute('r','2');dot.setAttribute('cx','7');dot.setAttribute('cy','5');
+      }
+    },
+    {
+      id:'target', label:'Target',
+      preview:`<svg viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="12" stroke="#ef4444" stroke-width="1" fill="none" opacity="0.5"/><circle cx="16" cy="16" r="7" stroke="#ef4444" stroke-width="1.5" fill="none" opacity="0.7"/><circle cx="16" cy="16" r="2" fill="#ef4444" opacity="0.9"/><line x1="16" y1="1" x2="16" y2="7" stroke="#ef4444" stroke-width="1" opacity="0.6"/><line x1="16" y1="25" x2="16" y2="31" stroke="#ef4444" stroke-width="1" opacity="0.6"/><line x1="1" y1="16" x2="7" y2="16" stroke="#ef4444" stroke-width="1" opacity="0.6"/><line x1="25" y1="16" x2="31" y2="16" stroke="#ef4444" stroke-width="1" opacity="0.6"/></svg>`,
+      apply(els, clr, state){
+        const{ring,outer,cross,dot}=els;
+        ring.setAttribute('r', state==='placing'?'12':'7');ring.setAttribute('stroke-width','1.5');ring.setAttribute('stroke-dasharray','none');ring.setAttribute('opacity','0.7');
+        outer.setAttribute('r','13');outer.setAttribute('stroke',clr);outer.setAttribute('stroke-dasharray','none');outer.setAttribute('stroke-width','1');outer.setAttribute('opacity', state==='placing'?'0.5':'0.3');
+        // short tick lines
+        cross[0].setAttribute('x1','16');cross[0].setAttribute('y1','1');cross[0].setAttribute('x2','16');cross[0].setAttribute('y2','7');
+        cross[1].setAttribute('x1','25');cross[1].setAttribute('y1','16');cross[1].setAttribute('x2','31');cross[1].setAttribute('y2','16');
+        cross[2].setAttribute('x1','16');cross[2].setAttribute('y1','25');cross[2].setAttribute('x2','16');cross[2].setAttribute('y2','31');
+        cross[3].setAttribute('x1','1');cross[3].setAttribute('y1','16');cross[3].setAttribute('x2','7');cross[3].setAttribute('y2','16');
+        cross.forEach(l=>{l.setAttribute('opacity','0.6');l.setAttribute('stroke-width','1');});
+        dot.setAttribute('r','2');
+      }
+    },
+  ];
+
+  let selectedCursorId = localStorage.getItem('htl_cursor') || 'crosshair';
+  let cursorColor = document.documentElement.dataset.theme==='dark'?'#f0eee9':'#1a1714';
+
+  const el = document.getElementById('cursor');
+  const ring = el.querySelector('.c-ring');
+  const outer = el.querySelector('.c-outer');
+  const cross = el.querySelectorAll('.c-cross');
+  const dot = el.querySelector('.c-dot');
+
+  document.addEventListener('mousemove', e=>{
+    el.style.transform=`translate(${e.clientX}px,${e.clientY}px) translate(-50%,-50%)`;
+  });
+
+  function syncCursorTheme(){
+    cursorColor = document.documentElement.dataset.theme==='dark'?'#f0eee9':'#1a1714';
+    updateCursor();
   }
-  function cursorTick(){updateCursor();requestAnimationFrame(cursorTick);}cursorTick();
+  document.getElementById('darkToggle').addEventListener('click', ()=>setTimeout(syncCursorTheme,0));
+
+  function resetCrossLines(){
+    const defaults=[['16','2','16','10'],['22','16','30','16'],['16','22','16','30'],['2','16','10','16']];
+    cross.forEach((l,i)=>{
+      l.setAttribute('x1',defaults[i][0]);l.setAttribute('y1',defaults[i][1]);
+      l.setAttribute('x2',defaults[i][2]);l.setAttribute('y2',defaults[i][3]);
+      l.setAttribute('stroke-width','1.5');l.setAttribute('opacity','0.8');
+    });
+    dot.setAttribute('cx','16');dot.setAttribute('cy','16');
+  }
+
+  function setColor(c){
+    ring.setAttribute('stroke',c);
+    cross.forEach(l=>l.setAttribute('stroke',c));
+    dot.setAttribute('fill',c);
+    outer.setAttribute('stroke',c);
+  }
+
+  function getState(){
+    const onGame = document.getElementById('gameScreen').classList.contains('active');
+    if(!onGame) return 'menu';
+    if(moveTowerMode) return 'move';
+    if(selTower) return 'selected';
+    if(selShopType!==null) return 'placing';
+    return 'idle';
+  }
+
+  function getStateColor(state){
+    if(state==='move') return '#d97706';
+    if(state==='selected'){
+      if(!selTower)return cursorColor;
+      if((selTower.fgbTimer||0)>0) return '#16a34a';
+      if(TDEFS[selTower.type].isWall) return '#64748b';
+      return TDEFS[selTower.type].clr;
+    }
+    if(state==='placing') return selShopType!==null?TDEFS[selShopType].clr:cursorColor;
+    if(state==='idle'&&typeof waveActive!=='undefined'&&waveActive) return '#ef4444';
+    if(state==='idle'&&typeof isSandbox!=='undefined'&&isSandbox) return '#a855f7';
+    return cursorColor;
+  }
+
+  function updateCursor(){
+    const style = CURSOR_STYLES.find(s=>s.id===selectedCursorId)||CURSOR_STYLES[0];
+    const state = getState();
+    const clr = getStateColor(state);
+    resetCrossLines();
+    setColor(clr);
+    style.apply({ring,outer,cross:Array.from(cross),dot}, clr, state);
+    el.className = state==='placing'?'placing':state==='move'?'move-mode':'';
+  }
+
+  // Force cursor:none every frame — fixes Mac/Safari flickering back to system cursor
+  const _cursorStyleEl = document.createElement('style');
+  _cursorStyleEl.textContent = '*,*::before,*::after{cursor:none!important}';
+  document.head.appendChild(_cursorStyleEl);
+  function cursorTick(){
+    updateCursor();
+    document.documentElement.style.cursor='none';
+    document.body.style.cursor='none';
+    requestAnimationFrame(cursorTick);
+  }
+  cursorTick();
+
+  function buildCursorPicker(){
+    const picker = document.getElementById('cursorPicker');
+    if(!picker) return;
+    picker.innerHTML = '';
+    CURSOR_STYLES.forEach(style=>{
+      const card = document.createElement('div');
+      card.className = 'cursor-opt' + (style.id===selectedCursorId?' active':'');
+      card.innerHTML = style.preview + `<div class="cursor-opt-label">${style.label}</div>`;
+      card.addEventListener('click', ()=>{
+        selectedCursorId = style.id;
+        localStorage.setItem('htl_cursor', style.id);
+        picker.querySelectorAll('.cursor-opt').forEach(c=>c.classList.remove('active'));
+        card.classList.add('active');
+        updateCursor();
+      });
+      picker.appendChild(card);
+    });
+  }
+
+  const _origOpenSettings = window.openSettings;
+  window.openSettings = function(){ if(_origOpenSettings)_origOpenSettings(); setTimeout(buildCursorPicker,0); };
 })();
 
 document.getElementById('mdPlayMulti').addEventListener('click',()=>openMpOverlay());
