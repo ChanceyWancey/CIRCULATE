@@ -702,7 +702,7 @@ const TDEFS=[
    pA:[{n:'Dirty Bomb',c:500,d:'Dmg x2, Burn 15s',f:t=>{t.dmg*=2;t.burn=15}},{n:'Tactical Nuke',c:1000,d:'Dmg x5, Burn 30s',f:t=>{t.dmg*=5;t.burn=30}},{n:'Strategic Nuke',c:2000,d:'Dmg x10, Splash x1.5',f:t=>{t.dmg*=10;t.splash*=1.5}},{n:'City Buster',c:4000,d:'Dmg x20, Stun 3s',f:t=>{t.dmg*=20;t.stun=3}},{n:'Planet Cracker',c:8000,d:'Dmg x100, Burn 120s',f:t=>{t.dmg*=100;t.burn=120}}],
    pB:[{n:'Fallout I',c:400,d:'Burn 10s on all hit',f:t=>{t.burn=10}},{n:'Fallout II',c:800,d:'Burn 20s, Slow 50%',f:t=>{t.burn=20;t.slow=0.5}},{n:'Fallout III',c:1600,d:'Burn 40s, Slow 80%',f:t=>{t.burn=40;t.slow=0.8}},{n:'Dead Zone',c:3200,d:'Burn 60s, Stun 2s',f:t=>{t.burn=60;t.stun=2}},{n:'Extinction Event',c:6400,d:'Burn 999s, Slow 99%, Stun 5s',f:t=>{t.burn=999;t.slow=0.99;t.stun=5}}],
    pC:[{n:'Fast Reload',c:400,d:'Rate x1.5',f:t=>{t.rate*=1.5}},{n:'Auto Silo',c:800,d:'Rate x2, Multi 2',f:t=>{t.rate*=2;t.multi=2}},{n:'Volley',c:1600,d:'Multi 3, Rate x1.5',f:t=>{t.multi=3;t.rate*=1.5}},{n:'Carpet Nuke',c:3200,d:'Multi 4, Rate x2',f:t=>{t.multi=4;t.rate*=2}},{n:'Armageddon Protocol',c:6400,d:'Multi 6, Rate x3, Dmg x5',f:t=>{t.multi=6;t.rate*=3;t.dmg*=5}}]}];
-const IS_DEV_BUILD = true; // injected per build
+const IS_DEV_BUILD = false; // injected per build
 
 const MAPS=[
   {name:'Meadow',desc:'A gentle S-curve through open grassland. Perfect for learning.',diff:'Starter',clr:'#16a34a',lives:20,gold:625,wp:[[0,3],[5,3],[5,9],[14,9],[14,3],[19,3]],walls:[[5,2],[6,3],[4,2],[4,4],[4,9],[5,10],[4,8],[6,8],[14,10],[15,9],[13,8],[13,10],[13,3],[14,2],[13,4],[15,2]]},
@@ -1033,7 +1033,7 @@ function canUp(t,path){
 }
 
 function doUpgrade(t,path){
-  if(!IS_DEV_BUILD&&TDEFS[t.type].devOnly){msg('Dev tower — view only in this version.');return;}
+  if(TDEFS[t.type].devOnly&&!IS_DEV_BUILD){msg('Dev towers are not available in this build.');return;}
   if(mp.active&&t.mpOwner&&t.mpOwner!==mp.myId){msg("That's not your tower!");return;}
   const pathKey=path==='A'?'pA':path==='B'?'pB':'pC';
   const lvl=path==='A'?(t.pA||0):path==='B'?(t.pB||0):(t.pC||0);
@@ -1554,8 +1554,9 @@ function loop(ts){
 
 function updateShopAffordability(){
   const towerCount=towers.length;
-  document.querySelectorAll('#shopPanel .tc').forEach((el,i)=>{
-    const td=TDEFS[i];if(!td)return;
+  document.querySelectorAll('#shopPanel .tc').forEach(el=>{
+    const i=parseInt(el.dataset.idx);const td=TDEFS[i];if(!td)return;
+    if(td.devOnly&&!IS_DEV_BUILD){el.classList.add('locked');el.classList.remove('unafford');return;}
     const req=td.requires;
     const reqOk=!req||(req.towers===undefined||towerCount>=req.towers);
     const canAfford=gold>=td.cost;
@@ -1575,9 +1576,10 @@ function endGame(win){
 function buildShop(){
   const p=document.getElementById('shopPanel');p.innerHTML='';const towerCount=towers.length;
   TDEFS.forEach((td,i)=>{
-    if(!IS_DEV_BUILD && td.devOnly) return; // hidden in release
+    if(td.devOnly&&!IS_DEV_BUILD)return;
     const req=td.requires;const reqOk=!req||(req.towers===undefined||towerCount>=req.towers);
     const d=document.createElement('div');const isPlacing=selShopType!==null&&i===selShopType&&!selTower&&!moveTowerMode;
+    d.dataset.idx=i;
     d.className=`tc${isPlacing?' sel placing':''}${!reqOk?' locked':gold<td.cost?' unafford':''}`;
     const reqLabel=(!reqOk&&req&&req.towers)?`<div class="tc-req">Requires ${req.towers} towers (${towerCount}/${req.towers})</div>`:'';
     d.innerHTML=`<div class="tc-main"><span class="tc-dot" style="background:${td.clr}"></span><div class="tc-info"><div class="tc-name">${td.name}</div><div class="tc-cost">${td.cost}g</div></div></div>${reqLabel}`;
@@ -1593,7 +1595,7 @@ function showUpPanel(show){
 
 function renderUpPanel(tower){
   // ── Dev-only tower: show read-only preview in release build ──────────────
-  if(!IS_DEV_BUILD && TDEFS[tower.type].devOnly){
+  if(TDEFS[tower.type].devOnly&&!IS_DEV_BUILD){
     showUpPanel(true);
     const p=document.getElementById('upgradePanel');
     const def2=TDEFS[tower.type],pa2=tower.pA||0,pb2=tower.pB||0,pc2=tower.pC||0;
@@ -1670,7 +1672,7 @@ function setTowerTarget(mode){
 }
 function sellTower(){
   if(!selTower)return;
-  if(!IS_DEV_BUILD&&TDEFS[selTower.type].devOnly){msg('Dev tower — cannot sell in this version.');return;}
+  if(TDEFS[selTower.type].devOnly&&!IS_DEV_BUILD){msg('Dev towers are not available in this build.');return;}
   if(mp.active&&selTower.mpOwner&&selTower.mpOwner!==mp.myId){msg("That's not your tower!");return;}
   const def=TDEFS[selTower.type],pa=selTower.pA||0,pb=selTower.pB||0,pc=selTower.pC||0;
   let sp=0;for(let i=0;i<pa;i++)sp+=def.pA[i].c;for(let i=0;i<pb;i++)sp+=def.pB[i].c;for(let i=0;i<pc;i++)sp+=def.pC[i].c;
@@ -1725,7 +1727,7 @@ canvas.addEventListener('click',e=>{
     if(towers.some(wt=>TDEFS[wt.type].isWall&&wt.col===c&&wt.row===r2)){msg("Already a wall there.");return;}
     if(towers.some(t=>{const d=TDEFS[t.type];if(d.isBank||d.isAmplifier)return c>=t.col&&c<t.col+3&&r2>=t.row&&r2<t.row+3;return t.col===c&&t.row===r2;})){msg("Already occupied.");return;}
   }
-  if(!IS_DEV_BUILD&&def.devOnly){msg('This tower is only available in the developer build.');return;}
+  if(def.devOnly&&!IS_DEV_BUILD){msg('Dev towers are not available in this build.');return;}
   const cost=def.cost;if(!isSandbox&&gold<cost){msg(`Need ${cost}g.`);return;}
   const req=def.requires;if(req&&req.towers!==undefined&&towers.length<req.towers){msg(`Need ${req.towers} towers placed first.`);return;}
   if(!isSandbox)gold-=cost;
@@ -1743,7 +1745,7 @@ canvas.addEventListener('contextmenu',e=>{
   const r=canvas.getBoundingClientRect();const col=Math.floor((e.clientX-r.left)/CS),row=Math.floor((e.clientY-r.top)/CS);
   const idx=towers.findIndex(t=>{const def=TDEFS[t.type];if(def.isBank||def.isAmplifier)return col>=t.col&&col<t.col+3&&row>=t.row&&row<t.row+3;return t.col===col&&t.row===row;});
   if(idx===-1)return;const t=towers[idx],def=TDEFS[t.type];
-  if(!IS_DEV_BUILD&&def.devOnly){msg('Dev tower — cannot sell in this version.');return;}
+  if(def.devOnly&&!IS_DEV_BUILD){msg('Dev towers are not available in this build.');return;}
   if(mp.active&&t.mpOwner&&t.mpOwner!==mp.myId){msg("That's not your tower!");return;}
   let sp=0;for(let i=0;i<(t.pA||0);i++)sp+=def.pA[i].c;for(let i=0;i<(t.pB||0);i++)sp+=def.pB[i].c;for(let i=0;i<(t.pC||0);i++)sp+=def.pC[i].c;
   const isFGB=(t.fgbTimer||0)>0;gold+=isFGB?def.cost:(Math.floor(def.cost*.6)+Math.floor(sp*.4));
