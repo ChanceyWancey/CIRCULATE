@@ -2697,8 +2697,26 @@
         <h2 style="font-size:20px;color:#60a5fa;margin:0 0 4px;font-weight:bold;">📋 Update Log</h2>
         <p style="font-size:11px;color:rgba(255,255,255,0.3);margin:0 0 24px;font-family:monospace;">CIRCULATE - patch notes</p>
         <div style="display:flex;flex-direction:column;gap:18px;">
-            <div style="border-left:3px solid #22d3ee;padding-left:16px;">
-                <div style="font-size:12px;font-weight:bold;color:#67e8f9;margin-bottom:2px;">🔵 Latest Patch</div>
+                        <div style="border-left:3px solid #ff8c00;padding-left:16px;margin-bottom:16px;">
+                <div style="font-size:12px;font-weight:bold;color:#ff8c00;margin-bottom:2px;">NEW CONTENT UPDATE</div>
+                <div style="font-size:10px;color:rgba(255,255,255,0.3);margin-bottom:10px;font-family:monospace;">Naruto + Hexagon Boss + Wraith Enemy + Luffy Fix</div>
+                <ul style="font-size:12px;color:rgba(255,255,255,0.75);line-height:2;padding-left:16px;margin:0;">
+                    <li><b style="color:#ff8c00;">Naruto</b> - NEW $500,000 character with <b>Ultimate Bar</b> system</li>
+                    <li><b style="color:#ff8c00;">Naruto</b> - <b>R: Kurama Mode</b> requires 100 kills to charge, lasts 60s</li>
+                    <li><b style="color:#ff8c00;">Naruto</b> - Normal: Shadow Clone (Z), Rasengan (X), Kunai Barrage (C)</li>
+                    <li><b style="color:#ff8c00;">Naruto</b> - Kurama: Rasenshuriken (Z), Tailed Beast Bomb (X), Sage Barrage (C)</li>
+                    <li><b style="color:#06b6d4;">The Hexagon</b> - NEW <b>Boss</b> at Wave 75 (and every 75 waves)</li>
+                    <li><b style="color:#06b6d4;">The Hexagon</b> - 3 phases: Normal, Shield, Enraged</li>
+                    <li><b style="color:#06b6d4;">The Hexagon</b> - Laser sweep, hex bullet patterns, teleport, minion summons</li>
+                    <li><b style="color:#4a0080;">Wraith</b> - NEW <b>Enemy</b> type (spawns at Wave 32+)</li>
+                    <li><b style="color:#4a0080;">Wraith</b> - Teleports near player every 4s, leaves dark energy trails</li>
+                    <li><b style="color:#fb923c;">Luffy Fix</b> - Reduced knockback distance (80 to 40) to stop enemies dodging bullets</li>
+                    <li><b style="color:#fb923c;">Luffy Fix</b> - Added knockback cooldown so enemies stay in bullet path</li>
+                    <li><b style="color:#fb923c;">Luffy Fix</b> - Luffy projectiles no longer deflected by Magnet enemies</li>
+                </ul>
+            </div>
+<div style="border-left:3px solid #22d3ee;padding-left:16px;">
+                <div style="font-size:12px;font-weight:bold;color:#67e8f9;margin-bottom:2px;">🔵 Previous Patch</div>
                 <div style="font-size:10px;color:rgba(255,255,255,0.3);margin-bottom:10px;font-family:monospace;">Visual Overhaul + Bug Fixes + UI Polish</div>
                 <ul style="font-size:12px;color:rgba(255,255,255,0.75);line-height:2;padding-left:16px;margin:0;">
                     <li><b style="color:#f87171;">Bug Fix</b> - Fixed critical <b>ReferenceError: resetGame is not defined</b> on game start - caused by 35 functions being accidentally scoped inside <code style="color:#fca5a5;">specialAttack()</code> due to a missing closing brace on the switch statement</li>
@@ -3065,6 +3083,14 @@
             <div class="character-price" style="color:#fca5a5;">$1,000,000</div>
             <div class="limited-timer" id="luffyTimer" style="background:rgba(59,130,246,0.85);border-color:#3b82f6;color:#fff;"></div>
             <button class="info-btn" onclick="event.stopPropagation();showCharInfo('luffy')" style="border-color:rgba(230,57,70,0.5);color:#fca5a5;">INFO</button>
+        </div>
+
+        <div class="character-card" onclick="selectCharacter('naruto')" id="narutoCharacter" style="border-color:rgba(255,165,0,0.6);background:linear-gradient(135deg,rgba(255,140,0,0.15),rgba(255,69,0,0.1));">
+            <div class="character-preview" style="background:linear-gradient(135deg,#ff8c00,#ff4500);box-shadow:0 0 22px rgba(255,140,0,.9);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:32px;">&#127744;</div>
+            <div class="character-name" style="color:#ff8c00;">Naruto</div>
+            <div class="character-ability" data-ability-key style="color:#ffa500;">12 DMG &bull; 100 HP &bull; Speed 5.5<br>PASSIVE: +1 Ultimate per kill<br>[R]: Kurama Mode at 100% bar<br>New moves for 60s! Z/X/C abilities</div>
+            <div class="character-price" style="color:#ff8c00;">$500,000</div>
+            <button class="info-btn" onclick="event.stopPropagation();showCharInfo('naruto')" style="border-color:rgba(255,140,0,0.5);color:#ff8c00;">INFO</button>
         </div>
         <div class="character-card limited-card" onclick="selectCharacter('rouge_square')" id="rougeSquareCharacter">
             <div class="character-preview" style="background:linear-gradient(135deg,#1e1b4b,#4444ff);box-shadow:0 0 22px rgba(68,68,255,.9);"></div>
@@ -3955,6 +3981,7 @@ const CHARACTERS = {
     hornet: { name:'Hornet', color:'#f59e0b', shadow:'#92400e', projColor:'#fde68a', ability:'silk_storm', manaCost:4, cdMax:0, isHornet:true, useImg:false },
     speedrunner: { name:'Speedrunner', color:'#facc15', shadow:'#713f12', projColor:'#fde047', ability:'sprint_burst', manaCost:0, cdMax:240, isSpeedrunner:true, lockHpUpgrade:true, lockDmgUpgrade:true, useImg:false },
     luffy: { name:'Luffy', color:'#e63946', shadow:'#7f1d1d', projColor:'#ff6b6b', ability:'arm_haki', manaCost:0, cdMax:0, isLuffy:true, useImg:false },
+    naruto: { name:'Naruto', color:'#ff8c00', shadow:'#cc5500', projColor:'#ffa500', ability:'kurama_mode', manaCost:0, cdMax:0, isNaruto:true, useImg:false },
 };
 
 const SKIN_URLS = {
@@ -3974,7 +4001,7 @@ const PRICES = {
     phantom:250, druid:750, pyromancer:1500, cyborg:3000, timewizard:4500,
     fire:500, ice:1000, electric:2500, boxer:500,
     wemmbu:5000, eggchan:5000, dice:2345, hakari_v2:35000, yuji_itadori:28000, character10b:50000, war_veteran:0, prime_veteran:0, last_architect:0, coin_king:0, rouge_square:250000, gojo:0, the_strongest_today:0,
-    necromancer:4000, glass_cannon:3500, tank:2000, speedrunner:2500, hornet:0, megumi:0, luffy:1000000
+    necromancer:4000, glass_cannon:3500, tank:2000, speedrunner:2500, hornet:0, megumi:0, luffy:1000000, naruto:500000
 };
 
 const CHARACTER_ORDER = Object.keys(PRICES).sort((a, b) => PRICES[a] - PRICES[b]);
@@ -4062,6 +4089,19 @@ let luffyRapidRifleTimer = 0;
 const LUFFY_GEAR_NAMES = ['G1','G2','G3','G4-BM','G4-SM'];
 const LUFFY_GEAR_COLORS = ['#e63946','#ff4d6d','#ff6b35','#a855f7','#fbbf24'];
 // ========== END LUFFY STATE ==========
+// ========== NARUTO STATE ==========
+let narutoUltimateBar = 0;
+let narutoKuramaModeActive = false;
+let narutoKuramaModeTimer = 0;
+let narutoZCd = 0;
+let narutoXCd = 0;
+let narutoCCd = 0;
+let narutoClones = [];
+let narutoCloneId = 0;
+const NARUTO_ULTIMATE_MAX = 100;
+const NARUTO_KURAMA_DURATION = 3600;
+// ========== END NARUTO STATE ==========
+
 
 const VETERAN_TIERS = [
     { name:'Rookie',    color:'#3b82f6', shadow:'#3b82f6', projColor:'#60a5fa', dmgMult:1.0, speedBonus:0,   label:'Burst' },
@@ -6553,6 +6593,7 @@ class Enemy {
         this.isBerserker   = type==='berserker_e';
         this.isPuller      = type==='puller';
         this.isRegen       = type==='regen_e';
+        this.isWraith      = type==='wraith_e';
 
         if(type==='shielder')    { this.radius=16; this.shieldFacing=0; this.drawAlpha=1; }
         if(type==='splitter')    { this.radius=18; this.drawAlpha=1; }
@@ -6560,6 +6601,7 @@ class Enemy {
         if(type==='healer')      { this.radius=14; this.healTimer=0; this.drawAlpha=1; }
         if(type==='bomber')      { this.radius=16; this.fuseFlash=0; this.drawAlpha=1; }
         if(type==='phantom_e')   { this.radius=15; this.phaseTimer=Math.random()*228; this.drawAlpha=0.08; this.isVisible=false; }
+        if(type==='wraith_e')    { this.radius=14; this.wraithTeleportTimer=0; this.wraithTrailTimer=0; this.drawAlpha=1; this.wraithPhase=0; }
         if(type==='sniper_e')    { this.radius=13; this.sniperShootTimer=60; this.drawAlpha=1; }
         if(type==='berserker_e') { this.radius=17; this.baseSpeed=2.0; this.baseDamage=12; this.drawAlpha=1; }
         if(type==='puller')      { this.radius=22; this.drawAlpha=1; this.pulseT=0; }
@@ -6868,6 +6910,18 @@ class Enemy {
             ctx.fillStyle='#fff'; ctx.shadowBlur=_shadowsEnabled?8:0; ctx.shadowColor='#fff';
             ctx.beginPath(); ctx.arc(this.x+5,this.y-this.radius-10,1.5+Math.random()*1.5,0,Math.PI*2); ctx.fill();
 
+        } else if (this.isWraith) {
+            ctx.save();
+            ctx.globalAlpha = (this.drawAlpha||1) * (this.wraithPhase > 0 ? 0.3 : 0.85);
+            ctx.shadowBlur = _shadowsEnabled ? 20 : 0; ctx.shadowColor = '#7c3aed';
+            ctx.fillStyle = '#4a0080';
+            ctx.beginPath(); ctx.arc(this.x,this.y,this.radius,0,Math.PI*2); ctx.fill();
+            ctx.strokeStyle = '#a855f7'; ctx.lineWidth = 2; ctx.globalAlpha *= 0.5;
+            for(let i=0;i<3;i++){
+                const a = (Date.now()*0.003)+i*2.1;
+                ctx.beginPath(); ctx.arc(this.x+Math.cos(a)*8,this.y+Math.sin(a)*8,this.radius*0.6,0,Math.PI*2); ctx.stroke();
+            }
+            ctx.restore();
         } else if (this.isPhantomEnemy) {
             // 👻 PHANTOM - translucent misty sphere with ghostly inner shimmer
             const pg = ctx.createRadialGradient(this.x-3,this.y-3,1, this.x,this.y,this.radius);
@@ -7374,6 +7428,7 @@ class Enemy {
             else if (this.isSplitterMini) label = '💥 Mini';
             else if (this.isHealer)       label = '💚 Healer';
             else if (this.isBomber)       label = '🧨 Bomber';
+            else if (this.isWraith) label = '👻 Wraith';
             else if (this.isPhantomEnemy) label = this.isVisible ? '👻 Phantom' : null;
             else if (this.isSniperEnemy)  label = '🎯 Sniper';
             else if (this.isBerserker)    label = '😤 Berserker';
@@ -7644,6 +7699,7 @@ function getEnemyStats(type){
     if(type==='berserker_e') return{health:Math.round((320+d*80)*em), speed:eSpd(2.0+d*0.1), damage:Math.round((12+d*3)*em)};
     if(type==='puller')      return{health:Math.round((500+d*120)*em),speed:eSpd(0.9+d*0.05),damage:Math.round((18+d*4)*em)};
     if(type==='regen_e')     return{health:Math.round((450+d*100)*em),speed:eSpd(1.8+d*0.1), damage:Math.round((14+d*3)*em)};
+    if(type==='wraith_e')    return{health:Math.round((300+d*70)*em), speed:eSpd(2.5+d*0.12),damage:Math.round((18+d*4)*em)};
     if(type==='charger')   return{health:Math.round((280+d*70)*em), speed:eSpd(2.0+d*0.1), damage:Math.round((22+d*5)*em)};
     if(type==='mirror_e')  return{health:Math.round((200+d*50)*em), speed:eSpd(2.2+d*0.1), damage:Math.round((13+d*3)*em)};
     if(type==='timebomb')  return{health:999999,   speed:eSpd(0.5),        damage:Math.round((40+d*8)*em)};
@@ -7768,6 +7824,27 @@ function tickSpecialEnemies(dt) {
             }
         }
 
+        if (e.isWraith) {
+            e.wraithTeleportTimer = (e.wraithTeleportTimer || 0) + dt;
+            e.wraithTrailTimer = (e.wraithTrailTimer || 0) + dt;
+            if(e.wraithTrailTimer >= 30) {
+                e.wraithTrailTimer = 0;
+                for(let i=0;i<3;i++) particles.push(new Particle(e.x+(Math.random()-0.5)*20, e.y+(Math.random()-0.5)*20, '#6b21a8'));
+            }
+            if(e.wraithTeleportTimer >= 240) {
+                e.wraithTeleportTimer = 0;
+                const oldX = e.x, oldY = e.y;
+                const teleAngle = Math.random() * Math.PI * 2;
+                const teleDist = 80 + Math.random() * 120;
+                e.x = Math.max(e.radius, Math.min(canvas.width-e.radius, player.x + Math.cos(teleAngle)*teleDist));
+                e.y = Math.max(e.radius, Math.min(canvas.height-e.radius, player.y + Math.sin(teleAngle)*teleDist));
+                for(let i=0;i<15;i++) particles.push(new Particle(oldX,oldY,'#6b21a8'));
+                for(let i=0;i<15;i++) particles.push(new Particle(e.x,e.y,'#a855f7'));
+                e.wraithPhase = 30;
+            }
+            if(e.wraithPhase > 0) e.wraithPhase -= dt;
+        }
+        if(e._luffyKBCooldown && e._luffyKBCooldown > 0) e._luffyKBCooldown -= dt;
         if (e.isPhantomEnemy) {
             e.phaseTimer = (e.phaseTimer || 0) + dt;
             const cycle = 228;
@@ -8022,6 +8099,11 @@ function spawnWave(){
         waveEnemiesSpawned = waveEnemyBudget;
         return;
     }
+    if(currentRound === 75 || (currentRound > 75 && currentRound % 75 === 0 && currentRound % 50 !== 0)) {
+        spawnHexagonBoss();
+        waveEnemiesSpawned = waveEnemyBudget;
+        return;
+    }
 
     // Spawn a single enemy
     const side = Math.floor(Math.random()*4); let sx, sy;
@@ -8080,6 +8162,7 @@ function spawnWave(){
             if(currentRound >= 32) typePool.push('echo');
             if(currentRound >= 38) typePool.push('void_rift');
             if(currentRound >= 35) typePool.push('mirror_e');
+            if(currentRound >= 32) typePool.push('wraith_e');
             modEnemyIds.forEach(id => typePool.push(id));
         }
         const type = typePool[Math.floor(Math.random()*typePool.length)];
@@ -8110,6 +8193,7 @@ function spawnWave(){
             if(e.isSilencer)     { e.color='#475569'; e.expValue=24; }
             if(e.isMimic)        { e.color='#22c55e'; e.expValue=20; }
             if(e.isEcho)         { e.color='#e879f9'; e.expValue=28; }
+            if(e.isWraith)       { e.color='#4a0080'; e.expValue=26; }
             if(e.isVoidRift)     { e.color='#7c3aed'; e.expValue=45; }
             // Swarm: replace single enemy with 6 tiny swarm units
             if(e.isSwarm) {
@@ -8258,6 +8342,165 @@ function spawnTheBoss() {
     floatMoneyText(`👹 THE TRIANGLE #${bossNumber} APPEARS! (${Math.round(healthMult*100)}% HP)`);
     for(let i=0;i<100;i++) particles.push(new Particle(currentBoss.x + (Math.random()-0.5)*100, currentBoss.y + (Math.random()-0.5)*100, '#dc2626'));
 }
+
+// ========== THE HEXAGON BOSS ==========
+let currentHexBoss = null;
+let hexBossBullets = [];
+
+class HexagonBoss {
+    constructor(x, y) {
+        this.x = x; this.y = y;
+        this.health = 8000; this.maxHealth = 8000;
+        this.radius = 40; this.rotation = 0;
+        this.alive = true; this.phase = 0;
+        this.attackTimer = 0; this.laserSweepAngle = 0;
+        this.laserSweepActive = false; this.laserSweepTimer = 0;
+        this.shieldTimer = 0; this.shieldActive = false;
+        this.teleportCd = 0; this.summonCd = 0;
+        this.pulseTimer = 0;
+        this.isBoss = true;
+    }
+    update(dt=1) {
+        this.rotation += 0.02 * dt;
+        this.pulseTimer += dt;
+        this.attackTimer += dt;
+        if(this.teleportCd > 0) this.teleportCd -= dt;
+        if(this.summonCd > 0) this.summonCd -= dt;
+        if(this.health < this.maxHealth * 0.3 && this.phase < 2) {
+            this.phase = 2;
+            floatMoneyText('THE HEXAGON ENRAGES!');
+            for(let i=0;i<80;i++) particles.push(new Particle(this.x+(Math.random()-0.5)*100,this.y+(Math.random()-0.5)*100,'#ff4500'));
+        } else if(this.health < this.maxHealth * 0.6 && this.phase < 1) {
+            this.phase = 1;
+            this.shieldActive = true; this.shieldTimer = 300;
+            floatMoneyText('HEXAGON SHIELDS UP!');
+        }
+        if(this.shieldActive) {
+            this.shieldTimer -= dt;
+            if(this.shieldTimer <= 0) { this.shieldActive = false; floatMoneyText('Shield broken!'); }
+        }
+        if(this.laserSweepActive) {
+            this.laserSweepTimer -= dt;
+            this.laserSweepAngle += 0.04 * dt;
+            const laserLen = 400;
+            const lx = this.x + Math.cos(this.laserSweepAngle)*laserLen;
+            const ly = this.y + Math.sin(this.laserSweepAngle)*laserLen;
+            const pdist = pointToSegDist(player.x,player.y,this.x,this.y,lx,ly);
+            if(pdist < 20 && player.invulnerable <= 0) {
+                player.health -= (this.phase>=2?3:2) * dt;
+                if(player.health <= 0) endGame();
+                updateHUD();
+            }
+            if(this.laserSweepTimer <= 0) this.laserSweepActive = false;
+        }
+        const attackInterval = this.phase >= 2 ? 90 : 150;
+        if(this.attackTimer >= attackInterval) {
+            this.attackTimer = 0;
+            for(let i=0;i<6;i++){
+                const a = this.rotation + (Math.PI*2/6)*i;
+                hexBossBullets.push({x:this.x+Math.cos(a)*this.radius, y:this.y+Math.sin(a)*this.radius,
+                    vx:Math.cos(a)*4, vy:Math.sin(a)*4, damage:this.phase>=2?25:15, radius:5, alive:true, color:this.phase>=2?'#ff4500':'#06b6d4'});
+            }
+        }
+        if(!this.laserSweepActive && this.attackTimer % (this.phase>=2?300:480) < dt) {
+            this.laserSweepActive = true;
+            this.laserSweepTimer = 180;
+            this.laserSweepAngle = Math.atan2(player.y-this.y, player.x-this.x);
+        }
+        if(this.teleportCd <= 0 && this.phase >= 1) {
+            this.teleportCd = 360;
+            const oldX=this.x, oldY=this.y;
+            this.x = 100 + Math.random()*(canvas.width-200);
+            this.y = 100 + Math.random()*(canvas.height-200);
+            for(let i=0;i<30;i++) particles.push(new Particle(oldX,oldY,'#06b6d4'));
+            for(let i=0;i<30;i++) particles.push(new Particle(this.x,this.y,'#06b6d4'));
+        }
+        if(this.summonCd <= 0 && this.phase >= 1) {
+            this.summonCd = 600;
+            for(let i=0;i<4;i++){
+                const a=(Math.PI*2/4)*i;
+                const sx=this.x+Math.cos(a)*80, sy=this.y+Math.sin(a)*80;
+                const mini = new Enemy(sx,sy,'normal');
+                const ms = getEnemyStats('normal');
+                mini.health=Math.round(ms.health*0.7); mini.maxHealth=mini.health; mini.speed=ms.speed*1.3; mini.damage=ms.damage;
+                mini.color='#06b6d4';
+                enemies.push(mini);
+            }
+            floatMoneyText('Hexagon summons minions!');
+        }
+        const dx=player.x-this.x, dy=player.y-this.y;
+        const dist=Math.hypot(dx,dy);
+        if(dist>50){
+            const spd = this.phase>=2 ? 1.8 : 1.0;
+            this.x += (dx/dist)*spd*dt;
+            this.y += (dy/dist)*spd*dt;
+        }
+    }
+    draw() {
+        ctx.save();
+        ctx.translate(this.x,this.y); ctx.rotate(this.rotation);
+        const baseColor = this.phase>=2?'#ff4500':(this.phase>=1?'#0891b2':'#06b6d4');
+        ctx.fillStyle = baseColor;
+        ctx.shadowBlur = _shadowsEnabled?35:0; ctx.shadowColor = baseColor;
+        ctx.beginPath();
+        for(let i=0;i<6;i++){
+            const a=(Math.PI*2/6)*i - Math.PI/6;
+            const px=Math.cos(a)*this.radius, py=Math.sin(a)*this.radius;
+            if(i===0)ctx.moveTo(px,py); else ctx.lineTo(px,py);
+        }
+        ctx.closePath(); ctx.fill();
+        ctx.fillStyle = this.phase>=2?'#991b1b':'#155e75'; ctx.globalAlpha=0.5;
+        ctx.beginPath();
+        for(let i=0;i<6;i++){
+            const a=(Math.PI*2/6)*i - Math.PI/6;
+            ctx.lineTo(Math.cos(a)*this.radius*0.6, Math.sin(a)*this.radius*0.6);
+        }
+        ctx.closePath(); ctx.fill();
+        ctx.globalAlpha=1;
+        if(this.shieldActive){
+            ctx.strokeStyle='#22d3ee'; ctx.lineWidth=4; ctx.globalAlpha=0.6+Math.sin(this.pulseTimer*0.05)*0.3;
+            ctx.beginPath(); ctx.arc(0,0,this.radius+15,0,Math.PI*2); ctx.stroke();
+            ctx.globalAlpha=1;
+        }
+        ctx.restore();
+        if(this.laserSweepActive){
+            ctx.save();
+            const baseColor2 = this.phase>=2?'#ff4500':'#06b6d4';
+            ctx.strokeStyle = this.phase>=2?'rgba(255,69,0,0.7)':'rgba(6,182,212,0.7)';
+            ctx.lineWidth = 8; ctx.shadowBlur=_shadowsEnabled?20:0; ctx.shadowColor=baseColor2;
+            ctx.beginPath();
+            ctx.moveTo(this.x,this.y);
+            ctx.lineTo(this.x+Math.cos(this.laserSweepAngle)*400, this.y+Math.sin(this.laserSweepAngle)*400);
+            ctx.stroke();
+            ctx.restore();
+        }
+    }
+}
+
+function pointToSegDist(px,py,ax,ay,bx,by){
+    const dx=bx-ax,dy=by-ay;
+    const len2=dx*dx+dy*dy;
+    if(len2===0) return Math.hypot(px-ax,py-ay);
+    let t=((px-ax)*dx+(py-ay)*dy)/len2;
+    t=Math.max(0,Math.min(1,t));
+    return Math.hypot(px-(ax+t*dx),py-(ay+t*dy));
+}
+
+function spawnHexagonBoss() {
+    if(currentHexBoss) return;
+    playSound(100,0.2,'sawtooth'); playSound(200,0.15,'sine'); playSound(300,0.1,'sine');
+    bossSpawned = true;
+    const bossNum = Math.floor(currentRound / 75);
+    const hpMult = 1 + (bossNum - 1) * 0.6;
+    currentHexBoss = new HexagonBoss(canvas.width/2, canvas.height/2);
+    currentHexBoss.health = Math.round(8000 * hpMult);
+    currentHexBoss.maxHealth = currentHexBoss.health;
+    teleportPlayerToSafety();
+    floatMoneyText('THE HEXAGON #'+bossNum+' EMERGES! ('+Math.round(hpMult*100)+'% HP)');
+    for(let i=0;i<120;i++) particles.push(new Particle(currentHexBoss.x+(Math.random()-0.5)*120,currentHexBoss.y+(Math.random()-0.5)*120,'#06b6d4'));
+}
+// ========== END HEXAGON BOSS ==========
+
 
 class Rhomboid {
     constructor(x, y) {
@@ -9266,6 +9509,21 @@ function specialAttack(){
             floatMoneyText('⚡ SPRINT BURST! 3 seconds!');
             break;
         }
+        case 'kurama_mode': {
+            if(narutoKuramaModeActive) { floatMoneyText('Already in Kurama Mode!'); return; }
+            if(narutoUltimateBar < NARUTO_ULTIMATE_MAX) { floatMoneyText('Ultimate: ' + narutoUltimateBar + '/' + NARUTO_ULTIMATE_MAX + ' (need 100%)'); return; }
+            narutoUltimateBar = 0;
+            narutoKuramaModeActive = true;
+            narutoKuramaModeTimer = NARUTO_KURAMA_DURATION;
+            player.damage *= 3;
+            player.speed += 3;
+            player.maxHealth += 50; player.health = Math.min(player.health + 50, player.maxHealth);
+            for(let r=0;r<200;r+=25) for(let a=0;a<Math.PI*2;a+=0.3) particles.push(new Particle(player.x+Math.cos(a)*r,player.y+Math.sin(a)*r,'#ff4500'));
+            for(let i=0;i<80;i++) particles.push(new Particle(player.x,player.y,'#ff8c00'));
+            floatMoneyText('KURAMA MODE ACTIVATED! 60 SECONDS!');
+            playSound(120,0.2,'sawtooth'); playSound(240,0.15,'sine');
+            break;
+        }
         case 'arm_haki': {
             // Luffy R: Arm Haki - 30s cd, grants 1.5x dmg + 1.5x dmg reduction for 10s
             if(luffyArmHakiCd > 0){ floatMoneyText(`⏳ Arm Haki: ${(luffyArmHakiCd/60).toFixed(1)}s`); return; }
@@ -9316,10 +9574,12 @@ function specialAttack(){
 
 // ===== LUFFY ABILITIES =====
 function luffyKnockback(e, mult, sourceX, sourceY) {
+    if(e._luffyKBCooldown && e._luffyKBCooldown > 0) return;
     const ang = Math.atan2(e.y - sourceY, e.x - sourceX);
-    const dist = 80 * mult;
+    const dist = 40 * mult;
     e.x = Math.max(e.radius, Math.min(canvas.width - e.radius, e.x + Math.cos(ang) * dist));
     e.y = Math.max(e.radius, Math.min(canvas.height - e.radius, e.y + Math.sin(ang) * dist));
+    e._luffyKBCooldown = 15;
 }
 function luffyZAbility() {
     if(luffySelfStunTimer > 0) { floatMoneyText('💫 Stunned!'); return; }
@@ -9468,6 +9728,123 @@ function luffyCAbility() {
 }
 // ===== END LUFFY ABILITIES =====
 
+// ===== NARUTO ABILITIES =====
+function narutoZAbility() {
+    if(narutoZCd > 0){ floatMoneyText('Z: '+(narutoZCd/60).toFixed(1)+'s'); return; }
+    const angle = Math.atan2(mousePos.y-player.y, mousePos.x-player.x);
+    if(narutoKuramaModeActive) {
+        const dmg = applyPassiveDamageBoost(player.damage * 2);
+        const p = new Projectile(player.x,player.y,angle,dmg,'#00bfff',true);
+        p.radius = 18; p.speed = 10; p.isNarutoRasenshuriken = true;
+        projectiles.push(p);
+        for(let i=0;i<40;i++) particles.push(new Particle(player.x,player.y,'#00bfff'));
+        floatMoneyText('RASENSHURIKEN! '+Math.round(dmg)+' dmg!');
+        narutoZCd = 900;
+    } else {
+        const dmg = applyPassiveDamageBoost(player.damage * 0.6);
+        for(let i=-1;i<=1;i++){
+            const a = angle + i * 0.3;
+            const p = new Projectile(player.x,player.y,a,dmg,'#ff8c00',true);
+            p.radius = 10; p.speed = 12;
+            projectiles.push(p);
+        }
+        for(let i=0;i<20;i++) particles.push(new Particle(player.x,player.y,'#ff8c00'));
+        floatMoneyText('Shadow Clone Jutsu!');
+        narutoZCd = 1200;
+    }
+}
+function narutoXAbility() {
+    if(narutoXCd > 0){ floatMoneyText('X: '+(narutoXCd/60).toFixed(1)+'s'); return; }
+    if(narutoKuramaModeActive) {
+        const bombRadius = 250;
+        let hits = 0;
+        const dmg = applyPassiveDamageBoost(player.damage * 4);
+        enemies.forEach(e => {
+            if(!e.alive) return;
+            const d = Math.hypot(e.x-player.x, e.y-player.y);
+            if(d < bombRadius) {
+                if(!damageEnemy(e, dmg, player.x, player.y)) return;
+                if(e.health <= 0 && e.alive){ e.alive=false; player.kills++; gainExp(e.expValue); handleKill(e); }
+                hits++;
+                for(let i=0;i<8;i++) particles.push(new Particle(e.x,e.y,'#ff4500'));
+            }
+        });
+        for(let r=30;r<bombRadius;r+=30) for(let a=0;a<Math.PI*2;a+=0.25) particles.push(new Particle(player.x+Math.cos(a)*r,player.y+Math.sin(a)*r, r%60===0?'#ff4500':'#ff8c00'));
+        floatMoneyText('TAILED BEAST BOMB! '+hits+' hit!');
+        playSound(60,0.2,'sawtooth');
+        narutoXCd = 1800;
+    } else {
+        const angle = Math.atan2(mousePos.y-player.y, mousePos.x-player.x);
+        const dashDist = 100;
+        const dmg = applyPassiveDamageBoost(player.damage * 2);
+        player.x = Math.max(player.radius,Math.min(canvas.width-player.radius,player.x+Math.cos(angle)*dashDist));
+        player.y = Math.max(player.radius,Math.min(canvas.height-player.radius,player.y+Math.sin(angle)*dashDist));
+        let hits = 0;
+        enemies.forEach(e=>{
+            if(!e.alive) return;
+            const d = Math.hypot(e.x-player.x, e.y-player.y);
+            if(d < 60){
+                if(!damageEnemy(e, dmg, player.x, player.y)) return;
+                if(e.health<=0&&e.alive){e.alive=false;player.kills++;gainExp(e.expValue);handleKill(e);}
+                hits++;
+                for(let i=0;i<12;i++) particles.push(new Particle(e.x,e.y,'#3b82f6'));
+            }
+        });
+        for(let i=0;i<30;i++) particles.push(new Particle(player.x,player.y,'#3b82f6'));
+        floatMoneyText('RASENGAN! '+hits+' hit!');
+        narutoXCd = 1500;
+    }
+}
+function narutoCAbility() {
+    if(narutoCCd > 0){ floatMoneyText('C: '+(narutoCCd/60).toFixed(1)+'s'); return; }
+    if(narutoKuramaModeActive) {
+        const dmg = applyPassiveDamageBoost(player.damage * 1.5);
+        for(let i=0;i<12;i++){
+            const a = (Math.PI*2/12)*i;
+            const p = new Projectile(player.x,player.y,a,dmg,'#ff4500',true);
+            p.radius = 12; p.speed = 9;
+            projectiles.push(p);
+        }
+        for(let i=0;i<50;i++) particles.push(new Particle(player.x,player.y,'#ff4500'));
+        floatMoneyText('SAGE ART: MASSIVE RASENGAN BARRAGE!');
+        playSound(150,0.15,'sine');
+        narutoCCd = 2400;
+    } else {
+        const angle = Math.atan2(mousePos.y-player.y, mousePos.x-player.x);
+        const dmg = applyPassiveDamageBoost(player.damage * 0.4);
+        for(let i=-2;i<=2;i++){
+            const a = angle + i * 0.15;
+            const p = new Projectile(player.x,player.y,a,dmg,'#c0c0c0',false);
+            p.speed = 16;
+            projectiles.push(p);
+        }
+        for(let i=0;i<15;i++) particles.push(new Particle(player.x,player.y,'#c0c0c0'));
+        floatMoneyText('Kunai Barrage!');
+        narutoCCd = 900;
+    }
+}
+function tickNaruto(dt) {
+    if(currentCharacter !== 'naruto') return;
+    if(narutoZCd > 0) narutoZCd -= dt;
+    if(narutoXCd > 0) narutoXCd -= dt;
+    if(narutoCCd > 0) narutoCCd -= dt;
+    if(narutoKuramaModeActive) {
+        narutoKuramaModeTimer -= dt;
+        if(narutoKuramaModeTimer <= 0) {
+            narutoKuramaModeActive = false;
+            narutoKuramaModeTimer = 0;
+            player.damage = Math.max(1, Math.round(player.damage / 3));
+            player.speed = Math.max(1, player.speed - 3);
+            player.maxHealth = Math.max(50, player.maxHealth - 50);
+            player.health = Math.min(player.health, player.maxHealth);
+            floatMoneyText('Kurama Mode ended!');
+            for(let i=0;i<30;i++) particles.push(new Particle(player.x,player.y,'#ff8c00'));
+        }
+    }
+}
+// ===== END NARUTO ABILITIES =====
+
+
 function dash(){
     
     if(currentCharacter === 'hornet') {
@@ -9575,6 +9952,11 @@ function handleKill(e) {
         floatMoneyText('💀 Raised!');
     }
 
+    // Naruto: +1 Ultimate bar per kill
+    if (currentCharacter === 'naruto' && !narutoKuramaModeActive) {
+        narutoUltimateBar = Math.min(narutoUltimateBar + 1, NARUTO_ULTIMATE_MAX);
+        if(narutoUltimateBar === NARUTO_ULTIMATE_MAX) floatMoneyText('ULTIMATE READY! Press R!');
+    }
     if (currentCharacter === 'glass_cannon') {
         glassCannAdrenaline += 5;
         if (glassCannAdrenaline % 50 === 0) floatMoneyText(`💥 ADRENALINE x${glassCannAdrenaline}!`);
@@ -9849,7 +10231,7 @@ function tst_maximumBlue() {
                 gojoRunGoldEarned=0;
                 floatMoneyText('⭐ SUKUNA DEFEATED GOLD SECURED!');
                 for(let i=0;i<300;i++) particles.push(new Particle(sukunaBoss.x+(Math.random()-0.5)*200, sukunaBoss.y+(Math.random()-0.5)*200,'#fbbf24'));
-                document.getElementById('bossHealthBar').style.display='none';
+                if(!currentHexBoss || !currentHexBoss.alive) document.getElementById('bossHealthBar').style.display='none';
                 endGame(true);
             }
         }
@@ -10402,6 +10784,40 @@ function updateHUD(){
         document.getElementById('bossHealthFill').style.width = pct + '%';
         document.getElementById('bossHealthFill').style.background = 'linear-gradient(90deg,#00aa44,#00ff66)';
         document.getElementById('bossHealthText').textContent = Math.ceil(currentRhomboid.health) + '/' + currentRhomboid.maxHealth;
+
+    // Hexagon Boss update & draw
+    if(currentHexBoss && currentHexBoss.alive) {
+        currentHexBoss.update(dt);
+        currentHexBoss.draw();
+        // Player collision with hex boss
+        if(Math.hypot(player.x-currentHexBoss.x, player.y-currentHexBoss.y) < currentHexBoss.radius+player.radius && player.invulnerable<=0){
+            const hbDmg = applyPassiveIncomingDamage(currentHexBoss.phase>=2?20:12);
+            player.health -= hbDmg; player.invulnerable=30; updateHUD();
+            if(player.health<=0) endGame();
+        }
+        // Hex boss bullets update
+        hexBossBullets = hexBossBullets.filter(b=>{
+            if(!b.alive) return false;
+            b.x+=b.vx*dt; b.y+=b.vy*dt;
+            if(b.x<-50||b.x>canvas.width+50||b.y<-50||b.y>canvas.height+50){b.alive=false;return false;}
+            ctx.fillStyle=b.color; ctx.shadowBlur=_shadowsEnabled?8:0; ctx.shadowColor=b.color;
+            ctx.beginPath();ctx.arc(b.x,b.y,b.radius,0,Math.PI*2);ctx.fill();
+            if(Math.hypot(b.x-player.x,b.y-player.y)<b.radius+player.radius && player.invulnerable<=0){
+                const hbd=applyPassiveIncomingDamage(b.damage);
+                player.health-=hbd; player.invulnerable=30; updateHUD(); b.alive=false;
+                if(player.health<=0) endGame();
+            }
+            return b.alive;
+        });
+        // Hex boss health bar
+        document.getElementById('bossHealthBar').style.display='block';
+        document.getElementById('bossHealthBar').querySelector('div').textContent='THE HEXAGON';
+        document.getElementById('bossHealthBar').style.borderColor=currentHexBoss.phase>=2?'#ff4500':'#06b6d4';
+        const hexPct=(currentHexBoss.health/currentHexBoss.maxHealth)*100;
+        document.getElementById('bossHealthFill').style.width=hexPct+'%';
+        document.getElementById('bossHealthFill').style.background=currentHexBoss.phase>=2?'linear-gradient(90deg,#ff4500,#dc2626)':'linear-gradient(90deg,#06b6d4,#0891b2)';
+        document.getElementById('bossHealthText').textContent=Math.ceil(currentHexBoss.health)+'/'+currentHexBoss.maxHealth;
+    }
     } else if (currentBoss && currentBoss.alive) {
         document.getElementById('bossHealthBar').style.display='block';
         document.getElementById('bossHealthBar').querySelector('div').textContent = '👹 THE FIRST TRIANGLE';
@@ -10479,6 +10895,18 @@ function updateHUD(){
     } else if(sk.isVampire){
         if(rLabel)rLabel.textContent='PASSIVE';const ab=document.getElementById('armorBar');if(ab)ab.style.display='none';
         rEl.style.fontSize='7px';rEl.style.color='#ef4444';rEl.textContent='+8 HP/kill';
+    } else if(sk.isNaruto){
+        if(rLabel)rLabel.textContent='KURAMA';
+        const ab=document.getElementById('armorBar'),af=document.getElementById('armorBarFill');
+        if(ab)ab.style.display='block';
+        if(af){
+            const pct = narutoKuramaModeActive ? Math.min((narutoKuramaModeTimer/NARUTO_KURAMA_DURATION)*100,100) : Math.min((narutoUltimateBar/NARUTO_ULTIMATE_MAX)*100,100);
+            af.style.width=pct+'%'; af.style.background=narutoKuramaModeActive?'#ff4500':'#ffa500';
+        }
+        rEl.style.fontSize='7px';
+        if(narutoKuramaModeActive){ rEl.style.color='#ff4500'; rEl.textContent='KURAMA '+(narutoKuramaModeTimer/60).toFixed(0)+'s'; }
+        else if(narutoUltimateBar >= NARUTO_ULTIMATE_MAX){ rEl.style.color='#ff4500'; rEl.textContent='READY!'; }
+        else{ rEl.style.color='#ffa500'; rEl.textContent=narutoUltimateBar+'/'+NARUTO_ULTIMATE_MAX; }
     } else if(sk.isLuffy){
         const gearNames = ['G1','G2','G3','G4','G5'];
         const gearColors2 = ['#e63946','#ff4d6d','#ff6b35','#a855f7','#fbbf24'];
@@ -11105,6 +11533,10 @@ function resetGame(){
     luffySelfStunTimer=0; luffyGatlingActive=0;
     luffyRapidRifleActive=0; luffyRapidRifleTimer=0;
     if(currentCharacter==='luffy'){ player.maxHealth=85;player.health=85;player.speed=4.5;player.damage=10; }
+    // Naruto reset
+    narutoUltimateBar=0; narutoKuramaModeActive=false; narutoKuramaModeTimer=0;
+    narutoZCd=0; narutoXCd=0; narutoCCd=0; narutoClones=[]; narutoCloneId=0;
+    if(currentCharacter==='naruto'){ player.maxHealth=100;player.health=100;player.speed=5.5;player.damage=12; }
     if (currentCharacter === 'war_veteran') {
         player.damage = 20;
         player.speed = 6;
@@ -11150,7 +11582,7 @@ function resetGame(){
     cyborgMode='rapid';
     timeWizardSnapshot=null; timeWizardSnapshotTimer=0;
     lastNewCharShot=0;
-    currentBoss=null; bossBullets=[]; miniTriangles=[]; bossSpawned=false; triangleEnemyUnlocked=false;
+    currentBoss=null; bossBullets=[]; miniTriangles=[]; bossSpawned=false; currentHexBoss=null; hexBossBullets=[]; triangleEnemyUnlocked=false;
     triangleBossDefeats=0; currentRhomboid=null; rhomboidBullets=[]; rhomboidMinions=[]; rhomboidVortexActive=false;
     passiveState={lifesteal:0,thorns:0,regen:0,manaflow:0,armor:0,magnet:0,explosive:0,crit:0,multishot:0,ghostly:0,goldmag:0,overclock:0,trishot:0,homingshot:0,novaleak:0,aimassist:0,novaHitCount:0,berserkerActive:false,berserkerTimer:0,timeslowActive:false,timeslowTimer:0,regenTimer:0,trishotTimer:0,homingTimer:0,blackholeActive:false,blackholeTimer:0};
     player._theEnemySlowMult = 1;
@@ -11226,6 +11658,49 @@ function resetGame(){
 
 function drawPlayer(ts, dt=1){
     const sk=CHARACTERS[currentCharacter];
+
+
+    if(currentCharacter === 'naruto') {
+        ctx.save();
+        if(player.invulnerable>0&&Math.floor(ts/100)%2===0) ctx.globalAlpha=0.5;
+        const r = player.radius;
+        if(narutoKuramaModeActive) {
+            ctx.shadowBlur = _shadowsEnabled ? 35 : 0; ctx.shadowColor = '#ff4500';
+            ctx.strokeStyle = '#ff4500'; ctx.lineWidth = 4;
+            ctx.beginPath(); ctx.arc(player.x,player.y,r+12+Math.sin(ts*0.01)*3,0,Math.PI*2); ctx.stroke();
+            ctx.save(); ctx.translate(player.x,player.y); ctx.rotate(ts*0.005);
+            ctx.strokeStyle='#ffa500'; ctx.lineWidth=2; ctx.setLineDash([6,4]);
+            ctx.beginPath(); ctx.arc(0,0,r+20,0,Math.PI*2); ctx.stroke();
+            ctx.setLineDash([]); ctx.restore();
+            ctx.shadowBlur = _shadowsEnabled ? 25 : 0; ctx.shadowColor = '#ff4500';
+            ctx.beginPath(); ctx.arc(player.x,player.y,r*1.15,0,Math.PI*2);
+            ctx.fillStyle = '#ff4500'; ctx.fill();
+        } else {
+            ctx.shadowBlur = _shadowsEnabled ? 20 : 0; ctx.shadowColor = '#ff8c00';
+            ctx.beginPath(); ctx.arc(player.x,player.y,r,0,Math.PI*2);
+            ctx.fillStyle = '#ff8c00'; ctx.fill();
+        }
+        ctx.shadowBlur=0; ctx.fillStyle='rgba(255,255,255,0.2)';
+        ctx.beginPath(); ctx.arc(player.x-r*0.25,player.y-r*0.25,r*0.4,0,Math.PI*2); ctx.fill();
+        const ang=Math.atan2(mousePos.y-player.y,mousePos.x-player.x);
+        ctx.fillStyle='white';
+        ctx.beginPath(); ctx.arc(player.x+Math.cos(ang)*r*0.65,player.y+Math.sin(ang)*r*0.65,4,0,Math.PI*2); ctx.fill();
+        ctx.font='bold 10px Arial'; ctx.textAlign='center'; ctx.fillStyle='white';
+        ctx.fillText(narutoKuramaModeActive ? 'KURAMA' : 'NARUTO', player.x, player.y-r-6);
+        if(!narutoKuramaModeActive) {
+            const barW = 40, barH = 4;
+            const barX = player.x - barW/2, barY = player.y - r - 16;
+            ctx.fillStyle = 'rgba(0,0,0,0.6)';
+            ctx.fillRect(barX, barY, barW, barH);
+            ctx.fillStyle = narutoUltimateBar >= NARUTO_ULTIMATE_MAX ? '#ff4500' : '#ffa500';
+            ctx.fillRect(barX, barY, barW * (narutoUltimateBar / NARUTO_ULTIMATE_MAX), barH);
+            ctx.strokeStyle = 'rgba(255,255,255,0.3)'; ctx.lineWidth = 1;
+            ctx.strokeRect(barX, barY, barW, barH);
+        }
+        ctx.textAlign='left';
+        ctx.restore();
+        return;
+    }
 
     if(currentCharacter === 'luffy') {
         ctx.save();
@@ -12093,7 +12568,16 @@ function gameLoop(ts){
         const gojoFireInterval = GOJO_PHASES[gojoPhase].fireRate * overclockMult;
         if (ts - autoFireLastShot > gojoFireInterval) { shootProjectile(); autoFireLastShot = ts; }
     }
-    if (!CHARACTERS[currentCharacter].isMachineGun && !CHARACTERS[currentCharacter].isGoldHoarder && !CHARACTERS[currentCharacter].isBoxer && !CHARACTERS[currentCharacter].isGojo && !CHARACTERS[currentCharacter].isTank && !CHARACTERS[currentCharacter].isLuffy && autoFireEnabled &&
+    // Naruto auto-fire
+    if (currentCharacter === 'naruto' && autoFireEnabled && !document.getElementById('levelUpNotice').classList.contains('show')) {
+        let narutoInterval = narutoKuramaModeActive ? 150 : 250;
+        const overclockMult = 1 - Math.min(passiveState.overclock * 0.25, 0.75);
+        if (ts - autoFireLastShot > narutoInterval * overclockMult) {
+            shootProjectile();
+            autoFireLastShot = ts;
+        }
+    }
+    if (!CHARACTERS[currentCharacter].isMachineGun && !CHARACTERS[currentCharacter].isGoldHoarder && !CHARACTERS[currentCharacter].isBoxer && !CHARACTERS[currentCharacter].isGojo && !CHARACTERS[currentCharacter].isTank && !CHARACTERS[currentCharacter].isLuffy && !CHARACTERS[currentCharacter].isNaruto && autoFireEnabled &&
         !document.getElementById('levelUpNotice').classList.contains('show')) {
         if (!tickNewCharAutoFire(ts, dt)) {
             const overclockMult = 1 - Math.min(passiveState.overclock * 0.25, 0.75);
@@ -12176,6 +12660,7 @@ function gameLoop(ts){
     tickPassives(dt);
     tickVeteran(dt);
     tickLuffy(dt);
+    tickNaruto(dt);
     tickFireEffects(dt);
     applyBiomeEffects(dt);
     tickGoldFormEnemies(dt);
@@ -12404,7 +12889,7 @@ function gameLoop(ts){
         if((currentCharacter==='gojo'||currentCharacter==='the_strongest_today') && !proj.hitEnemies) proj.hitEnemies = new Set();
         if(proj.isMahoRock && !proj.hitEnemies) proj.hitEnemies = new Set();
         // Magnet deflection
-        for(let me of enemies){ if(!me.alive||!me.isMagnet)continue; const md=Math.hypot(proj.x-me.x,proj.y-me.y); if(md<90&&!proj.isSpecial){ const repAngle=Math.atan2(proj.y-me.y,proj.x-me.x); const spd=Math.hypot(proj.vx,proj.vy); proj.vx=Math.cos(repAngle)*spd; proj.vy=Math.sin(repAngle)*spd; break; } }
+        for(let me of enemies){ if(!me.alive||!me.isMagnet)continue; const md=Math.hypot(proj.x-me.x,proj.y-me.y); if(md<90&&!proj.isSpecial&&currentCharacter!=='luffy'){ const repAngle=Math.atan2(proj.y-me.y,proj.x-me.x); const spd=Math.hypot(proj.vx,proj.vy); proj.vx=Math.cos(repAngle)*spd; proj.vy=Math.sin(repAngle)*spd; break; } }
         // Mirror reflect - deals damage to mirror on each reflect
         for(let me of enemies){ if(!me.alive||!me.isMirror)continue; const md=Math.hypot(proj.x-me.x,proj.y-me.y); if(md<me.radius+proj.radius+8){ const reflectAng=Math.atan2(proj.y-me.y,proj.x-me.x); const spd=Math.hypot(proj.vx,proj.vy); proj.vx=Math.cos(reflectAng)*spd; proj.vy=Math.sin(reflectAng)*spd; me.health -= proj.damage * 0.5; if(me.health<=0&&me.alive){me.alive=false;player.kills++;gainExp(me.expValue);handleKill(me);} for(let i=0;i<8;i++)particles.push(new Particle(proj.x,proj.y,'#c084fc')); break; } }
         for(let e of enemies){if(!e.alive)continue;const dx=e.x-proj.x,dy=e.y-proj.y;
@@ -12569,6 +13054,28 @@ function gameLoop(ts){
                     document.getElementById('bossHealthBar').style.display='none';
                     endGame(true);
                 }
+            }
+        }
+
+        // Hexagon Boss projectile damage
+        if(currentHexBoss && currentHexBoss.alive && proj.alive) {
+            const hbd = Math.hypot(proj.x-currentHexBoss.x, proj.y-currentHexBoss.y);
+            if(hbd < currentHexBoss.radius + proj.radius) {
+                if(!currentHexBoss.shieldActive) {
+                    currentHexBoss.health -= proj.damage;
+                    for(let i=0;i<8;i++) particles.push(new Particle(currentHexBoss.x+(Math.random()-0.5)*40,currentHexBoss.y+(Math.random()-0.5)*40,'#06b6d4'));
+                    if(currentHexBoss.health <= 0) {
+                        currentHexBoss.alive = false;
+                        earnMoney(10, 'Hexagon Boss kill');
+                        floatMoneyText('THE HEXAGON DEFEATED! +$10!');
+                        for(let i=0;i<200;i++) particles.push(new Particle(currentHexBoss.x+(Math.random()-0.5)*150,currentHexBoss.y+(Math.random()-0.5)*150,'#06b6d4'));
+                        currentHexBoss = null; hexBossBullets = [];
+                        document.getElementById('bossHealthBar').style.display='none';
+                    }
+                } else {
+                    for(let i=0;i<5;i++) particles.push(new Particle(proj.x,proj.y,'#22d3ee'));
+                }
+                if(!proj.isHollowPurple) proj.alive = false;
             }
         }
         return proj.alive;
@@ -13908,6 +14415,12 @@ document.addEventListener('keydown',e=>{
         if(k === 'x') luffyXAbility();
         if(k === 'c') luffyCAbility();
     }
+    // Naruto Z/X/C abilities
+    if(currentCharacter === 'naruto' && gameRunning) {
+        if(k === 'z') narutoZAbility();
+        if(k === 'x') narutoXAbility();
+        if(k === 'c') narutoCAbility();
+    }
     // Mod character extra keys (z, x, c, q, e, f, g, h, etc.)
     const _modSk = CHARACTERS[currentCharacter];
     if(gameRunning && _modSk && _modSk._isModChar && _modSk._extraKeyFns && _modSk._extraKeyFns[k]) {
@@ -14477,6 +14990,30 @@ const CHAR_INFO = {
         abilities:`<b>Divine Dogs:</b> Tap R (costs 35 CE) to summon three dogs - White, Black, and Shadow. They chase and bite enemies in melee (45% damage) or fire shadow projectiles at range (up to 280px). Each pack lasts 15 seconds.<br><br><b>Mahoragah (Wave 100+ Required):</b> Hold R for 7 full seconds - a charge bar fills above your character. Release early and the bar drains. Once fully charged, you are invulnerable while the summoning audio plays. Once transformed into a glowing white sphere: 4x damage, every projectile detonates a 160px AoE explosion for 75% of hit damage, speed drops to 3, max HP becomes 500 (topped up on transform), and you take 60% reduced damage. Lasts 45 seconds. When Mahoragah fades, speed returns to 6 and HP cap returns to 140.`,
         playstyle:'Tap R to spam dogs and deal consistent DPS while building up CE. Survive to Wave 100, then look for a safe moment to hold R for 7 seconds - Mahoragah turns you into a screen-clearing white sphere. You move slower but hit like a freight train and take 60% less damage, making you extremely tanky during the form.',
         tip:'🐺 Tip: You need Wave 100 before Mahoragah unlocks - use dogs aggressively to build CE while surviving early waves. Once Mahoragah is active, play around your slow speed (3) by staying near the centre and letting enemies come to you - the 160px AoE will clear them before they reach you.',
+    },
+
+    naruto: {
+        name:'Naruto Uzumaki', tag:'Jinchuriki of the Nine-Tails', icon:'',
+        iconBg:'linear-gradient(135deg,#ff8c00,#ff4500)', iconGlow:'#ffa500',
+        stats:[
+            { label:'HP', value:'100' },
+            { label:'Damage', value:'12 (36 in Kurama Mode)' },
+            { label:'Speed', value:'5.5 (8.5 in Kurama Mode)' },
+            { label:'Ultimate Bar', value:'Fills +1 per kill, need 100 for R' },
+            { label:'Kurama Duration', value:'60 seconds' },
+            { label:'Price', value:'$500,000' },
+        ],
+        abilities:`<b>Passive Ultimate Bar:</b> Every kill adds +1 to your Ultimate bar (max 100). At 100%, press R to activate Kurama Mode for 60 seconds with 3x damage, +3 speed, +50 HP, and powered-up Z/X/C abilities.<br><br>
+<b>Normal Mode:</b><br>
+Z: Shadow Clone Attack - 3 clone projectiles (20s cd)<br>
+X: Rasengan - dash forward dealing 2x damage (25s cd)<br>
+C: Kunai Barrage - 5 fast kunai (15s cd)<br><br>
+<b>Kurama Mode (60s):</b><br>
+Z: Rasenshuriken - massive 2x dmg projectile (15s cd)<br>
+X: Tailed Beast Bomb - huge 250px AoE, 4x dmg (30s cd)<br>
+C: Sage Art Rasengan Barrage - 12 projectiles all directions (40s cd)`,
+        playstyle:'Farm kills to fill your Ultimate bar to 100%. Once full, activate Kurama Mode with R for an explosive 60-second power spike with 3x damage and enhanced abilities. Time your activation wisely!',
+        tip:'Focus on farming kills efficiently in normal mode. Save Kurama Mode for tough waves or boss fights. During Kurama Mode, spam Tailed Beast Bomb (X) for massive AoE clearing.',
     },
 
     luffy: {
@@ -15904,6 +16441,7 @@ const BESTIARY = [
     { icon:'🪃', name:'Boomerang',  bType:'boomerang',    color:'#f59e0b', round:22, desc:'Flies past you and comes back around. Watch both directions - you can get hit on the return trip.' },
     { icon:'🧲', name:'Magnet',     bType:'magnet',       color:'#3b82f6', round:24, desc:'Deflects your bullets away from enemies nearby it. Kill the Magnet before targeting its neighbours.' },
     { icon:'👻', name:'Phantom',    bType:'phantom_e',    color:'#a78bfa', round:25, desc:'Phases in and out of visibility. Only visible for short windows - time your shots.' },
+    { icon:'👻', name:'Wraith',     bType:'wraith_e',     color:'#4a0080', round:32, desc:'Teleports near you every 4 seconds and leaves damaging dark energy trails. Brief invulnerability after teleporting.' },
     { icon:'🕸️', name:'Webber',    bType:'webber',       color:'#94a3b8', round:26, desc:'Shoots a web that slows you to 40% movement speed for ~1.5 seconds. Stay out of range.' },
     { icon:'🔇', name:'Silencer',   bType:'silencer',     color:'#475569', round:28, desc:'Disables all your abilities for 3 seconds if it gets close. Kill it before it reaches you.' },
     { icon:'🩸', name:'Leech',      bType:'leech',        color:'#be123c', round:28, desc:'Drains your HP and heals itself when in close range. Keep your distance.' },
@@ -18996,6 +19534,11 @@ const CHAR_MOBILE_BUTTONS = {
         { id:'luffyZ', label:'Z', color:'rgba(230,57,70,0.7)', border:'#e63946', onpress: ()=>{ if(gameRunning&&!gamePaused) luffyZAbility(); } },
         { id:'luffyX', label:'X', color:'rgba(255,107,53,0.7)', border:'#ff6b35', onpress: ()=>{ if(gameRunning&&!gamePaused) luffyXAbility(); } },
         { id:'luffyC', label:'C', color:'rgba(127,29,29,0.7)', border:'#7f1d1d', onpress: ()=>{ if(gameRunning&&!gamePaused) luffyCAbility(); } },
+    ],
+    naruto: [
+        { id:'narutoZ', label:'Z', color:'rgba(255,140,0,0.7)', border:'#ff8c00', onpress: ()=>{ if(gameRunning&&!gamePaused) narutoZAbility(); } },
+        { id:'narutoX', label:'X', color:'rgba(255,69,0,0.7)', border:'#ff4500', onpress: ()=>{ if(gameRunning&&!gamePaused) narutoXAbility(); } },
+        { id:'narutoC', label:'C', color:'rgba(204,85,0,0.7)', border:'#cc5500', onpress: ()=>{ if(gameRunning&&!gamePaused) narutoCAbility(); } },
     ]
 };
 
