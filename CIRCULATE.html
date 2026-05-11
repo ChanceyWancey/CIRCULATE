@@ -177,6 +177,13 @@
             box-shadow: 0 4px 20px rgba(220,38,38,0.25);
         }
         #playMenuEndlessBtn:active { transform: translateY(1px); }
+        #playMenuBossRushBtn {
+            width:100%; display:flex; align-items:center; gap:16px; padding:16px 20px;
+            background:rgba(251,191,36,0.07); border:2px solid rgba(251,191,36,0.35); border-bottom:3px solid rgba(180,130,0,0.6);
+            border-radius:12px; cursor:pointer; color:white; font-family:inherit; text-align:left; transition:all 0.18s; margin-top:0;
+        }
+        #playMenuBossRushBtn:hover { background:rgba(251,191,36,0.15); border-color:rgba(251,191,36,0.6); transform:translateY(-2px); }
+        #playMenuBossRushBtn:active { transform:translateY(1px); }
 
         /* Save slot picker (shown in pause menu) */
         #slotPickerOverlay {
@@ -524,7 +531,27 @@
         }
         .character-preview { width: 64px; height: 64px; margin: 0 auto 12px; border-radius: 8px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
         .character-preview img { width: 64px; height: 64px; image-rendering: pixelated; border-radius: 4px; }
-        .character-name { font-size: 14px; font-weight: bold; margin-bottom: 6px; }
+        .character-name { font-size: 14px; font-weight: bold; margin-bottom: 6px; color: #ffffff; }
+        .character-section-header {
+            grid-column: 1 / -1;
+            text-align: center;
+            font-size: 11px;
+            font-weight: 900;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            padding: 6px 0 4px;
+            margin-top: 6px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .character-section-header.base-header { color: #93c5fd; }
+        .character-section-header.limited-header { color: #60a5fa; }
+        .character-section-header.quest-header { color: #a78bfa; }
+        /* Luffy card: luffyGlow only when not expired */
+        #luffyCharacter:not(.expired):not(.owned-limited) {
+            border-color: #3b82f6 !important;
+            box-shadow: 0 0 20px rgba(59,130,246,0.6), inset 0 0 15px rgba(59,130,246,0.2) !important;
+            animation: luffyGlow 2s ease-in-out infinite !important;
+        }
         .character-ability { font-size: 11px; color: #fbbf24; margin-bottom: 8px; line-height: 1.8; }
         .character-price { font-size: 13px; color: #22c55e; font-weight: bold; }
         .new-badge { position:absolute; top:6px; left:6px; background:linear-gradient(135deg,#f59e0b,#ef4444); color:#fff; font-size:8px; font-weight:900; padding:2px 6px; border-radius:4px; letter-spacing:1px; text-transform:uppercase; animation:newBadgePulse 1.5s ease-in-out infinite; z-index:10; }
@@ -1460,6 +1487,13 @@
                 <div>
                     <div style="font-size:15px;font-weight:bold;color:#fca5a5;margin-bottom:3px;">Starts New Endless Run?</div>
                     <div style="font-size:11px;color:rgba(255,255,255,0.4);font-family:monospace;">Enemies get 3x stronger every 100 waves. How far can you go?</div>
+                </div>
+            </button>
+            <button id="playMenuBossRushBtn" onclick="startBossRush()">
+                <span style="font-size:28px;flex-shrink:0;">👑</span>
+                <div>
+                    <div style="font-size:15px;font-weight:bold;color:#fbbf24;margin-bottom:3px;">Boss Rush</div>
+                    <div style="font-size:11px;color:rgba(255,255,255,0.4);font-family:monospace;">Fight all 5 bosses back-to-back. 10s rest between each. How fast can you clear them all?</div>
                 </div>
             </button>
         </div>
@@ -2697,8 +2731,23 @@
         <h2 style="font-size:20px;color:#60a5fa;margin:0 0 4px;font-weight:bold;">📋 Update Log</h2>
         <p style="font-size:11px;color:rgba(255,255,255,0.3);margin:0 0 24px;font-family:monospace;">CIRCULATE - patch notes</p>
         <div style="display:flex;flex-direction:column;gap:18px;">
+            <div style="border-left:3px solid #22c55e;padding-left:16px;">
+                <div style="font-size:12px;font-weight:bold;color:#4ade80;margin-bottom:2px;">🟢 Latest Patch</div>
+                <div style="font-size:10px;color:rgba(255,255,255,0.3);margin-bottom:10px;font-family:monospace;">New Boss · New Enemy · Naruto · Mimic Rework · UI Polish</div>
+                <ul style="font-size:12px;color:rgba(255,255,255,0.75);line-height:2;padding-left:16px;margin:0;">
+                    <li><b style="color:#a855f7;">New Boss</b> — <b>⬡ The Hexagon</b> appears at Wave 250 &amp; 300. Three escalating phases: vertex beams → rotating laser arms → Shade minions + chaos barrage</li>
+                    <li><b style="color:#7c3aed;">New Enemy</b> — <b>👤 Shade</b> (Wave 42+). Near-invisible and phases through the arena, teleporting silently toward you. Only visible for ~1.5s every 4s — that's when it fires shadow bolts</li>
+                    <li><b style="color:#ff9900;">New Character</b> — <b>🥷 Naruto Uzumaki</b> ($25,000). Shadow Clone passive (every 30 kills), Z: Rasengan, X: Rasenshuriken (AoE pierce + slow), R: Nine-Tails Chakra Mode — 3× DMG, 1.4× speed, 3 battle clones for 60s. Activated only at 100% kill bar (+1 per kill)</li>
+                    <li><b style="color:#22c55e;">Mimic Rework</b> — Now <b>spawns randomly on the map interior</b> instead of the edge. Sits completely still, floating gently. Redesigned to look like a convincing <b>health orb</b> with a pulsing glow, sparkles, and a white "+" cross. Revealed on close approach — then chases you down</li>
+                    <li><b style="color:#f87171;">Bug Fix</b> — <b>Luffy per-bullet knockback</b> reduced from 80px → 8px. Enemies no longer scatter out of follow-up bullet paths (the "dodge" bug)</li>
+                    <li><b style="color:#60a5fa;">UI</b> — Character shop reorganised into three labelled sections: <b>⚔️ Base</b>, <b>⏱️ Limited</b>, <b>🔒 Quest &amp; Secret</b></li>
+                    <li><b style="color:#60a5fa;">UI</b> — All character names are now <b>white</b> — no more random coloured text</li>
+                    <li><b style="color:#60a5fa;">UI</b> — Luffy card no longer shows a blue outline or red text when the limited offer has expired</li>
+                    <li><b style="color:#60a5fa;">UI</b> — <b>Wemmbu</b> and <b>Eggchan</b> moved from Limited to Base Characters</li>
+                </ul>
+            </div>
             <div style="border-left:3px solid #22d3ee;padding-left:16px;">
-                <div style="font-size:12px;font-weight:bold;color:#67e8f9;margin-bottom:2px;">🔵 Latest Patch</div>
+                <div style="font-size:12px;font-weight:bold;color:#67e8f9;margin-bottom:2px;">🔵 Previous Patch</div>
                 <div style="font-size:10px;color:rgba(255,255,255,0.3);margin-bottom:10px;font-family:monospace;">Visual Overhaul + Bug Fixes + UI Polish</div>
                 <ul style="font-size:12px;color:rgba(255,255,255,0.75);line-height:2;padding-left:16px;margin:0;">
                     <li><b style="color:#f87171;">Bug Fix</b> - Fixed critical <b>ReferenceError: resetGame is not defined</b> on game start - caused by 35 functions being accidentally scoped inside <code style="color:#fca5a5;">specialAttack()</code> due to a missing closing brace on the switch statement</li>
@@ -2732,7 +2781,7 @@
                 </ul>
             </div>
             <div style="border-left:3px solid #e63946;padding-left:16px;">
-                <div style="font-size:12px;font-weight:bold;color:#f87171;margin-bottom:2px;">🔴 Previous Patch</div>
+                <div style="font-size:12px;font-weight:bold;color:#f87171;margin-bottom:2px;">🔴 Older Patch</div>
                 <div style="font-size:10px;color:rgba(255,255,255,0.3);margin-bottom:10px;font-family:monospace;">Luffy - LIMITED CHARACTER</div>
                 <ul style="font-size:12px;color:rgba(255,255,255,0.75);line-height:2;padding-left:16px;margin:0;">
                     <li><b style="color:#fca5a5;">Luffy</b> - NEW $1,000,000 <b>LIMITED</b> character (available until Mar 18)</li>
@@ -2831,6 +2880,9 @@
     </div>
     <div class="character-grid">
 
+        <!-- ═══════════ BASE CHARACTERS ═══════════ -->
+        <div class="character-section-header base-header">⚔️ Base Characters</div>
+
         <div class="character-card selected" onclick="selectCharacter('default')">
             <div class="character-preview" style="background:#3b82f6;box-shadow:0 0 20px rgba(59,130,246,.8);"></div>
             <div class="character-name">The Veteran</div>
@@ -2839,266 +2891,297 @@
             <button class="info-btn" onclick="event.stopPropagation();showCharInfo('default')">INFO</button>
             <button class="mastery-btn" onclick="event.stopPropagation();showMastery('default')">🏅 MASTERY</button>
         </div>
+
         <div class="character-card" onclick="selectCharacter('goldhoarder')" id="goldhoarderCharacter">
-            <div class="character-preview" style="background:linear-gradient(135deg,#ca8a04,#713f12);box-shadow:0 0 20px rgba(234,179,8,.9);"></div>
+            <div class="character-preview" style="background:linear-gradient(135deg,#92400e,#fbbf24);box-shadow:0 0 18px rgba(251,191,36,.8);"></div>
             <div class="character-name">Gold Hoarder</div>
-            <div class="character-ability" data-ability-key>PASSIVE: 5x Gold from all sources<br>Enemies drop coins on death<br>[ABILITY]: Gold Rush — converts<br>nearby enemies into coins!</div>
-            <div class="character-price">FREE</div>
+            <div class="character-ability" data-ability-key>Earns 2× gold per kill<br>PASSIVE: Greed stacks<br>[ABILITY]: Cash Out<br>convert greed to power</div>
+            <div class="character-price">$500</div>
             <button class="info-btn" onclick="event.stopPropagation();showCharInfo('goldhoarder')">INFO</button>
-            <button class="mastery-btn" onclick="event.stopPropagation();showMastery('goldhoarder')">🏅 MASTERY</button>
         </div>
 
         <div class="character-card" onclick="selectCharacter('vampire')" id="vampireCharacter">
-            <div class="character-preview" style="background:linear-gradient(135deg,#7f1d1d,#450a0a);box-shadow:0 0 20px rgba(185,28,28,.8);"></div>
+            <div class="character-preview" style="background:linear-gradient(135deg,#3b0764,#a21caf);box-shadow:0 0 18px rgba(162,28,175,.7);"></div>
             <div class="character-name">Vampire</div>
-            <div class="character-ability">PASSIVE: Heal 8 HP on every kill<br>PASSIVE: 10% lifesteal on all damage<br>PASSIVE: +15% movement speed<br>No ability — pure passive power</div>
-            <div class="character-price">$100</div>
+            <div class="character-ability" data-ability-key>Life steal on hit<br>PASSIVE: Blood Frenzy<br>[ABILITY]: Bat Swarm<br>bonus from enemy count</div>
+            <div class="character-price">$750</div>
             <button class="info-btn" onclick="event.stopPropagation();showCharInfo('vampire')">INFO</button>
         </div>
+
         <div class="character-card" onclick="selectCharacter('builder')" id="builderCharacter">
-            <div class="character-preview" style="background:linear-gradient(135deg,#8b5a2b,#d2691e);box-shadow:0 0 20px rgba(160,82,45,.9);"></div>
+            <div class="character-preview" style="background:linear-gradient(135deg,#1c1917,#a16207);box-shadow:0 0 18px rgba(161,98,7,.7);"></div>
             <div class="character-name">The Builder</div>
-            <div class="character-ability" data-ability-key>E: Move nearby walls around<br>Shift+Click: Build a new wall<br>[ABILITY]: Reinforce — strengthens<br>all walls &amp; boosts their HP</div>
-            <div class="character-price">$100</div>
+            <div class="character-ability" data-ability-key>Places turrets that shoot<br>PASSIVE: Blueprint — more turrets<br>[ABILITY]: Deploy Turret<br>up to 4 active at once</div>
+            <div class="character-price">$1500</div>
             <button class="info-btn" onclick="event.stopPropagation();showCharInfo('builder')">INFO</button>
-            <button class="mastery-btn" onclick="event.stopPropagation();showMastery('builder')">🏅 MASTERY</button>
         </div>
 
         <div class="character-card" onclick="selectCharacter('phantom')" id="phantomCharacter">
-            <div class="character-preview" style="background:linear-gradient(135deg,#0ea5e9,#1e1b4b);box-shadow:0 0 22px rgba(125,211,252,.8);"></div>
+            <div class="character-preview" style="background:linear-gradient(135deg,#0f0f0f,#7c3aed);box-shadow:0 0 18px rgba(124,58,237,.7);"></div>
             <div class="character-name">Phantom</div>
-            <div class="character-ability" data-ability-key>PASSIVE: Shots phase through walls<br>PASSIVE: 15% dodge chance<br>[ABILITY]: Ghost Walk — phase<br>through walls + burst of speed</div>
-            <div class="character-price">$250</div>
+            <div class="character-ability" data-ability-key>Phases through walls<br>PASSIVE: Ghost Walk<br>[ABILITY]: Phase Shift<br>2s invulnerable</div>
+            <div class="character-price">$1000</div>
             <button class="info-btn" onclick="event.stopPropagation();showCharInfo('phantom')">INFO</button>
         </div>
 
         <div class="character-card" onclick="selectCharacter('boxer')" id="boxerCharacter">
-            <div class="character-preview" style="background:linear-gradient(135deg,#dc2626,#7f1d1d);box-shadow:0 0 20px rgba(220,38,38,.9);"></div>
+            <div class="character-preview" style="background:linear-gradient(135deg,#991b1b,#ef4444);box-shadow:0 0 18px rgba(239,68,68,.7);"></div>
             <div class="character-name">Boxer</div>
-            <div class="character-ability" data-ability-key>PASSIVE: Melee range — 2x damage<br>PASSIVE: Kills restore 5 HP<br>[ABILITY]: Power Dash — charge<br>through enemies dealing damage</div>
+            <div class="character-ability" data-ability-key>Melee close-range dmg<br>PASSIVE: Jab Combo<br>[ABILITY]: Uppercut<br>massive knockback</div>
             <div class="character-price">$500</div>
             <button class="info-btn" onclick="event.stopPropagation();showCharInfo('boxer')">INFO</button>
         </div>
+
         <div class="character-card" onclick="selectCharacter('fire')" id="fireCharacter">
-            <div class="character-preview" style="background:linear-gradient(135deg,#ff4500,#7f1d1d);box-shadow:0 0 20px rgba(255,69,0,.9);"></div>
+            <div class="character-preview" style="background:linear-gradient(135deg,#7c2d12,#f97316);box-shadow:0 0 18px rgba(249,115,22,.7);"></div>
             <div class="character-name">Fire Ball</div>
-            <div class="character-ability" data-ability-key>PASSIVE: Shots leave burning<br>ground that damages enemies<br>PASSIVE: +10% fire damage bonus<br>[ABILITY]: Inferno — ignites ALL enemies</div>
-            <div class="character-price">$500</div>
+            <div class="character-ability" data-ability-key>Burn DoT on hit<br>PASSIVE: Ignition<br>[ABILITY]: Inferno Burst<br>AoE fire explosion</div>
+            <div class="character-price">$1000</div>
             <button class="info-btn" onclick="event.stopPropagation();showCharInfo('fire')">INFO</button>
         </div>
 
         <div class="character-card" onclick="selectCharacter('druid')" id="druidCharacter">
-            <div class="character-preview" style="background:linear-gradient(135deg,#15803d,#052e16);box-shadow:0 0 22px rgba(74,222,128,.8);"></div>
+            <div class="character-preview" style="background:linear-gradient(135deg,#14532d,#22c55e);box-shadow:0 0 18px rgba(34,197,94,.7);"></div>
             <div class="character-name">Druid</div>
-            <div class="character-ability" data-ability-key>PASSIVE: Shots ROOT enemies<br>in place for 1.5 seconds!<br>PASSIVE: Nature's touch heals<br>[ABILITY]: Heal Mushrooms — spawn<br>HP recovery pods around you</div>
-            <div class="character-price">$750</div>
+            <div class="character-ability" data-ability-key>Nature-based shots<br>PASSIVE: Regrowth (regen)<br>[ABILITY]: Thorn Wall<br>root + damage zone</div>
+            <div class="character-price">$1500</div>
             <button class="info-btn" onclick="event.stopPropagation();showCharInfo('druid')">INFO</button>
         </div>
 
         <div class="character-card" onclick="selectCharacter('ice')" id="iceCharacter">
-            <div class="character-preview" style="background:linear-gradient(135deg,#e0f7ff,#06b6d4);box-shadow:0 0 20px rgba(103,232,249,.9);"></div>
+            <div class="character-preview" style="background:linear-gradient(135deg,#0c4a6e,#38bdf8);box-shadow:0 0 18px rgba(56,189,248,.7);"></div>
             <div class="character-name">Ice Ball</div>
-            <div class="character-ability" data-ability-key>PASSIVE: Shots slow &amp; freeze enemies<br>PASSIVE: Frozen enemies shatter<br>for massive bonus damage!<br>[ABILITY]: Blizzard — mass freeze + slow</div>
+            <div class="character-ability" data-ability-key>Freeze on hit<br>PASSIVE: Cryo Field<br>[ABILITY]: Blizzard<br>AoE slow + damage</div>
             <div class="character-price">$1000</div>
             <button class="info-btn" onclick="event.stopPropagation();showCharInfo('ice')">INFO</button>
         </div>
 
         <div class="character-card" onclick="selectCharacter('pyromancer')" id="pyromancerCharacter">
-            <div class="character-preview" style="background:linear-gradient(135deg,#c2410c,#431407);box-shadow:0 0 22px rgba(251,146,60,.9);"></div>
+            <div class="character-preview" style="background:linear-gradient(135deg,#450a0a,#dc2626);box-shadow:0 0 18px rgba(220,38,38,.7);"></div>
             <div class="character-name">Pyromancer</div>
-            <div class="character-ability" data-ability-key>PASSIVE: Hold fire to charge shots<br>More charge = more damage!<br>PASSIVE: Charged shots pierce enemies<br>[ABILITY]: Meteor Strike — giant<br>flaming rock smashes a target area</div>
-            <div class="character-price">$1500</div>
+            <div class="character-ability" data-ability-key>Fireballs with splash<br>PASSIVE: Heat Wave<br>[ABILITY]: Meteor Strike<br>massive AoE impact</div>
+            <div class="character-price">$2000</div>
             <button class="info-btn" onclick="event.stopPropagation();showCharInfo('pyromancer')">INFO</button>
         </div>
 
         <div class="character-card" onclick="selectCharacter('tank')" id="tankCharacter" style="position:relative;border-color:rgba(74,222,128,0.3);">
-            <span class="new-badge">NEW</span>
-            <div class="character-preview" style="background:linear-gradient(135deg,#14532d,#4ade80);box-shadow:0 0 22px rgba(74,222,128,.8);"></div>
-            <div class="character-name" style="color:#86efac;">Tank</div>
-            <div class="character-ability" data-ability-key>500 HP — built to take hits!<br>PASSIVE: Melee contact deals 50 dmg<br>PASSIVE: 25% damage reduction<br>[ABILITY]: Ground Slam — AoE stun<br>&amp; knock back all nearby enemies</div>
+            <div class="new-badge" style="background:linear-gradient(135deg,#15803d,#22c55e);">TOUGH</div>
+            <div class="character-preview" style="background:linear-gradient(135deg,#14532d,#4ade80);box-shadow:0 0 18px rgba(74,222,128,.7);"></div>
+            <div class="character-name">Tank</div>
+            <div class="character-ability">High HP · Low speed<br>PASSIVE: Iron Skin — reduce dmg<br>[ABILITY]: Shield Bash<br>stun all nearby enemies</div>
             <div class="character-price">$2000</div>
             <button class="info-btn" onclick="event.stopPropagation();showCharInfo('tank')">INFO</button>
         </div>
 
         <div class="character-card" onclick="selectCharacter('electric')" id="electricCharacter">
-            <div class="character-preview" style="background:linear-gradient(135deg,#facc15,#7c3aed);box-shadow:0 0 20px rgba(168,85,247,.9);"></div>
+            <div class="character-preview" style="background:linear-gradient(135deg,#1e1b4b,#818cf8);box-shadow:0 0 18px rgba(129,140,248,.7);"></div>
             <div class="character-name">Tesla</div>
-            <div class="character-ability" data-ability-key>PASSIVE: Shots chain-lightning<br>to up to 3 nearby enemies!<br>PASSIVE: Chained hits deal 50% dmg<br>[ABILITY]: Overload — next 8 shots<br>chain to EVERY enemy on screen</div>
-            <div class="character-price">$2500</div>
+            <div class="character-ability" data-ability-key>Chain lightning shots<br>PASSIVE: Conductor<br>[ABILITY]: Overload<br>rapid-fire surge</div>
+            <div class="character-price">$2000</div>
             <button class="info-btn" onclick="event.stopPropagation();showCharInfo('electric')">INFO</button>
         </div>
+
         <div class="character-card" onclick="selectCharacter('speedrunner')" id="speedrunnerCharacter" style="position:relative;border-color:rgba(250,204,21,0.4);">
-            <span class="new-badge">NEW</span>
-            <div class="character-preview" style="background:linear-gradient(135deg,#713f12,#facc15);box-shadow:0 0 22px rgba(250,204,21,.9);"></div>
-            <div class="character-name" style="color:#fde047;">Speedrunner</div>
-            <div class="character-ability" data-ability-key>PASSIVE: Damage scales with speed!<br>PASSIVE: Stand still = 1 dmg<br>PASSIVE: Full speed = max dmg<br>[ABILITY]: Sprint Burst — 3s turbo<br>speed + damage boost</div>
+            <div class="new-badge" style="background:linear-gradient(135deg,#a16207,#facc15);">FAST</div>
+            <div class="character-preview" style="background:linear-gradient(135deg,#713f12,#facc15);box-shadow:0 0 18px rgba(250,204,21,.8);"></div>
+            <div class="character-name">Speedrunner</div>
+            <div class="character-ability">Ultra fast movement<br>PASSIVE: Momentum stacks<br>[ABILITY]: Blitz Dash<br>temporary speed burst</div>
             <div class="character-price">$2500</div>
             <button class="info-btn" onclick="event.stopPropagation();showCharInfo('speedrunner')">INFO</button>
         </div>
 
         <div class="character-card" onclick="selectCharacter('cyborg')" id="cyborgCharacter">
-            <div class="character-preview" style="background:linear-gradient(135deg,#0ea5e9,#4c1d95);box-shadow:0 0 22px rgba(14,165,233,.9);"></div>
+            <div class="character-preview" style="background:linear-gradient(135deg,#1e3a5f,#38bdf8);box-shadow:0 0 18px rgba(56,189,248,.7);"></div>
             <div class="character-name">Cyborg</div>
-            <div class="character-ability" data-ability-key>E: Toggle RAPID mode (fast, weak)<br>vs HEAVY mode (slow, powerful)<br>PASSIVE: Mode swap boosts next shot<br>[ABILITY]: 360° Laser Sweep —<br>full-circle beam hits all around you</div>
+            <div class="character-ability" data-ability-key>Tech-enhanced shots<br>PASSIVE: Overclock<br>[ABILITY]: Missile Salvo<br>multi-target barrage</div>
             <div class="character-price">$3000</div>
             <button class="info-btn" onclick="event.stopPropagation();showCharInfo('cyborg')">INFO</button>
         </div>
 
         <div class="character-card" onclick="selectCharacter('glass_cannon')" id="glassCannonCharacter" style="position:relative;border-color:rgba(34,211,238,0.4);">
-            <span class="new-badge">NEW</span>
-            <div class="character-preview" style="background:linear-gradient(135deg,#164e63,#22d3ee);box-shadow:0 0 22px rgba(34,211,238,.9);"></div>
-            <div class="character-name" style="color:#67e8f9;">Glass Cannon</div>
-            <div class="character-ability">1 HP — one hit = dead!<br>PASSIVE: 150 DMG per shot<br>PASSIVE: Kills stack Adrenaline<br>(each stack = +5% fire rate)<br>No ability — pure offense</div>
+            <div class="new-badge" style="background:linear-gradient(135deg,#0e7490,#22d3ee);">RISKY</div>
+            <div class="character-preview" style="background:linear-gradient(135deg,#164e63,#67e8f9);box-shadow:0 0 18px rgba(103,232,249,.8);"></div>
+            <div class="character-name">Glass Cannon</div>
+            <div class="character-ability">1 HP · Extreme damage<br>PASSIVE: Adrenaline stacks<br>[ABILITY]: Nuke Shot<br>massive single burst</div>
             <div class="character-price">$3500</div>
             <button class="info-btn" onclick="event.stopPropagation();showCharInfo('glass_cannon')">INFO</button>
         </div>
 
         <div class="character-card" onclick="selectCharacter('necromancer')" id="necromancerCharacter" style="position:relative;border-color:rgba(139,92,246,0.4);">
-            <span class="new-badge">NEW</span>
-            <div class="character-preview" style="background:linear-gradient(135deg,#2e1065,#7c3aed);box-shadow:0 0 22px rgba(139,92,246,.9);"></div>
-            <div class="character-name" style="color:#c4b5fd;">Necromancer</div>
-            <div class="character-ability" data-ability-key>PASSIVE: 30% chance to raise killed<br>enemies as allied minions!<br>PASSIVE: Minions fight for you<br>[ABILITY]: Soul Burst — all your<br>minions explode for 3x damage</div>
+            <div class="new-badge" style="background:linear-gradient(135deg,#4c1d95,#7c3aed);">UNDEAD</div>
+            <div class="character-preview" style="background:linear-gradient(135deg,#1e1b4b,#8b5cf6);box-shadow:0 0 18px rgba(139,92,246,.8);"></div>
+            <div class="character-name">Necromancer</div>
+            <div class="character-ability">Raises fallen enemies<br>PASSIVE: Soul Harvest<br>[ABILITY]: Death Wave<br>AoE necrotic burst</div>
             <div class="character-price">$4000</div>
             <button class="info-btn" onclick="event.stopPropagation();showCharInfo('necromancer')">INFO</button>
         </div>
 
         <div class="character-card" onclick="selectCharacter('timewizard')" id="timewizardCharacter">
-            <div class="character-preview" style="background:linear-gradient(135deg,#7c3aed,#1e1b4b);box-shadow:0 0 22px rgba(167,139,250,.9);"></div>
+            <div class="character-preview" style="background:linear-gradient(135deg,#312e81,#a855f7);box-shadow:0 0 18px rgba(168,85,247,.7);"></div>
             <div class="character-name">Time Wizard</div>
-            <div class="character-ability" data-ability-key>PASSIVE: Shots echo TWICE after<br>hitting — 3 hits per bullet!<br>PASSIVE: Auto-saves HP snapshot<br>[ABILITY]: Rewind — restore HP<br>to your last saved snapshot</div>
+            <div class="character-ability" data-ability-key>Time Echo on every shot<br>PASSIVE: Delayed echo +60% dmg<br>[ABILITY]: Rewind<br>restore HP to 5s ago snapshot</div>
             <div class="character-price">$4500</div>
             <button class="info-btn" onclick="event.stopPropagation();showCharInfo('timewizard')">INFO</button>
         </div>
 
         <div class="character-card" onclick="selectCharacter('wemmbu')" id="wemmbuCharacter">
-            <div class="character-preview" style="background:#1a1a2e;box-shadow:0 0 20px rgba(99,102,241,.6);overflow:hidden;">
-                <img src="https://minotar.net/helm/8af6c50833d54861b5c2dce1c16c6fae/512.png" style="width:64px;height:64px;image-rendering:pixelated;" onerror="this.style.display='none'"/>
-            </div>
+            <div class="character-preview" style="background:linear-gradient(135deg,#1e3a5f,#3b82f6);box-shadow:0 0 18px rgba(59,130,246,.7);"></div>
             <div class="character-name">Wemmbu</div>
-            <div class="character-ability" data-ability-key>PASSIVE: Fires a 3-shot burst<br>PASSIVE: Machine gun mode —<br>extremely high fire rate!<br>[ABILITY]: Deploy Turret — places<br>an auto-firing turret</div>
-            <div class="character-price">$5000</div>
+            <div class="character-ability" data-ability-key>Creator character<br>Unique passive abilities<br>[ABILITY]: Wemmbu Power<br>special burst</div>
+            <div class="character-price">Special</div>
             <button class="info-btn" onclick="event.stopPropagation();showCharInfo('wemmbu')">INFO</button>
         </div>
+
         <div class="character-card" onclick="selectCharacter('eggchan')" id="eggchanCharacter">
-            <div class="character-preview" style="background:linear-gradient(135deg,#fef9c3,#fde047);box-shadow:0 0 20px rgba(253,224,71,.8);overflow:hidden;">
-                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSU8qswuWvs5n8CSTMft-2QFR9Y54APiJ3q1g&s" style="width:64px;height:64px;object-fit:cover;border-radius:4px;" onerror="this.style.display='none'"/>
-            </div>
+            <div class="character-preview" style="background:linear-gradient(135deg,#fef9c3,#fde047);box-shadow:0 0 18px rgba(253,224,71,.7);border-radius:50%;"></div>
             <div class="character-name">Eggchan</div>
-            <div class="character-ability" data-ability-key>PASSIVE: Fires a 3-shot spread<br>PASSIVE: Shots chain lightning<br>to up to 2 nearby enemies!<br>[ABILITY]: Veteran Burst —<br>rapid-fire burst of arrows</div>
-            <div class="character-price">$5000</div>
+            <div class="character-ability" data-ability-key>Egg-themed attacks<br>PASSIVE: Yolk Burst<br>[ABILITY]: Scramble<br>AoE yolk splash</div>
+            <div class="character-price">Special</div>
             <button class="info-btn" onclick="event.stopPropagation();showCharInfo('eggchan')">INFO</button>
         </div>
 
-        <div class="character-card" onclick="selectCharacter('war_veteran')" id="warVeteranCharacter" style="display:none;border-color:rgba(251,191,36,0.4);">
-            <div class="character-preview" style="background:linear-gradient(135deg,#1e3a8a,#60a5fa);box-shadow:0 0 22px rgba(96,165,250,.85);"></div>
-            <div class="character-name" style="color:#fbbf24;">War Veteran</div>
-            <div class="character-ability" data-ability-key>20 DMG • Speed 6 • TP Dash<br>PASSIVE: Promotes every 45s —<br>gaining new traits per rank!<br>[ABILITY]: Ranked Bombardment —<br>changes power per rank</div>
-            <div class="character-price" style="color:#fbbf24;">🎖️ Veteran Mastery</div>
-            <button class="info-btn" onclick="event.stopPropagation();showCharInfo('war_veteran')">INFO</button>
-        </div>
-        <div class="character-card" onclick="selectCharacter('prime_veteran')" id="primeVeteranCharacter" style="display:none;">
-            <div class="character-preview" style="background:linear-gradient(135deg,#1e3a8a,#3b82f6);box-shadow:0 0 20px rgba(59,130,246,0.8);"></div>
-            <div class="character-name">Prime Veteran</div>
-            <div class="character-ability" data-ability-key>The original Veteran — perfected.<br>PASSIVE: Evolves every 30s<br>gaining stats &amp; new traits<br>[ABILITY]: Veteran Burst —<br>rapid omni-directional barrage</div>
-            <div class="character-price" id="primeVetMainPrice">UNLOCKED ✅</div>
-            <button class="info-btn" onclick="event.stopPropagation();showCharInfo('prime_veteran')">INFO</button>
-        </div>
-        <div class="character-card" onclick="selectCharacter('last_architect')" id="lastArchitectCharacter" style="display:none;border-color:rgba(167,139,250,0.4);">
-            <div class="character-preview" style="background:linear-gradient(135deg,#4c1d95,#a78bfa);box-shadow:0 0 22px rgba(167,139,250,.85);"></div>
-            <div class="character-name" style="color:#c4b5fd;">The Last Architect</div>
-            <div class="character-ability" data-ability-key>15 DMG • Speed 6 • No Dash<br>Shift+Click: Toggle build mode<br>PASSIVE: Structures deal AoE dmg<br>[ABILITY]: Ancient Construction —<br>summon a Robot or a Turret</div>
-            <div class="character-price" style="color:#c4b5fd;">🏛️ Builder Mastery</div>
-            <button class="info-btn" onclick="event.stopPropagation();showCharInfo('last_architect')">INFO</button>
-        </div>
-        <div class="character-card" onclick="selectCharacter('coin_king')" id="coinKingCharacter" style="display:none;border-color:rgba(251,191,36,0.5);">
-            <div class="character-preview" style="background:linear-gradient(135deg,#92400e,#fbbf24);box-shadow:0 0 22px rgba(251,191,36,.9);"></div>
-            <div class="character-name" style="color:#fbbf24;">The Coin King</div>
-            <div class="character-ability" data-ability-key>12 DMG • Speed 4.5 • No Dash<br>PASSIVE: 10x Gold Multiplier<br>PASSIVE: Kills heal 3 HP<br>[ABILITY]: Gold Shower —<br>coin blitz rains gold on enemies</div>
-            <div class="character-price" style="color:#fbbf24;">💰 Gold Hoarder Mastery</div>
-            <button class="info-btn" onclick="event.stopPropagation();showCharInfo('coin_king')">INFO</button>
+        <div class="character-card" onclick="selectCharacter('naruto')" id="narutoCharacter">
+            <div class="character-preview" style="background:linear-gradient(135deg,#cc3300,#ff6600);box-shadow:0 0 22px rgba(255,102,0,.9);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;">🥷</div>
+            <div class="character-name">Naruto Uzumaki</div>
+            <div class="character-ability">140 HP · Speed 5.5<br>PASSIVE: Shadow Clone every 30 kills<br>Z: Rasengan (3.5x DMG)<br>X: Rasenshuriken (5.5x AoE + slow)<br>R: Nine-Tails (100 kill bar · 60s · 3x DMG)</div>
+            <div class="character-price">$25,000</div>
+            <button class="info-btn" onclick="event.stopPropagation();showCharInfo('naruto')">INFO</button>
         </div>
 
-        <div class="character-card" onclick="selectCharacter('megumi')" id="megumiCharacter" style="display:none;border-color:rgba(125,211,252,0.5);background:linear-gradient(135deg,rgba(15,23,42,0.4),rgba(99,102,241,0.1));">
-            <div class="character-preview" style="background:linear-gradient(135deg,#0f172a,#1e3a8a);box-shadow:0 0 22px rgba(125,211,252,.7);border-radius:50%;"></div>
-            <div class="character-name" style="color:#7dd3fc;">Megumi Fushiguro</div>
-            <div class="character-ability" data-ability-key>30 DMG · Speed 6<br>PASSIVE: CE fuels all abilities<br>[ABILITY] tap: 3 Divine Dogs (35 CE)<br>Hold [ABILITY] 7s: MAHORAGAH<br>(Wave 100+ · 500 HP · 4x DMG · AoE)</div>
-            <div class="character-price" style="color:#7dd3fc;">🐺 Quest Unlock</div>
-            <button class="info-btn" onclick="event.stopPropagation();showCharInfo('megumi')">INFO</button>
-        </div>
+        <!-- ═══════════ LIMITED CHARACTERS ═══════════ -->
+        <div class="character-section-header limited-header">⏱️ Limited Characters</div>
 
         <div class="character-card limited-card" onclick="selectCharacter('dice')" id="diceCharacter">
-            <div class="character-preview" style="background:linear-gradient(135deg,#f97316,#ea580c);box-shadow:0 0 20px rgba(249,115,22,.9);"></div>
+            <div class="character-preview" style="background:linear-gradient(135deg,#1e1b4b,#8b5cf6);box-shadow:0 0 18px rgba(139,92,246,.7);"></div>
             <div class="character-name">Dice</div>
-            <div class="character-ability" data-ability-key>PASSIVE: Speed, HP, &amp; DMG<br>all randomized each run!<br>PASSIVE: Stats re-roll on wave clear<br>[ABILITY]: Random Ability —<br>rolls a random powerful effect</div>
-            <div class="character-price">$2345</div>
+            <div class="character-ability" data-ability-key>RNG-based combat<br>PASSIVE: Lucky Roll<br>[ABILITY]: High Stakes<br>double or nothing</div>
+            <div class="character-price">Limited</div>
             <div class="limited-timer" id="diceTimer"></div>
             <button class="info-btn" onclick="event.stopPropagation();showCharInfo('dice')">INFO</button>
         </div>
+
         <div class="character-card limited-card" onclick="selectCharacter('yuji_itadori')" id="yujiCharacter">
-            <div class="character-preview" style="background:linear-gradient(135deg,#e84d4d,#7f1d1d);box-shadow:0 0 22px rgba(232,77,77,.9);"></div>
-            <div class="character-name" style="color:#fca5a5;">Yuji Itadori</div>
-            <div class="character-ability" data-ability-key>PASSIVE: Collect Sukuna Fingers!<br>PASSIVE: 20 fingers → Transform<br>into Sukuna permanently!<br>[ABILITY]: Malevolent Shrine —<br>massive AoE slash attack</div>
-            <div class="character-price">$28000</div>
+            <div class="character-preview" style="background:linear-gradient(135deg,#7f1d1d,#e84d4d);box-shadow:0 0 18px rgba(232,77,77,.8);border-radius:50%;"></div>
+            <div class="character-name">Yuji Itadori</div>
+            <div class="character-ability" data-ability-key>Divergent Fist hits<br>PASSIVE: Black Flash<br>[ABILITY]: Sukuna Takeover<br>cursed energy rampage</div>
+            <div class="character-price">Limited</div>
             <div class="limited-timer" id="yujiTimer"></div>
             <button class="info-btn" onclick="event.stopPropagation();showCharInfo('yuji_itadori')">INFO</button>
         </div>
+
         <div class="character-card limited-card" onclick="selectCharacter('hakari_v2')" id="hakariCharacter">
-            <div class="character-preview" style="background:linear-gradient(135deg,#ec4899,#7c3aed);box-shadow:0 0 22px rgba(236,72,153,.9);"></div>
-            <div class="character-name" style="color:#f9a8d4;">Hakari</div>
-            <div class="character-ability" data-ability-key>PASSIVE: Hits build Lucky Meter<br>PASSIVE: Near-misses charge Domain<br>[ABILITY]: Domain Expansion!<br>10% JACKPOT: 4min immortality<br>+ 50x damage on hit!</div>
-            <div class="character-price">$35000</div>
+            <div class="character-preview" style="background:linear-gradient(135deg,#831843,#f9a8d4);box-shadow:0 0 18px rgba(249,168,212,.7);border-radius:50%;"></div>
+            <div class="character-name">Hakari</div>
+            <div class="character-ability" data-ability-key>Jackpot mechanic<br>PASSIVE: Domain Gambling<br>[ABILITY]: Idle Death Gamble<br>infinite regen on win</div>
+            <div class="character-price">Limited</div>
             <div class="limited-timer" id="hakariTimer"></div>
             <button class="info-btn" onclick="event.stopPropagation();showCharInfo('hakari_v2')">INFO</button>
         </div>
+
         <div class="character-card limited-card" onclick="selectCharacter('character10b')" id="character10bCharacter">
-            <div class="character-preview" style="background:linear-gradient(135deg,#0284c7,#00aa00);box-shadow:0 0 22px rgba(2,132,199,.9);"></div>
-            <div class="character-name" style="color:#7dd3fc;">Character</div>
-            <div class="character-ability" data-ability-key>11 HP — ultra fragile!<br>PASSIVE: 10 BILLION damage per shot<br>PASSIVE: Invincibility frames on kill<br>[ABILITY]: Omnipotent —<br>instantly kills EVERYTHING on screen</div>
-            <div class="character-price">$50000</div>
+            <div class="character-preview" style="background:linear-gradient(135deg,#0c4a6e,#38bdf8);box-shadow:0 0 18px rgba(56,189,248,.7);"></div>
+            <div class="character-name">Character</div>
+            <div class="character-ability" data-ability-key>Coming soon...<br>Limited availability</div>
+            <div class="character-price">Limited</div>
             <div class="limited-timer" id="character10bTimer"></div>
             <button class="info-btn" onclick="event.stopPropagation();showCharInfo('character10b')">INFO</button>
         </div>
-        <div class="character-card limited-card" onclick="selectCharacter('luffy')" id="luffyCharacter" style="border-color:#3b82f6;box-shadow:0 0 20px rgba(59,130,246,0.6),inset 0 0 15px rgba(59,130,246,0.2);animation:luffyGlow 2s ease-in-out infinite;">
-            <div class="character-preview" style="background:linear-gradient(135deg,#7f1d1d,#e63946);box-shadow:0 0 22px rgba(230,57,70,.9);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:32px;"></div>
-            <div class="character-name" style="color:#fca5a5;">Luffy</div>
-            <div class="character-ability" data-ability-key style="color:#fca5a5;">10 DMG • 85 HP • Speed 4.5<br>PASSIVE: Obs. Haki — 35% dodge<br>PASSIVE: Auto-promotes G1→G5!<br>[ABILITY]: Arm Haki · Z/X/C vary per Gear<br>G5: Gear 5 — reality bending power!</div>
-            <div class="character-price" style="color:#fca5a5;">$1,000,000</div>
-            <div class="limited-timer" id="luffyTimer" style="background:rgba(59,130,246,0.85);border-color:#3b82f6;color:#fff;"></div>
-            <button class="info-btn" onclick="event.stopPropagation();showCharInfo('luffy')" style="border-color:rgba(230,57,70,0.5);color:#fca5a5;">INFO</button>
+
+        <div class="character-card limited-card" onclick="selectCharacter('higuruma')" id="higurumaCharacter" style="border-color:rgba(251,191,36,0.5);background:linear-gradient(135deg,rgba(15,23,42,0.5),rgba(251,191,36,0.08));">
+            <div class="character-preview" style="background:linear-gradient(135deg,#111827,#374151);box-shadow:0 0 22px rgba(251,191,36,0.8);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:26px;">⚖️</div>
+            <div class="character-name">Hiromi Higuruma</div>
+            <div class="character-ability">120 HP · Speed 4.5 · 28 DMG<br>PASSIVE: Evidence stacks (0–5) per kill<br>Z: Gavel Strike — 4.5x cone stun<br>X: Summon Judgeman — orbiting shikigami<br>R: Domain — Deadly Sentencing<br>Verdict: Death Penalty / Confiscation / Not Guilty</div>
+            <div class="character-price">$300,000</div>
+            <div class="limited-timer" id="higururmaTimer"></div>
+            <button class="info-btn" onclick="event.stopPropagation();showCharInfo('higuruma')">INFO</button>
         </div>
+
+        <div class="character-card limited-card" onclick="selectCharacter('luffy')" id="luffyCharacter">
+            <div class="character-preview" style="background:linear-gradient(135deg,#7f1d1d,#e63946);box-shadow:0 0 22px rgba(230,57,70,.9);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:32px;"></div>
+            <div class="character-name">Luffy</div>
+            <div class="character-ability" data-ability-key>10 DMG • 85 HP • Speed 4.5<br>PASSIVE: Obs. Haki — 35% dodge<br>PASSIVE: Auto-promotes G1→G5!<br>[ABILITY]: Arm Haki · Z/X/C vary per Gear<br>G5: Gear 5 — reality bending power!</div>
+            <div class="character-price">$1,000,000</div>
+            <div class="limited-timer" id="luffyTimer"></div>
+            <button class="info-btn" onclick="event.stopPropagation();showCharInfo('luffy')">INFO</button>
+        </div>
+
         <div class="character-card limited-card" onclick="selectCharacter('rouge_square')" id="rougeSquareCharacter">
             <div class="character-preview" style="background:linear-gradient(135deg,#1e1b4b,#4444ff);box-shadow:0 0 22px rgba(68,68,255,.9);"></div>
-            <div class="character-name" style="color:#8888ff;">Rouge Square</div>
+            <div class="character-name">Rouge Square</div>
             <div class="character-ability" data-ability-key>PASSIVE: Moves on a grid — square body<br>PASSIVE: Saw Blades orbit you<br>dealing damage to nearby enemies!<br>[ABILITY]: Dungeon Shop — freeze enemies<br>&amp; open the upgrade shop</div>
-            <div class="character-price">$250000</div>
+            <div class="character-price">$250,000</div>
             <div class="limited-timer" id="rougeSquareTimer"></div>
             <button class="info-btn" onclick="event.stopPropagation();showCharInfo('rouge_square')">INFO</button>
         </div>
 
+        <!-- ═══════════ QUEST / SECRET CHARACTERS ═══════════ -->
+        <div class="character-section-header quest-header">🔒 Quest &amp; Secret Characters</div>
+
+        <div class="character-card" onclick="selectCharacter('war_veteran')" id="warVeteranCharacter" style="display:none;border-color:rgba(251,191,36,0.4);">
+            <div class="character-preview" style="background:linear-gradient(135deg,#78350f,#fbbf24);box-shadow:0 0 18px rgba(251,191,36,.7);"></div>
+            <div class="character-name">War Veteran</div>
+            <div class="character-ability" data-ability-key>Battle-hardened fighter<br>PASSIVE: Combat veteran<br>[ABILITY]: War Cry<br>temporary power surge</div>
+            <div class="character-price">Quest Reward</div>
+            <button class="info-btn" onclick="event.stopPropagation();showCharInfo('war_veteran')">INFO</button>
+        </div>
+
+        <div class="character-card" onclick="selectCharacter('prime_veteran')" id="primeVeteranCharacter" style="display:none;">
+            <div class="character-preview" style="background:linear-gradient(135deg,#1e3a5f,#3b82f6);box-shadow:0 0 18px rgba(59,130,246,.7);"></div>
+            <div class="character-name">Prime Veteran</div>
+            <div class="character-ability" data-ability-key>Evolved Veteran form<br>PASSIVE: Peak Condition<br>[ABILITY]: Prime Strike<br>max power output</div>
+            <div class="character-price">Quest Reward</div>
+            <button class="info-btn" onclick="event.stopPropagation();showCharInfo('prime_veteran')">INFO</button>
+        </div>
+
+        <div class="character-card" onclick="selectCharacter('last_architect')" id="lastArchitectCharacter" style="display:none;border-color:rgba(167,139,250,0.4);">
+            <div class="character-preview" style="background:linear-gradient(135deg,#1e1b4b,#a78bfa);box-shadow:0 0 18px rgba(167,139,250,.7);"></div>
+            <div class="character-name">The Last Architect</div>
+            <div class="character-ability" data-ability-key>Builds reality itself<br>PASSIVE: Blueprint mastery<br>[ABILITY]: Construct<br>shape the arena</div>
+            <div class="character-price">Quest Reward</div>
+            <button class="info-btn" onclick="event.stopPropagation();showCharInfo('last_architect')">INFO</button>
+        </div>
+
+        <div class="character-card" onclick="selectCharacter('coin_king')" id="coinKingCharacter" style="display:none;border-color:rgba(251,191,36,0.5);">
+            <div class="character-preview" style="background:linear-gradient(135deg,#713f12,#fbbf24);box-shadow:0 0 22px rgba(251,191,36,.85);"></div>
+            <div class="character-name">The Coin King</div>
+            <div class="character-ability" data-ability-key>Gold powers everything<br>PASSIVE: Royal Treasury<br>[ABILITY]: Gold Rush<br>money = damage</div>
+            <div class="character-price">Quest Reward</div>
+            <button class="info-btn" onclick="event.stopPropagation();showCharInfo('coin_king')">INFO</button>
+        </div>
+
+        <div class="character-card" onclick="selectCharacter('megumi')" id="megumiCharacter" style="display:none;border-color:rgba(125,211,252,0.5);background:linear-gradient(135deg,rgba(15,23,42,0.4),rgba(99,102,241,0.1));">
+            <div class="character-preview" style="background:linear-gradient(135deg,#0f172a,#6366f1);box-shadow:0 0 18px rgba(99,102,241,.7);border-radius:50%;"></div>
+            <div class="character-name">Megumi Fushiguro</div>
+            <div class="character-ability" data-ability-key>Ten Shadows Technique<br>PASSIVE: Shikigami summon<br>[ABILITY]: Divine Dogs<br>shadow beast assault</div>
+            <div class="character-price">Quest Reward</div>
+            <button class="info-btn" onclick="event.stopPropagation();showCharInfo('megumi')">INFO</button>
+        </div>
+
         <div class="character-card" onclick="selectCharacter('hornet')" id="hornetCharacter" style="display:none;border-color:rgba(245,158,11,0.6);background:linear-gradient(135deg,rgba(146,64,14,0.3),rgba(245,158,11,0.15));">
             <div class="character-preview" style="background:linear-gradient(135deg,#92400e,#f59e0b);box-shadow:0 0 22px rgba(245,158,11,.9);border-radius:50%;display:flex;align-items:center;justify-content:center;overflow:hidden;"><img src="https://res.cloudinary.com/dz1dungk5/image/upload/v1772727788/f0e95622d20a747e93f5403e5193b155_vhmhmy.ico" style="width:80%;height:80%;object-fit:contain;"></div>
-            <div class="character-name" style="color:#fde68a;">Hornet</div>
+            <div class="character-name">Hornet</div>
             <div class="character-ability">10 Masks • 27.5 DMG<br>Q: Bind (heal 4 masks)<br>R: Silk Storm (AoE)<br>E: Shard Trap</div>
-            <div class="character-price" style="color:#fde68a;"><img src="https://res.cloudinary.com/dz1dungk5/image/upload/v1772727788/f0e95622d20a747e93f5403e5193b155_vhmhmy.ico" style="width:14px;height:14px;vertical-align:middle;object-fit:contain;margin-right:3px;"> Secret Code</div>
+            <div class="character-price">🔑 Secret Code</div>
             <button class="info-btn" onclick="event.stopPropagation();showCharInfo('hornet')">INFO</button>
         </div>
 
-                <div class="character-card" onclick="selectCharacter('gojo')" id="gojoCharacter" style="display:none;border-color:rgba(99,102,241,0.6);background:linear-gradient(135deg,rgba(49,46,129,0.3),rgba(99,102,241,0.15));">
+        <div class="character-card" onclick="selectCharacter('gojo')" id="gojoCharacter" style="display:none;border-color:rgba(99,102,241,0.6);background:linear-gradient(135deg,rgba(49,46,129,0.3),rgba(99,102,241,0.15));">
             <div class="character-preview" style="background:linear-gradient(135deg,#312e81,#6366f1);box-shadow:0 0 22px rgba(99,102,241,.9);border-radius:50%;"></div>
-            <div class="character-name" style="color:#a5b4fc;">Gojo Satoru</div>
+            <div class="character-name">Gojo Satoru</div>
             <div class="character-ability">28 DMG • Pierce shots<br>35% Infinity block<br>R: Unlimited Void freeze all<br>The Honored One</div>
-            <div class="character-price" style="color:#a5b4fc;">♾️ Secret Code</div>
+            <div class="character-price">♾️ Secret Code</div>
             <button class="info-btn" onclick="event.stopPropagation();showCharInfo('gojo')">INFO</button>
             <button class="mastery-btn" onclick="event.stopPropagation();showMastery('gojo')">🏅 MASTERY</button>
         </div>
 
         <div class="character-card" onclick="selectCharacter('the_strongest_today')" id="theStrongestTodayCharacter" style="display:none;border-color:rgba(255,255,255,0.7);background:linear-gradient(135deg,rgba(30,27,75,0.5),rgba(255,255,255,0.1));">
             <div class="character-preview" style="background:linear-gradient(135deg,#1e1b4b,#ffffff);box-shadow:0 0 28px rgba(255,255,255,.95);border-radius:50%;"></div>
-            <div class="character-name" style="color:#ffffff;">The Strongest Today</div>
+            <div class="character-name">The Strongest Today</div>
             <div class="character-ability" style="color:#c7d2fe;">Starts at ⭐ The Strongest<br>Z: Max Output Blue · X: Max Output Red<br>C: Hollow Purple · R: Unlimited Void<br>70% Infinity · 8x Gold · Pierce</div>
-            <div class="character-price" style="color:#ffffff;">⭐ Mastery</div>
+            <div class="character-price">⭐ Mastery</div>
             <button class="info-btn" onclick="event.stopPropagation();showCharInfo('gojo')" style="border-color:rgba(255,255,255,0.5);color:#fff;">INFO</button>
         </div>
+
     </div>
     <div style="text-align: center; margin-top: 20px;">
         <button id="charShopBackBtn" onclick="backToMenu()">← Back</button>
@@ -3851,20 +3934,22 @@ if (unlockedCharacters.includes('technoblade') || unlockedCharacters.includes('d
     localStorage.setItem('ballRPGCurrentCharacter', currentCharacter);
 }
 
-const LIMITED_CHARACTERS = ['dice', 'hakari_v2', 'yuji_itadori', 'character10b', 'rouge_square', 'luffy'];
+const LIMITED_CHARACTERS = ['dice', 'hakari_v2', 'yuji_itadori', 'character10b', 'rouge_square', 'luffy', 'higuruma'];
 const LIMITED_CARD_IDS = {
     'dice': 'diceCharacter',
     'hakari_v2': 'hakariCharacter',
     'yuji_itadori': 'yujiCharacter',
     'character10b': 'character10bCharacter',
     'rouge_square': 'rougeSquareCharacter',
-    'luffy': 'luffyCharacter'
+    'luffy': 'luffyCharacter',
+    'higuruma': 'higurumaCharacter'
 };
 const LIMITED_EXPIRY = {
     'dice': new Date(2026, 2, 8, 23, 59, 59),
     'hakari_v2': new Date(2026, 2, 8, 23, 59, 59),
     'yuji_itadori': new Date(2026, 2, 8, 23, 59, 59),
     'character10b': new Date(2026, 2, 6, 23, 59, 59),
+    'higuruma': new Date(2026, 4, 21, 18, 0, 0),
     'rouge_square': new Date(2026, 2, 13, 12, 0, 0),
     'luffy': new Date(2026, 2, 25, 0, 0, 0)
 };
@@ -3955,6 +4040,8 @@ const CHARACTERS = {
     hornet: { name:'Hornet', color:'#f59e0b', shadow:'#92400e', projColor:'#fde68a', ability:'silk_storm', manaCost:4, cdMax:0, isHornet:true, useImg:false },
     speedrunner: { name:'Speedrunner', color:'#facc15', shadow:'#713f12', projColor:'#fde047', ability:'sprint_burst', manaCost:0, cdMax:240, isSpeedrunner:true, lockHpUpgrade:true, lockDmgUpgrade:true, useImg:false },
     luffy: { name:'Luffy', color:'#e63946', shadow:'#7f1d1d', projColor:'#ff6b6b', ability:'arm_haki', manaCost:0, cdMax:0, isLuffy:true, useImg:false },
+    naruto: { name:'Naruto Uzumaki', color:'#ff6600', shadow:'#cc3300', projColor:'#ff9900', ability:'nine_tails', manaCost:0, cdMax:0, isNaruto:true, useImg:false },
+    higuruma: { name:'Hiromi Higuruma', color:'#1f2937', shadow:'#111827', projColor:'#fbbf24', ability:'deadly_sentencing', manaCost:0, cdMax:0, isHiguruma:true, useImg:false },
 };
 
 const SKIN_URLS = {
@@ -3974,7 +4061,7 @@ const PRICES = {
     phantom:250, druid:750, pyromancer:1500, cyborg:3000, timewizard:4500,
     fire:500, ice:1000, electric:2500, boxer:500,
     wemmbu:5000, eggchan:5000, dice:2345, hakari_v2:35000, yuji_itadori:28000, character10b:50000, war_veteran:0, prime_veteran:0, last_architect:0, coin_king:0, rouge_square:250000, gojo:0, the_strongest_today:0,
-    necromancer:4000, glass_cannon:3500, tank:2000, speedrunner:2500, hornet:0, megumi:0, luffy:1000000
+    necromancer:4000, glass_cannon:3500, tank:2000, speedrunner:2500, hornet:0, megumi:0, luffy:1000000, naruto:25000, higuruma:300000
 };
 
 const CHARACTER_ORDER = Object.keys(PRICES).sort((a, b) => PRICES[a] - PRICES[b]);
@@ -5367,6 +5454,16 @@ let rougeSquareSawBlades = [];
 let rougeSquareSawTimer = 0;
 let rougeSquareDungeonLockWalls = [];
 
+// ===== NARUTO STATE =====
+let narutoUltBar = 0;        // 0-100, +1 per kill
+let narutoUltActive = false;
+let narutoUltTimer = 0;      // 60s = 3600 ticks
+let narutoClones = [];       // { x, y, shootTimer, life }
+let narutoZCd = 0;
+let narutoXCd = 0;
+let narutoRasenCd = 0;
+let narutoCloneKillCount = 0; // triggers clone every 30 kills
+
 function tickNewCharacters(ts, dt) {
     const skin = currentCharacter;
 
@@ -5850,6 +5947,178 @@ function tickNewCharacters(ts, dt) {
             ctx.fillStyle='#a78bfa'; ctx.fillRect(bx,by,bw*(r.life/maxLife),bh);
             ctx.restore();
         }
+    }
+
+    if (skin === 'naruto') {
+        if (narutoZCd > 0) narutoZCd -= dt;
+        if (narutoXCd > 0) narutoXCd -= dt;
+
+        // Nine-Tails countdown
+        if (narutoUltActive) {
+            narutoUltTimer -= dt;
+            if (narutoUltTimer <= 0) {
+                narutoUltActive = false;
+                player.speed /= 1.4;
+                player.damage /= 3;
+                narutoClones = narutoClones.filter(c => !c.isNineTailsClone);
+                floatMoneyText('🦊 Nine-Tails Mode ended!');
+                for(let i=0;i<60;i++) particles.push(new Particle(player.x+(Math.random()-0.5)*80,player.y+(Math.random()-0.5)*80,'#ff6600'));
+            }
+            // Nine-tails aura
+            const ntAlpha = 0.18 + 0.08*Math.sin(ts*0.006);
+            ctx.save();
+            ctx.globalAlpha = ntAlpha;
+            const ntGrad = ctx.createRadialGradient(player.x,player.y,0,player.x,player.y,player.radius+28);
+            ntGrad.addColorStop(0,'#ff4400'); ntGrad.addColorStop(1,'rgba(255,100,0,0)');
+            ctx.fillStyle = ntGrad;
+            ctx.beginPath(); ctx.arc(player.x,player.y,player.radius+28,0,Math.PI*2); ctx.fill();
+            ctx.restore();
+        }
+
+        // Shadow Clone tick
+        narutoClones = narutoClones.filter(clone => {
+            clone.life -= dt;
+            if (clone.life <= 0) return false;
+            clone.shootTimer += dt;
+            // Clones follow player loosely
+            const cdx = player.x-clone.x, cdy = player.y-clone.y;
+            const cdist = Math.hypot(cdx,cdy);
+            if(cdist > 70) { clone.x += (cdx/cdist)*2.5*dt; clone.y += (cdy/cdist)*2.5*dt; }
+            // Clones shoot at nearest enemy
+            if(clone.shootTimer >= 45) {
+                clone.shootTimer = 0;
+                let target=null,nd=Infinity;
+                enemies.forEach(e=>{if(!e.alive)return; const d=Math.hypot(e.x-clone.x,e.y-clone.y); if(d<250&&d<nd){nd=d;target=e;}});
+                if(target){
+                    const ca=Math.atan2(target.y-clone.y,target.x-clone.x);
+                    const cp=new Projectile(clone.x,clone.y,ca,player.damage*(narutoUltActive?2:0.55),'#ff9900');
+                    projectiles.push(cp);
+                }
+            }
+            // Draw clone
+            const cloneAlpha = Math.min(1, clone.life/60);
+            ctx.save(); ctx.globalAlpha = cloneAlpha * 0.75;
+            ctx.shadowBlur = _shadowsEnabled ? 16 : 0; ctx.shadowColor = narutoUltActive ? '#ff3300' : '#ff9900';
+            const cloneColor = narutoUltActive ? '#ff4400' : '#ff8800';
+            ctx.fillStyle = cloneColor;
+            ctx.beginPath(); ctx.arc(clone.x,clone.y,player.radius*0.85,0,Math.PI*2); ctx.fill();
+            ctx.fillStyle='rgba(0,0,0,0.7)'; ctx.font='10px Arial'; ctx.textAlign='center';
+            ctx.fillText('🥷',clone.x,clone.y+4);
+            ctx.restore();
+            return true;
+        });
+
+        // HUD info
+        const barW=80, barPct=narutoUltBar/100;
+        ctx.save(); ctx.font='bold 10px Arial'; ctx.textAlign='left';
+        const barColor = narutoUltActive ? '#ff3300' : barPct>=1 ? '#fbbf24' : '#ff9900';
+        ctx.fillStyle=barColor; ctx.shadowBlur=_shadowsEnabled?8:0; ctx.shadowColor=barColor;
+        const barLabel = narutoUltActive ? `🦊 NINE-TAILS ${Math.ceil(narutoUltTimer/60)}s` : `🔥 CHAKRA ${narutoUltBar}/100`;
+        ctx.fillText(barLabel,12,22);
+        if(!narutoUltActive){
+            ctx.fillStyle='rgba(0,0,0,0.5)'; ctx.fillRect(12,26,barW,5);
+            ctx.fillStyle='#ff9900'; ctx.fillRect(12,26,barW*barPct,5);
+        }
+        ctx.restore();
+    }
+
+    if (skin === 'higuruma') {
+        if(higuruma_gavelCd > 0) higuruma_gavelCd -= dt;
+        if(higuruma_judgemanCd > 0) higuruma_judgemanCd -= dt;
+
+        // ── Domain active overlay ──
+        if(higuruma_domainActive) {
+            higuruma_domainTimer -= dt;
+            const dProg = higuruma_domainTimer / 480;
+            // Dark courtroom overlay
+            ctx.save();
+            ctx.globalAlpha = 0.28 * dProg;
+            ctx.fillStyle = '#0f172a';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            // Gold pillar silhouettes at edges
+            ctx.globalAlpha = 0.18 * dProg;
+            ctx.fillStyle = '#92400e';
+            for(let cx2 of [40, canvas.width-60]) { ctx.fillRect(cx2, 0, 22, canvas.height); }
+            // Swirling scales particles
+            if(Math.random() < 0.35) {
+                const ra = Math.random()*Math.PI*2, rr = 60+Math.random()*180;
+                const pp = new Particle(player.x+Math.cos(ra)*rr, player.y+Math.sin(ra)*rr, Math.random()<0.5?'#fbbf24':'#374151');
+                pp.vx = -Math.sin(ra)*1.5; pp.vy = Math.cos(ra)*1.5; particles.push(pp);
+            }
+            ctx.restore();
+            // Domain timer bar
+            ctx.save();
+            ctx.fillStyle='rgba(0,0,0,0.55)'; ctx.fillRect(player.x-50, player.y-player.radius-22, 100, 7);
+            ctx.fillStyle='#fbbf24'; ctx.fillRect(player.x-50, player.y-player.radius-22, 100*dProg, 7);
+            ctx.font='bold 9px Arial'; ctx.textAlign='center'; ctx.fillStyle='#fde68a';
+            ctx.shadowBlur=_shadowsEnabled?6:0; ctx.shadowColor='#fbbf24';
+            ctx.fillText(`⚖️ DEADLY SENTENCING ${Math.ceil(higuruma_domainTimer/60)}s`, player.x, player.y-player.radius-26);
+            ctx.restore();
+            if(higuruma_domainTimer <= 0) { higuruma_domainActive=false; floatMoneyText('⚖️ Domain ended.'); }
+        }
+
+        // ── Judgeman orbit ──
+        if(higuruma_judgemanActive) {
+            higuruma_judgemanTimer -= dt;
+            higuruma_judgemanAngle += 0.045 * dt;
+            higuruma_judgemanShot  += dt;
+            const jr = 60;
+            const jx = player.x + Math.cos(higuruma_judgemanAngle) * jr;
+            const jy = player.y + Math.sin(higuruma_judgemanAngle) * jr;
+            // Draw Judgeman
+            ctx.save();
+            ctx.shadowBlur = _shadowsEnabled ? 20 : 0; ctx.shadowColor = '#fbbf24';
+            ctx.fillStyle = '#1f2937';
+            ctx.beginPath(); ctx.arc(jx, jy, 11, 0, Math.PI*2); ctx.fill();
+            ctx.strokeStyle = '#fbbf24'; ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.arc(jx, jy, 11, 0, Math.PI*2); ctx.stroke();
+            ctx.font = '10px Arial'; ctx.textAlign = 'center'; ctx.fillStyle = '#fbbf24';
+            ctx.shadowBlur = 0;
+            ctx.fillText('⚖️', jx, jy+4);
+            ctx.restore();
+            // Judgeman fires verdict beam at nearest enemy every 1.5s
+            if(higuruma_judgemanShot >= 90) {
+                higuruma_judgemanShot = 0;
+                let target=null, nd=Infinity;
+                enemies.forEach(e=>{ if(!e.alive) return; const d=Math.hypot(e.x-jx,e.y-jy); if(d<280&&d<nd){nd=d;target=e;} });
+                if(target) {
+                    const ja = Math.atan2(target.y-jy, target.x-jx);
+                    const jp = new Projectile(jx, jy, ja, player.damage * 1.8, '#fbbf24');
+                    jp.radius = 6; jp.speed = 9;
+                    jp.vx = Math.cos(ja)*jp.speed; jp.vy = Math.sin(ja)*jp.speed;
+                    projectiles.push(jp);
+                    for(let i=0;i<8;i++) particles.push(new Particle(jx,jy,'#fbbf24'));
+                }
+            }
+            if(higuruma_judgemanTimer <= 0) {
+                higuruma_judgemanActive = false;
+                floatMoneyText('⚖️ Judgeman dismissed.');
+                for(let i=0;i<20;i++) particles.push(new Particle(player.x+(Math.random()-0.5)*40,player.y+(Math.random()-0.5)*40,'#6b7280'));
+            }
+        }
+
+        // ── Verdict floating texts ──
+        higuruma_verdicts = higuruma_verdicts.filter(v => {
+            v.timer -= dt; v.y -= 0.5*dt;
+            ctx.save();
+            ctx.globalAlpha = Math.min(1, v.timer/30);
+            ctx.font = 'bold 11px Arial'; ctx.textAlign = 'center';
+            ctx.fillStyle = v.color; ctx.shadowBlur = _shadowsEnabled ? 8 : 0; ctx.shadowColor = v.color;
+            ctx.fillText(v.text, v.x, v.y); ctx.restore();
+            return v.timer > 0;
+        });
+
+        // ── HUD ──
+        ctx.save(); ctx.font = 'bold 10px Arial'; ctx.textAlign = 'left';
+        ctx.fillStyle = 'rgba(251,191,36,0.9)'; ctx.shadowBlur = _shadowsEnabled ? 6 : 0; ctx.shadowColor = '#fbbf24';
+        ctx.fillText(`⚖️ HIGURUMA  Z: Gavel  X: Judgeman${higuruma_judgemanActive?' (active)':''}  R: Domain [${higuruma_evidence}/5 evidence]`, 12, 22);
+        // Evidence pips
+        for(let ep=0;ep<5;ep++) {
+            ctx.fillStyle = ep < higuruma_evidence ? '#fbbf24' : 'rgba(255,255,255,0.15)';
+            ctx.shadowBlur = ep < higuruma_evidence && _shadowsEnabled ? 8 : 0;
+            ctx.fillRect(12+ep*14, 26, 10, 6);
+        }
+        ctx.restore();
     }
 
     if (skin === 'phantom') {
@@ -6598,6 +6867,8 @@ class Enemy {
         if(type==='mimic')     { this.radius=10; this.drawAlpha=1; this.mimicRevealed=false; }
         if(type==='echo')      { this.radius=14; this.drawAlpha=1; this.echoTimer=180; this.echoPulse=0; }
         if(type==='void_rift') { this.radius=18; this.drawAlpha=1; this.voidSpawnTimer=120; this.speed=0; }
+        this.isShade = type==='shade';
+        if(type==='shade')     { this.radius=15; this.drawAlpha=0.15; this.shadePhaseTimer=Math.random()*120; this.shadeVisible=false; this.shadeShotTimer=0; this.shadeTeleTimer=0; }
     }
     update(dt=1) {
         if(this.frozen>0){this.frozen-=dt;return;}
@@ -7211,23 +7482,50 @@ class Enemy {
 
         } else if (this.isMimic) {
             if (!this.mimicRevealed) {
-                // Looks exactly like a health orb pickup
-                ctx.fillStyle='#22c55e'; ctx.shadowBlur=_shadowsEnabled?18:0; ctx.shadowColor='#22c55e';
-                ctx.beginPath(); ctx.arc(this.x,this.y,this.radius,0,Math.PI*2); ctx.fill();
-                ctx.restore(); ctx.save(); ctx.globalAlpha=(this.drawAlpha||1)*0.6;
-                ctx.fillStyle='#fff'; ctx.fillRect(this.x-1.5,this.y-6,3,12); ctx.fillRect(this.x-6,this.y-1.5,12,3);
+                // ===== HEALTH ORB DISGUISE =====
+                const pulse = 0.85 + 0.15*Math.sin((this.mimicFloatOffset||0)*2.2);
+                const orbR = this.radius * pulse;
+                // Outer glow
+                ctx.shadowBlur = _shadowsEnabled ? 28 : 0; ctx.shadowColor = '#22c55e';
+                // Main orb gradient
+                const orbG = ctx.createRadialGradient(this.x-orbR*0.3,this.y-orbR*0.3,0,this.x,this.y,orbR);
+                orbG.addColorStop(0,'#bbf7d0'); orbG.addColorStop(0.45,'#22c55e'); orbG.addColorStop(1,'#14532d');
+                ctx.fillStyle = orbG;
+                ctx.beginPath(); ctx.arc(this.x, this.y, orbR, 0, Math.PI*2); ctx.fill();
+                // Sheen highlight
+                ctx.restore(); ctx.save(); ctx.globalAlpha = (this.drawAlpha||1)*0.55;
+                const sheenG = ctx.createRadialGradient(this.x-orbR*0.35,this.y-orbR*0.35,0,this.x-orbR*0.25,this.y-orbR*0.25,orbR*0.55);
+                sheenG.addColorStop(0,'rgba(255,255,255,0.9)'); sheenG.addColorStop(1,'rgba(255,255,255,0)');
+                ctx.fillStyle = sheenG;
+                ctx.beginPath(); ctx.arc(this.x, this.y, orbR, 0, Math.PI*2); ctx.fill();
+                // Pulsing outer ring
+                ctx.restore(); ctx.save(); ctx.globalAlpha = (this.drawAlpha||1)*(0.35+0.25*Math.sin((this.mimicFloatOffset||0)*2));
+                ctx.strokeStyle = '#4ade80'; ctx.lineWidth = 2;
+                ctx.beginPath(); ctx.arc(this.x, this.y, orbR+6, 0, Math.PI*2); ctx.stroke();
+                // White cross "+" (looks like a heal pickup)
+                ctx.restore(); ctx.save(); ctx.globalAlpha = (this.drawAlpha||1)*0.85;
+                ctx.fillStyle = '#ffffff'; ctx.shadowBlur = _shadowsEnabled ? 8 : 0; ctx.shadowColor = '#ffffff';
+                const cs = orbR*0.38;
+                ctx.fillRect(this.x - cs*0.28, this.y - cs, cs*0.56, cs*2); // vertical bar
+                ctx.fillRect(this.x - cs, this.y - cs*0.28, cs*2, cs*0.56); // horizontal bar
+                // Sparkle dots
+                ctx.restore(); ctx.save();
+                const spk = (this.mimicFloatOffset||0)*1.5;
+                for(let i=0;i<4;i++){
+                    const sa=(Math.PI/2)*i+spk, sr=orbR+10+3*Math.sin(spk+i);
+                    ctx.globalAlpha=(this.drawAlpha||1)*(0.5+0.4*Math.sin(spk+i*1.5));
+                    ctx.fillStyle='#86efac'; ctx.shadowBlur=_shadowsEnabled?6:0; ctx.shadowColor='#22c55e';
+                    ctx.beginPath(); ctx.arc(this.x+Math.cos(sa)*sr, this.y+Math.sin(sa)*sr, 2.5, 0, Math.PI*2); ctx.fill();
+                }
             } else {
-                // Toothy monster reveal
+                // ===== TOOTHY MONSTER REVEAL =====
                 ctx.fillStyle='#dc2626'; ctx.shadowBlur=_shadowsEnabled?20:0; ctx.shadowColor='#ef4444';
-                // Body
                 ctx.beginPath();
                 for(let i=0;i<12;i++){const a=(Math.PI*2/12)*i;const r=this.radius+(i%2===0?3:-2);i===0?ctx.moveTo(this.x+Math.cos(a)*r,this.y+Math.sin(a)*r):ctx.lineTo(this.x+Math.cos(a)*r,this.y+Math.sin(a)*r);}
                 ctx.closePath(); ctx.fill();
-                // Teeth / maw
                 ctx.restore(); ctx.save(); ctx.globalAlpha=(this.drawAlpha||1);
                 ctx.fillStyle='#fff';
                 for(let i=0;i<5;i++){ctx.beginPath();ctx.moveTo(this.x-8+i*4,this.y-2);ctx.lineTo(this.x-6+i*4,this.y+5);ctx.lineTo(this.x-10+i*4+4,this.y+5);ctx.closePath();ctx.fill();}
-                // Eye
                 ctx.fillStyle='#fbbf24'; ctx.shadowBlur=_shadowsEnabled?10:0; ctx.shadowColor='#fbbf24';
                 ctx.beginPath(); ctx.arc(this.x,this.y-4,3.5,0,Math.PI*2); ctx.fill();
                 ctx.fillStyle='#1a1a1a'; ctx.beginPath(); ctx.arc(this.x,this.y-4,1.5,0,Math.PI*2); ctx.fill();
@@ -7313,6 +7611,22 @@ class Enemy {
             ctx.shadowBlur=_shadowsEnabled?8:0; ctx.shadowColor='#fbbf24';
             ctx.fillText('BOSS',this.x,this.y-this.radius-4);
 
+        } else if (this.isShade) {
+            // 👤 SHADE - near-invisible dark purple with a faint dark core and purple wisps
+            this._shadeRot = ((this._shadeRot||0)+0.06*(this.shadeVisible?2:0.5))%(Math.PI*2);
+            const shAlpha = this.shadeVisible ? 0.95 : 0.08;
+            const shG = ctx.createRadialGradient(this.x,this.y,1,this.x,this.y,this.radius);
+            shG.addColorStop(0,'#9f00ff'); shG.addColorStop(0.5,'#4b0082'); shG.addColorStop(1,'#1a0030');
+            ctx.globalAlpha = shAlpha; ctx.fillStyle=shG; ctx.shadowBlur=_shadowsEnabled?20:0; ctx.shadowColor='#7c3aed';
+            ctx.beginPath(); ctx.arc(this.x,this.y,this.radius,0,Math.PI*2); ctx.fill();
+            if(this.shadeVisible) {
+                ctx.restore(); ctx.save(); ctx.globalAlpha=0.55;
+                ctx.strokeStyle='#c084fc'; ctx.lineWidth=1.5; ctx.setLineDash([3,5]);
+                ctx.save(); ctx.translate(this.x,this.y); ctx.rotate(this._shadeRot);
+                ctx.beginPath(); ctx.arc(0,0,this.radius+5,0,Math.PI*2); ctx.restore(); ctx.stroke();
+                ctx.setLineDash([]);
+            }
+
         } else if (this._isModEnemy && this._img && this._img.complete && this._img.naturalWidth > 0) {
             // Custom image for this mod enemy
             ctx.save();
@@ -7396,6 +7710,7 @@ class Enemy {
             else if (this.isVoidRift)     label = '🌀 Void Rift';
             else if (this.isTriangle)     label = '▲ Triangle';
             else if (this.isMiniBoss)     label = '⚔️ Mini Boss';
+            else if (this.isShade)        label = this.shadeVisible ? '👤 Shade' : null;
             if (label) {
                 ctx.save();
                 ctx.font = 'bold 8px Arial';
@@ -7660,6 +7975,7 @@ function getEnemyStats(type){
     if(type==='mimic')     return{health:Math.round((180+d*40)*em), speed:eSpd(3.5+d*0.15), damage:Math.round((20+d*4)*em)};
     if(type==='echo')      return{health:Math.round((260+d*60)*em), speed:eSpd(1.8+d*0.08), damage:Math.round((15+d*3)*em)};
     if(type==='void_rift') return{health:Math.round((400+d*80)*em), speed:0,                damage:Math.round((8+d*2)*em)};
+    if(type==='shade')     return{health:Math.round((300+d*65)*em), speed:eSpd(2.5+d*0.12), damage:Math.round((20+d*4)*em)};
 
     let healthMult = 1, speedMult = 1, damageMult = 1;
     if(currentRound>=50 && currentRound<500) {
@@ -7959,9 +8275,15 @@ function tickSpecialEnemies(dt) {
             if (!e.mimicRevealed && mdist < 70) {
                 e.mimicRevealed = true;
                 e.radius = 13;
+                e.speed = getEnemyStats('mimic').speed; // start chasing on reveal
                 floatMoneyText('⚠️ Mimic revealed!');
-                for (let i = 0; i < 15; i++) particles.push(new Particle(e.x, e.y, '#22c55e'));
-                playSound(400, 0.07, 'sawtooth');
+                for (let i = 0; i < 20; i++) particles.push(new Particle(e.x + (Math.random()-0.5)*30, e.y + (Math.random()-0.5)*30, '#22c55e'));
+                playSound(400, 0.07, 'sawtooth'); playSound(200, 0.05, 'square');
+            }
+            // Gentle float bob while disguised
+            if (!e.mimicRevealed) {
+                e.mimicFloatOffset = (e.mimicFloatOffset||0) + 0.04*dt;
+                e.y += Math.sin(e.mimicFloatOffset)*0.25;
             }
         }
 
@@ -7994,6 +8316,36 @@ function tickSpecialEnemies(dt) {
                 for (let i = 0; i < 8; i++) particles.push(new Particle(e.x, e.y, '#7c3aed'));
             }
         }
+
+        if (e.isShade) {
+            // Phase cycle: mostly invisible, briefly visible
+            e.shadePhaseTimer = (e.shadePhaseTimer || 0) + dt;
+            const cycle = 240;
+            const phase = e.shadePhaseTimer % cycle;
+            e.shadeVisible = phase > 180;
+            e.drawAlpha = e.shadeVisible ? 0.95 : 0.08;
+
+            // Teleport toward player when invisible
+            e.shadeTeleTimer = (e.shadeTeleTimer || 0) + dt;
+            if (!e.shadeVisible && e.shadeTeleTimer >= 90) {
+                e.shadeTeleTimer = 0;
+                const angle = Math.atan2(player.y - e.y, player.x - e.x) + (Math.random()-0.5)*0.8;
+                const dist = 60 + Math.random()*60;
+                e.x = Math.max(e.radius, Math.min(canvas.width-e.radius, player.x - Math.cos(angle)*dist));
+                e.y = Math.max(e.radius, Math.min(canvas.height-e.radius, player.y - Math.sin(angle)*dist));
+                for(let i=0;i<8;i++) particles.push(new Particle(e.x+(Math.random()-0.5)*30,e.y+(Math.random()-0.5)*30,'#4b0082'));
+            }
+
+            // Shadow bolt when visible
+            e.shadeShotTimer = (e.shadeShotTimer || 0) + dt;
+            if (e.shadeVisible && e.shadeShotTimer >= 160) {
+                e.shadeShotTimer = 0;
+                const ang = Math.atan2(player.y - e.y, player.x - e.x);
+                bossBullets.push({ x:e.x, y:e.y, vx:Math.cos(ang)*5, vy:Math.sin(ang)*5, damage:e.damage, radius:7, alive:true, isLine:false, color:'#7c3aed' });
+                for(let i=0;i<8;i++) particles.push(new Particle(e.x,e.y,'#7c3aed'));
+                playSound(180+Math.random()*100, 0.04, 'sine');
+            }
+        }
     }
 }
 
@@ -8014,6 +8366,21 @@ function spawnWave(){
     }
     if(currentRound === 150 || currentRound === 200) {
         spawnRhomboid();
+        waveEnemiesSpawned = waveEnemyBudget;
+        return;
+    }
+    if(currentRound === 175 || currentRound === 225) {
+        spawnPentagon();
+        waveEnemiesSpawned = waveEnemyBudget;
+        return;
+    }
+    if(currentRound === 250 || currentRound === 300) {
+        spawnHexagon();
+        waveEnemiesSpawned = waveEnemyBudget;
+        return;
+    }
+    if(currentRound === 350 || currentRound === 400) {
+        spawnOctagon();
         waveEnemiesSpawned = waveEnemyBudget;
         return;
     }
@@ -8080,12 +8447,21 @@ function spawnWave(){
             if(currentRound >= 32) typePool.push('echo');
             if(currentRound >= 38) typePool.push('void_rift');
             if(currentRound >= 35) typePool.push('mirror_e');
+            if(currentRound >= 42) typePool.push('shade','shade');
             modEnemyIds.forEach(id => typePool.push(id));
         }
         const type = typePool[Math.floor(Math.random()*typePool.length)];
         if (modEnemyIds.includes(type)) { spawnModEnemy(type); waveEnemiesSpawned++; return; }
         const e=new Enemy(sx,sy,type); const stats=getEnemyStats(type);
         e.health=stats.health; e.maxHealth=stats.health; e.speed=stats.speed; e.damage=stats.damage;
+        // Mimic: spawn randomly on map interior, not at edge, and don't move
+        if(e.isMimic) {
+            const pad = 60;
+            e.x = pad + Math.random()*(canvas.width-pad*2);
+            e.y = pad + Math.random()*(canvas.height-pad*2);
+            e.speed = 0;
+            e.mimicFloatOffset = Math.random()*Math.PI*2;
+        }
 
             if(e.isShielder)     { e.color='#3b82f6'; e.expValue=18; }
             if(e.isSplitter)     { e.color='#f97316'; e.expValue=16; }
@@ -8111,6 +8487,7 @@ function spawnWave(){
             if(e.isMimic)        { e.color='#22c55e'; e.expValue=20; }
             if(e.isEcho)         { e.color='#e879f9'; e.expValue=28; }
             if(e.isVoidRift)     { e.color='#7c3aed'; e.expValue=45; }
+            if(e.isShade)        { e.color='#4b0082'; e.expValue=30; }
             // Swarm: replace single enemy with 6 tiny swarm units
             if(e.isSwarm) {
                 for(let si=0;si<6;si++){
@@ -8447,6 +8824,417 @@ function spawnRhomboid() {
     teleportPlayerToSafety();
     floatMoneyText(`💎 THE RHOMBOID APPEARS! Fight ${fightNum}/2`);
     for (let i = 0; i < 120; i++) particles.push(new Particle(canvas.width/2 + (Math.random()-0.5)*120, canvas.height/2 + (Math.random()-0.5)*120, '#00ff66'));
+}
+
+// ===== HEXAGON BOSS =====
+let currentHexagon = null;
+let hexagonBullets = [];
+
+class Hexagon {
+    constructor(x, y) {
+        this.x = x; this.y = y;
+        this.health = 25000; this.maxHealth = 25000;
+        this.radius = 42; this.rotation = 0; this.alive = true;
+        this.attackTimer = 0; this.attackInterval = 100;
+        this.laserAngle = 0; this.laserActive = false;
+        this.shadeSpawnTimer = 0; this.phase = 1;
+        this.dashCooldown = 0; this.dashInProgress = false;
+        this.dashTargetX = 0; this.dashTargetY = 0;
+    }
+
+    get hpPct() { return this.health / this.maxHealth; }
+
+    update(dt) {
+        if (!this.alive) return;
+        this.rotation += 0.018 * dt * (this.hpPct < 0.4 ? 2.5 : 1);
+
+        // Phase transitions
+        if (this.hpPct < 0.3) this.phase = 3;
+        else if (this.hpPct < 0.65) this.phase = 2;
+        else this.phase = 1;
+
+        // Move toward player
+        const dx = player.x - this.x, dy = player.y - this.y;
+        const dist = Math.hypot(dx, dy);
+        if (dist > this.radius + 80) {
+            this.x += (dx/dist) * 1.2 * dt;
+            this.y += (dy/dist) * 1.2 * dt;
+        }
+
+        // Dash (phase 2+)
+        if (this.phase >= 2 && this.dashCooldown <= 0 && !this.dashInProgress) {
+            this.dashCooldown = 280;
+            this.dashInProgress = true;
+            this.dashTargetX = player.x; this.dashTargetY = player.y;
+        }
+        if (this.dashCooldown > 0) this.dashCooldown -= dt;
+        if (this.dashInProgress) {
+            const ddx = this.dashTargetX - this.x, ddy = this.dashTargetY - this.y;
+            const dd = Math.hypot(ddx, ddy);
+            if (dd < 12) {
+                this.dashInProgress = false;
+                if (Math.hypot(player.x-this.x, player.y-this.y) < this.radius+player.radius+20 && player.invulnerable<=0) {
+                    let dmg = applyPassiveIncomingDamage(22);
+                    player.health -= dmg; player.invulnerable = 40; updateHUD();
+                    if(player.health<=0) endGame();
+                }
+            } else {
+                const sp = 6.5 * dt;
+                this.x += (ddx/dd)*sp; this.y += (ddy/dd)*sp;
+                for(let i=0;i<2;i++) particles.push(new Particle(this.x+(Math.random()-0.5)*30,this.y+(Math.random()-0.5)*30,'#7c3aed'));
+            }
+        }
+
+        // Attack
+        this.attackTimer += dt;
+        const interval = this.phase === 3 ? 55 : this.phase === 2 ? 80 : 110;
+        if (this.attackTimer >= interval) {
+            this.attackTimer = 0;
+            this.fireVertexAttack();
+        }
+
+        // Phase 2+: rotating laser arms
+        if (this.phase >= 2) {
+            this.laserAngle += 0.025 * dt * (this.phase === 3 ? 1.8 : 1);
+            this.laserActive = true;
+        }
+
+        // Phase 3: spawn Shade minions
+        if (this.phase === 3) {
+            this.shadeSpawnTimer += dt;
+            if (this.shadeSpawnTimer >= 360) {
+                this.shadeSpawnTimer = 0;
+                const ang = Math.random() * Math.PI * 2;
+                const sx = this.x + Math.cos(ang) * 90, sy = this.y + Math.sin(ang) * 90;
+                const sm = new Enemy(sx, sy, 'shade');
+                const ss = getEnemyStats('shade');
+                sm.health = ss.health * 0.5; sm.maxHealth = sm.health; sm.speed = ss.speed; sm.damage = ss.damage;
+                sm.color = '#4b0082'; sm.expValue = 15;
+                enemies.push(sm);
+                for(let i=0;i<12;i++) particles.push(new Particle(sx,sy,'#9f00ff'));
+            }
+        }
+
+        // Contact damage
+        if (Math.hypot(player.x-this.x, player.y-this.y) < this.radius+player.radius && player.invulnerable<=0) {
+            let dmg = applyPassiveIncomingDamage(18);
+            player.health -= dmg; player.invulnerable = 30; updateHUD();
+            if(player.health<=0) endGame();
+        }
+    }
+
+    fireVertexAttack() {
+        const n = this.phase === 3 ? 6 : (this.phase === 2 ? 6 : 3); // all 6 vertices in phase 2+
+        for (let i = 0; i < n; i++) {
+            const angle = this.rotation + (Math.PI * 2 / 6) * (this.phase < 2 ? i*2 : i);
+            const vx = this.x + Math.cos(angle) * this.radius;
+            const vy = this.y + Math.sin(angle) * this.radius;
+            const aim = Math.atan2(player.y - vy, player.x - vx);
+            const spd = this.phase === 3 ? 5.5 : 4;
+            hexagonBullets.push({ x: vx, y: vy, vx: Math.cos(aim)*spd, vy: Math.sin(aim)*spd, damage: this.phase===3?22:16, radius: 7, alive: true });
+        }
+        for(let i=0;i<10;i++) particles.push(new Particle(this.x+(Math.random()-0.5)*60,this.y+(Math.random()-0.5)*60,'#7c3aed'));
+    }
+
+    draw() {
+        const s = this.radius;
+        ctx.save();
+        ctx.translate(this.x, this.y);
+        ctx.rotate(this.rotation);
+
+        // Phase glow rings
+        if (this.phase >= 2) {
+            for (let r = 1; r <= 3; r++) {
+                ctx.save(); ctx.rotate(this.rotation * r * 0.4);
+                ctx.strokeStyle = `rgba(139,92,246,${0.06*r})`;
+                ctx.lineWidth = 2;
+                ctx.beginPath(); ctx.arc(0,0,s+18*r,0,Math.PI*2); ctx.stroke();
+                ctx.restore();
+            }
+        }
+
+        ctx.shadowBlur = _shadowsEnabled ? 40 : 0; ctx.shadowColor = '#7c3aed';
+        ctx.fillStyle = '#3b0764';
+        ctx.beginPath();
+        for (let i = 0; i < 6; i++) {
+            const a = (Math.PI*2/6)*i;
+            i === 0 ? ctx.moveTo(Math.cos(a)*s, Math.sin(a)*s) : ctx.lineTo(Math.cos(a)*s, Math.sin(a)*s);
+        }
+        ctx.closePath(); ctx.fill();
+
+        // Inner highlight
+        ctx.fillStyle = `rgba(167,139,250,0.35)`;
+        ctx.beginPath();
+        for (let i = 0; i < 6; i++) {
+            const a = (Math.PI*2/6)*i;
+            const sr = s*0.52;
+            i === 0 ? ctx.moveTo(Math.cos(a)*sr, Math.sin(a)*sr) : ctx.lineTo(Math.cos(a)*sr, Math.sin(a)*sr);
+        }
+        ctx.closePath(); ctx.fill();
+
+        // Vertex dots
+        ctx.fillStyle = '#c084fc';
+        for (let i = 0; i < 6; i++) {
+            const a = (Math.PI*2/6)*i;
+            ctx.beginPath(); ctx.arc(Math.cos(a)*s, Math.sin(a)*s, 4, 0, Math.PI*2); ctx.fill();
+        }
+        ctx.restore();
+
+        // Rotating laser arms (phase 2+)
+        if (this.laserActive && this.phase >= 2) {
+            ctx.save();
+            for (let arm = 0; arm < 2; arm++) {
+                const la = this.laserAngle + arm * Math.PI;
+                const ex = this.x + Math.cos(la)*500, ey = this.y + Math.sin(la)*500;
+                ctx.strokeStyle = `rgba(167,139,250,${this.phase===3?0.75:0.5})`;
+                ctx.lineWidth = this.phase === 3 ? 4 : 2;
+                ctx.shadowBlur = _shadowsEnabled ? 18 : 0; ctx.shadowColor = '#a855f7';
+                ctx.beginPath(); ctx.moveTo(this.x, this.y); ctx.lineTo(ex, ey); ctx.stroke();
+                // Laser damage
+                if (player.invulnerable <= 0) {
+                    const ldx = ex-this.x, ldy = ey-this.y, lt = Math.max(0,Math.min(1,((player.x-this.x)*ldx+(player.y-this.y)*ldy)/(ldx*ldx+ldy*ldy)));
+                    const closestX = this.x+lt*ldx, closestY = this.y+lt*ldy;
+                    if(Math.hypot(player.x-closestX,player.y-closestY) < player.radius+6) {
+                        let ldmg = applyPassiveIncomingDamage(this.phase===3?9:5);
+                        player.health -= ldmg * (1/60); updateHUD();
+                        if(player.health<=0) endGame();
+                    }
+                }
+            }
+            ctx.restore();
+        }
+
+        // Health bar
+        const barW = 90, barH = 8;
+        ctx.save();
+        ctx.fillStyle='rgba(0,0,0,0.6)'; ctx.fillRect(this.x-barW/2, this.y-this.radius-20, barW, barH);
+        const hpColor = this.hpPct > 0.65 ? '#a855f7' : this.hpPct > 0.3 ? '#fbbf24' : '#ef4444';
+        ctx.fillStyle=hpColor; ctx.fillRect(this.x-barW/2, this.y-this.radius-20, barW*this.hpPct, barH);
+        ctx.fillStyle='#e9d5ff'; ctx.font='bold 9px Arial'; ctx.textAlign='center';
+        ctx.fillText(`⬡ HEXAGON [Phase ${this.phase}]`, this.x, this.y-this.radius-24);
+        ctx.restore();
+    }
+}
+
+function spawnHexagon() {
+    if (currentHexagon) return;
+    playSound(90, 0.2, 'sine'); playSound(140, 0.15, 'sine'); playSound(60, 0.12, 'sawtooth');
+    bossSpawned = true;
+    const fightNum = currentRound === 250 ? 1 : 2;
+    const hpMult = fightNum === 2 ? 1.6 : 1;
+    currentHexagon = new Hexagon(canvas.width/2, canvas.height/2);
+    currentHexagon.health = Math.round(25000 * hpMult);
+    currentHexagon.maxHealth = currentHexagon.health;
+    hexagonBullets = [];
+    teleportPlayerToSafety();
+    document.getElementById('bossHealthBar').querySelector('div').textContent = '⬡ THE HEXAGON';
+    floatMoneyText(`⬡ THE HEXAGON AWAKENS! Fight ${fightNum}/2!`);
+    for(let i=0;i<200;i++) particles.push(new Particle(canvas.width/2+(Math.random()-0.5)*150, canvas.height/2+(Math.random()-0.5)*150, i%2===0?'#7c3aed':'#c084fc'));
+}
+
+// ===========================
+// ⬠ PENTAGON BOSS
+// ===========================
+class Pentagon {
+    constructor(x,y){ this.x=x; this.y=y; this.health=20000; this.maxHealth=20000; this.radius=38; this.rotation=0; this.alive=true; this.attackTimer=0; this.starTimer=0; this.minionTimer=0; this.dashCd=0; this.phase=1; this._rot=0; }
+    get hpPct(){ return this.health/this.maxHealth; }
+    update(dt){
+        if(!this.alive) return;
+        this._rot += 0.022*dt*(this.hpPct<0.3?2.2:1);
+        this.rotation=this._rot;
+        if(this.hpPct<0.25) this.phase=3;
+        else if(this.hpPct<0.6) this.phase=2;
+        else this.phase=1;
+        const dx=player.x-this.x, dy=player.y-this.y, d=Math.hypot(dx,dy);
+        if(d>this.radius+90){ this.x+=(dx/d)*1.4*dt; this.y+=(dy/d)*1.4*dt; }
+        this.attackTimer+=dt;
+        const iv=this.phase===3?50:this.phase===2?75:105;
+        if(this.attackTimer>=iv){ this.attackTimer=0; this._fireVertex(); }
+        if(this.phase>=2){ this.starTimer+=dt; if(this.starTimer>=220){ this.starTimer=0; this._fireStar(); } }
+        if(this.phase===3){ this.minionTimer+=dt; if(this.minionTimer>=400){ this.minionTimer=0; this._spawnMinions(); } }
+        this.dashCd-=dt;
+        if(this.phase>=2&&this.dashCd<=0){ this.dashCd=300; this._dash(); }
+        if(Math.hypot(player.x-this.x,player.y-this.y)<this.radius+player.radius&&player.invulnerable<=0){ let dmg=applyPassiveIncomingDamage(18); player.health-=dmg; player.invulnerable=30; updateHUD(); if(player.health<=0) endGame(); }
+    }
+    _fireVertex(){
+        const n=this.phase===1?2:5;
+        const step=this.phase===1?2:1;
+        for(let i=0;i<5;i+=step){ if(n===2&&i%2!==0) continue;
+            const a=this._rot+(Math.PI*2/5)*i;
+            const vx=this.x+Math.cos(a)*this.radius, vy=this.y+Math.sin(a)*this.radius;
+            const aim=Math.atan2(player.y-vy,player.x-vx);
+            const spd=this.phase===3?5.2:3.8;
+            pentagonBullets.push({x:vx,y:vy,vx:Math.cos(aim)*spd,vy:Math.sin(aim)*spd,damage:this.phase===3?20:14,radius:7,alive:true});
+        }
+        for(let i=0;i<6;i++) particles.push(new Particle(this.x+(Math.random()-0.5)*50,this.y+(Math.random()-0.5)*50,'#06b6d4'));
+    }
+    _fireStar(){
+        const pts=10;
+        for(let i=0;i<pts;i++){
+            const a=(Math.PI*2/pts)*i;
+            pentagonBullets.push({x:this.x,y:this.y,vx:Math.cos(a)*4.5,vy:Math.sin(a)*4.5,damage:12,radius:6,alive:true,isStar:true});
+        }
+        playSound(440,0.04,'sine');
+    }
+    _spawnMinions(){
+        for(let i=0;i<2;i++){
+            const a=Math.random()*Math.PI*2;
+            const mn=new Enemy(this.x+Math.cos(a)*80,this.y+Math.sin(a)*80,'normal');
+            const ms=getEnemyStats('normal');
+            mn.health=ms.health*0.7; mn.maxHealth=mn.health; mn.speed=ms.speed*1.3; mn.damage=ms.damage; mn.color='#06b6d4';
+            enemies.push(mn);
+        }
+        for(let i=0;i<12;i++) particles.push(new Particle(this.x+(Math.random()-0.5)*60,this.y+(Math.random()-0.5)*60,'#06b6d4'));
+    }
+    _dash(){
+        const a=Math.atan2(player.y-this.y,player.x-this.x);
+        this.x+=Math.cos(a)*55; this.y+=Math.sin(a)*55;
+        for(let i=0;i<15;i++) particles.push(new Particle(this.x,this.y,'#67e8f9'));
+        if(Math.hypot(player.x-this.x,player.y-this.y)<this.radius+player.radius+25&&player.invulnerable<=0){ let dmg=applyPassiveIncomingDamage(20); player.health-=dmg; player.invulnerable=40; updateHUD(); if(player.health<=0) endGame(); }
+    }
+    draw(){
+        ctx.save(); ctx.translate(this.x,this.y); ctx.rotate(this.rotation);
+        if(this.phase>=2){ for(let r=1;r<=3;r++){ ctx.strokeStyle=`rgba(8,145,178,${0.06*r})`; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(0,0,this.radius+15*r,0,Math.PI*2); ctx.stroke(); } }
+        ctx.shadowBlur=_shadowsEnabled?36:0; ctx.shadowColor='#0891b2';
+        ctx.fillStyle='#083344';
+        ctx.beginPath();
+        for(let i=0;i<5;i++){ const a=(Math.PI*2/5)*i; i===0?ctx.moveTo(Math.cos(a)*this.radius,Math.sin(a)*this.radius):ctx.lineTo(Math.cos(a)*this.radius,Math.sin(a)*this.radius); }
+        ctx.closePath(); ctx.fill();
+        ctx.fillStyle='rgba(6,182,212,0.3)';
+        ctx.beginPath();
+        for(let i=0;i<5;i++){ const a=(Math.PI*2/5)*i, sr=this.radius*0.5; i===0?ctx.moveTo(Math.cos(a)*sr,Math.sin(a)*sr):ctx.lineTo(Math.cos(a)*sr,Math.sin(a)*sr); }
+        ctx.closePath(); ctx.fill();
+        ctx.fillStyle='#22d3ee';
+        for(let i=0;i<5;i++){ const a=(Math.PI*2/5)*i; ctx.beginPath(); ctx.arc(Math.cos(a)*this.radius,Math.sin(a)*this.radius,3.5,0,Math.PI*2); ctx.fill(); }
+        ctx.restore();
+        const barW=80, hpC=this.hpPct>0.6?'#06b6d4':this.hpPct>0.25?'#fbbf24':'#ef4444';
+        ctx.save(); ctx.fillStyle='rgba(0,0,0,0.6)'; ctx.fillRect(this.x-barW/2,this.y-this.radius-20,barW,8);
+        ctx.fillStyle=hpC; ctx.fillRect(this.x-barW/2,this.y-this.radius-20,barW*this.hpPct,8);
+        ctx.font='bold 9px Arial'; ctx.textAlign='center'; ctx.fillStyle='#a5f3fc';
+        ctx.fillText(`⬠ PENTAGON [Phase ${this.phase}]`,this.x,this.y-this.radius-24); ctx.restore();
+    }
+}
+function spawnPentagon(hpOverride){
+    if(currentPentagon) return;
+    playSound(110,0.18,'sine'); playSound(160,0.13,'sine');
+    bossSpawned=true;
+    const fightNum=currentRound===175?1:2;
+    const hpMult=hpOverride||(fightNum===2?1.5:1);
+    currentPentagon=new Pentagon(canvas.width/2,canvas.height/2);
+    currentPentagon.health=Math.round(20000*hpMult);
+    currentPentagon.maxHealth=currentPentagon.health;
+    pentagonBullets=[];
+    teleportPlayerToSafety();
+    document.getElementById('bossHealthBar').querySelector('div').textContent='⬠ THE PENTAGON';
+    floatMoneyText(`⬠ THE PENTAGON RISES! Fight ${fightNum}/2!`);
+    for(let i=0;i<160;i++) particles.push(new Particle(canvas.width/2+(Math.random()-0.5)*130,canvas.height/2+(Math.random()-0.5)*130,i%2===0?'#0891b2':'#22d3ee'));
+}
+
+// ===========================
+// 🔷 OCTAGON BOSS
+// ===========================
+class Octagon {
+    constructor(x,y){ this.x=x; this.y=y; this.health=40000; this.maxHealth=40000; this.radius=48; this.rotation=0; this.alive=true; this.attackTimer=0; this.laserAngle=0; this.reflectTimer=0; this.dashCd=0; this.frenzyTimer=0; this.phase=1; this._rot=0; }
+    get hpPct(){ return this.health/this.maxHealth; }
+    update(dt){
+        if(!this.alive) return;
+        this._rot+=0.014*dt*(this.hpPct<0.15?3:1);
+        this.rotation=this._rot;
+        if(this.hpPct<0.15) this.phase=4;
+        else if(this.hpPct<0.4) this.phase=3;
+        else if(this.hpPct<0.7) this.phase=2;
+        else this.phase=1;
+        const dx=player.x-this.x, dy=player.y-this.y, d=Math.hypot(dx,dy);
+        if(d>this.radius+100){ this.x+=(dx/d)*(this.phase===4?2.2:1.1)*dt; this.y+=(dy/d)*(this.phase===4?2.2:1.1)*dt; }
+        this.attackTimer+=dt;
+        const iv=this.phase===4?35:this.phase===3?55:this.phase===2?75:110;
+        if(this.attackTimer>=iv){ this.attackTimer=0; this._fireVertex(); }
+        if(this.phase>=2){ this.laserAngle+=0.02*dt*(this.phase>=3?1.8:1); }
+        if(this.phase>=3){ this.reflectTimer+=dt; if(this.reflectTimer>=180){ this.reflectTimer=0; this._reflectBurst(); } }
+        if(this.phase===4){ this.frenzyTimer+=dt; if(this.frenzyTimer>=20){ this.frenzyTimer=0; this._frenzyShot(); } }
+        this.dashCd-=dt;
+        if(this.phase>=2&&this.dashCd<=0){ this.dashCd=250; const a=Math.atan2(player.y-this.y,player.x-this.x); this.x+=Math.cos(a)*65; this.y+=Math.sin(a)*65; for(let i=0;i<18;i++) particles.push(new Particle(this.x,this.y,'#fbbf24')); if(Math.hypot(player.x-this.x,player.y-this.y)<this.radius+player.radius+25&&player.invulnerable<=0){ let dmg=applyPassiveIncomingDamage(25); player.health-=dmg; player.invulnerable=40; updateHUD(); if(player.health<=0) endGame(); } }
+        if(Math.hypot(player.x-this.x,player.y-this.y)<this.radius+player.radius&&player.invulnerable<=0){ let dmg=applyPassiveIncomingDamage(22); player.health-=dmg; player.invulnerable=30; updateHUD(); if(player.health<=0) endGame(); }
+    }
+    _fireVertex(){
+        const step=this.phase<=2?2:1;
+        for(let i=0;i<8;i+=step){
+            const a=this._rot+(Math.PI*2/8)*i;
+            const vx=this.x+Math.cos(a)*this.radius, vy=this.y+Math.sin(a)*this.radius;
+            const aim=Math.atan2(player.y-vy,player.x-vx)+(Math.random()-0.5)*(this.phase===4?0.4:0.1);
+            const spd=this.phase===4?6.5:this.phase===3?5.5:4;
+            octagonBullets.push({x:vx,y:vy,vx:Math.cos(aim)*spd,vy:Math.sin(aim)*spd,damage:this.phase===4?28:this.phase===3?22:16,radius:8,alive:true});
+        }
+        for(let i=0;i<8;i++) particles.push(new Particle(this.x+(Math.random()-0.5)*60,this.y+(Math.random()-0.5)*60,'#d97706'));
+    }
+    _reflectBurst(){
+        // Fires cluster of shots in all 8 directions simultaneously
+        for(let i=0;i<8;i++){
+            const a=(Math.PI*2/8)*i;
+            octagonBullets.push({x:this.x,y:this.y,vx:Math.cos(a)*5,vy:Math.sin(a)*5,damage:18,radius:7,alive:true,isGold:true});
+        }
+        for(let i=0;i<20;i++) particles.push(new Particle(this.x+(Math.random()-0.5)*40,this.y+(Math.random()-0.5)*40,'#fbbf24'));
+        playSound(350,0.05,'sawtooth');
+    }
+    _frenzyShot(){
+        const a=Math.atan2(player.y-this.y,player.x-this.x)+(Math.random()-0.5)*0.5;
+        octagonBullets.push({x:this.x,y:this.y,vx:Math.cos(a)*7.5,vy:Math.sin(a)*7.5,damage:30,radius:7,alive:true,isFrenzy:true});
+    }
+    _drawLasers(){
+        if(this.phase<2) return;
+        ctx.save();
+        const arms=this.phase>=3?4:2;
+        for(let arm=0;arm<arms;arm++){
+            const la=this.laserAngle+(Math.PI*2/arms)*arm;
+            const ex=this.x+Math.cos(la)*600, ey=this.y+Math.sin(la)*600;
+            ctx.strokeStyle=`rgba(251,191,36,${this.phase===4?0.85:0.5})`; ctx.lineWidth=this.phase===4?5:2.5;
+            ctx.shadowBlur=_shadowsEnabled?18:0; ctx.shadowColor='#fbbf24';
+            ctx.beginPath(); ctx.moveTo(this.x,this.y); ctx.lineTo(ex,ey); ctx.stroke();
+            if(player.invulnerable<=0){
+                const ldx=ex-this.x,ldy=ey-this.y,lt=Math.max(0,Math.min(1,((player.x-this.x)*ldx+(player.y-this.y)*ldy)/(ldx*ldx+ldy*ldy)));
+                const cx2=this.x+lt*ldx, cy2=this.y+lt*ldy;
+                if(Math.hypot(player.x-cx2,player.y-cy2)<player.radius+8){ let dmg=applyPassiveIncomingDamage(this.phase===4?12:7); player.health-=dmg*(1/60); updateHUD(); if(player.health<=0) endGame(); }
+            }
+        }
+        ctx.restore();
+    }
+    draw(){
+        this._drawLasers();
+        ctx.save(); ctx.translate(this.x,this.y); ctx.rotate(this.rotation);
+        if(this.phase>=2){ for(let r=1;r<=3;r++){ ctx.save(); ctx.rotate(this._rot*r*0.3); ctx.strokeStyle=`rgba(217,119,6,${0.07*r})`; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(0,0,this.radius+18*r,0,Math.PI*2); ctx.stroke(); ctx.restore(); } }
+        ctx.shadowBlur=_shadowsEnabled?40:0; ctx.shadowColor=this.phase===4?'#f97316':'#d97706';
+        ctx.fillStyle=this.phase===4?'#431407':'#292524';
+        ctx.beginPath();
+        for(let i=0;i<8;i++){ const a=(Math.PI*2/8)*i; i===0?ctx.moveTo(Math.cos(a)*this.radius,Math.sin(a)*this.radius):ctx.lineTo(Math.cos(a)*this.radius,Math.sin(a)*this.radius); }
+        ctx.closePath(); ctx.fill();
+        ctx.fillStyle=`rgba(${this.phase===4?'249,115,22':'217,119,6'},0.35)`;
+        ctx.beginPath();
+        for(let i=0;i<8;i++){ const a=(Math.PI*2/8)*i, sr=this.radius*0.52; i===0?ctx.moveTo(Math.cos(a)*sr,Math.sin(a)*sr):ctx.lineTo(Math.cos(a)*sr,Math.sin(a)*sr); }
+        ctx.closePath(); ctx.fill();
+        ctx.fillStyle=this.phase===4?'#fb923c':'#fbbf24';
+        for(let i=0;i<8;i++){ const a=(Math.PI*2/8)*i; ctx.beginPath(); ctx.arc(Math.cos(a)*this.radius,Math.sin(a)*this.radius,4.5,0,Math.PI*2); ctx.fill(); }
+        ctx.restore();
+        const barW=90, hpC=this.hpPct>0.7?'#d97706':this.hpPct>0.4?'#fbbf24':this.hpPct>0.15?'#f97316':'#ef4444';
+        ctx.save(); ctx.fillStyle='rgba(0,0,0,0.6)'; ctx.fillRect(this.x-barW/2,this.y-this.radius-22,barW,8);
+        ctx.fillStyle=hpC; ctx.fillRect(this.x-barW/2,this.y-this.radius-22,barW*this.hpPct,8);
+        ctx.font='bold 9px Arial'; ctx.textAlign='center'; ctx.fillStyle='#fde68a';
+        ctx.fillText(`🔷 OCTAGON [Phase ${this.phase}]`,this.x,this.y-this.radius-26); ctx.restore();
+    }
+}
+function spawnOctagon(hpOverride){
+    if(currentOctagon) return;
+    playSound(70,0.25,'sawtooth'); playSound(110,0.18,'sine'); playSound(50,0.15,'square');
+    bossSpawned=true;
+    const fightNum=currentRound===350?1:2;
+    const hpMult=hpOverride||(fightNum===2?1.7:1);
+    currentOctagon=new Octagon(canvas.width/2,canvas.height/2);
+    currentOctagon.health=Math.round(40000*hpMult);
+    currentOctagon.maxHealth=currentOctagon.health;
+    octagonBullets=[];
+    teleportPlayerToSafety();
+    document.getElementById('bossHealthBar').querySelector('div').textContent='🔷 THE OCTAGON';
+    floatMoneyText(`🔷 THE OCTAGON DESCENDS! Fight ${fightNum}/2!`);
+    for(let i=0;i<250;i++) particles.push(new Particle(canvas.width/2+(Math.random()-0.5)*170,canvas.height/2+(Math.random()-0.5)*170,i%2===0?'#d97706':'#fbbf24'));
 }
 
 function shootProjectile(){
@@ -9277,6 +10065,40 @@ function specialAttack(){
             playSound(80,0.15,'sawtooth'); playSound(160,0.1,'sine');
             break;
         }
+        case 'deadly_sentencing': {
+            if(higuruma_domainActive) { floatMoneyText('⚖️ Domain already active!'); return; }
+            if(player.mana < player.maxMana * 0.99) { floatMoneyText('❌ Deadly Sentencing needs 100% Cursed Energy!'); return; }
+            player.mana = 0; updateHUD();
+            higuruma_domainActive = true;
+            higuruma_domainTimer  = 480; // 8s
+            // Issue verdicts to ALL alive enemies immediately
+            let trialCount = 0;
+            enemies.forEach(e => { if(!e.alive) return; higuruma_issueVerdict(e); trialCount++; });
+            // Reduce evidence after use
+            higuruma_evidence = Math.max(0, higuruma_evidence - 3);
+            playSound(120, 0.3, 'sawtooth'); playSound(200, 0.2, 'sine'); playSound(80, 0.15, 'square');
+            floatMoneyText(`⚖️ DEADLY SENTENCING! ${trialCount} on trial!`);
+            for(let i=0;i<180;i++){ const a=Math.random()*Math.PI*2,r=Math.random()*200; const p=new Particle(player.x+Math.cos(a)*r,player.y+Math.sin(a)*r,i%3===0?'#fbbf24':i%3===1?'#374151':'#ef4444'); p.vx=Math.cos(a)*2; p.vy=Math.sin(a)*2; particles.push(p); }
+            break;
+        }
+        case 'nine_tails': {
+            if (narutoUltBar < 100) { floatMoneyText(`🦊 Nine-Tails: ${narutoUltBar}/100 kills needed!`); return; }
+            if (narutoUltActive) { floatMoneyText('🔥 Nine-Tails already active!'); return; }
+            narutoUltActive = true;
+            narutoUltTimer = 3600; // 60 seconds
+            narutoUltBar = 0;
+            player.speed *= 1.4;
+            player.damage *= 3;
+            narutoClones = []; // summon 3 battle clones
+            for(let ci=0;ci<3;ci++){
+                const ca=(Math.PI*2/3)*ci;
+                narutoClones.push({x:player.x+Math.cos(ca)*70,y:player.y+Math.sin(ca)*70,shootTimer:0,life:3600,isNineTailsClone:true});
+            }
+            playSound(60,0.3,'sawtooth'); playSound(100,0.2,'sine'); playSound(150,0.15,'square');
+            for(let r=20;r<200;r+=22) for(let a=0;a<Math.PI*2;a+=0.25) particles.push(new Particle(player.x+Math.cos(a)*r,player.y+Math.sin(a)*r,r<80?'#ff3300':'#ff6600'));
+            floatMoneyText('🦊 NINE-TAILS CHAKRA MODE! 60s! 3x DMG!');
+            break;
+        }
         case 'mod_custom': {
             if (sk._isModChar && (sk._abilityFn || sk._abilityCode)) {
                 try {
@@ -9314,7 +10136,121 @@ function specialAttack(){
     updateHUD();
 } // close specialAttack
 
-// ===== LUFFY ABILITIES =====
+// ===== GOJO VOICE LINES =====
+const GOJO_AUDIO = {
+    red:    'https://res.cloudinary.com/dz1dungk5/video/upload/v1778394525/Dub_Satoru_Gojo_Cursed_Technique_Reversal_Red_Sound_Effect_ljdfiy.mp3',
+    purple: 'https://res.cloudinary.com/dz1dungk5/video/upload/v1778395092/1cec6144-99c7-4d5a-98a8-6076f06f2754_adpdsd.mp3',
+};
+function playGameAudio(key, volume=0.85) {
+    try { const a=new Audio(GOJO_AUDIO[key]); a.volume=volume; a.play().catch(()=>{}); return a; }
+    catch(e) { return null; }
+}
+
+// ===== HIGURUMA ABILITIES =====
+function higuruma_gavelStrike() {
+    if(higuruma_gavelCd > 0) { floatMoneyText(`⏳ Gavel: ${(higuruma_gavelCd/60).toFixed(1)}s`); return; }
+    higuruma_gavelCd = 480; // 8s
+    const angle = Math.atan2(mousePos.y - player.y, mousePos.x - player.x);
+    const coneHalf = Math.PI / 4; // 90° cone
+    const range = 120;
+    let hit = 0;
+    enemies.forEach(e => {
+        if(!e.alive) return;
+        const dx = e.x - player.x, dy = e.y - player.y;
+        const d = Math.hypot(dx, dy);
+        if(d > range) return;
+        const ea = Math.atan2(dy, dx);
+        let diff = Math.abs(ea - angle); if(diff > Math.PI) diff = Math.PI*2 - diff;
+        if(diff > coneHalf) return;
+        const dmg = applyPassiveDamageBoost(player.damage * 4.5);
+        if(!damageEnemy(e, dmg, player.x, player.y)) return;
+        e.frozen = Math.max(e.frozen||0, 120); // 2s stun
+        if(e.health <= 0 && e.alive){ e.alive=false; player.kills++; gainExp(e.expValue); handleKill(e); }
+        for(let i=0;i<14;i++) particles.push(new Particle(e.x,e.y,i%2===0?'#fbbf24':'#d1d5db'));
+        hit++;
+    });
+    // Gavel sweep particles
+    for(let a = angle-coneHalf; a <= angle+coneHalf; a+=0.12) {
+        for(let r=20;r<=range;r+=22) {
+            const p = new Particle(player.x+Math.cos(a)*r, player.y+Math.sin(a)*r, '#fbbf24');
+            p.vx = Math.cos(a)*3; p.vy = Math.sin(a)*3; particles.push(p);
+        }
+    }
+    floatMoneyText(`🔨 GAVEL STRIKE! ${hit} stunned!`);
+    playSound(180, 0.2, 'sawtooth'); playSound(100, 0.15, 'square');
+}
+
+function higuruma_summonJudgeman() {
+    if(higuruma_judgemanCd > 0) { floatMoneyText(`⏳ Judgeman: ${(higuruma_judgemanCd/60).toFixed(1)}s`); return; }
+    higuruma_judgemanCd = 1200; // 20s
+    higuruma_judgemanActive = true;
+    higuruma_judgemanTimer = 900; // 15s
+    higuruma_judgemanAngle = 0;
+    higuruma_judgemanShot = 0;
+    floatMoneyText('⚖️ JUDGEMAN SUMMONED! 15s');
+    for(let i=0;i<40;i++) particles.push(new Particle(player.x+(Math.random()-0.5)*50,player.y+(Math.random()-0.5)*50,i%2===0?'#fbbf24':'#6b7280'));
+    playSound(300, 0.12, 'sine'); playSound(450, 0.08, 'sine');
+}
+
+function higuruma_issueVerdict(e) {
+    // Probability of death penalty scales with evidence
+    const deathPct = 0.15 + higuruma_evidence * 0.14; // 15%-85%
+    const roll = Math.random();
+    if(roll < deathPct) {
+        // DEATH PENALTY
+        const dmg = applyPassiveDamageBoost(player.damage * 20);
+        damageEnemy(e, dmg, e.x, e.y);
+        if(e.health <= 0 && e.alive){ e.alive=false; player.kills++; gainExp(e.expValue); handleKill(e); }
+        higuruma_verdicts.push({ text:'DEATH PENALTY', x:e.x, y:e.y-20, timer:120, color:'#ef4444' });
+        for(let i=0;i<20;i++) particles.push(new Particle(e.x+(Math.random()-0.5)*30,e.y+(Math.random()-0.5)*30,'#ef4444'));
+    } else if(roll < deathPct + 0.5) {
+        // CONFISCATION - lose cursed energy → frozen/slowed
+        e.frozen = Math.max(e.frozen||0, 300); // 5s
+        const dmg = applyPassiveDamageBoost(player.damage * 3);
+        damageEnemy(e, dmg, e.x, e.y);
+        higuruma_verdicts.push({ text:'CONFISCATION', x:e.x, y:e.y-20, timer:120, color:'#fbbf24' });
+        for(let i=0;i<12;i++) particles.push(new Particle(e.x+(Math.random()-0.5)*20,e.y+(Math.random()-0.5)*20,'#fbbf24'));
+    } else {
+        // NOT GUILTY
+        higuruma_verdicts.push({ text:'NOT GUILTY', x:e.x, y:e.y-20, timer:100, color:'#6b7280' });
+    }
+}
+
+// ===== NARUTO ABILITIES =====
+function narutoZAbility() {
+    // Z: Rasengan — large spiraling ball, medium-range, high single-target damage
+    if(narutoZCd > 0) { floatMoneyText('⏳ Rasengan: '+(narutoZCd/60).toFixed(1)+'s'); return; }
+    const angle = Math.atan2(mousePos.y-player.y, mousePos.x-player.x);
+    const dmgMult = narutoUltActive ? 3 : 1;
+    const dmg = applyPassiveDamageBoost(player.damage * 3.5 * dmgMult);
+    const p = new Projectile(player.x, player.y, angle, dmg, '#38bdf8', true);
+    p.radius = 18; p.speed = 10;
+    p.vx = Math.cos(angle)*p.speed; p.vy = Math.sin(angle)*p.speed;
+    p.isRasengan = true;
+    projectiles.push(p);
+    for(let i=0;i<40;i++) particles.push(new Particle(player.x,player.y,i%2===0?'#38bdf8':'#ffffff'));
+    floatMoneyText('💨 RASENGAN! '+ Math.round(dmg)+' dmg!');
+    playSound(400,0.1,'sine'); playSound(600,0.08,'sine');
+    narutoZCd = 600; // 10s
+}
+
+function narutoXAbility() {
+    // X: Rasenshuriken — spinning AoE shuriken, slows all hit enemies
+    if(narutoXCd > 0) { floatMoneyText('⏳ Rasenshuriken: '+(narutoXCd/60).toFixed(1)+'s'); return; }
+    const angle = Math.atan2(mousePos.y-player.y, mousePos.x-player.x);
+    const dmgMult = narutoUltActive ? 3 : 1;
+    const dmg = applyPassiveDamageBoost(player.damage * 5.5 * dmgMult);
+    const p = new Projectile(player.x, player.y, angle, dmg, '#facc15', true);
+    p.radius = 22; p.speed = 8;
+    p.vx = Math.cos(angle)*p.speed; p.vy = Math.sin(angle)*p.speed;
+    p.isRasenshuriken = true;
+    p.hitEnemies = new Set();
+    projectiles.push(p);
+    for(let r=10;r<80;r+=18) for(let a=0;a<Math.PI*2;a+=0.4) particles.push(new Particle(player.x+Math.cos(a)*r,player.y+Math.sin(a)*r,'#facc15'));
+    floatMoneyText('🌪️ RASENSHURIKEN! '+Math.round(dmg)+' + slow!');
+    playSound(200,0.12,'sawtooth'); playSound(350,0.1,'sine');
+    narutoXCd = 900; // 15s
+}
 function luffyKnockback(e, mult, sourceX, sourceY) {
     const ang = Math.atan2(e.y - sourceY, e.x - sourceX);
     const dist = 80 * mult;
@@ -9580,6 +10516,28 @@ function handleKill(e) {
         if (glassCannAdrenaline % 50 === 0) floatMoneyText(`💥 ADRENALINE x${glassCannAdrenaline}!`);
     }
 
+    if (currentCharacter === 'higuruma') {
+        if (higuruma_evidence < 5) {
+            higuruma_evidence++;
+            if (higuruma_evidence === 5) floatMoneyText('⚖️ Full Evidence! Domain Ready!');
+        }
+    }
+
+    // Naruto: ultimate bar +1 per kill
+    if (currentCharacter === 'naruto' && !narutoUltActive) {
+        narutoUltBar = Math.min(100, narutoUltBar + 1);
+        narutoCloneKillCount++;
+        if (narutoCloneKillCount >= 30 && narutoClones.length < 3) {
+            narutoCloneKillCount = 0;
+            const angle = Math.random() * Math.PI * 2;
+            narutoClones.push({ x: player.x + Math.cos(angle)*55, y: player.y + Math.sin(angle)*55, shootTimer: 0, life: 600 });
+            floatMoneyText('🥷 Shadow Clone appeared!');
+            for(let i=0;i<20;i++) particles.push(new Particle(player.x+(Math.random()-0.5)*40,player.y+(Math.random()-0.5)*40,'#ff9900'));
+        }
+        if (narutoUltBar >= 100) floatMoneyText('🔥 NINE-TAILS READY! Press R!');
+        updateHUD();
+    }
+
     if (bountyActive && currentBountyEnemy && e === currentBountyEnemy) {
         earnMoney(bountyGold, `BOUNTY: ${bountyLabel}!`);
         earnRunGold(bountyGold);
@@ -9710,9 +10668,40 @@ let gojoVoidTimer = 0;
 let gojoVoidCooldown = 0;
 let gojoInfinityFlash = 0;
 
-let tst_blueCooldown = 0;
+// ===== HIGURUMA STATE =====
+let higuruma_evidence     = 0;     // 0–5, passive stacks per kill
+let higuruma_gavelCd      = 0;
+let higuruma_judgemanCd   = 0;
+let higuruma_judgemanActive = false;
+let higuruma_judgemanTimer  = 0;
+let higuruma_judgemanAngle  = 0;
+let higuruma_judgemanShot   = 0;
+let higuruma_domainActive   = false;
+let higuruma_domainTimer    = 0;   // 480 ticks = 8s
+let higuruma_domainBullets  = [];
+let higuruma_verdicts       = [];  // [{enemy, verdict, flashTimer}]
+
+// ===== BOSS RUSH STATE =====
+let bossRushMode      = false;
+let bossRushBossIndex = 0;   // 0=Triangle,1=Rhomboid,2=Pentagon,3=Hexagon,4=Octagon
+let bossRushRestTimer = 0;   // ticks countdown between bosses
+let bossRushScore     = 0;
+let bossRushBossTimers = [];  // ms spent on each boss
+let bossRushBossStart = 0;
+
+let currentPentagon   = null;
+let pentagonBullets   = [];
+let currentOctagon    = null;
+let octagonBullets    = [];
 let tst_redCooldown = 0;
 let tst_purpleCooldown = 0;
+
+// Hollow Purple animation state
+let gojoHollowAnimating = false;
+let gojoHollowAnimTimer  = 0;   // ticks 0→720 (12s)
+let gojoHollowAngle      = 0;   // direction to fire when done
+let gojoHollowRedPlayed  = false;
+let gojoHollowPurplePlayed = false;
 let tst_manaTickTimer = 0;
 const TST_BLUE_CD = 300;
 const TST_RED_CD = 300;
@@ -9872,70 +10861,82 @@ function tst_maximumRed() {
     player.mana -= ceCost;
     tst_redCooldown = TST_RED_CD;
     updateHUD();
-
-    const pushRange = 200;
-    const pushForce = 180;
-    let hitCount = 0;
-    enemies.forEach(e => {
-        const dx = e.x - player.x, dy = e.y - player.y;
-        const d = Math.hypot(dx, dy);
-        if(d > pushRange) return;
-        const dmg = Math.floor(player.damage * 0.25);
-        if(!damageEnemy(e, dmg, player.x, player.y)) return;
-        const pushDir = d > 0 ? 1 : 0;
-        if(pushDir > 0) { e.x += (dx/d)*pushForce; e.y += (dy/d)*pushForce; }
-        else { e.x += (Math.random()-0.5)*pushForce; e.y += (Math.random()-0.5)*pushForce; }
-        for(let i=0;i<8;i++) particles.push(new Particle(e.x, e.y, '#f87171'));
-        if(e.health <= 0 && e.alive) { e.alive=false; player.kills++; gainExp(e.expValue); handleKill(e); }
-        hitCount++;
-    });
-
-    if(sukunaBossActive && sukunaBoss && sukunaBoss.alive) {
-        const sdx=sukunaBoss.x-player.x, sdy=sukunaBoss.y-player.y;
-        const sd = Math.hypot(sdx, sdy);
-        if(sd <= pushRange) {
-            const sukunaDmg = Math.min(Math.floor(player.damage * 0.25), 50000 + Math.floor(Math.random()*50001));
-            sukunaBoss.health -= sukunaDmg;
-            if(sd>0){sukunaBoss.x+=(sdx/sd)*pushForce;sukunaBoss.y+=(sdy/sd)*pushForce;}
-            for(let i=0;i<30;i++) particles.push(new Particle(sukunaBoss.x, sukunaBoss.y, '#f87171'));
-            floatMoneyText(`❤️ RED BLAST: ${sukunaDmg.toLocaleString()} to SUKUNA!`);
-            if(sukunaBoss.health <= 0) {
-                sukunaBoss.alive=false; sukunaBossActive=false; sukunaDomainActive=false; sukunaShrineActive=false;
-                gojoRunGoldEarned=0;
-                floatMoneyText('⭐ SUKUNA DEFEATED GOLD SECURED!');
-                for(let i=0;i<300;i++) particles.push(new Particle(sukunaBoss.x+(Math.random()-0.5)*200, sukunaBoss.y+(Math.random()-0.5)*200,'#fbbf24'));
-                document.getElementById('bossHealthBar').style.display='none';
-                endGame(true);
+    floatMoneyText('❤️ MAXIMUM OUTPUT: RED...');
+    playSound(150, 0.25, 'sawtooth');
+    const audio = playGameAudio('red', 0.9);
+    const fireRed = () => {
+        if(!gameRunning) return;
+        const pushRange = 200, pushForce = 180;
+        let hitCount = 0;
+        enemies.forEach(e => {
+            const dx = e.x - player.x, dy = e.y - player.y, d = Math.hypot(dx, dy);
+            if(d > pushRange) return;
+            const dmg = Math.floor(player.damage * 0.25);
+            if(!damageEnemy(e, dmg, player.x, player.y)) return;
+            if(d > 0){ e.x += (dx/d)*pushForce; e.y += (dy/d)*pushForce; }
+            else { e.x += (Math.random()-0.5)*pushForce; e.y += (Math.random()-0.5)*pushForce; }
+            for(let i=0;i<8;i++) particles.push(new Particle(e.x, e.y, '#f87171'));
+            if(e.health <= 0 && e.alive){ e.alive=false; player.kills++; gainExp(e.expValue); handleKill(e); }
+            hitCount++;
+        });
+        if(sukunaBossActive && sukunaBoss && sukunaBoss.alive) {
+            const sdx=sukunaBoss.x-player.x, sdy=sukunaBoss.y-player.y, sd=Math.hypot(sdx,sdy);
+            if(sd <= pushRange) {
+                const sukunaDmg = Math.min(Math.floor(player.damage*0.25), 50000+Math.floor(Math.random()*50001));
+                sukunaBoss.health -= sukunaDmg;
+                if(sd>0){sukunaBoss.x+=(sdx/sd)*pushForce;sukunaBoss.y+=(sdy/sd)*pushForce;}
+                for(let i=0;i<30;i++) particles.push(new Particle(sukunaBoss.x,sukunaBoss.y,'#f87171'));
+                floatMoneyText(`❤️ RED BLAST: ${sukunaDmg.toLocaleString()} to SUKUNA!`);
+                if(sukunaBoss.health <= 0) {
+                    sukunaBoss.alive=false; sukunaBossActive=false; sukunaDomainActive=false; sukunaShrineActive=false;
+                    gojoRunGoldEarned=0;
+                    floatMoneyText('⭐ SUKUNA DEFEATED! GOLD SECURED!');
+                    for(let i=0;i<300;i++) particles.push(new Particle(sukunaBoss.x+(Math.random()-0.5)*200,sukunaBoss.y+(Math.random()-0.5)*200,'#fbbf24'));
+                    document.getElementById('bossHealthBar').style.display='none';
+                    endGame(true);
+                }
             }
         }
-    }
-    floatMoneyText(`❤️ MAXIMUM OUTPUT: RED Blast! (${hitCount} hit)`);
-    playSound(150, 0.4, 'sawtooth'); playSound(100, 0.2, 'square');
-    for(let i=0;i<60;i++) {const a=Math.random()*Math.PI*2;const p=new Particle(player.x,player.y,'#ef4444');p.vx=Math.cos(a)*8;p.vy=Math.sin(a)*8;particles.push(p);}
+        floatMoneyText(`❤️ RED BLAST! (${hitCount} hit)`);
+        playSound(150, 0.4, 'sawtooth'); playSound(100, 0.2, 'square');
+        for(let i=0;i<60;i++){const a=Math.random()*Math.PI*2;const p=new Particle(player.x,player.y,'#ef4444');p.vx=Math.cos(a)*8;p.vy=Math.sin(a)*8;particles.push(p);}
+    };
+    if(audio) { audio.onended = fireRed; }
+    else { setTimeout(fireRed, 1800); } // fallback if audio fails
 }
 
 function tst_hollowPurple() {
     if(!gameRunning) return;
+    if(gojoHollowAnimating) { floatMoneyText('🟣 Hollow Purple charging...'); return; }
     if(tst_purpleCooldown > 0) { floatMoneyText(`⏳ Hollow Purple: ${(tst_purpleCooldown/60).toFixed(1)}s`); return; }
     if(player.mana < player.maxMana * 0.99) { floatMoneyText('❌ Hollow Purple needs 100% Cursed Energy!'); return; }
     player.mana = 0;
     tst_purpleCooldown = TST_PURPLE_CD;
     updateHUD();
+    gojoHollowAnimating   = true;
+    gojoHollowAnimTimer   = 0;
+    gojoHollowAngle       = Math.atan2(mousePos.y - player.y, mousePos.x - player.x);
+    gojoHollowRedPlayed   = false;
+    gojoHollowPurplePlayed= false;
+    floatMoneyText('🔵 BLUE — charging...');
+    playGameAudio('purple', 1.0);
+    playSound(300, 0.25, 'sine'); playSound(180, 0.15, 'sine');
+}
 
-    const angle = Math.atan2(mousePos.y - player.y, mousePos.x - player.x);
+function _fireHollowPurpleProjectile() {
+    const angle = gojoHollowAngle;
     const dmg = player.damage;
-
     const purpleProj = new Projectile(player.x, player.y, angle, dmg, '#c084fc', true);
-    purpleProj.radius = 20;
-    purpleProj.speed = 4;
+    purpleProj.radius = 22;
+    purpleProj.speed  = 4;
     purpleProj.isHollowPurple = true;
     purpleProj.hitEnemies = new Set();
     projectiles.push(purpleProj);
     floatMoneyText('🟣 HOLLOW PURPLE!');
     playSound(80, 0.6, 'sawtooth'); playSound(120, 0.4, 'square'); playSound(200, 0.3, 'sine');
-    for(let i=0;i<100;i++) {
-        const a=Math.random()*Math.PI*2;
-        const p=new Particle(player.x+Math.cos(angle)*50+Math.cos(a)*20, player.y+Math.sin(angle)*50+Math.sin(a)*20,'#c084fc');
+    for(let i=0;i<120;i++) {
+        const a = Math.random()*Math.PI*2;
+        const p = new Particle(player.x+Math.cos(angle)*50+Math.cos(a)*25, player.y+Math.sin(angle)*50+Math.sin(a)*25,'#c084fc');
         p.vx=Math.cos(angle)*3+Math.cos(a)*2; p.vy=Math.sin(angle)*3+Math.sin(a)*2;
         particles.push(p);
     }
@@ -9997,13 +10998,13 @@ const LEVEL_UP_POOL = [
       apply: () => { player.maxHealth+=25; player.health=Math.min(player.health+25,player.maxHealth); passiveState.armor=Math.min(passiveState.armor+0.15,0.60); } },
     { id:'caster',   icon:'🔮',  label:'+30 Mana + +3 Damage',          rarity:'uncommon',
       canUse: sk => !sk.lockManaUpgrade,
-      apply: () => { player.maxMana+=30; player.mana=player.maxMana; if(!sk||!sk.isMachineGun)player.damage+=3; } },
+      apply: () => { const _sk=CHARACTERS[currentCharacter]; player.maxMana+=30; player.mana=player.maxMana; if(!_sk||!_sk.isMachineGun)player.damage+=3; } },
     { id:'bruiser',  icon:'💪',  label:'+8 Damage + +1 Speed',          rarity:'uncommon',
       canUse: sk => !sk.isMachineGun && !sk.lockDmgUpgrade,
       apply: () => { player.damage+=8; player.speed+=1; } },
     { id:'balanced', icon:'⚖️',  label:'+15 HP, +3 Dmg, +10 Mana',     rarity:'uncommon',
       canUse: sk => !sk.lockHpUpgrade,
-      apply: () => { player.maxHealth+=15; player.health=Math.min(player.health+15,player.maxHealth); if(!sk||!sk.isMachineGun)player.damage+=3; player.maxMana+=10; player.mana=Math.min(player.mana+10,player.maxMana); } },
+      apply: () => { const _sk=CHARACTERS[currentCharacter]; player.maxHealth+=15; player.health=Math.min(player.health+15,player.maxHealth); if(!_sk||!_sk.isMachineGun)player.damage+=3; player.maxMana+=10; player.mana=Math.min(player.mana+10,player.maxMana); } },
     { id:'glass',    icon:'💥',  label:'+20 Damage, -30 Max HP',         rarity:'uncommon',
       canUse: sk => !sk.isMachineGun && !sk.lockDmgUpgrade && player.maxHealth > 50,
       apply: () => { player.damage+=20; player.maxHealth=Math.max(30,player.maxHealth-30); player.health=Math.min(player.health,player.maxHealth); } },
@@ -11145,6 +12146,12 @@ function resetGame(){
         rougeSquareDungeonLockWalls = [];
     }
     phantomPhasing=false; phantomPhaseTimer=0;
+    gojoHollowAnimating=false; gojoHollowAnimTimer=0; gojoHollowRedPlayed=false; gojoHollowPurplePlayed=false;
+    higuruma_evidence=0; higuruma_gavelCd=0; higuruma_judgemanCd=0; higuruma_judgemanActive=false; higuruma_judgemanTimer=0; higuruma_judgemanAngle=0; higuruma_judgemanShot=0; higuruma_domainActive=false; higuruma_domainTimer=0; higuruma_domainBullets=[]; higuruma_verdicts=[];
+    if(currentCharacter==='higuruma'){ player.maxHealth=120; player.health=120; player.speed=4.5; player.damage=28; }
+    // Naruto reset
+    narutoUltBar=0; narutoUltActive=false; narutoUltTimer=0; narutoClones=[]; narutoZCd=0; narutoXCd=0; narutoRasenCd=0; narutoCloneKillCount=0;
+    if(currentCharacter==='naruto'){ player.maxHealth=140;player.health=140;player.speed=5.5;player.damage=22; }
     druidShrooms=[]; druidRoots=[];
     pyroCharging=false; pyroChargeTimer=0;
     cyborgMode='rapid';
@@ -11152,6 +12159,13 @@ function resetGame(){
     lastNewCharShot=0;
     currentBoss=null; bossBullets=[]; miniTriangles=[]; bossSpawned=false; triangleEnemyUnlocked=false;
     triangleBossDefeats=0; currentRhomboid=null; rhomboidBullets=[]; rhomboidMinions=[]; rhomboidVortexActive=false;
+    currentHexagon=null; hexagonBullets=[];
+    // Pentagon
+    currentPentagon=null; pentagonBullets=[];
+    // Octagon
+    currentOctagon=null; octagonBullets=[];
+    // Boss Rush reset
+    if(!bossRushMode){ bossRushBossIndex=0; bossRushRestTimer=0; bossRushScore=0; bossRushBossTimers=[]; }
     passiveState={lifesteal:0,thorns:0,regen:0,manaflow:0,armor:0,magnet:0,explosive:0,crit:0,multishot:0,ghostly:0,goldmag:0,overclock:0,trishot:0,homingshot:0,novaleak:0,aimassist:0,novaHitCount:0,berserkerActive:false,berserkerTimer:0,timeslowActive:false,timeslowTimer:0,regenTimer:0,trishotTimer:0,homingTimer:0,blackholeActive:false,blackholeTimer:0};
     player._theEnemySlowMult = 1;
     const darkReset = document.getElementById('theEnemyDarkness'); if(darkReset) darkReset.style.opacity='0';
@@ -11572,6 +12586,77 @@ function drawPlayer(ts, dt=1){
         ctx.strokeStyle=yujiIsSukuna?`hsl(${h},100%,70%)`:'rgba(232,77,77,0.35)';ctx.lineWidth=2;
         ctx.setLineDash([3,8]);ctx.beginPath();ctx.arc(0,0,player.radius+14,0,Math.PI*2);ctx.stroke();
         ctx.restore();
+        ctx.restore();
+        return;
+    }
+
+    if(currentCharacter === 'higuruma') {
+        ctx.save();
+        if(player.invulnerable>0&&Math.floor(ts/100)%2===0) ctx.globalAlpha=0.5;
+        // Pulse when domain active
+        const hPulse = higuruma_domainActive ? 0.4+0.3*Math.sin(ts*0.014) : 0;
+        const hColor = higuruma_domainActive ? '#fbbf24' : '#374151';
+        const hShadow = higuruma_domainActive ? '#d97706' : '#111827';
+        const hG = ctx.createRadialGradient(player.x-5,player.y-5,2,player.x,player.y,player.radius);
+        hG.addColorStop(0, higuruma_domainActive ? '#fde68a' : '#4b5563');
+        hG.addColorStop(0.5, hColor); hG.addColorStop(1, hShadow);
+        ctx.shadowBlur = _shadowsEnabled ? (higuruma_domainActive ? 35 : 18) : 0;
+        ctx.shadowColor = hShadow;
+        ctx.fillStyle = hG;
+        ctx.beginPath(); ctx.arc(player.x, player.y, player.radius, 0, Math.PI*2); ctx.fill();
+        // Gold ring (always)
+        ctx.strokeStyle = higuruma_domainActive ? `rgba(251,191,36,${0.85+hPulse})` : 'rgba(251,191,36,0.7)';
+        ctx.lineWidth = 2.5;
+        ctx.beginPath(); ctx.arc(player.x, player.y, player.radius+3, 0, Math.PI*2); ctx.stroke();
+        // Scales icon in center
+        ctx.font = '11px Arial'; ctx.textAlign = 'center'; ctx.shadowBlur = 0;
+        ctx.globalAlpha = (player.invulnerable>0&&Math.floor(ts/100)%2===0)?0.5:1;
+        ctx.fillText('⚖️', player.x, player.y+4);
+        // Evidence orbiting dots
+        for(let ep=0;ep<higuruma_evidence;ep++){
+            const ea=(Math.PI*2/5)*ep + ts*0.003;
+            const er=player.radius+11;
+            ctx.fillStyle='#fbbf24'; ctx.shadowBlur=_shadowsEnabled?10:0; ctx.shadowColor='#fbbf24'; ctx.globalAlpha=0.85;
+            ctx.beginPath(); ctx.arc(player.x+Math.cos(ea)*er, player.y+Math.sin(ea)*er, 3, 0, Math.PI*2); ctx.fill();
+        }
+        ctx.restore();
+        return;
+    }
+
+    if(currentCharacter === 'naruto') {
+        ctx.save();
+        if(player.invulnerable>0&&Math.floor(ts/100)%2===0) ctx.globalAlpha=0.5;
+        const ntPulse = narutoUltActive ? 0.4+0.3*Math.sin(ts*0.015) : 0;
+        const ntColor = narutoUltActive ? `hsl(${20+Math.sin(ts*0.01)*10},100%,50%)` : '#ff6600';
+        const ntShadow = narutoUltActive ? '#ff3300' : '#cc3300';
+        const ntGrad = ctx.createRadialGradient(player.x-5,player.y-5,2,player.x,player.y,player.radius);
+        ntGrad.addColorStop(0, narutoUltActive ? '#ffcc00' : '#ffaa44');
+        ntGrad.addColorStop(0.5, ntColor);
+        ntGrad.addColorStop(1, ntShadow);
+        ctx.shadowBlur = _shadowsEnabled ? (narutoUltActive ? 40 : 25) : 0; ctx.shadowColor=ntShadow;
+        ctx.beginPath(); ctx.arc(player.x,player.y,player.radius,0,Math.PI*2); ctx.fillStyle=ntGrad; ctx.fill();
+        // Whisker marks
+        ctx.save(); ctx.strokeStyle='rgba(0,0,0,0.55)'; ctx.lineWidth=1.5; ctx.setLineDash([]);
+        for(let side of [-1,1]) {
+            for(let row=0;row<3;row++) {
+                const wx=player.x+side*5, wy=player.y-4+row*4;
+                ctx.beginPath(); ctx.moveTo(wx,wy); ctx.lineTo(wx+side*10,wy); ctx.stroke();
+            }
+        }
+        ctx.restore();
+        // Nine-Tails cloak rings
+        if(narutoUltActive) {
+            ctx.save(); ctx.translate(player.x,player.y); ctx.rotate(ts*0.01);
+            ctx.strokeStyle=`rgba(255,80,0,${0.55+ntPulse})`; ctx.lineWidth=3+ntPulse*4; ctx.setLineDash([6,4]);
+            ctx.beginPath(); ctx.arc(0,0,player.radius+10,0,Math.PI*2); ctx.stroke(); ctx.restore();
+            ctx.save(); ctx.translate(player.x,player.y); ctx.rotate(-ts*0.008);
+            ctx.strokeStyle=`rgba(255,200,0,${0.3+ntPulse*0.5})`; ctx.lineWidth=2; ctx.setLineDash([3,7]);
+            ctx.beginPath(); ctx.arc(0,0,player.radius+18,0,Math.PI*2); ctx.stroke(); ctx.restore();
+        } else {
+            ctx.save(); ctx.translate(player.x,player.y); ctx.rotate(ts*0.004);
+            ctx.strokeStyle='rgba(255,153,0,0.45)'; ctx.lineWidth=2; ctx.setLineDash([4,5]);
+            ctx.beginPath(); ctx.arc(0,0,player.radius+8,0,Math.PI*2); ctx.stroke(); ctx.restore();
+        }
         ctx.restore();
         return;
     }
@@ -12091,7 +13176,7 @@ function gameLoop(ts){
     if (CHARACTERS[currentCharacter].isGojo && autoFireEnabled && !document.getElementById('levelUpNotice').classList.contains('show')) {
         const overclockMult = 1 - Math.min(passiveState.overclock * 0.25, 0.75);
         const gojoFireInterval = GOJO_PHASES[gojoPhase].fireRate * overclockMult;
-        if (ts - autoFireLastShot > gojoFireInterval) { shootProjectile(); autoFireLastShot = ts; }
+        if (ts - autoFireLastShot > gojoFireInterval) { if(!gojoHollowAnimating) shootProjectile(); autoFireLastShot = ts; }
     }
     if (!CHARACTERS[currentCharacter].isMachineGun && !CHARACTERS[currentCharacter].isGoldHoarder && !CHARACTERS[currentCharacter].isBoxer && !CHARACTERS[currentCharacter].isGojo && !CHARACTERS[currentCharacter].isTank && !CHARACTERS[currentCharacter].isLuffy && autoFireEnabled &&
         !document.getElementById('levelUpNotice').classList.contains('show')) {
@@ -12100,7 +13185,7 @@ function gameLoop(ts){
 
             const srMult = currentCharacter==='speedrunner' ? Math.max(0.3, 1 - Math.hypot(speedrunnerVelX,speedrunnerVelY)*0.04) : 1;
             const fireInterval = 250 * overclockMult * srMult;
-            if (ts - autoFireLastShot > fireInterval) { shootProjectile(); autoFireLastShot = ts; }
+            if (ts - autoFireLastShot > fireInterval) { if(!gojoHollowAnimating) shootProjectile(); autoFireLastShot = ts; }
         }
     }
 
@@ -12135,7 +13220,8 @@ function gameLoop(ts){
             player._gridMoveTimer = 0;
         }
     } else {
-        if(mx||my){const m=Math.sqrt(mx*mx+my*my);const bSpd=passiveState.berserkerActive?1.5:1;const ghSpd=CHARACTERS[currentCharacter].isGoldHoarder?GH_SPEED_MULT:1;const biomeSpd=1+biomeSpeedBonus;const teSlow=player._theEnemySlowMult!==undefined?player._theEnemySlowMult:1;const webSlow=playerWebSlowTimer>0?0.4:1;const momBonus=passiveState.momentum?(passiveState.momentumBonus||0):0;player.x+=(mx/m)*(player.speed+momBonus)*dt*bSpd*ghSpd*biomeSpd*teSlow*webSlow;player.y+=(my/m)*(player.speed+momBonus)*dt*bSpd*ghSpd*biomeSpd*teSlow*webSlow;}
+        if(mx||my){const m=Math.sqrt(mx*mx+my*my);const bSpd=passiveState.berserkerActive?1.5:1;const ghSpd=CHARACTERS[currentCharacter].isGoldHoarder?GH_SPEED_MULT:1;const biomeSpd=1+biomeSpeedBonus;const teSlow=player._theEnemySlowMult!==undefined?player._theEnemySlowMult:1;const webSlow=playerWebSlowTimer>0?0.4:1;const momBonus=passiveState.momentum?(passiveState.momentumBonus||0):0;
+        if(!gojoHollowAnimating){player.x+=(mx/m)*(player.speed+momBonus)*dt*bSpd*ghSpd*biomeSpd*teSlow*webSlow;player.y+=(my/m)*(player.speed+momBonus)*dt*bSpd*ghSpd*biomeSpd*teSlow*webSlow;}}
     }
     player.x=Math.max(player.radius,Math.min(canvas.width-player.radius,player.x));
     player.y=Math.max(player.radius,Math.min(canvas.height-player.radius,player.y));
@@ -12180,7 +13266,144 @@ function gameLoop(ts){
     applyBiomeEffects(dt);
     tickGoldFormEnemies(dt);
     tickNewCharacters(ts, dt);
-    turrets=turrets.filter(t=>{if(!t.infinite && t.life<=0)return false;t.update(dt);t.draw();return true;});
+
+    // ===== HOLLOW PURPLE ANIMATION =====
+    if (gojoHollowAnimating) {
+        gojoHollowAnimTimer += dt;
+        const T  = gojoHollowAnimTimer;
+        const TOTAL = 720; // 12s
+        const t  = Math.min(T / TOTAL, 1); // 0→1
+
+        // --- live aim: update angle to follow mouse during animation ---
+        gojoHollowAngle = Math.atan2(mousePos.y - player.y, mousePos.x - player.x);
+
+        // --- calculate orb positions ---
+        // Blue: left-back of aim direction, orbits inward during convergence
+        // Red: right-back, same deal
+        const backAngle = gojoHollowAngle + Math.PI; // opposite to aim
+        const converge  = t >= 0.75 ? (t - 0.75) / 0.25 : 0; // 0→1 in last 3s
+        const orbitR    = 65 * (1 - converge * 0.95);  // shrinks to ~3px at end
+        const spin      = T * 0.035;                    // slow orbit spin
+
+        const blueAlpha = Math.min(1, T / 40);          // fade in first ~0.67s
+        const redAlpha  = Math.min(1, Math.max(0, (T - 80) / 40)); // fades in ~1.3s
+
+        const blueAngle = backAngle - 0.55 + spin;
+        const redAngle  = backAngle + 0.55 - spin;
+
+        const bx = player.x + Math.cos(blueAngle) * orbitR;
+        const by = player.y + Math.sin(blueAngle) * orbitR;
+        const rx = player.x + Math.cos(redAngle)  * orbitR;
+        const ry = player.y + Math.sin(redAngle)  * orbitR;
+
+        const orbSize = 10 + 6 * Math.sin(T * 0.06) + converge * 8; // pulsing + grows on converge
+
+        // draw convergence purple glow at player when merging
+        if (converge > 0) {
+            ctx.save();
+            ctx.globalAlpha = converge * 0.7;
+            const cg = ctx.createRadialGradient(player.x,player.y,0,player.x,player.y,40+converge*30);
+            cg.addColorStop(0,'rgba(192,132,252,0.9)'); cg.addColorStop(1,'rgba(192,132,252,0)');
+            ctx.fillStyle = cg;
+            ctx.shadowBlur = _shadowsEnabled ? 40 : 0; ctx.shadowColor = '#c084fc';
+            ctx.beginPath(); ctx.arc(player.x,player.y,40+converge*30,0,Math.PI*2); ctx.fill();
+            ctx.restore();
+            // particle sparks during merge
+            if (Math.random() < 0.4) particles.push(new Particle(player.x+(Math.random()-0.5)*20,player.y+(Math.random()-0.5)*20,'#c084fc'));
+        }
+
+        // draw BLUE orb
+        ctx.save();
+        ctx.globalAlpha = blueAlpha;
+        ctx.shadowBlur = _shadowsEnabled ? 28 : 0; ctx.shadowColor = '#60a5fa';
+        const bg = ctx.createRadialGradient(bx-orbSize*0.3,by-orbSize*0.3,0,bx,by,orbSize);
+        bg.addColorStop(0,'#bfdbfe'); bg.addColorStop(0.5,'#3b82f6'); bg.addColorStop(1,'#1e3a8a');
+        ctx.fillStyle = bg;
+        ctx.beginPath(); ctx.arc(bx,by,orbSize,0,Math.PI*2); ctx.fill();
+        // outer ring
+        ctx.strokeStyle='rgba(147,197,253,0.6)'; ctx.lineWidth=2;
+        ctx.beginPath(); ctx.arc(bx,by,orbSize+4+2*Math.sin(T*0.08),0,Math.PI*2); ctx.stroke();
+        ctx.restore();
+        if (Math.random() < 0.25 * blueAlpha) particles.push(new Particle(bx+(Math.random()-0.5)*16,by+(Math.random()-0.5)*16,'#60a5fa'));
+
+        // draw RED orb
+        ctx.save();
+        ctx.globalAlpha = redAlpha;
+        ctx.shadowBlur = _shadowsEnabled ? 28 : 0; ctx.shadowColor = '#f87171';
+        const rg = ctx.createRadialGradient(rx-orbSize*0.3,ry-orbSize*0.3,0,rx,ry,orbSize);
+        rg.addColorStop(0,'#fecaca'); rg.addColorStop(0.5,'#ef4444'); rg.addColorStop(1,'#7f1d1d');
+        ctx.fillStyle = rg;
+        ctx.beginPath(); ctx.arc(rx,ry,orbSize,0,Math.PI*2); ctx.fill();
+        ctx.strokeStyle='rgba(252,165,165,0.6)'; ctx.lineWidth=2;
+        ctx.beginPath(); ctx.arc(rx,ry,orbSize+4+2*Math.sin(T*0.08+1.5),0,Math.PI*2); ctx.stroke();
+        ctx.restore();
+        if (Math.random() < 0.25 * redAlpha) particles.push(new Particle(rx+(Math.random()-0.5)*16,ry+(Math.random()-0.5)*16,'#ef4444'));
+
+        // draw tether line between orbs during convergence
+        if (converge > 0) {
+            ctx.save();
+            ctx.globalAlpha = converge * 0.55;
+            ctx.strokeStyle = '#e879f9'; ctx.lineWidth = 2 + converge * 3; ctx.setLineDash([4,4]);
+            ctx.shadowBlur = _shadowsEnabled ? 12 : 0; ctx.shadowColor = '#c084fc';
+            ctx.beginPath(); ctx.moveTo(bx,by); ctx.lineTo(rx,ry); ctx.stroke();
+            ctx.setLineDash([]);
+            ctx.restore();
+        }
+
+        // ── faint purple aim circle showing where hollow purple will travel ──
+        {
+            const aimDist = 140;
+            const tx = player.x + Math.cos(gojoHollowAngle) * aimDist;
+            const ty = player.y + Math.sin(gojoHollowAngle) * aimDist;
+            // dashed travel line
+            ctx.save();
+            ctx.globalAlpha = 0.28 + 0.12*Math.sin(T*0.07);
+            ctx.strokeStyle = '#c084fc'; ctx.lineWidth = 1.5; ctx.setLineDash([6,6]);
+            ctx.shadowBlur = _shadowsEnabled ? 8 : 0; ctx.shadowColor = '#c084fc';
+            ctx.beginPath(); ctx.moveTo(player.x, player.y); ctx.lineTo(player.x + Math.cos(gojoHollowAngle)*420, player.y + Math.sin(gojoHollowAngle)*420); ctx.stroke();
+            ctx.setLineDash([]);
+            // target circle
+            ctx.globalAlpha = 0.22 + 0.12*Math.sin(T*0.07 + 1);
+            ctx.strokeStyle = '#e879f9'; ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.arc(tx, ty, 22, 0, Math.PI*2); ctx.stroke();
+            // inner dot
+            ctx.globalAlpha = 0.35;
+            ctx.fillStyle = '#c084fc';
+            ctx.beginPath(); ctx.arc(tx, ty, 4, 0, Math.PI*2); ctx.fill();
+            ctx.restore();
+        }
+
+        // "Locked" indicator on player
+        ctx.save();
+        ctx.globalAlpha = 0.55;
+        ctx.strokeStyle = '#c084fc'; ctx.lineWidth = 2.5;
+        ctx.setLineDash([5,5]);
+        ctx.beginPath(); ctx.arc(player.x, player.y, player.radius+12, 0, Math.PI*2); ctx.stroke();
+        ctx.setLineDash([]);
+        // countdown bar
+        const barW=80, barFill=barW*(1-t);
+        ctx.fillStyle='rgba(0,0,0,0.5)'; ctx.fillRect(player.x-barW/2, player.y-player.radius-22, barW, 6);
+        ctx.fillStyle= t>0.75?'#c084fc':'#e879f9';
+        ctx.fillRect(player.x-barW/2, player.y-player.radius-22, barFill, 6);
+        ctx.font='bold 9px Arial'; ctx.textAlign='center'; ctx.fillStyle='#e9d5ff';
+        ctx.shadowBlur=0;
+        ctx.fillText(`🟣 ${Math.ceil((TOTAL-T)/60)}s`, player.x, player.y-player.radius-26);
+        ctx.restore();
+
+        // FIRE when done
+        if (T >= TOTAL) {
+            gojoHollowAnimating = false;
+            gojoHollowAnimTimer = 0;
+            _fireHollowPurpleProjectile();
+            // big flash
+            for(let i=0;i<160;i++){
+                const a=Math.random()*Math.PI*2, r=Math.random()*60;
+                const p=new Particle(player.x+Math.cos(a)*r,player.y+Math.sin(a)*r,Math.random()<0.5?'#c084fc':'#e9d5ff');
+                p.vx=Math.cos(a)*5; p.vy=Math.sin(a)*5;
+                particles.push(p);
+            }
+        }
+    }
     tickAirstrikes(dt);
     if(passiveState.blackholeActive){
         passiveState.blackholeTimer-=dt;
@@ -12351,6 +13574,19 @@ function gameLoop(ts){
         ctx.shadowBlur = _shadowsEnabled ? 6 : 0;ctx.shadowColor='#a855f7';
         ctx.fillText(`⚡ TESLA shots auto-chain | R: Overload${overloadCharges>0?' ACTIVE x'+overloadCharges:''}`,12,22);ctx.restore();
     }
+    if(currentCharacter==='naruto'){
+        ctx.save();ctx.font='bold 10px Arial';ctx.textAlign='left';
+        ctx.shadowBlur = _shadowsEnabled ? 8 : 0;
+        if(narutoUltActive){
+            ctx.fillStyle='rgba(255,80,0,0.95)';ctx.shadowColor='#ff3300';
+            ctx.fillText(`🦊 NINE-TAILS MODE! ${Math.ceil(narutoUltTimer/60)}s LEFT • 3x DMG • Z: Rasengan • X: Rasenshuriken`,12,22);
+        } else {
+            ctx.fillStyle='rgba(255,153,0,0.88)';ctx.shadowColor='#ff6600';
+            const barReady = narutoUltBar>=100 ? ' [R: READY!🔥]' : ` [${narutoUltBar}/100 kills]`;
+            ctx.fillText(`🥷 NARUTO • Z: Rasengan • X: Rasenshuriken • R: Nine-Tails${barReady}`,12,22);
+        }
+        ctx.restore();
+    }
     let buffY = canvas.height - 14;
     const buffFont = 'bold 11px Arial';
     if(passiveState.berserkerActive){
@@ -12430,6 +13666,16 @@ function gameLoop(ts){
                 if(currentCharacter==='gojo'||currentCharacter==='the_strongest_today') proj.hitEnemies.add(e);
                 if(proj.isMahoRock && proj.hitEnemies.has(e)) continue;
                 if(proj.isMahoRock) proj.hitEnemies.add(e);
+                // Rasenshuriken: pierce all enemies, apply slow
+                if(proj.isRasenshuriken) {
+                    if(proj.hitEnemies.has(e)) continue;
+                    proj.hitEnemies.add(e);
+                    if(!damageEnemy(e, proj.damage, proj.x, proj.y)) continue;
+                    e.frozen = Math.max(e.frozen||0, 180); // 3s slow
+                    for(let i=0;i<12;i++) particles.push(new Particle(e.x,e.y,'#facc15'));
+                    if(e.health<=0&&e.alive){e.alive=false;player.kills++;gainExp(e.expValue);handleKill(e);}
+                    continue;
+                }
                 let pdmg = proj.damage;
                 if(proj.isHollowPurple) { pdmg = 999999999; e.health = 0; }
                 if(hakariJackpotActive) pdmg *= 50;
@@ -12456,10 +13702,9 @@ function gameLoop(ts){
 
                 // Luffy: G1 Bazooka knockback
                 if(proj.luffyKB){ luffyKnockback(e, proj.luffyKB, proj.x, proj.y); }
-                // Luffy: Observation Haki passive knockback on non-kills + G3 2x knockback passive
+                // Luffy: tiny nudge per regular bullet (was 80px — was pushing enemies clear of follow-up shots)
                 if(currentCharacter==='luffy' && e.alive && e.health > 0){
-                    const kbMult = luffyGear >= 2 ? 2 : 1;
-                    luffyKnockback(e, kbMult, proj.x, proj.y);
+                    luffyKnockback(e, 0.1, proj.x, proj.y); // 8px nudge only
                     if(luffyGear >= 2) e.frozen = Math.max(e.frozen||0, 120); // G3+ 2s stun on all hits
                 }
 
@@ -12604,6 +13849,7 @@ function gameLoop(ts){
                         currentBoss = null;
                         bossBullets = [];
                         earnMoney(50, 'triangle boss defeated!');
+                        if(bossRushMode) bossRushNextBoss();
                     }
                     return proj.isHollowPurple ? proj.alive : false;
                 }
@@ -12764,6 +14010,7 @@ function gameLoop(ts){
                     rhomboidBullets = [];
                     rhomboidMinions = [];
                     rhomboidVortexActive = false;
+                    if(bossRushMode) bossRushNextBoss();
                 }
                 return proj.isHollowPurple ? proj.alive : false;
             }
@@ -12853,6 +14100,180 @@ function gameLoop(ts){
     particles=particles.filter(p=>{if(p.life<=0)return false;p.update(dt);p.draw();return true;});
     ctx.globalAlpha=1;
     ctx.restore();
+
+    // ===== PENTAGON BOSS LOOP =====
+    if(currentPentagon && currentPentagon.alive){
+        currentPentagon.update(dt); currentPentagon.draw();
+        projectiles=projectiles.filter(proj=>{
+            if(!proj.alive||!currentPentagon||!currentPentagon.alive) return proj.alive;
+            if(Math.hypot(proj.x-currentPentagon.x,proj.y-currentPentagon.y)<currentPentagon.radius+proj.radius){
+                if(proj.isHollowPurple) currentPentagon.health=0;
+                else { currentPentagon.health-=proj.damage; proj.alive=false; }
+                for(let i=0;i<8;i++) particles.push(new Particle(proj.x,proj.y,'#06b6d4'));
+                if(currentPentagon.health<=0){
+                    currentPentagon.alive=false;
+                    player.kills+=15; gainExp(700); earnMoney(100,'Pentagon defeated!');
+                    floatMoneyText('⬠ PENTAGON DEFEATED! +$100');
+                    for(let i=0;i<200;i++) particles.push(new Particle(currentPentagon.x+(Math.random()-0.5)*160,currentPentagon.y+(Math.random()-0.5)*160,i%2===0?'#0891b2':'#22d3ee'));
+                    pentagonBullets=[]; document.getElementById('bossHealthBar').style.display='none'; bossSpawned=false;
+                    if(bossRushMode) bossRushNextBoss();
+                }
+                return proj.isHollowPurple?proj.alive:false;
+            } return true;
+        });
+        pentagonBullets=pentagonBullets.filter(b=>{
+            if(!b.alive) return false;
+            b.x+=b.vx*dt; b.y+=b.vy*dt;
+            ctx.save(); ctx.shadowBlur=_shadowsEnabled?12:0; ctx.shadowColor='#06b6d4';
+            ctx.fillStyle='#22d3ee'; ctx.beginPath(); ctx.arc(b.x,b.y,b.radius,0,Math.PI*2); ctx.fill(); ctx.restore();
+            if(Math.hypot(b.x-player.x,b.y-player.y)<b.radius+player.radius&&player.invulnerable<=0){ let dmg=applyPassiveIncomingDamage(b.damage); player.health-=dmg; player.invulnerable=30; updateHUD(); if(player.health<=0) endGame(); b.alive=false; return false; }
+            if(b.x<-60||b.x>canvas.width+60||b.y<-60||b.y>canvas.height+60) return false;
+            return true;
+        });
+        document.getElementById('bossHealthBar').style.display='block';
+        document.getElementById('bossHealthBar').querySelector('div').textContent='⬠ THE PENTAGON';
+        const pxPct=(currentPentagon?currentPentagon.health/currentPentagon.maxHealth:0)*100;
+        document.getElementById('bossHealthFill').style.width=pxPct+'%';
+        document.getElementById('bossHealthFill').style.background='linear-gradient(90deg,#0c4a6e,#06b6d4)';
+        document.getElementById('bossHealthText').textContent=(currentPentagon?Math.ceil(currentPentagon.health).toLocaleString():0)+' / '+(currentPentagon?currentPentagon.maxHealth.toLocaleString():0);
+    }
+
+    // ===== OCTAGON BOSS LOOP =====
+    if(currentOctagon && currentOctagon.alive){
+        currentOctagon.update(dt); currentOctagon.draw();
+        projectiles=projectiles.filter(proj=>{
+            if(!proj.alive||!currentOctagon||!currentOctagon.alive) return proj.alive;
+            if(Math.hypot(proj.x-currentOctagon.x,proj.y-currentOctagon.y)<currentOctagon.radius+proj.radius){
+                if(proj.isHollowPurple) currentOctagon.health=0;
+                else { currentOctagon.health-=proj.damage; proj.alive=false; }
+                for(let i=0;i<10;i++) particles.push(new Particle(proj.x,proj.y,'#d97706'));
+                if(currentOctagon.health<=0){
+                    currentOctagon.alive=false;
+                    player.kills+=25; gainExp(1500); earnMoney(250,'Octagon defeated!');
+                    floatMoneyText('🔷 OCTAGON DEFEATED! +$250');
+                    for(let i=0;i<300;i++) particles.push(new Particle(currentOctagon.x+(Math.random()-0.5)*200,currentOctagon.y+(Math.random()-0.5)*200,i%2===0?'#d97706':'#fbbf24'));
+                    octagonBullets=[]; document.getElementById('bossHealthBar').style.display='none'; bossSpawned=false;
+                    if(bossRushMode) bossRushNextBoss();
+                }
+                return proj.isHollowPurple?proj.alive:false;
+            } return true;
+        });
+        octagonBullets=octagonBullets.filter(b=>{
+            if(!b.alive) return false;
+            b.x+=b.vx*dt; b.y+=b.vy*dt;
+            ctx.save(); ctx.shadowBlur=_shadowsEnabled?14:0; ctx.shadowColor=b.isFrenzy?'#f97316':'#d97706';
+            ctx.fillStyle=b.isFrenzy?'#fb923c':b.isGold?'#fbbf24':'#fcd34d';
+            ctx.beginPath(); ctx.arc(b.x,b.y,b.radius,0,Math.PI*2); ctx.fill(); ctx.restore();
+            if(Math.hypot(b.x-player.x,b.y-player.y)<b.radius+player.radius&&player.invulnerable<=0){ let dmg=applyPassiveIncomingDamage(b.damage); player.health-=dmg; player.invulnerable=30; updateHUD(); if(player.health<=0) endGame(); b.alive=false; return false; }
+            if(b.x<-60||b.x>canvas.width+60||b.y<-60||b.y>canvas.height+60) return false;
+            return true;
+        });
+        document.getElementById('bossHealthBar').style.display='block';
+        document.getElementById('bossHealthBar').querySelector('div').textContent='🔷 THE OCTAGON';
+        const oxPct=(currentOctagon?currentOctagon.health/currentOctagon.maxHealth:0)*100;
+        document.getElementById('bossHealthFill').style.width=oxPct+'%';
+        document.getElementById('bossHealthFill').style.background='linear-gradient(90deg,#431407,#d97706)';
+        document.getElementById('bossHealthText').textContent=(currentOctagon?Math.ceil(currentOctagon.health).toLocaleString():0)+' / '+(currentOctagon?currentOctagon.maxHealth.toLocaleString():0);
+    }
+
+    // ===== BOSS RUSH HUD & REST TIMER =====
+    if(bossRushMode){
+        const BOSS_NAMES=['▲ Triangle','💎 Rhomboid','⬠ Pentagon','⬡ Hexagon','🔷 Octagon'];
+        const BOSS_COLORS=['#22c55e','#00ff66','#06b6d4','#a855f7','#d97706'];
+        const idx=Math.min(bossRushBossIndex,4);
+        if(bossRushRestTimer>0){
+            bossRushRestTimer-=dt;
+            const sLeft=Math.max(0,Math.ceil(bossRushRestTimer/60));
+            ctx.save();
+            ctx.fillStyle='rgba(0,0,0,0.45)';
+            ctx.fillRect(canvas.width/2-130,canvas.height/2-38,260,76);
+            ctx.font='bold 18px Arial'; ctx.textAlign='center'; ctx.fillStyle='#fbbf24';
+            ctx.fillText('⏸ REST PERIOD',canvas.width/2,canvas.height/2-12);
+            ctx.font='bold 13px Arial'; ctx.fillStyle='#e2e8f0';
+            ctx.fillText(`Next: ${BOSS_NAMES[Math.min(idx,4)]}  —  ${sLeft}s`,canvas.width/2,canvas.height/2+12);
+            ctx.fillStyle='rgba(255,255,255,0.2)'; ctx.fillRect(canvas.width/2-110,canvas.height/2+22,220,8);
+            ctx.fillStyle='#fbbf24'; ctx.fillRect(canvas.width/2-110,canvas.height/2+22,220*(1-bossRushRestTimer/600),8);
+            ctx.restore();
+            if(bossRushRestTimer<=0) bossRushSpawnNext();
+        }
+        // Progress bar top-right
+        ctx.save();
+        const px=canvas.width-148, py=8;
+        ctx.fillStyle='rgba(0,0,0,0.6)'; ctx.fillRect(px,py,140,52); ctx.strokeStyle='rgba(251,191,36,0.4)'; ctx.lineWidth=1; ctx.strokeRect(px,py,140,52);
+        ctx.font='bold 9px Arial'; ctx.textAlign='left'; ctx.fillStyle='#fbbf24';
+        ctx.fillText('👑 BOSS RUSH',px+8,py+14);
+        for(let b=0;b<5;b++){
+            const bx=px+8+b*26, by=py+22;
+            const done=b<bossRushBossIndex;
+            const cur=b===bossRushBossIndex;
+            ctx.fillStyle=done?BOSS_COLORS[b]:(cur?'rgba(251,191,36,0.35)':'rgba(255,255,255,0.12)');
+            ctx.fillRect(bx,by,22,18);
+            ctx.strokeStyle=cur?'#fbbf24':done?BOSS_COLORS[b]:'rgba(255,255,255,0.2)'; ctx.lineWidth=cur?2:1; ctx.strokeRect(bx,by,22,18);
+            ctx.font=cur?'bold 8px Arial':'8px Arial'; ctx.textAlign='center';
+            ctx.fillStyle=done?'#000':(cur?'#fbbf24':'rgba(255,255,255,0.4)');
+            ctx.fillText(b+1,bx+11,by+13);
+        }
+        ctx.font='9px monospace'; ctx.textAlign='left'; ctx.fillStyle='rgba(255,255,255,0.5)';
+        const elapsed=Math.floor((Date.now()-bossRushBossStart)/1000);
+        ctx.fillText(`Boss ${Math.min(bossRushBossIndex+1,5)}/5  |  ${elapsed}s`,px+8,py+50);
+        ctx.restore();
+    }
+    if (currentHexagon && currentHexagon.alive) {
+        currentHexagon.update(dt);
+        currentHexagon.draw();
+
+        // Player projectiles hit Hexagon
+        projectiles = projectiles.filter(proj => {
+            if (!proj.alive || !currentHexagon || !currentHexagon.alive) return proj.alive;
+            const hd = Math.hypot(proj.x - currentHexagon.x, proj.y - currentHexagon.y);
+            if (hd < currentHexagon.radius + proj.radius) {
+                if (proj.isHollowPurple) { currentHexagon.health = 0; }
+                else { currentHexagon.health -= proj.damage; proj.alive = false; }
+                for(let i=0;i<8;i++) particles.push(new Particle(proj.x, proj.y, '#a855f7'));
+                if (currentHexagon.health <= 0) {
+                    currentHexagon.alive = false;
+                    player.kills += 20; gainExp(1000);
+                    earnMoney(150, 'Hexagon defeated!');
+                    floatMoneyText('⬡ HEXAGON DEFEATED! +$150');
+                    for(let i=0;i<250;i++) particles.push(new Particle(currentHexagon.x+(Math.random()-0.5)*200, currentHexagon.y+(Math.random()-0.5)*200, i%2===0?'#7c3aed':'#c084fc'));
+                    hexagonBullets = [];
+                    currentHexagon = null;
+                    document.getElementById('bossHealthBar').style.display='none';
+                    bossSpawned = false;
+                }
+                return proj.isHollowPurple ? proj.alive : false;
+            }
+            return true;
+        });
+
+        // Hexagon bullets move and hit player
+        hexagonBullets = hexagonBullets.filter(b => {
+            if (!b.alive) return false;
+            b.x += b.vx * dt; b.y += b.vy * dt;
+            ctx.save();
+            ctx.shadowBlur = _shadowsEnabled ? 14 : 0; ctx.shadowColor = '#a855f7';
+            ctx.fillStyle = '#c084fc';
+            ctx.beginPath(); ctx.arc(b.x, b.y, b.radius, 0, Math.PI*2); ctx.fill();
+            ctx.restore();
+            if (Math.hypot(b.x-player.x, b.y-player.y) < b.radius+player.radius && player.invulnerable<=0) {
+                let dmg = applyPassiveIncomingDamage(b.damage);
+                player.health -= dmg; player.invulnerable = 30; updateHUD();
+                if(player.health<=0) endGame();
+                b.alive = false; return false;
+            }
+            if (b.x<-60||b.x>canvas.width+60||b.y<-60||b.y>canvas.height+60) return false;
+            return true;
+        });
+
+        // Boss health bar
+        document.getElementById('bossHealthBar').style.display = 'block';
+        document.getElementById('bossHealthBar').querySelector('div').textContent = '⬡ THE HEXAGON';
+        document.getElementById('bossHealthBar').style.borderColor = '#7c3aed';
+        const hxPct = (currentHexagon ? currentHexagon.health / currentHexagon.maxHealth : 0) * 100;
+        document.getElementById('bossHealthFill').style.width = hxPct + '%';
+        document.getElementById('bossHealthFill').style.background = 'linear-gradient(90deg,#4c1d95,#a855f7)';
+        document.getElementById('bossHealthText').textContent = (currentHexagon ? Math.ceil(currentHexagon.health).toLocaleString() : '0') + ' / ' + (currentHexagon ? currentHexagon.maxHealth.toLocaleString() : '0');
+    }
 
     if (hakariDomainActive) {
         hakariDomainTimer -= dt;
@@ -13908,6 +15329,16 @@ document.addEventListener('keydown',e=>{
         if(k === 'x') luffyXAbility();
         if(k === 'c') luffyCAbility();
     }
+    // Naruto Z/X abilities
+    if(currentCharacter === 'naruto' && gameRunning) {
+        if(k === 'z') narutoZAbility();
+        if(k === 'x') narutoXAbility();
+    }
+    // Higuruma Z/X abilities
+    if(currentCharacter === 'higuruma' && gameRunning) {
+        if(k === 'z') higuruma_gavelStrike();
+        if(k === 'x') higuruma_summonJudgeman();
+    }
     // Mod character extra keys (z, x, c, q, e, f, g, h, etc.)
     const _modSk = CHARACTERS[currentCharacter];
     if(gameRunning && _modSk && _modSk._isModChar && _modSk._extraKeyFns && _modSk._extraKeyFns[k]) {
@@ -13996,7 +15427,7 @@ canvas.addEventListener('mousedown',e=>{
         return;
     }
     if(currentCharacter==='pyromancer'&&gameRunning){pyroCharging=true;pyroChargeTimer=0;}
-    else if(currentCharacter!=='boxer'&&currentCharacter!=='tank'&&gameRunning) shootProjectile();
+    else if(currentCharacter!=='boxer'&&currentCharacter!=='tank'&&gameRunning&&!gojoHollowAnimating) shootProjectile();
 });
 canvas.addEventListener('mouseup',e=>{
     builderSelectedWall = null;
@@ -14186,6 +15617,29 @@ const CHAR_INFO = {
         abilities:`<b>Passive Time Echo:</b> Every shot fires a ghost echo 0.3s later at the same angle effectively 1.6x DPS output.<br><br><b>R Rewind (60 mana, 5s CD):</b> Restores HP to value from 5 seconds ago. Best used immediately after taking burst damage.`,
         playstyle:'Sustained pressure every shot is two shots. Save Rewind for emergencies right after big damage spikes.',
         tip:'💡 Tip: Use Rewind proactively right after taking big damage, not when already near death. Snapshot updates every 5 seconds.',
+    },
+    naruto: {
+        name:'Naruto Uzumaki', tag: '$25,000 · Nine-Tails Ninja', icon: '🥷',
+        iconBg: 'linear-gradient(135deg,#cc3300,#ff6600)', iconGlow: '#ff9900',
+        stats: [{ label:'HP', value:'140' },{ label:'Speed', value:'5.5' },{ label:'Damage', value:'22 (base)' },{ label:'Rasengan', value:'3.5x dmg (Z, 10s CD)' },{ label:'Rasenshuriken', value:'5.5x AoE + 3s slow (X, 15s CD)' },{ label:'Nine-Tails', value:'3x dmg + 1.4x speed for 60s (R)' }],
+        abilities:`<b>Passive Shadow Clone:</b> Every 30 kills a Shadow Clone spawns (up to 3) and fights alongside you for 10 seconds, shooting enemies automatically.<br><br><b>Z – Rasengan (10s CD):</b> Fire a large spiraling ball that deals 3.5x damage on contact. In Nine-Tails Mode, deals 10.5x damage.<br><br><b>X – Rasenshuriken (15s CD):</b> Launch a spinning shuriken that pierces ALL enemies, dealing 5.5x AoE damage and slowing every target for 3 seconds.<br><br><b>R – Nine-Tails Chakra Mode:</b> Requires 100 kill bar (fills by 1 per kill). When active: 3x damage, 1.4x speed, 3 battle clones, and a blazing orange aura for 60 seconds. Bar resets after use.`,
+        playstyle:'Kill-accumulation powerhouse. Farm the ultimate bar and explode on bosses with Nine-Tails. Use Z and X on cooldown for burst and crowd control.',
+        tip:'💡 Tip: Save Nine-Tails for boss waves (50, 100, 150…). Rasenshuriken the entire screen first to slow everyone, then activate Nine-Tails for maximum chaos.',
+    },
+    higuruma: {
+        name:'Hiromi Higuruma', tag: '$750,000 · Limited · Deadly Sentencing', icon: '⚖️',
+        iconBg: 'linear-gradient(135deg,#111827,#374151)', iconGlow: '#fbbf24',
+        stats: [
+            { label:'HP', value:'120' },
+            { label:'Speed', value:'4.5' },
+            { label:'Damage', value:'28 (base)' },
+            { label:'Gavel Strike', value:'4.5x dmg · 90° cone · 2s stun (Z, 8s CD)' },
+            { label:'Judgeman', value:'Orbiting shikigami · 1.8x shots · 15s (X, 20s CD)' },
+            { label:'Deadly Sentencing', value:'Issues verdicts to all enemies · 8s domain (R)' },
+        ],
+        abilities:`<b>Passive – Evidence:</b> Every kill adds 1 Evidence (max 5), shown as gold orbiting dots. More Evidence = higher chance of Death Penalty in your Domain. Evidence resets by 3 after Domain use.<br><br><b>Z – Gavel Strike (8s CD):</b> Swing your gavel in a 90° cone in front of you, dealing 4.5× damage to all enemies in range and stunning them for 2 seconds. Short range but devastating up close.<br><br><b>X – Summon Judgeman (20s CD):</b> Summons Judgeman, the shikigami, to orbit you for 15 seconds. Judgeman fires verdict beams at the nearest enemy every 1.5s, dealing 1.8× damage automatically.<br><br><b>R – Domain Expansion: Deadly Sentencing (100% CE):</b> Expands the domain for 8 seconds. Every alive enemy is immediately put on trial — verdicts are issued instantly:<br>• <b style="color:#ef4444">DEATH PENALTY</b> — 20× damage (chance scales with Evidence: 15%–85%)<br>• <b style="color:#fbbf24">CONFISCATION</b> — 3× damage + cursed energy stripped (frozen 5s)<br>• <b style="color:#6b7280">NOT GUILTY</b> — no effect (low chance with full evidence)`,
+        playstyle:'A strategic judge. Build Evidence with kills, summon Judgeman to soften up crowds, then unleash Deadly Sentencing on a packed wave for guaranteed mass executions.',
+        tip:'💡 Tip: Max out Evidence to 5 before using your Domain — at full stacks you have an 85% chance to instantly kill every enemy on screen. Save it for boss waves or dense groups.',
     },
     default: {
         name:'The Veteran', tag: 'Free · Evolving Fighter', icon: '⭐',
@@ -14617,6 +16071,61 @@ function startGame(){
     }
     requestAnimationFrame(gameLoop);
 }
+function startBossRush(){
+    bossRushMode=true; bossRushBossIndex=0; bossRushRestTimer=0; bossRushScore=0; bossRushBossTimers=[]; bossRushBossStart=Date.now();
+    closePlayMenu();
+    // Start a fresh game then immediately spawn Triangle boss
+    startGame();
+    setTimeout(()=>{
+        // clear normal enemies, force-spawn first boss
+        enemies=[]; currentRound=50;
+        bossSpawned=true;
+        currentBoss=new Boss(canvas.width/2,canvas.height/2);
+        bossBullets=[]; miniTriangles=[];
+        document.getElementById('bossHealthBar').style.display='block';
+        teleportPlayerToSafety();
+        floatMoneyText('👑 BOSS RUSH BEGINS! Boss 1/5 ▲ Triangle');
+        for(let i=0;i<150;i++) particles.push(new Particle(canvas.width/2+(Math.random()-0.5)*120,canvas.height/2+(Math.random()-0.5)*120,'#22c55e'));
+    },400);
+}
+
+function bossRushNextBoss(){
+    bossRushBossTimers.push(Date.now()-bossRushBossStart);
+    bossRushBossIndex++;
+    if(bossRushBossIndex>=5){
+        // ALL BOSSES CLEARED
+        bossRushMode=false;
+        const totalSec=Math.round(bossRushBossTimers.reduce((a,b)=>a+b,0)/1000);
+        floatMoneyText(`👑 BOSS RUSH COMPLETE! Total: ${totalSec}s`);
+        setTimeout(()=>endGame(true),1500);
+        return;
+    }
+    enemies=[]; bossBullets=[]; miniTriangles=[]; rhomboidBullets=[]; rhomboidMinions=[]; pentagonBullets=[]; hexagonBullets=[]; octagonBullets=[];
+    bossRushRestTimer=600; // 10s rest
+    bossRushBossStart=Date.now();
+    // Restore 35% HP
+    player.health=Math.min(player.maxHealth,player.health+player.maxHealth*0.35);
+    updateHUD();
+    playSound(440,0.15,'sine'); playSound(550,0.12,'sine');
+}
+
+function bossRushSpawnNext(){
+    const NAMES=['▲ Triangle','💎 Rhomboid','⬠ Pentagon','⬡ Hexagon','🔷 Octagon'];
+    const idx=bossRushBossIndex;
+    const HP=[12000,20000,22000,30000,50000];
+    bossSpawned=true;
+    if(idx===0){ currentBoss=new Boss(canvas.width/2,canvas.height/2); bossBullets=[]; miniTriangles=[]; }
+    else if(idx===1){ currentRhomboid=new Rhomboid(canvas.width/2,canvas.height/2); currentRhomboid.health=HP[1]; currentRhomboid.maxHealth=HP[1]; rhomboidBullets=[]; rhomboidMinions=[]; }
+    else if(idx===2){ spawnPentagon(HP[2]/20000); }
+    else if(idx===3){ currentHexagon=new Hexagon(canvas.width/2,canvas.height/2); currentHexagon.health=HP[3]; currentHexagon.maxHealth=HP[3]; hexagonBullets=[]; }
+    else if(idx===4){ currentOctagon=new Octagon(canvas.width/2,canvas.height/2); currentOctagon.health=HP[4]; currentOctagon.maxHealth=HP[4]; octagonBullets=[]; }
+    bossRushBossStart=Date.now();
+    teleportPlayerToSafety();
+    floatMoneyText(`👑 BOSS ${idx+1}/5: ${NAMES[idx]}!`);
+    document.getElementById('bossHealthBar').style.display='block';
+    for(let i=0;i<160;i++) particles.push(new Particle(canvas.width/2+(Math.random()-0.5)*130,canvas.height/2+(Math.random()-0.5)*130,'#fbbf24'));
+    playSound(120,0.2,'sawtooth'); playSound(80,0.15,'sine');
+}
 function startEndlessMode(){
     startGame(); // startGame resets endlessMode to false, so we override after
     endlessMode = true;
@@ -14662,6 +16171,7 @@ function updateShopDisplay(){
         'speedrunner': 'speedrunnerCharacter',
         'the_strongest_today': 'theStrongestTodayCharacter',
         'luffy': 'luffyCharacter',
+        'higuruma': 'higurumaCharacter',
     };
 
     const wvCard = document.getElementById('warVeteranCharacter');
@@ -15908,7 +17418,7 @@ const BESTIARY = [
     { icon:'🔇', name:'Silencer',   bType:'silencer',     color:'#475569', round:28, desc:'Disables all your abilities for 3 seconds if it gets close. Kill it before it reaches you.' },
     { icon:'🩸', name:'Leech',      bType:'leech',        color:'#be123c', round:28, desc:'Drains your HP and heals itself when in close range. Keep your distance.' },
     { icon:'🎯', name:'Sniper',     bType:'sniper_e',     color:'#94a3b8', round:30, desc:'Stays at range and shoots high-damage projectiles. A laser line telegraphs incoming shots.' },
-    { icon:'⚠️', name:'Mimic',     bType:'mimic',        color:'#22c55e', round:30, desc:"Disguises itself as a health pickup. Don't walk into it blindly - it reveals and attacks when you get close." },
+    { icon:'⚠️', name:'Mimic',     bType:'mimic',        color:'#22c55e', round:30, desc:"Disguises itself as a health orb and sits still on the map. Get too close and it reveals itself — then chases you. Never trust a green orb you didn't earn!" },
     { icon:'🪞', name:'Echo',       bType:'echo',         color:'#e879f9', round:32, desc:'Copies your last used ability and fires it back at you. Avoid using big abilities near it.' },
     { icon:'🪞', name:'Mirror',     bType:'mirror_e',     color:'#c084fc', round:35, desc:'Reflects all projectiles back at you. Wear it down by repeatedly reflecting shots into it, or use melee characters.' },
     { icon:'🌀', name:'Void Rift',  bType:'void_rift',    color:'#7c3aed', round:38, desc:'A stationary portal that continuously spawns weak enemies. Destroy it immediately or it will flood the arena.' },
