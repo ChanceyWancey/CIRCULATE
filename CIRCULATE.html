@@ -1496,6 +1496,13 @@
                     <div style="font-size:11px;color:rgba(255,255,255,0.4);font-family:monospace;">Fight all 5 bosses back-to-back. 10s rest between each. How fast can you clear them all?</div>
                 </div>
             </button>
+            <button style="width:100%;display:flex;align-items:center;gap:16px;padding:16px 20px;background:rgba(100,100,100,0.07);border:2px solid rgba(150,150,150,0.2);border-bottom:3px solid rgba(100,100,100,0.3);border-radius:12px;color:rgba(255,255,255,0.35);font-family:inherit;text-align:left;cursor:not-allowed;opacity:0.55;" disabled>
+                <span style="font-size:28px;flex-shrink:0;">📖</span>
+                <div>
+                    <div style="font-size:15px;font-weight:bold;margin-bottom:3px;">Story Mode</div>
+                    <div style="font-size:11px;color:rgba(255,255,255,0.3);font-family:monospace;">Not out yet, stay tuned!</div>
+                </div>
+            </button>
         </div>
     </div>
 </div>
@@ -2682,7 +2689,7 @@
 </div>
 
 <div id="mainMenu">
-    <p style="font-family: 'Press Start 2P', monospace; font-size: 14px; color: #fbbf24; margin: 0 0 15px 0; opacity: 0.7;">Everyone comeback... We're having a RETRIAL!</p>
+    <p style="font-family: 'Press Start 2P', monospace; font-size: 14px; color: #fbbf24; margin: 0 0 15px 0; opacity: 0.7;">The One Piece Is REAL?1</p>
     <h1 id="menuTitle">⚔️ CIRCULATE ⚔️</h1>
     <div class="currency-display">💰 $<span id="totalMoney">0</span></div>
     <button class="menu-btn" onclick="showCharacterShop()">Characters</button>
@@ -2733,21 +2740,35 @@
         <div style="display:flex;flex-direction:column;gap:18px;">
             <div style="border-left:3px solid #22c55e;padding-left:16px;">
                 <div style="font-size:12px;font-weight:bold;color:#4ade80;margin-bottom:2px;">🟢 Latest Patch</div>
-                <div style="font-size:10px;color:rgba(255,255,255,0.3);margin-bottom:10px;font-family:monospace;">New Boss · New Enemy · Naruto · Mimic Rework · UI Polish</div>
+                <div style="font-size:10px;color:rgba(255,255,255,0.3);margin-bottom:10px;font-family:monospace;">Combo · Elites · Cursed Zones · Merchant · Higuruma · 2 New Bosses · Boss Rush · Bug Fixes</div>
                 <ul style="font-size:12px;color:rgba(255,255,255,0.75);line-height:2;padding-left:16px;margin:0;">
-                    <li><b style="color:#a855f7;">New Boss</b> — <b>⬡ The Hexagon</b> appears at Wave 250 &amp; 300. Three escalating phases: vertex beams → rotating laser arms → Shade minions + chaos barrage</li>
-                    <li><b style="color:#7c3aed;">New Enemy</b> — <b>👤 Shade</b> (Wave 42+). Near-invisible and phases through the arena, teleporting silently toward you. Only visible for ~1.5s every 4s — that's when it fires shadow bolts</li>
-                    <li><b style="color:#ff9900;">New Character</b> — <b>🥷 Naruto Uzumaki</b> ($25,000). Shadow Clone passive (every 30 kills), Z: Rasengan, X: Rasenshuriken (AoE pierce + slow), R: Nine-Tails Chakra Mode — 3× DMG, 1.4× speed, 3 battle clones for 60s. Activated only at 100% kill bar (+1 per kill)</li>
-                    <li><b style="color:#22c55e;">Mimic Rework</b> — Now <b>spawns randomly on the map interior</b> instead of the edge. Sits completely still, floating gently. Redesigned to look like a convincing <b>health orb</b> with a pulsing glow, sparkles, and a white "+" cross. Revealed on close approach — then chases you down</li>
-                    <li><b style="color:#f87171;">Bug Fix</b> — <b>Luffy per-bullet knockback</b> reduced from 80px → 8px. Enemies no longer scatter out of follow-up bullet paths (the "dodge" bug)</li>
-                    <li><b style="color:#60a5fa;">UI</b> — Character shop reorganised into three labelled sections: <b>⚔️ Base</b>, <b>⏱️ Limited</b>, <b>🔒 Quest &amp; Secret</b></li>
-                    <li><b style="color:#60a5fa;">UI</b> — All character names are now <b>white</b> — no more random coloured text</li>
-                    <li><b style="color:#60a5fa;">UI</b> — Luffy card no longer shows a blue outline or red text when the limited offer has expired</li>
-                    <li><b style="color:#60a5fa;">UI</b> — <b>Wemmbu</b> and <b>Eggchan</b> moved from Limited to Base Characters</li>
+                    <li><b style="color:#fbbf24;">Combo System</b> — Kill within 2s to build a streak. Multiplier climbs x2→x10 at 40+ kills. All gold is multiplied by your combo. Timer bar shown top-right</li>
+                    <li><b style="color:#fbbf24;">Elite Enemies</b> — 15% chance any enemy spawns as Elite (3× HP, 2× dmg, gold ring). On death drops a collectible orb: ❤️ HP / ⚔️ Damage / 💨 Speed / 💧 Mana / 💰 Gold</li>
+                    <li><b style="color:#7c3aed;">Cursed Zones</b> — Random map patches from Wave 8+: ⬇ Slow (player −55% speed), ⚡ Enemy Haste (+35% enemy speed), 💧 Mana Drain (continuous drain while inside). Up to 4 active, last 20–30s</li>
+                    <li><b style="color:#d97706;">New Character</b> — <b>💰 The Merchant</b> ($8,000). Damage scales 1×→3× with wealth. Z: Gold Toss, X: Bribe ($50 freezes all enemies 3s), R: Mid-Wave Shop ($200 opens shop mid-wave)</li>
+                    <li><b style="color:#fbbf24;">New Limited</b> — <b>⚖️ Hiromi Higuruma</b> ($300,000 · expires May 21). Evidence stacks per kill. Z: Gavel Strike, X: Summon Judgeman, R: Deadly Sentencing — Death Penalty / Confiscation / Not Guilty verdicts to every enemy</li>
+                    <li><b style="color:#06b6d4;">New Boss</b> — <b>⬠ The Pentagon</b> (Wave 175 &amp; 225) — teal, 3 phases: vertex beams → star burst + dash → rapid fire + minions</li>
+                    <li><b style="color:#d97706;">New Boss</b> — <b>🔷 The Octagon</b> (Wave 350 &amp; 400) — gold, 4 phases: escalating vertex fire → laser arms → cluster bursts → full frenzy at &lt;15% HP</li>
+                    <li><b style="color:#fbbf24;">Boss Rush</b> — New game mode. Fight all 5 bosses back-to-back with 10s rest + 35% HP restore between each</li>
+                    <li><b style="color:#f87171;">Bug Fix</b> — <code>e is not defined</code> — Enemy haste zone used <code>e._inHasteZone</code> inside a class method; fixed to <code>this._inHasteZone</code></li>
+                    <li><b style="color:#f87171;">Bug Fix</b> — Merchant R called <code>openShop()</code> which doesn't exist; fixed to <code>openWaveShop()</code> / <code>closeWaveShop()</code></li>
+                    <li><b style="color:#f87171;">Bug Fix</b> — <code>sk is not defined</code> in level-up apply closures; fixed to inline <code>CHARACTERS[currentCharacter]</code> lookup</li>
                 </ul>
             </div>
             <div style="border-left:3px solid #22d3ee;padding-left:16px;">
                 <div style="font-size:12px;font-weight:bold;color:#67e8f9;margin-bottom:2px;">🔵 Previous Patch</div>
+                <div style="font-size:10px;color:rgba(255,255,255,0.3);margin-bottom:10px;font-family:monospace;">New Boss · New Enemy · Naruto · Mimic Rework · UI Polish</div>
+                <ul style="font-size:12px;color:rgba(255,255,255,0.75);line-height:2;padding-left:16px;margin:0;">
+                    <li><b style="color:#a855f7;">New Boss</b> — <b>⬡ The Hexagon</b> (Wave 250 &amp; 300). Three escalating phases: vertex beams → rotating laser arms → Shade minions + chaos barrage</li>
+                    <li><b style="color:#7c3aed;">New Enemy</b> — <b>👤 Shade</b> (Wave 42+). Near-invisible, teleports silently, fires shadow bolts when briefly visible</li>
+                    <li><b style="color:#ff9900;">New Character</b> — <b>🥷 Naruto Uzumaki</b> ($25,000). Shadow Clone passive, Z: Rasengan, X: Rasenshuriken, R: Nine-Tails (100-kill bar, 60s, 3× DMG)</li>
+                    <li><b style="color:#22c55e;">Mimic Rework</b> — Spawns randomly on map interior, sits still disguised as a health orb, chases on reveal</li>
+                    <li><b style="color:#f87171;">Bug Fix</b> — Luffy per-bullet knockback reduced 80px → 8px (enemies no longer scatter from follow-up shots)</li>
+                    <li><b style="color:#60a5fa;">UI</b> — Character shop split into Base / Limited / Quest &amp; Secret sections. All names white. Luffy expired fix</li>
+                </ul>
+            </div>
+            <div style="border-left:3px solid #22d3ee;padding-left:16px;">
+                <div style="font-size:12px;font-weight:bold;color:#67e8f9;margin-bottom:2px;">🔵 Older Patch</div>
                 <div style="font-size:10px;color:rgba(255,255,255,0.3);margin-bottom:10px;font-family:monospace;">Visual Overhaul + Bug Fixes + UI Polish</div>
                 <ul style="font-size:12px;color:rgba(255,255,255,0.75);line-height:2;padding-left:16px;margin:0;">
                     <li><b style="color:#f87171;">Bug Fix</b> - Fixed critical <b>ReferenceError: resetGame is not defined</b> on game start - caused by 35 functions being accidentally scoped inside <code style="color:#fca5a5;">specialAttack()</code> due to a missing closing brace on the switch statement</li>
@@ -3038,6 +3059,14 @@
             <div class="character-ability" data-ability-key>Egg-themed attacks<br>PASSIVE: Yolk Burst<br>[ABILITY]: Scramble<br>AoE yolk splash</div>
             <div class="character-price">Special</div>
             <button class="info-btn" onclick="event.stopPropagation();showCharInfo('eggchan')">INFO</button>
+        </div>
+
+        <div class="character-card" onclick="selectCharacter('merchant')" id="merchantCharacter" style="border-color:rgba(217,119,6,0.5);">
+            <div class="character-preview" style="background:linear-gradient(135deg,#78350f,#d97706);box-shadow:0 0 22px rgba(217,119,6,0.9);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;">💰</div>
+            <div class="character-name">The Merchant</div>
+            <div class="character-ability">100 HP · Speed 5 · Gold-scaled DMG<br>PASSIVE: DMG scales with wealth (1x–3x)<br>Z: Gold Toss — 7-coin fan spread<br>X: Bribe — freeze all enemies ($50)<br>R: Mid-Wave Shop — opens shop ($200)</div>
+            <div class="character-price">$8,000</div>
+            <button class="info-btn" onclick="event.stopPropagation();showCharInfo('merchant')">INFO</button>
         </div>
 
         <div class="character-card" onclick="selectCharacter('naruto')" id="narutoCharacter">
@@ -4042,6 +4071,7 @@ const CHARACTERS = {
     luffy: { name:'Luffy', color:'#e63946', shadow:'#7f1d1d', projColor:'#ff6b6b', ability:'arm_haki', manaCost:0, cdMax:0, isLuffy:true, useImg:false },
     naruto: { name:'Naruto Uzumaki', color:'#ff6600', shadow:'#cc3300', projColor:'#ff9900', ability:'nine_tails', manaCost:0, cdMax:0, isNaruto:true, useImg:false },
     higuruma: { name:'Hiromi Higuruma', color:'#1f2937', shadow:'#111827', projColor:'#fbbf24', ability:'deadly_sentencing', manaCost:0, cdMax:0, isHiguruma:true, useImg:false },
+    merchant: { name:'The Merchant', color:'#b45309', shadow:'#78350f', projColor:'#fbbf24', ability:'merchant_shop', manaCost:0, cdMax:0, isMerchant:true, useImg:false },
 };
 
 const SKIN_URLS = {
@@ -4061,7 +4091,7 @@ const PRICES = {
     phantom:250, druid:750, pyromancer:1500, cyborg:3000, timewizard:4500,
     fire:500, ice:1000, electric:2500, boxer:500,
     wemmbu:5000, eggchan:5000, dice:2345, hakari_v2:35000, yuji_itadori:28000, character10b:50000, war_veteran:0, prime_veteran:0, last_architect:0, coin_king:0, rouge_square:250000, gojo:0, the_strongest_today:0,
-    necromancer:4000, glass_cannon:3500, tank:2000, speedrunner:2500, hornet:0, megumi:0, luffy:1000000, naruto:25000, higuruma:300000
+    necromancer:4000, glass_cannon:3500, tank:2000, speedrunner:2500, hornet:0, megumi:0, luffy:1000000, naruto:25000, higuruma:300000, merchant:8000
 };
 
 const CHARACTER_ORDER = Object.keys(PRICES).sort((a, b) => PRICES[a] - PRICES[b]);
@@ -6539,7 +6569,8 @@ function earnMoney(amount, reason) {
     try {
         const char = CHARACTERS[currentCharacter];
         const mult = char?.isGoldHoarder ? (char?.isCoinKing ? 10 : GH_GOLD_MULT) : 1;
-        const actual = amount * mult;
+        const comboBonus = comboMult > 1 ? comboMult : 1;
+        const actual = Math.round(amount * mult * comboBonus);
         // If any character mod is active, gold is never saved to wallet
         if (char?._isModChar || hasActiveCharMods()) {
             runGold += actual;
@@ -6873,7 +6904,7 @@ class Enemy {
     update(dt=1) {
         if(this.frozen>0){this.frozen-=dt;return;}
 
-        let effectiveSlowMult = 1;
+        let effectiveSlowMult = this._inHasteZone ? 1.35 : 1;
         if(this.slowTimer !== undefined && this.slowTimer > 0) {
             this.slowTimer -= dt;
             effectiveSlowMult = 1 - this.slowAmount;
@@ -7482,41 +7513,22 @@ class Enemy {
 
         } else if (this.isMimic) {
             if (!this.mimicRevealed) {
-                // ===== HEALTH ORB DISGUISE =====
-                const pulse = 0.85 + 0.15*Math.sin((this.mimicFloatOffset||0)*2.2);
-                const orbR = this.radius * pulse;
-                // Outer glow
-                ctx.shadowBlur = _shadowsEnabled ? 28 : 0; ctx.shadowColor = '#22c55e';
-                // Main orb gradient
-                const orbG = ctx.createRadialGradient(this.x-orbR*0.3,this.y-orbR*0.3,0,this.x,this.y,orbR);
-                orbG.addColorStop(0,'#bbf7d0'); orbG.addColorStop(0.45,'#22c55e'); orbG.addColorStop(1,'#14532d');
-                ctx.fillStyle = orbG;
-                ctx.beginPath(); ctx.arc(this.x, this.y, orbR, 0, Math.PI*2); ctx.fill();
-                // Sheen highlight
-                ctx.restore(); ctx.save(); ctx.globalAlpha = (this.drawAlpha||1)*0.55;
-                const sheenG = ctx.createRadialGradient(this.x-orbR*0.35,this.y-orbR*0.35,0,this.x-orbR*0.25,this.y-orbR*0.25,orbR*0.55);
-                sheenG.addColorStop(0,'rgba(255,255,255,0.9)'); sheenG.addColorStop(1,'rgba(255,255,255,0)');
-                ctx.fillStyle = sheenG;
-                ctx.beginPath(); ctx.arc(this.x, this.y, orbR, 0, Math.PI*2); ctx.fill();
-                // Pulsing outer ring
-                ctx.restore(); ctx.save(); ctx.globalAlpha = (this.drawAlpha||1)*(0.35+0.25*Math.sin((this.mimicFloatOffset||0)*2));
-                ctx.strokeStyle = '#4ade80'; ctx.lineWidth = 2;
-                ctx.beginPath(); ctx.arc(this.x, this.y, orbR+6, 0, Math.PI*2); ctx.stroke();
-                // White cross "+" (looks like a heal pickup)
-                ctx.restore(); ctx.save(); ctx.globalAlpha = (this.drawAlpha||1)*0.85;
-                ctx.fillStyle = '#ffffff'; ctx.shadowBlur = _shadowsEnabled ? 8 : 0; ctx.shadowColor = '#ffffff';
-                const cs = orbR*0.38;
-                ctx.fillRect(this.x - cs*0.28, this.y - cs, cs*0.56, cs*2); // vertical bar
-                ctx.fillRect(this.x - cs, this.y - cs*0.28, cs*2, cs*0.56); // horizontal bar
-                // Sparkle dots
-                ctx.restore(); ctx.save();
-                const spk = (this.mimicFloatOffset||0)*1.5;
-                for(let i=0;i<4;i++){
-                    const sa=(Math.PI/2)*i+spk, sr=orbR+10+3*Math.sin(spk+i);
-                    ctx.globalAlpha=(this.drawAlpha||1)*(0.5+0.4*Math.sin(spk+i*1.5));
-                    ctx.fillStyle='#86efac'; ctx.shadowBlur=_shadowsEnabled?6:0; ctx.shadowColor='#22c55e';
-                    ctx.beginPath(); ctx.arc(this.x+Math.cos(sa)*sr, this.y+Math.sin(sa)*sr, 2.5, 0, Math.PI*2); ctx.fill();
-                }
+                // exact copy of real orb draw code
+                this.mimicBobOffset   = (this.mimicBobOffset   || Math.random()*Math.PI*2) + 0.1;
+                this.mimicPulseOffset = (this.mimicPulseOffset || Math.random()*Math.PI*2) + 0.08;
+                const bob   = Math.sin(this.mimicBobOffset) * 3;
+                const pulse = 1 + Math.sin(this.mimicPulseOffset) * 0.2;
+                const r     = ORB_TYPES.HP.radius;
+                ctx.save();
+                ctx.shadowBlur = _shadowsEnabled ? 15 * pulse : 0; ctx.shadowColor = ORB_TYPES.HP.glowColor; ctx.fillStyle = ORB_TYPES.HP.color;
+                ctx.beginPath(); ctx.arc(this.x, this.y + bob, (r + 3) * pulse, 0, Math.PI * 2); ctx.fill();
+                ctx.shadowBlur = _shadowsEnabled ? 8 : 0; ctx.fillStyle = '#ffffff';
+                ctx.beginPath(); ctx.arc(this.x, this.y + bob, r * pulse * 0.7, 0, Math.PI * 2); ctx.fill();
+                ctx.globalAlpha = 0.9; ctx.font = 'bold 10px Arial'; ctx.textAlign = 'center';
+                ctx.fillStyle = '#ffffff'; ctx.shadowBlur = _shadowsEnabled ? 4 : 0; ctx.shadowColor = ORB_TYPES.HP.glowColor;
+                ctx.fillText(Math.ceil((this.life||3600) / 60) + 's', this.x, this.y + bob - r - 7);
+                ctx.restore();
+
             } else {
                 // ===== TOOTHY MONSTER REVEAL =====
                 ctx.fillStyle='#dc2626'; ctx.shadowBlur=_shadowsEnabled?20:0; ctx.shadowColor='#ef4444';
@@ -7711,6 +7723,7 @@ class Enemy {
             else if (this.isTriangle)     label = '▲ Triangle';
             else if (this.isMiniBoss)     label = '⚔️ Mini Boss';
             else if (this.isShade)        label = this.shadeVisible ? '👤 Shade' : null;
+            if (this.isElite) label = '⭐ ELITE ' + (label||'');
             if (label) {
                 ctx.save();
                 ctx.font = 'bold 8px Arial';
@@ -7726,6 +7739,17 @@ class Enemy {
         if (this.isPhantomEnemy && !this.isVisible) {
             ctx.save(); ctx.globalAlpha=0.18; ctx.font='bold 9px Arial'; ctx.textAlign='center';
             ctx.fillStyle='#a78bfa'; ctx.fillText('👻',this.x,this.y+4); ctx.restore();
+        }
+        // Elite gold pulsing ring
+        if (this.isElite) {
+            ctx.save();
+            ctx.globalAlpha = 0.7 + 0.3*Math.sin(performance.now()*0.009);
+            ctx.strokeStyle = '#fbbf24'; ctx.lineWidth = 2.5;
+            ctx.shadowBlur = _shadowsEnabled ? 16 : 0; ctx.shadowColor = '#fbbf24';
+            ctx.setLineDash([4,4]);
+            ctx.beginPath(); ctx.arc(this.x, this.y, this.radius+6, 0, Math.PI*2); ctx.stroke();
+            ctx.setLineDash([]);
+            ctx.restore();
         }
     }
 }
@@ -8507,6 +8531,17 @@ function spawnWave(){
                 currentBountyEnemy = e;
                 e.bountyColor = '#fbbf24';
             }
+
+            // ── ELITE ENEMY (15% chance, not on mimics/swarms/bosses) ──
+            if(!e.isMimic && !e.isSwarm && !e.isSwarmUnit && currentRound >= 5 && Math.random() < 0.15) {
+                e.isElite = true;
+                e.health   = Math.round(e.health * 3);
+                e.maxHealth = e.health;
+                e.damage   = Math.round(e.damage * 2);
+                e.radius   = Math.round(e.radius * 1.3);
+                e.expValue = Math.round((e.expValue||10) * 2);
+                e._eliteBaseColor = e.color;
+            }
             
             if (!seenEnemyTypes.includes(type)) { seenEnemyTypes.push(type); savePersistentData(); }
             enemies.push(e);
@@ -9235,6 +9270,62 @@ function spawnOctagon(hpOverride){
     document.getElementById('bossHealthBar').querySelector('div').textContent='🔷 THE OCTAGON';
     floatMoneyText(`🔷 THE OCTAGON DESCENDS! Fight ${fightNum}/2!`);
     for(let i=0;i<250;i++) particles.push(new Particle(canvas.width/2+(Math.random()-0.5)*170,canvas.height/2+(Math.random()-0.5)*170,i%2===0?'#d97706':'#fbbf24'));
+}
+
+// ===========================
+// 🟣 CURSED ZONES
+// ===========================
+const CURSED_ZONE_TYPES = {
+    slow:   { color:'rgba(124,58,237,0.18)', border:'#7c3aed', label:'⬇ SLOW ZONE',      labelColor:'#c084fc' },
+    haste:  { color:'rgba(220,38,38,0.15)',  border:'#dc2626', label:'⚡ ENEMY HASTE',   labelColor:'#fca5a5' },
+    drain:  { color:'rgba(15,23,42,0.35)',   border:'#1e40af', label:'💧 MANA DRAIN',    labelColor:'#93c5fd' },
+};
+function spawnCursedZone(){
+    if(cursedZones.length >= 4) return;
+    const types = Object.keys(CURSED_ZONE_TYPES);
+    const type  = types[Math.floor(Math.random()*types.length)];
+    const pad   = 80;
+    const x = pad + Math.random()*(canvas.width  - pad*2);
+    const y = pad + Math.random()*(canvas.height - pad*2);
+    const r = 70 + Math.random()*60;
+    const dur = (1200 + Math.random()*600); // 20-30s
+    cursedZones.push({ x, y, radius:r, type, timer:dur, maxTimer:dur });
+    floatMoneyText(`☠️ Cursed Zone appeared! (${CURSED_ZONE_TYPES[type].label})`);
+    for(let i=0;i<20;i++) particles.push(new Particle(x+(Math.random()-0.5)*r, y+(Math.random()-0.5)*r, CURSED_ZONE_TYPES[type].border));
+}
+
+// ===========================
+// 💰 MERCHANT ABILITIES
+// ===========================
+function merchant_goldToss(){
+    if(merchantZCd > 0){ floatMoneyText(`⏳ Gold Toss: ${(merchantZCd/60).toFixed(1)}s`); return; }
+    merchantZCd = 360; // 6s
+    const angle = Math.atan2(mousePos.y-player.y, mousePos.x-player.x);
+    const spread = 5, count = 7;
+    for(let i=0;i<count;i++){
+        const a = angle + (i-(count-1)/2)*(Math.PI/18);
+        const dmg = applyPassiveDamageBoost(player.damage * 2.2 * merchantDmgBonus);
+        const p = new Projectile(player.x, player.y, a, dmg, '#fbbf24', true);
+        p.radius = 8; p.speed = 12;
+        p.vx = Math.cos(a)*p.speed; p.vy = Math.sin(a)*p.speed;
+        p.isGoldCoin = true;
+        projectiles.push(p);
+    }
+    for(let i=0;i<30;i++) particles.push(new Particle(player.x,player.y,'#fbbf24'));
+    floatMoneyText('💰 GOLD TOSS!');
+    playSound(600,0.08,'sine'); playSound(800,0.06,'sine');
+}
+
+function merchant_bribe(){
+    if(merchantXCd > 0){ floatMoneyText(`⏳ Bribe: ${(merchantXCd/60).toFixed(1)}s`); return; }
+    if(totalMoney < 50){ floatMoneyText('❌ Bribe costs $50!'); return; }
+    totalMoney -= 50; updateMoneyDisplay();
+    merchantXCd = 600; // 10s
+    enemies.forEach(e=>{ if(!e.alive) return; e.frozen = Math.max(e.frozen||0, 180); });
+    let cnt=0; enemies.forEach(e=>{ if(e.alive) cnt++; });
+    for(let i=0;i<50;i++) particles.push(new Particle(player.x+(Math.random()-0.5)*200, player.y+(Math.random()-0.5)*200, '#fbbf24'));
+    floatMoneyText(`💸 BRIBED! ${cnt} enemies frozen 3s! (-$50)`);
+    playSound(400,0.1,'sine'); playSound(500,0.08,'sine');
 }
 
 function shootProjectile(){
@@ -10065,6 +10156,20 @@ function specialAttack(){
             playSound(80,0.15,'sawtooth'); playSound(160,0.1,'sine');
             break;
         }
+        case 'merchant_shop': {
+            if(merchantShopActive){ floatMoneyText('🏪 Shop already open!'); return; }
+            if(totalMoney < 200){ floatMoneyText(`❌ Mid-Wave Shop costs $200! Have $${totalMoney}`); return; }
+            totalMoney -= 200; updateMoneyDisplay();
+            merchantShopActive = true;
+            merchantShopTimer  = 900; // 15s
+            // Freeze all enemies for the shop duration
+            enemies.forEach(e=>{ if(e.alive) e.frozen = Math.max(e.frozen||0, 920); });
+            // Open the wave shop overlay
+            openWaveShop(currentRound);
+            floatMoneyText('🏪 MID-WAVE SHOP! 15s! (-$200)');
+            playSound(500,0.1,'sine'); playSound(700,0.08,'sine');
+            break;
+        }
         case 'deadly_sentencing': {
             if(higuruma_domainActive) { floatMoneyText('⚖️ Domain already active!'); return; }
             if(player.mana < player.maxMana * 0.99) { floatMoneyText('❌ Deadly Sentencing needs 100% Cursed Energy!'); return; }
@@ -10405,9 +10510,8 @@ function luffyCAbility() {
 // ===== END LUFFY ABILITIES =====
 
 function dash(){
-    
+    const sk = CHARACTERS[currentCharacter] || {};
     if(currentCharacter === 'hornet') {
-        const dashAngle=Math.atan2(mousePos.y-player.y,mousePos.x-player.x);
         const dashDist=90;
         const steps=10;
         for(let s=1;s<=steps;s++){
@@ -10515,6 +10619,24 @@ function handleKill(e) {
         glassCannAdrenaline += 5;
         if (glassCannAdrenaline % 50 === 0) floatMoneyText(`💥 ADRENALINE x${glassCannAdrenaline}!`);
     }
+
+    // ── Elite drop ──
+    if(e.isElite) {
+        const dropTypes = ['hp','damage','speed','mana','gold'];
+        const dt2 = dropTypes[Math.floor(Math.random()*dropTypes.length)];
+        eliteDrops.push({ x:e.x, y:e.y, type:dt2, timer:600, maxTimer:600 });
+        for(let i=0;i<20;i++) particles.push(new Particle(e.x+(Math.random()-0.5)*40,e.y+(Math.random()-0.5)*40,'#fbbf24'));
+        floatMoneyText('⭐ Elite Drop!');
+    }
+
+    // ── Combo system ──
+    comboCount++;
+    comboTimer = 120; // 2s window
+    const newMult = comboCount<2?1:comboCount<5?2:comboCount<10?3:comboCount<15?4:comboCount<20?5:comboCount<25?6:comboCount<30?7:comboCount<35?8:comboCount<40?9:10;
+    if(newMult > comboMult){ comboMult=newMult; comboFlash=40; if(newMult>comboPeak){ comboPeak=newMult; if(newMult>=5) floatMoneyText(`🔥 COMBO x${newMult}!`); } }
+
+    // ── Merchant wealth ──
+    if(currentCharacter==='merchant'){ merchantWealth++; merchantDmgBonus=1+Math.min(totalMoney,50000)/10000*0.5; }
 
     if (currentCharacter === 'higuruma') {
         if (higuruma_evidence < 5) {
@@ -10680,6 +10802,28 @@ let higuruma_domainActive   = false;
 let higuruma_domainTimer    = 0;   // 480 ticks = 8s
 let higuruma_domainBullets  = [];
 let higuruma_verdicts       = [];  // [{enemy, verdict, flashTimer}]
+
+// ===== COMBO SYSTEM =====
+let comboCount  = 0;
+let comboTimer  = 0;   // ticks, reset to 120 on kill
+let comboMult   = 1;
+let comboPeak   = 0;   // highest mult this run
+let comboFlash  = 0;   // display flash ticks
+
+// ===== ELITE DROPS =====
+let eliteDrops  = [];  // {x,y,type,timer,maxTimer}
+
+// ===== CURSED ZONES =====
+let cursedZones = [];  // {x,y,radius,type,timer,maxTimer}
+let cursedZoneSpawnTimer = 0;
+
+// ===== MERCHANT STATE =====
+let merchantWealth     = 0;
+let merchantZCd        = 0;
+let merchantXCd        = 0;
+let merchantShopActive = false;
+let merchantShopTimer  = 0;
+let merchantDmgBonus   = 1;   // scales with gold
 
 // ===== BOSS RUSH STATE =====
 let bossRushMode      = false;
@@ -12147,6 +12291,15 @@ function resetGame(){
     }
     phantomPhasing=false; phantomPhaseTimer=0;
     gojoHollowAnimating=false; gojoHollowAnimTimer=0; gojoHollowRedPlayed=false; gojoHollowPurplePlayed=false;
+    // Combo
+    comboCount=0; comboTimer=0; comboMult=1; comboPeak=0; comboFlash=0;
+    // Elite drops
+    eliteDrops=[];
+    // Cursed zones
+    cursedZones=[]; cursedZoneSpawnTimer=0;
+    // Merchant
+    merchantWealth=0; merchantZCd=0; merchantXCd=0; merchantShopActive=false; merchantShopTimer=0; merchantDmgBonus=1;
+    if(currentCharacter==='merchant'){ player.maxHealth=100; player.health=100; player.speed=5; player.damage=15; }
     higuruma_evidence=0; higuruma_gavelCd=0; higuruma_judgemanCd=0; higuruma_judgemanActive=false; higuruma_judgemanTimer=0; higuruma_judgemanAngle=0; higuruma_judgemanShot=0; higuruma_domainActive=false; higuruma_domainTimer=0; higuruma_domainBullets=[]; higuruma_verdicts=[];
     if(currentCharacter==='higuruma'){ player.maxHealth=120; player.health=120; player.speed=4.5; player.damage=28; }
     // Naruto reset
@@ -12586,6 +12739,35 @@ function drawPlayer(ts, dt=1){
         ctx.strokeStyle=yujiIsSukuna?`hsl(${h},100%,70%)`:'rgba(232,77,77,0.35)';ctx.lineWidth=2;
         ctx.setLineDash([3,8]);ctx.beginPath();ctx.arc(0,0,player.radius+14,0,Math.PI*2);ctx.stroke();
         ctx.restore();
+        ctx.restore();
+        return;
+    }
+
+    if(currentCharacter === 'merchant') {
+        ctx.save();
+        if(player.invulnerable>0&&Math.floor(ts/100)%2===0) ctx.globalAlpha=0.5;
+        const mPulse = 0.15*Math.sin(ts*0.008);
+        const mG = ctx.createRadialGradient(player.x-5,player.y-5,2,player.x,player.y,player.radius);
+        mG.addColorStop(0,'#fde68a'); mG.addColorStop(0.5,'#d97706'); mG.addColorStop(1,'#78350f');
+        ctx.shadowBlur = _shadowsEnabled ? 22 : 0; ctx.shadowColor = '#d97706';
+        ctx.fillStyle = mG;
+        ctx.beginPath(); ctx.arc(player.x,player.y,player.radius,0,Math.PI*2); ctx.fill();
+        // Gold coin symbol
+        ctx.font='12px Arial'; ctx.textAlign='center'; ctx.shadowBlur=0;
+        ctx.fillText('💰', player.x, player.y+4);
+        // Orbiting coin wealth dots (up to 8)
+        const wDots = Math.min(8, Math.floor(merchantWealth/10));
+        for(let wd=0;wd<wDots;wd++){
+            const wa=(Math.PI*2/8)*wd + ts*0.004;
+            const wr=player.radius+10;
+            ctx.fillStyle='#fbbf24'; ctx.shadowBlur=_shadowsEnabled?8:0; ctx.shadowColor='#fbbf24';
+            ctx.globalAlpha=0.8; ctx.beginPath();
+            ctx.arc(player.x+Math.cos(wa)*wr, player.y+Math.sin(wa)*wr, 3, 0, Math.PI*2); ctx.fill();
+        }
+        // Damage bonus ring
+        ctx.restore(); ctx.save(); ctx.translate(player.x,player.y); ctx.rotate(ts*0.005);
+        ctx.strokeStyle=`rgba(251,191,36,${0.3+mPulse})`; ctx.lineWidth=2; ctx.setLineDash([4,5]);
+        ctx.beginPath(); ctx.arc(0,0,player.radius+8,0,Math.PI*2); ctx.stroke();
         ctx.restore();
         return;
     }
@@ -13221,7 +13403,11 @@ function gameLoop(ts){
         }
     } else {
         if(mx||my){const m=Math.sqrt(mx*mx+my*my);const bSpd=passiveState.berserkerActive?1.5:1;const ghSpd=CHARACTERS[currentCharacter].isGoldHoarder?GH_SPEED_MULT:1;const biomeSpd=1+biomeSpeedBonus;const teSlow=player._theEnemySlowMult!==undefined?player._theEnemySlowMult:1;const webSlow=playerWebSlowTimer>0?0.4:1;const momBonus=passiveState.momentum?(passiveState.momentumBonus||0):0;
-        if(!gojoHollowAnimating){player.x+=(mx/m)*(player.speed+momBonus)*dt*bSpd*ghSpd*biomeSpd*teSlow*webSlow;player.y+=(my/m)*(player.speed+momBonus)*dt*bSpd*ghSpd*biomeSpd*teSlow*webSlow;}}
+        if(!gojoHollowAnimating){
+            const cursedSlowMult = player._cursedSlow || 1;
+            player.x+=(mx/m)*(player.speed+momBonus)*dt*bSpd*ghSpd*biomeSpd*teSlow*webSlow*cursedSlowMult;
+            player.y+=(my/m)*(player.speed+momBonus)*dt*bSpd*ghSpd*biomeSpd*teSlow*webSlow*cursedSlowMult;
+        }}
     }
     player.x=Math.max(player.radius,Math.min(canvas.width-player.radius,player.x));
     player.y=Math.max(player.radius,Math.min(canvas.height-player.radius,player.y));
@@ -13266,6 +13452,7 @@ function gameLoop(ts){
     applyBiomeEffects(dt);
     tickGoldFormEnemies(dt);
     tickNewCharacters(ts, dt);
+    turrets=turrets.filter(t=>{if(!t.infinite && t.life<=0)return false;t.update(dt);t.draw();return true;});
 
     // ===== HOLLOW PURPLE ANIMATION =====
     if (gojoHollowAnimating) {
@@ -14176,6 +14363,131 @@ function gameLoop(ts){
         document.getElementById('bossHealthText').textContent=(currentOctagon?Math.ceil(currentOctagon.health).toLocaleString():0)+' / '+(currentOctagon?currentOctagon.maxHealth.toLocaleString():0);
     }
 
+    // ===== COMBO SYSTEM TICK =====
+    if(comboTimer > 0){
+        comboTimer -= dt;
+        if(comboTimer <= 0){ comboCount=0; comboMult=1; comboFlash=0; }
+    }
+    if(comboMult > 1 && gameRunning){
+        if(comboFlash > 0) comboFlash -= dt;
+        const flashScale = comboFlash > 0 ? 1.3 : 1.0;
+        ctx.save();
+        ctx.font = `bold ${Math.round(13*flashScale)}px Arial`;
+        ctx.textAlign = 'right';
+        const cx2 = canvas.width - 10, cy2 = 22;
+        ctx.shadowBlur = _shadowsEnabled ? 12 : 0;
+        const comboColor = comboMult>=8?'#ef4444':comboMult>=5?'#f97316':'#fbbf24';
+        ctx.shadowColor = comboColor; ctx.fillStyle = comboColor;
+        ctx.fillText(`🔥 COMBO x${comboMult}  (${comboCount} kills)`, cx2, cy2);
+        // timer bar
+        const barW = 90;
+        ctx.fillStyle = 'rgba(0,0,0,0.4)'; ctx.fillRect(cx2-barW, cy2+4, barW, 4);
+        ctx.fillStyle = comboColor; ctx.fillRect(cx2-barW, cy2+4, barW*(comboTimer/120), 4);
+        ctx.restore();
+    }
+
+    // ===== ELITE DROPS =====
+    eliteDrops = eliteDrops.filter(drop => {
+        drop.timer -= dt;
+        if(drop.timer <= 0) return false;
+        // Draw drop orb
+        const pulse = 0.8 + 0.2*Math.sin(ts*0.008);
+        const dropColors = { hp:'#22c55e', damage:'#ef4444', speed:'#fbbf24', mana:'#8b5cf6', gold:'#d97706' };
+        const dropIcons  = { hp:'❤️', damage:'⚔️', speed:'💨', mana:'💧', gold:'💰' };
+        ctx.save();
+        ctx.shadowBlur = _shadowsEnabled ? 20 : 0; ctx.shadowColor = dropColors[drop.type];
+        ctx.globalAlpha = Math.min(1, drop.timer/60) * pulse;
+        const dg = ctx.createRadialGradient(drop.x,drop.y,0,drop.x,drop.y,14);
+        dg.addColorStop(0,'#ffffff'); dg.addColorStop(0.4, dropColors[drop.type]); dg.addColorStop(1,'rgba(0,0,0,0)');
+        ctx.fillStyle = dg;
+        ctx.beginPath(); ctx.arc(drop.x, drop.y, 14, 0, Math.PI*2); ctx.fill();
+        ctx.font = '12px Arial'; ctx.textAlign = 'center'; ctx.globalAlpha = Math.min(1, drop.timer/60);
+        ctx.fillText(dropIcons[drop.type], drop.x, drop.y+4);
+        ctx.restore();
+        // Collect on proximity
+        if(Math.hypot(player.x-drop.x, player.y-drop.y) < 22) {
+            switch(drop.type){
+                case 'hp':     player.health=Math.min(player.maxHealth,player.health+30); floatMoneyText('⭐ +30 HP!'); break;
+                case 'damage': player.damage+=5; floatMoneyText('⭐ +5 Damage!'); break;
+                case 'speed':  player.speed+=0.5; floatMoneyText('⭐ +0.5 Speed!'); break;
+                case 'mana':   player.mana=Math.min(player.maxMana,player.mana+40); floatMoneyText('⭐ +40 Mana!'); break;
+                case 'gold':   earnMoney(80,'Elite Drop'); break;
+            }
+            updateHUD();
+            for(let i=0;i<16;i++) particles.push(new Particle(drop.x,drop.y, dropColors[drop.type]));
+            return false;
+        }
+        return true;
+    });
+
+    // ===== CURSED ZONES =====
+    // Spawn timer
+    if(gameRunning && currentRound >= 8) {
+        cursedZoneSpawnTimer += dt;
+        const spawnInterval = Math.max(1800, 3600 - currentRound*10);
+        if(cursedZoneSpawnTimer >= spawnInterval){ cursedZoneSpawnTimer=0; spawnCursedZone(); }
+    }
+    let playerInSlow=false, playerInHaste=false, playerInDrain=false;
+    cursedZones = cursedZones.filter(zone => {
+        zone.timer -= dt;
+        if(zone.timer <= 0) return false;
+        const cfg = CURSED_ZONE_TYPES[zone.type];
+        const alpha = Math.min(0.85, zone.timer/120) * (0.6+0.2*Math.sin(ts*0.005));
+        ctx.save();
+        ctx.globalAlpha = alpha;
+        ctx.fillStyle = cfg.color;
+        ctx.shadowBlur = _shadowsEnabled ? 18 : 0; ctx.shadowColor = cfg.border;
+        ctx.beginPath(); ctx.arc(zone.x, zone.y, zone.radius, 0, Math.PI*2); ctx.fill();
+        ctx.strokeStyle = cfg.border; ctx.lineWidth = 2;
+        ctx.setLineDash([6,5]); ctx.beginPath(); ctx.arc(zone.x, zone.y, zone.radius, 0, Math.PI*2); ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.font = 'bold 9px Arial'; ctx.textAlign = 'center'; ctx.fillStyle = cfg.labelColor;
+        ctx.globalAlpha = 0.85; ctx.shadowBlur = 0;
+        ctx.fillText(cfg.label, zone.x, zone.y + zone.radius + 13);
+        ctx.restore();
+        // Apply effects to enemies in haste zone
+        if(zone.type === 'haste') {
+            enemies.forEach(e => {
+                if(!e.alive) return;
+                if(Math.hypot(e.x-zone.x, e.y-zone.y) < zone.radius) e._inHasteZone = true;
+                else e._inHasteZone = false;
+            });
+        }
+        // Track player overlap
+        if(Math.hypot(player.x-zone.x, player.y-zone.y) < zone.radius){
+            if(zone.type==='slow')  playerInSlow  = true;
+            if(zone.type==='haste') playerInHaste = true;
+            if(zone.type==='drain') playerInDrain = true;
+        }
+        return true;
+    });
+    // Apply zone effects to player
+    player._cursedSlow  = playerInSlow  ? 0.45 : 1;
+    player._cursedDrain = playerInDrain;
+    if(playerInDrain && player.mana > 0) { player.mana = Math.max(0, player.mana - 0.25*dt); updateHUD(); }
+    if(playerInSlow || playerInHaste || playerInDrain){
+        ctx.save(); ctx.font = 'bold 10px Arial'; ctx.textAlign = 'center'; ctx.fillStyle = '#c084fc';
+        ctx.shadowBlur = _shadowsEnabled ? 6 : 0; ctx.shadowColor = '#7c3aed';
+        const zoneMsg = playerInSlow?'⬇ SLOWED':playerInDrain?'💧 MANA DRAIN':'⬆ HASTE ZONE';
+        ctx.fillText(zoneMsg, player.x, player.y - player.radius - 18); ctx.restore();
+    }
+
+    // ===== MERCHANT TICK =====
+    if(currentCharacter === 'merchant'){
+        if(merchantZCd > 0) merchantZCd -= dt;
+        if(merchantXCd > 0) merchantXCd -= dt;
+        if(merchantShopActive){
+            merchantShopTimer -= dt;
+            if(merchantShopTimer <= 0){ merchantShopActive=false; closeWaveShop(); }
+        }
+        merchantDmgBonus = 1 + Math.min(totalMoney, 100000) / 100000 * 2; // 1x–3x based on wealth
+        // HUD
+        ctx.save(); ctx.font='bold 10px Arial'; ctx.textAlign='left';
+        ctx.fillStyle='rgba(251,191,36,0.9)'; ctx.shadowBlur=_shadowsEnabled?6:0; ctx.shadowColor='#d97706';
+        ctx.fillText(`💰 MERCHANT  Z: Gold Toss  X: Bribe ($50)  R: Shop ($200)  DMG BONUS: ${merchantDmgBonus.toFixed(1)}x`, 12, 22);
+        ctx.restore();
+    }
+
     // ===== BOSS RUSH HUD & REST TIMER =====
     if(bossRushMode){
         const BOSS_NAMES=['▲ Triangle','💎 Rhomboid','⬠ Pentagon','⬡ Hexagon','🔷 Octagon'];
@@ -14240,6 +14552,7 @@ function gameLoop(ts){
                     currentHexagon = null;
                     document.getElementById('bossHealthBar').style.display='none';
                     bossSpawned = false;
+                    if(bossRushMode) bossRushNextBoss();
                 }
                 return proj.isHollowPurple ? proj.alive : false;
             }
@@ -15339,6 +15652,11 @@ document.addEventListener('keydown',e=>{
         if(k === 'z') higuruma_gavelStrike();
         if(k === 'x') higuruma_summonJudgeman();
     }
+    // Merchant Z/X abilities
+    if(currentCharacter === 'merchant' && gameRunning) {
+        if(k === 'z') merchant_goldToss();
+        if(k === 'x') merchant_bribe();
+    }
     // Mod character extra keys (z, x, c, q, e, f, g, h, etc.)
     const _modSk = CHARACTERS[currentCharacter];
     if(gameRunning && _modSk && _modSk._isModChar && _modSk._extraKeyFns && _modSk._extraKeyFns[k]) {
@@ -15625,6 +15943,14 @@ const CHAR_INFO = {
         abilities:`<b>Passive Shadow Clone:</b> Every 30 kills a Shadow Clone spawns (up to 3) and fights alongside you for 10 seconds, shooting enemies automatically.<br><br><b>Z – Rasengan (10s CD):</b> Fire a large spiraling ball that deals 3.5x damage on contact. In Nine-Tails Mode, deals 10.5x damage.<br><br><b>X – Rasenshuriken (15s CD):</b> Launch a spinning shuriken that pierces ALL enemies, dealing 5.5x AoE damage and slowing every target for 3 seconds.<br><br><b>R – Nine-Tails Chakra Mode:</b> Requires 100 kill bar (fills by 1 per kill). When active: 3x damage, 1.4x speed, 3 battle clones, and a blazing orange aura for 60 seconds. Bar resets after use.`,
         playstyle:'Kill-accumulation powerhouse. Farm the ultimate bar and explode on bosses with Nine-Tails. Use Z and X on cooldown for burst and crowd control.',
         tip:'💡 Tip: Save Nine-Tails for boss waves (50, 100, 150…). Rasenshuriken the entire screen first to slow everyone, then activate Nine-Tails for maximum chaos.',
+    },
+    merchant: {
+        name:'The Merchant', tag:'$8,000 · Gold Scales Everything', icon:'💰',
+        iconBg:'linear-gradient(135deg,#78350f,#d97706)', iconGlow:'#fbbf24',
+        stats:[{label:'HP',value:'100'},{label:'Speed',value:'5'},{label:'Base Damage',value:'15 → 45 at $100k'},{label:'Gold Toss',value:'7 coins · 2.2× each (Z, 6s)'},{label:'Bribe',value:'Freeze all enemies ($50, X, 10s)'},{label:'Mid-Wave Shop',value:'Open shop ($200, R)'}],
+        abilities:`<b>Passive – Wealth Scales Damage:</b> Damage grows from 1× to 3× as your gold rises toward $100,000.<br><br><b>Z – Gold Toss (6s CD):</b> Hurl 7 coins in a fan toward your cursor, 2.2× damage each — excellent crowd spray.<br><br><b>X – Bribe (10s CD, $50):</b> Spend $50 to freeze every enemy on screen for 3 seconds.<br><br><b>R – Mid-Wave Shop ($200):</b> Open the upgrade shop mid-wave. All enemies freeze for 15 seconds. Only character who can shop any time.`,
+        playstyle:'Hoard gold — every dollar raises your damage. Use Bribe for panic control and R for clutch mid-wave upgrades.',
+        tip:'💡 Tip: Resist spending gold early. At $50k you\'re already at 2.5× damage. Save upgrades for when you truly need them.',
     },
     higuruma: {
         name:'Hiromi Higuruma', tag: '$750,000 · Limited · Deadly Sentencing', icon: '⚖️',
@@ -16033,8 +16359,10 @@ function backToMenu(){
     stopMainTheme();
     stopCharMusicAudio();
     hideSlotMachine();
+    bossRushMode=false; bossRushBossIndex=0; bossRushRestTimer=0; bossRushScore=0;
     renderHQPanel();document.getElementById('tutorial').style.display='none';document.getElementById('characterShop').style.display='none';document.getElementById('questsPage').style.display='none';document.getElementById('moneyPopup').classList.remove('show');document.getElementById('mainMenu').style.display='block';updateMoneyDisplay();}
 function startGame(){
+    if(!bossRushMode) { bossRushBossIndex=0; bossRushRestTimer=0; bossRushScore=0; } // clear stale state if not a boss rush launch
     endlessMode = false;
     document.getElementById('mainMenu').style.display='none';
     document.getElementById('playMenu').style.display='none';
@@ -16101,6 +16429,8 @@ function bossRushNextBoss(){
         return;
     }
     enemies=[]; bossBullets=[]; miniTriangles=[]; rhomboidBullets=[]; rhomboidMinions=[]; pentagonBullets=[]; hexagonBullets=[]; octagonBullets=[];
+    currentBoss=null; currentRhomboid=null; currentPentagon=null; currentHexagon=null; currentOctagon=null;
+    bossSpawned=false;
     bossRushRestTimer=600; // 10s rest
     bossRushBossStart=Date.now();
     // Restore 35% HP
@@ -16116,9 +16446,18 @@ function bossRushSpawnNext(){
     bossSpawned=true;
     if(idx===0){ currentBoss=new Boss(canvas.width/2,canvas.height/2); bossBullets=[]; miniTriangles=[]; }
     else if(idx===1){ currentRhomboid=new Rhomboid(canvas.width/2,canvas.height/2); currentRhomboid.health=HP[1]; currentRhomboid.maxHealth=HP[1]; rhomboidBullets=[]; rhomboidMinions=[]; }
-    else if(idx===2){ spawnPentagon(HP[2]/20000); }
-    else if(idx===3){ currentHexagon=new Hexagon(canvas.width/2,canvas.height/2); currentHexagon.health=HP[3]; currentHexagon.maxHealth=HP[3]; hexagonBullets=[]; }
-    else if(idx===4){ currentOctagon=new Octagon(canvas.width/2,canvas.height/2); currentOctagon.health=HP[4]; currentOctagon.maxHealth=HP[4]; octagonBullets=[]; }
+    else if(idx===2){
+        currentPentagon=new Pentagon(canvas.width/2,canvas.height/2);
+        currentPentagon.health=HP[2]; currentPentagon.maxHealth=HP[2]; pentagonBullets=[];
+    }
+    else if(idx===3){
+        currentHexagon=new Hexagon(canvas.width/2,canvas.height/2);
+        currentHexagon.health=HP[3]; currentHexagon.maxHealth=HP[3]; hexagonBullets=[];
+    }
+    else if(idx===4){
+        currentOctagon=new Octagon(canvas.width/2,canvas.height/2);
+        currentOctagon.health=HP[4]; currentOctagon.maxHealth=HP[4]; octagonBullets=[];
+    }
     bossRushBossStart=Date.now();
     teleportPlayerToSafety();
     floatMoneyText(`👑 BOSS ${idx+1}/5: ${NAMES[idx]}!`);
@@ -16127,10 +16466,11 @@ function bossRushSpawnNext(){
     playSound(120,0.2,'sawtooth'); playSound(80,0.15,'sine');
 }
 function startEndlessMode(){
+    bossRushMode=false; bossRushBossIndex=0; bossRushRestTimer=0; bossRushScore=0;
     startGame(); // startGame resets endlessMode to false, so we override after
     endlessMode = true;
 }
-function backToMainMenu(){stopJackpotMusic();stopMainTheme();stopCharMusicAudio();hideSlotMachine();document.getElementById('gameOver').style.display='none';document.getElementById('youWinScreen').style.display='none';document.getElementById('gameContainer').style.display='none';document.body.classList.remove('game-active');skinOverlay.style.display='none';document.getElementById('playMenu').style.display='none';document.getElementById('mainMenu').style.display='block';updateMoneyDisplay();const cBM=document.getElementById('gameCanvas');if(cBM){cBM.style.transform='';}checkRunSave();}
+function backToMainMenu(){stopJackpotMusic();stopMainTheme();stopCharMusicAudio();hideSlotMachine();bossRushMode=false;bossRushBossIndex=0;bossRushRestTimer=0;bossRushScore=0;document.getElementById('gameOver').style.display='none';document.getElementById('youWinScreen').style.display='none';document.getElementById('gameContainer').style.display='none';document.body.classList.remove('game-active');skinOverlay.style.display='none';document.getElementById('playMenu').style.display='none';document.getElementById('mainMenu').style.display='block';updateMoneyDisplay();const cBM=document.getElementById('gameCanvas');if(cBM){cBM.style.transform='';}checkRunSave();}
 function updateMoneyDisplay(){document.getElementById('totalMoney').textContent=totalMoney;document.getElementById('shopMoney').textContent=totalMoney;}
 function updateShopDisplay(){
     updateMoneyDisplay();
