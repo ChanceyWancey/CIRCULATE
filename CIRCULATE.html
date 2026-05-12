@@ -2689,7 +2689,7 @@
 </div>
 
 <div id="mainMenu">
-    <p style="font-family: 'Press Start 2P', monospace; font-size: 14px; color: #fbbf24; margin: 0 0 15px 0; opacity: 0.7;">I AM WORKING ON A WIN MENU DO NOT WORRY IF YOU WIN BOSS RUSH AND IT SAYS YOU LOST YOU WON!</p>
+    <p style="font-family: 'Press Start 2P', monospace; font-size: 14px; color: #fbbf24; margin: 0 0 15px 0; opacity: 0.7;">I AM WORKING ON A WIN MENU DO NOT WORRY IF YOU WIN BOSS RUSH AND IT SAYS YOU LOST, YOU WON!</p>
     <h1 id="menuTitle">⚔️ CIRCULATE ⚔️</h1>
     <div class="currency-display">💰 $<span id="totalMoney">0</span></div>
     <button class="menu-btn" onclick="showCharacterShop()">Characters</button>
@@ -3321,6 +3321,7 @@
             <div class="progress-bar"><div class="progress-fill exp-bar" id="expBar" style="width:0%"></div></div>
         </div>
         <div class="stat-box"><div class="stat-label">KILLS</div><div class="stat-value" id="kills">0</div></div>
+        <div class="stat-box" id="gpIndicator" style="display:none;"><div class="stat-label">INPUT</div><div class="stat-value" style="color:#22c55e;">🎮 ON</div></div>
         <div class="stat-box">
             <div class="stat-label" id="rLabel">R KEY</div>
             <div class="stat-value" id="rReady" style="font-size:8px;color:#22c55e;">READY</div>
@@ -6038,18 +6039,11 @@ function tickNewCharacters(ts, dt) {
             return true;
         });
 
-        // HUD info
-        const barW=80, barPct=narutoUltBar/100;
-        ctx.save(); ctx.font='bold 10px Arial'; ctx.textAlign='left';
-        const barColor = narutoUltActive ? '#ff3300' : barPct>=1 ? '#fbbf24' : '#ff9900';
-        ctx.fillStyle=barColor; ctx.shadowBlur=_shadowsEnabled?8:0; ctx.shadowColor=barColor;
-        const barLabel = narutoUltActive ? `🦊 NINE-TAILS ${Math.ceil(narutoUltTimer/60)}s` : `🔥 CHAKRA ${narutoUltBar}/100`;
-        ctx.fillText(barLabel,12,22);
-        if(!narutoUltActive){
-            ctx.fillStyle='rgba(0,0,0,0.5)'; ctx.fillRect(12,26,barW,5);
-            ctx.fillStyle='#ff9900'; ctx.fillRect(12,26,barW*barPct,5);
-        }
-        ctx.restore();
+        // HUD
+        ctx.save(); ctx.font = 'bold 10px Arial'; ctx.textAlign = 'left';
+        ctx.fillStyle = 'rgba(255,153,0,0.9)'; ctx.shadowBlur = _shadowsEnabled ? 6 : 0; ctx.shadowColor = '#ff6600';
+        const ntStatus = narutoUltActive ? `🦊 NINE-TAILS ACTIVE ${Math.ceil(narutoUltTimer/60)}s! • Z: Rasengan • X: Rasenshuriken` : `🥷 NARUTO • Z: Rasengan (-20) • X: Rasenshuriken (-30) • R: Nine-Tails (need 100)`;
+        ctx.fillText(ntStatus, 12, 22); ctx.restore();
     }
 
     if (skin === 'higuruma') {
@@ -10325,6 +10319,8 @@ function higuruma_issueVerdict(e) {
 function narutoZAbility() {
     // Z: Rasengan — large spiraling ball, medium-range, high single-target damage
     if(narutoZCd > 0) { floatMoneyText('⏳ Rasengan: '+(narutoZCd/60).toFixed(1)+'s'); return; }
+    if(!narutoUltActive && narutoUltBar < 20) { floatMoneyText(`❌ Rasengan needs 20 kills! (${narutoUltBar}/20)`); return; }
+    if(!narutoUltActive) { narutoUltBar -= 20; updateHUD(); }
     const angle = Math.atan2(mousePos.y-player.y, mousePos.x-player.x);
     const dmgMult = narutoUltActive ? 3 : 1;
     const dmg = applyPassiveDamageBoost(player.damage * 3.5 * dmgMult);
@@ -10342,6 +10338,8 @@ function narutoZAbility() {
 function narutoXAbility() {
     // X: Rasenshuriken — spinning AoE shuriken, slows all hit enemies
     if(narutoXCd > 0) { floatMoneyText('⏳ Rasenshuriken: '+(narutoXCd/60).toFixed(1)+'s'); return; }
+    if(!narutoUltActive && narutoUltBar < 30) { floatMoneyText(`❌ Rasenshuriken needs 30 kills! (${narutoUltBar}/30)`); return; }
+    if(!narutoUltActive) { narutoUltBar -= 30; updateHUD(); }
     const angle = Math.atan2(mousePos.y-player.y, mousePos.x-player.x);
     const dmgMult = narutoUltActive ? 3 : 1;
     const dmg = applyPassiveDamageBoost(player.damage * 5.5 * dmgMult);
@@ -10825,7 +10823,346 @@ let merchantShopActive = false;
 let merchantShopTimer  = 0;
 let merchantDmgBonus   = 1;   // scales with gold
 
-// ===== BOSS RUSH STATE =====
+// ===========================
+// 🎮 GAMEPAD / CONTROLLER SUPPORT
+// ===========================
+let gpConnected    = false;
+let gpIndex        = -1;
+let gpPrevButtons  = [];
+let gpMoveX        = 0;
+let gpMoveY        = 0;
+let gpAimX         = 0;
+let gpAimY         = 0;
+let gpCursorX      = 400;   // free-roaming aim cursor X
+let gpCursorY      = 300;   // free-roaming aim cursor Y
+let gpShootHeld    = false;
+let gpShootTimer   = 0;
+const GP_DEAD      = 0.12;  // tighter deadzone = less delay feel
+const GP_CURSOR_SPEED = 580; // pixels/sec at full stick
+const GP_ASSIST_RADIUS = 150; // aim assist snap radius (pixels) — wider bubble
+const GP_ASSIST_STRENGTH = 0.10; // 0=none, 1=full snap — softer pull, less locked
+
+const GP_BTN = { A:0, B:1, X:2, Y:3, LB:4, RB:5, LT:6, RT:7, SELECT:8, START:9,
+                 L3:10, R3:11, DUP:12, DDOWN:13, DLEFT:14, DRIGHT:15 };
+
+try {
+window.addEventListener('gamepadconnected', ev => {
+    gpConnected = true; gpIndex = ev.gamepad.index; gpPrevButtons = [];
+    // Center cursor on player on connect
+    if(typeof player !== 'undefined') { gpCursorX = player.x + 60; gpCursorY = player.y; }
+    console.log('🎮 Gamepad connected:', ev.gamepad.id);
+    const ind = document.getElementById('gpIndicator');
+    if(ind) ind.style.display = '';
+    if(typeof floatMoneyText === 'function') setTimeout(()=>floatMoneyText('🎮 Controller connected!'), 100);
+});
+window.addEventListener('gamepaddisconnected', ev => {
+    if(ev.gamepad.index === gpIndex) {
+        gpConnected=false; gpIndex=-1; gpPrevButtons=[];
+        const ind = document.getElementById('gpIndicator');
+        if(ind) ind.style.display = 'none';
+        if(typeof floatMoneyText === 'function') floatMoneyText('🎮 Controller disconnected.');
+    }
+});
+} catch(e) { console.log('Gamepad API not available:', e.message); }
+
+function tickGamepad(dt) {
+    if(!gpConnected) return;
+    let gp = null;
+    try {
+        const gamepads = navigator.getGamepads ? navigator.getGamepads() : [];
+        gp = gamepads[gpIndex];
+    } catch(e) { gpConnected=false; return; }
+    if(!gp) return;
+
+    const btns = gp.buttons;
+    const axes = gp.axes;
+    if(!gpPrevButtons.length) gpPrevButtons = btns.map(b=>b.pressed);
+
+    const justPressed = idx => btns[idx]?.pressed && !gpPrevButtons[idx];
+    const isHeld      = idx => !!btns[idx]?.pressed;
+    const axis        = idx => { const v=axes[idx]||0; return Math.abs(v)>GP_DEAD?v:0; };
+
+    // ── Left stick → movement ──
+    gpMoveX = axis(0); gpMoveY = axis(1);
+    if(isHeld(GP_BTN.DLEFT))  gpMoveX = -1;
+    if(isHeld(GP_BTN.DRIGHT)) gpMoveX =  1;
+    if(isHeld(GP_BTN.DUP))    gpMoveY = -1;
+    if(isHeld(GP_BTN.DDOWN))  gpMoveY =  1;
+
+    // ── Right stick → free-roaming cursor ──
+    gpAimX = axis(2); gpAimY = axis(3);
+    if(gpAimX !== 0 || gpAimY !== 0) {
+        // Quadratic response curve — small nudge for precision, fast at full tilt
+        const mag = Math.min(1, Math.hypot(gpAimX, gpAimY));
+        const speed = GP_CURSOR_SPEED * mag * mag * (dt / 60);
+        gpCursorX += gpAimX * speed;
+        gpCursorY += gpAimY * speed;
+        // Clamp to canvas
+        const cw = typeof canvas !== 'undefined' ? canvas.width  : 800;
+        const ch = typeof canvas !== 'undefined' ? canvas.height : 600;
+        gpCursorX = Math.max(0, Math.min(cw, gpCursorX));
+        gpCursorY = Math.max(0, Math.min(ch, gpCursorY));
+    }
+
+    // ── Aim assist — gentle pull toward best enemy in aimed direction ──
+    if(typeof enemies !== 'undefined' && (gpAimX !== 0 || gpAimY !== 0)) {
+        let best = null, bestScore = Infinity;
+        const aimMag = Math.hypot(gpAimX, gpAimY) || 1;
+        const aimDirX = gpAimX / aimMag, aimDirY = gpAimY / aimMag;
+        enemies.forEach(e => {
+            if(!e.alive) return;
+            const d = Math.hypot(e.x - gpCursorX, e.y - gpCursorY);
+            if(d > GP_ASSIST_RADIUS) return;
+            // Prefer enemies that are close AND roughly in the aimed direction
+            const toDirX = (e.x - gpCursorX) / (d || 1);
+            const toDirY = (e.y - gpCursorY) / (d || 1);
+            const dot = toDirX * aimDirX + toDirY * aimDirY; // -1..1
+            const dirFactor = (1 - dot) * 0.5; // 0 = perfectly aligned
+            const score = d * (1 + dirFactor * 2);
+            if(score < bestScore) { bestScore = score; best = e; }
+        });
+        if(best) {
+            gpCursorX += (best.x - gpCursorX) * GP_ASSIST_STRENGTH;
+            gpCursorY += (best.y - gpCursorY) * GP_ASSIST_STRENGTH;
+        }
+    }
+
+    // Push aim cursor into mousePos
+    if(gameRunning) {
+        mousePos.x = gpCursorX;
+        mousePos.y = gpCursorY;
+    }
+
+    if(!gameRunning) { gpPrevButtons = btns.map(b=>b.pressed); return; }
+
+    // ── RT / R2 → hold to auto-shoot ──
+    const rtVal = axes[5] !== undefined ? (axes[5]+1)/2 : (btns[GP_BTN.RT]?.value||0);
+    gpShootHeld = rtVal > 0.25 || isHeld(GP_BTN.A);
+    if(gpShootHeld && !gojoHollowAnimating) {
+        gpShootTimer -= dt;
+        if(gpShootTimer <= 0) {
+            gpShootTimer = 8;
+            shootProjectile();
+        }
+    } else { gpShootTimer = 0; }
+
+    // Tap A for single shot
+    if(justPressed(GP_BTN.A) && !gpShootHeld && !gojoHollowAnimating) shootProjectile();
+
+    // ── B → Dash ──
+    if(justPressed(GP_BTN.B)) dash();
+
+    // ── X → Z ability ──
+    if(justPressed(GP_BTN.X)) {
+        if(currentCharacter==='luffy')          luffyZAbility();
+        else if(currentCharacter==='naruto')     narutoZAbility();
+        else if(currentCharacter==='higuruma')   higuruma_gavelStrike();
+        else if(currentCharacter==='merchant')   merchant_goldToss();
+        else if(currentCharacter==='gojo'||currentCharacter==='the_strongest_today') tst_maximumBlue();
+    }
+
+    // ── Y → X ability ──
+    if(justPressed(GP_BTN.Y)) {
+        if(currentCharacter==='luffy')          luffyXAbility();
+        else if(currentCharacter==='naruto')     narutoXAbility();
+        else if(currentCharacter==='higuruma')   higuruma_summonJudgeman();
+        else if(currentCharacter==='merchant')   merchant_bribe();
+        else if(currentCharacter==='gojo'||currentCharacter==='the_strongest_today') tst_maximumRed();
+    }
+
+    // ── LB/L1 → C ability ──
+    if(justPressed(GP_BTN.LB)) {
+        if(currentCharacter==='luffy')          luffyCAbility();
+        else if(currentCharacter==='gojo'||currentCharacter==='the_strongest_today') tst_hollowPurple();
+    }
+
+    // ── RB/R1 → R ability ──
+    if(justPressed(GP_BTN.RB)) specialAttack();
+
+    // ── LT/L2 → F key ──
+    const ltVal = axes[4] !== undefined ? (axes[4]+1)/2 : (btns[GP_BTN.LT]?.value||0);
+    if(ltVal > 0.5 && !(gpPrevButtons[GP_BTN.LT] && btns[GP_BTN.LT]?.pressed)) {
+        document.dispatchEvent(new KeyboardEvent('keydown',{code:'KeyF',key:'f',bubbles:true}));
+    }
+
+    // ── Start → Escape ──
+    if(justPressed(GP_BTN.START)) {
+        document.dispatchEvent(new KeyboardEvent('keydown',{code:'Escape',key:'Escape',bubbles:true}));
+    }
+
+    gpPrevButtons = btns.map(b=>b.pressed);
+}
+
+// ===========================
+// 🎮 GAMEPAD MENU CURSOR
+// ===========================
+(function() {
+    // ── Inject cursor element ──
+    const cur = document.createElement('div');
+    cur.id = 'gpMenuCursor';
+    cur.innerHTML = `<svg width="24" height="28" viewBox="0 0 24 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M3 2 L3 22 L8 17 L12 26 L14.5 25 L10.5 16 L17 16 Z"
+            fill="white" stroke="#1e40af" stroke-width="1.5" stroke-linejoin="round"/>
+    </svg>`;
+    Object.assign(cur.style, {
+        position: 'fixed', left: '50%', top: '50%',
+        width: '24px', height: '28px',
+        pointerEvents: 'none', zIndex: '99999',
+        display: 'none', filter: 'drop-shadow(0 1px 3px rgba(0,0,0,0.8))'
+    });
+    document.body.appendChild(cur);
+
+    // ── State ──
+    let mcx = window.innerWidth / 2, mcy = window.innerHeight / 2;
+    let hoveredEl = null;
+    let gpMenuPrev = [];
+    let lastRaf = 0;
+    const MC_SPEED = 900;
+    const MC_DEAD  = 0.15;
+
+    function axisM(axes, idx) {
+        const v = axes[idx] || 0;
+        return Math.abs(v) > MC_DEAD ? v : 0;
+    }
+
+    const MENU_SEL = [
+        'button', '.upgrade-btn', '.shop-item', '.shop-reroll-btn',
+        '.shop-skip-btn', '.pause-btn', '.menu-btn', '.play-slot-load-btn',
+        '.play-slot-del-btn', '#playMenuStartBtn', '#playMenuEndlessBtn',
+        '#playMenuBossRushBtn', '.character-card', '.mastery-card',
+        '.shop-item-btn', '.restart-btn', '[data-gpselect]'
+    ].join(',');
+
+    function setHover(el) {
+        if (hoveredEl && hoveredEl !== el) hoveredEl.classList.remove('gp-hover');
+        hoveredEl = el || null;
+        if (hoveredEl) hoveredEl.classList.add('gp-hover');
+    }
+
+    function isMenuVisible() {
+        if (typeof gameRunning !== 'undefined' && gameRunning &&
+            typeof gamePaused !== 'undefined' && !gamePaused) return false;
+        const ids = ['mainMenu','playMenu','levelUpNotice','waveShop','pauseMenu',
+                     'gameOver','characterShopOverlay','settingsMenu','slotPickerOverlay',
+                     'youWinScreen','moneyPopup'];
+        for (const id of ids) {
+            const el = document.getElementById(id);
+            if (!el) continue;
+            const s = window.getComputedStyle(el);
+            if (s.display !== 'none' && s.visibility !== 'hidden' && parseFloat(s.opacity) > 0.05) return true;
+        }
+        return typeof gameRunning !== 'undefined' ? !gameRunning : true;
+    }
+
+    function rafLoop(ts) {
+        requestAnimationFrame(rafLoop);
+        if (!gpConnected) { cur.style.display = 'none'; setHover(null); return; }
+
+        const dt = Math.min(ts - lastRaf, 50);
+        lastRaf = ts;
+
+        let gp = null;
+        try { gp = navigator.getGamepads()[gpIndex]; } catch(e) {}
+        if (!gp) return;
+
+        const btns = gp.buttons;
+        const axes = gp.axes;
+        if (!gpMenuPrev.length) gpMenuPrev = btns.map(b => b.pressed);
+        const justM = idx => btns[idx]?.pressed && !gpMenuPrev[idx];
+
+        const inMenu = isMenuVisible();
+        cur.style.display = (inMenu) ? 'block' : 'none';
+
+        if (!inMenu) { gpMenuPrev = btns.map(b => b.pressed); return; }
+
+        // Move with left stick + DPad
+        let dx = axisM(axes, 0), dy = axisM(axes, 1);
+        if (btns[14]?.pressed) dx = -1;
+        if (btns[15]?.pressed) dx =  1;
+        if (btns[12]?.pressed) dy = -1;
+        if (btns[13]?.pressed) dy =  1;
+
+        const mag = Math.min(1, Math.hypot(dx, dy));
+        if (mag > 0) {
+            const spd = MC_SPEED * mag * mag * (dt / 1000);
+            mcx += (dx / mag) * spd;
+            mcy += (dy / mag) * spd;
+        }
+        mcx = Math.max(0, Math.min(window.innerWidth  - 2, mcx));
+        mcy = Math.max(0, Math.min(window.innerHeight - 2, mcy));
+
+        cur.style.left = mcx + 'px';
+        cur.style.top  = mcy + 'px';
+
+        // Hit test — hide cursor momentarily so it doesn't block itself
+        cur.style.display = 'none';
+        const el = document.elementFromPoint(mcx, mcy);
+        cur.style.display = 'block';
+        setHover(el ? el.closest(MENU_SEL) : null);
+
+        // A → click hovered element
+        if (justM(0) && hoveredEl) hoveredEl.click();
+
+        // B → back
+        if (justM(1)) {
+            const backIds = ['playMenuBackBtn','shopBackBtn','waveShopBackBtn','settingsBackBtn'];
+            let handled = false;
+            for (const id of backIds) {
+                const b = document.getElementById(id);
+                if (b && window.getComputedStyle(b).display !== 'none') { b.click(); handled = true; break; }
+            }
+            if (!handled) document.dispatchEvent(new KeyboardEvent('keydown',{code:'Escape',key:'Escape',bubbles:true}));
+        }
+
+        gpMenuPrev = btns.map(b => b.pressed);
+    }
+
+    requestAnimationFrame(rafLoop);
+
+    // Inject hover highlight CSS
+    const style = document.createElement('style');
+    style.textContent = `
+        .gp-hover {
+            outline: 2px solid #3b82f6 !important;
+            outline-offset: 3px !important;
+            box-shadow: 0 0 0 5px rgba(59,130,246,0.2), 0 0 14px rgba(59,130,246,0.45) !important;
+        }
+        #gpMenuCursor { will-change: left, top; }
+    `;
+    document.head.appendChild(style);
+})();
+
+function drawGamepadCursor() {
+    if(!gpConnected || !gameRunning) return;
+    const cx = gpCursorX, cy = gpCursorY;
+    // Soft outer glow if aim assist is active
+    let assistActive = false;
+    if(typeof enemies !== 'undefined') {
+        for(const e of enemies) {
+            if(e.alive && Math.hypot(e.x-cx,e.y-cy) < GP_ASSIST_RADIUS) { assistActive=true; break; }
+        }
+    }
+    ctx.save();
+    if(assistActive) {
+        ctx.globalAlpha = 0.18;
+        ctx.fillStyle = '#fbbf24';
+        ctx.shadowBlur = _shadowsEnabled ? 20 : 0; ctx.shadowColor = '#fbbf24';
+        ctx.beginPath(); ctx.arc(cx, cy, 14, 0, Math.PI*2); ctx.fill();
+    }
+    ctx.globalAlpha = 0.85;
+    ctx.strokeStyle = assistActive ? '#fbbf24' : '#ffffff';
+    ctx.lineWidth = 1.5;
+    ctx.shadowBlur = _shadowsEnabled ? 8 : 0; ctx.shadowColor = ctx.strokeStyle;
+    const s = 7;
+    ctx.beginPath(); ctx.moveTo(cx-s,cy); ctx.lineTo(cx-3,cy); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx+3,cy); ctx.lineTo(cx+s,cy); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx,cy-s); ctx.lineTo(cx,cy-3); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx,cy+3); ctx.lineTo(cx,cy+s); ctx.stroke();
+    ctx.beginPath(); ctx.arc(cx,cy,3,0,Math.PI*2); ctx.stroke();
+    ctx.restore();
+}
+
+// ===========================
 let bossRushMode      = false;
 let bossRushBossIndex = 0;   // 0=Triangle,1=Rhomboid,2=Pentagon,3=Hexagon,4=Octagon
 let bossRushRestTimer = 0;   // ticks countdown between bosses
@@ -11512,13 +11849,16 @@ function updateHUD(){
     if (currentCharacter === 'hornet') {
         document.getElementById('health').textContent=`${hornetMasks}/${HORNET_MAX_MASKS} MASKS`;
         document.getElementById('mana').textContent=`${hornetSilk}/${HORNET_MAX_SILK} SILK`;
+    } else if (currentCharacter === 'naruto') {
+        document.getElementById('health').textContent=`${Math.max(0,Math.floor(player.health))}/${player.maxHealth}`;
+        document.getElementById('mana').textContent=`${narutoUltBar}/100 kills`;
     } else {
         document.getElementById('health').textContent=`${Math.max(0,Math.floor(player.health))}/${player.maxHealth}`;
         document.getElementById('mana').textContent=`${Math.floor(player.mana)}/${player.maxMana}`;
     }
     const ceChars = ['gojo','yuji_itadori','hakari_v2','megumi'];
     const manaLbl = document.getElementById('manaLabel');
-    if(manaLbl) manaLbl.textContent = currentCharacter==='hornet' ? 'SILK' : (ceChars.includes(currentCharacter) || currentCharacter==='the_strongest_today' ? 'CURSED ENERGY' : 'MANA');
+    if(manaLbl) manaLbl.textContent = currentCharacter==='hornet' ? 'SILK' : currentCharacter==='naruto' ? (narutoUltActive ? '🦊 NINE-TAILS' : '🔥 ULT BAR') : (ceChars.includes(currentCharacter) || currentCharacter==='the_strongest_today' ? 'CURSED ENERGY' : 'MANA');
     const ctrlEl = document.getElementById('controls');
     if(ctrlEl) {
         if(currentCharacter === 'the_strongest_today') {
@@ -11533,6 +11873,10 @@ function updateHUD(){
     if (currentCharacter === 'hornet') {
         document.getElementById('healthBar').style.width=(hornetMasks/HORNET_MAX_MASKS*100)+'%';
         document.getElementById('manaBar').style.width=(hornetSilk/HORNET_MAX_SILK*100)+'%';
+    } else if (currentCharacter === 'naruto') {
+        document.getElementById('healthBar').style.width=(player.health/player.maxHealth*100)+'%';
+        document.getElementById('manaBar').style.width=(narutoUltBar)+'%';
+        document.getElementById('manaBar').style.background = narutoUltActive ? '#ff3300' : narutoUltBar>=100 ? '#fbbf24' : '#ff6600';
     } else {
         document.getElementById('healthBar').style.width=(player.health/player.maxHealth*100)+'%';
         document.getElementById('manaBar').style.width=(player.mana/player.maxMana*100)+'%';
@@ -13375,6 +13719,8 @@ function gameLoop(ts){
     if (!(currentCharacter==='megumi' && megumiMahoragahTransforming)) {
         if(keys[binds.moveUp]||keys['arrowup'])my-=1;if(keys[binds.moveDown]||keys['arrowdown'])my+=1;
         if(keys[binds.moveLeft]||keys['arrowleft'])mx-=1;if(keys[binds.moveRight]||keys['arrowright'])mx+=1;
+        // Gamepad left stick
+        if(gpConnected){ mx+=gpMoveX; my+=gpMoveY; }
     }
 
     if (currentCharacter === 'speedrunner') {
@@ -13453,6 +13799,8 @@ function gameLoop(ts){
     tickGoldFormEnemies(dt);
     tickNewCharacters(ts, dt);
     turrets=turrets.filter(t=>{if(!t.infinite && t.life<=0)return false;t.update(dt);t.draw();return true;});
+    tickGamepad(dt);
+    drawGamepadCursor();
 
     // ===== HOLLOW PURPLE ANIMATION =====
     if (gojoHollowAnimating) {
@@ -14371,18 +14719,21 @@ function gameLoop(ts){
     if(comboMult > 1 && gameRunning){
         if(comboFlash > 0) comboFlash -= dt;
         const flashScale = comboFlash > 0 ? 1.3 : 1.0;
+        const barW = 160;
+        const bx = canvas.width/2, by = canvas.height - 22;
         ctx.save();
-        ctx.font = `bold ${Math.round(13*flashScale)}px Arial`;
-        ctx.textAlign = 'right';
-        const cx2 = canvas.width - 10, cy2 = 22;
-        ctx.shadowBlur = _shadowsEnabled ? 12 : 0;
+        // Background pill
+        ctx.fillStyle = 'rgba(0,0,0,0.5)';
+        ctx.beginPath(); ctx.roundRect(bx-barW/2-8, by-18, barW+16, 26, 8); ctx.fill();
+        // Timer bar
         const comboColor = comboMult>=8?'#ef4444':comboMult>=5?'#f97316':'#fbbf24';
+        ctx.fillStyle = `rgba(${comboMult>=8?'239,68,68':comboMult>=5?'249,115,22':'251,191,36'},0.25)`;
+        ctx.beginPath(); ctx.roundRect(bx-barW/2-8, by-18, (barW+16)*(comboTimer/120), 26, 8); ctx.fill();
+        ctx.font = `bold ${Math.round(13*flashScale)}px Arial`;
+        ctx.textAlign = 'center';
+        ctx.shadowBlur = _shadowsEnabled ? 14 : 0;
         ctx.shadowColor = comboColor; ctx.fillStyle = comboColor;
-        ctx.fillText(`🔥 COMBO x${comboMult}  (${comboCount} kills)`, cx2, cy2);
-        // timer bar
-        const barW = 90;
-        ctx.fillStyle = 'rgba(0,0,0,0.4)'; ctx.fillRect(cx2-barW, cy2+4, barW, 4);
-        ctx.fillStyle = comboColor; ctx.fillRect(cx2-barW, cy2+4, barW*(comboTimer/120), 4);
+        ctx.fillText(`🔥 COMBO x${comboMult}  (${comboCount} kills)`, bx, by);
         ctx.restore();
     }
 
