@@ -602,9 +602,10 @@
         .upgrade-btn.disabled-upgrade:hover { transform: none; background: #374151; }
         #controls { text-align: center; margin-top: 8px; font-size: 12px; opacity: 0.5; }
         #gameOver {
-            display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            background: rgba(0,0,0,0.97); padding: 40px; border-radius: 8px;
-            text-align: center; z-index: 1000; border: 4px solid #ef4444;
+            display: none; position: fixed; inset: 0; transform: none;
+            background: transparent; padding: 0; border-radius: 0;
+            text-align: center; z-index: 2000; border: none;
+            flex-direction: column; align-items: center; justify-content: center; overflow: hidden;
         }
         #gameOver h2 { font-size: 40px; color: #ef4444; margin-bottom: 20px; font-weight: bold; }
         body.mc-skin #gameOver h2 { font-size: 28px; text-shadow: 3px 3px 0 #7f1d1d; }
@@ -2689,8 +2690,9 @@
 </div>
 
 <div id="mainMenu">
-    <p style="font-family: 'Press Start 2P', monospace; font-size: 14px; color: #fbbf24; margin: 0 0 15px 0; opacity: 0.7;">I AM WORKING ON A WIN MENU DO NOT WORRY IF YOU WIN BOSS RUSH AND IT SAYS YOU LOST, YOU WON!</p>
+
     <h1 id="menuTitle">⚔️ CIRCULATE ⚔️</h1>
+    <p style="font-family:'Press Start 2P',monospace;font-size:11px;color:#fbbf24;margin:0 0 12px 0;opacity:0.85;">The updated win and lose menus update</p>
     <div class="currency-display">💰 $<span id="totalMoney">0</span></div>
     <button class="menu-btn" onclick="showCharacterShop()">Characters</button>
     <button id="deleteRunSaveBtn" onclick="deleteRunSave()" style="display:none;background:rgba(220,38,38,0.12);border:1px solid rgba(220,38,38,0.35);color:rgba(255,120,120,0.7);font-size:10px;padding:4px 14px;border-radius:5px;cursor:pointer;margin-bottom:3px;font-family:inherit;">🗑️ Delete Run Save</button>
@@ -3376,47 +3378,132 @@
     </div>
 </div>
 
-<div id="gameOver">
-    <h2>GAME OVER</h2>
-    <p>Level: <span id="finalLevel">1</span></p>
-    <p>Kills: <span id="finalKills">0</span></p>
-    <p>Wave: <span id="finalWave">0</span></p>
-    <p style="color:#fbbf24;margin-top:10px;">💰 Earned: $<span id="moneyEarned">0</span></p>
-    <button class="restart-btn" onclick="restartGame()">Play Again</button>
-    <button class="restart-btn" onclick="backToMainMenu()" style="background:#6b7280;border-bottom:4px solid #374151;">Main Menu</button>
-    <div style="margin-top:14px;">
-        <button onclick="fixButtons()" style="background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.35);border:1px dashed rgba(255,255,255,0.2);padding:6px 14px;border-radius:5px;cursor:pointer;font-size:11px;font-family:inherit;">🔧 Click this if buttons are not clickable</button>
+<div id="gameOver" style="display:none;position:fixed;inset:0;z-index:2000;flex-direction:column;align-items:center;justify-content:center;text-align:center;font-family:inherit;overflow:hidden;">
+    <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 50% 30%,rgba(220,38,38,0.18) 0%,rgba(127,29,29,0.10) 40%,rgba(0,0,0,0.97) 80%);"></div>
+    <canvas id="goCanvas" style="position:absolute;inset:0;pointer-events:none;"></canvas>
+    <div style="position:relative;z-index:1;max-width:520px;width:93%;animation:ywSlideIn 0.5s cubic-bezier(0.175,0.885,0.32,1.275) both;">
+        <div style="font-size:72px;display:block;animation:ywBounce 0.6s 0.3s cubic-bezier(0.175,0.885,0.32,1.275) both;margin-bottom:6px;">💀</div>
+        <h1 style="font-size:42px;font-weight:900;margin:0 0 4px;letter-spacing:3px;background:linear-gradient(135deg,#f87171,#ef4444,#fca5a5);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;filter:drop-shadow(0 0 20px rgba(239,68,68,0.6));">GAME OVER</h1>
+        <div id="goSubtitle" style="font-size:12px;color:rgba(255,255,255,0.45);letter-spacing:2px;margin-bottom:20px;text-transform:uppercase;">YOU FELL IN BATTLE</div>
+        <!-- Grade badge -->
+        <div style="display:flex;align-items:center;justify-content:center;gap:14px;margin-bottom:18px;">
+            <div id="goGradeBadge" style="width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:900;border:3px solid #ef4444;background:rgba(239,68,68,0.12);box-shadow:0 0 24px rgba(239,68,68,0.35);">C</div>
+            <div style="text-align:left;">
+                <div id="goGradeLabel" style="font-size:13px;font-weight:bold;color:#f87171;">KEEP GOING</div>
+                <div id="goCharLabel" style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:2px;">The Veteran</div>
+            </div>
+        </div>
+        <!-- Stats grid -->
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px;">
+            <div class="yw-stat-box">
+                <div class="yw-stat-label">⚔️ KILLS</div>
+                <div class="yw-stat-val" id="finalKills" style="color:#f87171;">0</div>
+            </div>
+            <div class="yw-stat-box">
+                <div class="yw-stat-label">🌊 WAVE</div>
+                <div class="yw-stat-val" id="finalWave" style="color:#34d399;">0</div>
+            </div>
+            <div class="yw-stat-box">
+                <div class="yw-stat-label">⭐ LEVEL</div>
+                <div class="yw-stat-val" id="finalLevel" style="color:#60a5fa;">1</div>
+            </div>
+            <div class="yw-stat-box">
+                <div class="yw-stat-label">💰 GOLD</div>
+                <div class="yw-stat-val" id="moneyEarned" style="color:#fbbf24;">$0</div>
+            </div>
+            <div class="yw-stat-box">
+                <div class="yw-stat-label">🔥 BEST COMBO</div>
+                <div class="yw-stat-val" id="goCombo" style="color:#f97316;">x1</div>
+            </div>
+            <div class="yw-stat-box">
+                <div class="yw-stat-label">⏱️ TIME</div>
+                <div class="yw-stat-val" id="goTime" style="color:#a78bfa;">0:00</div>
+            </div>
+        </div>
+        <!-- Buttons -->
+        <div style="display:flex;gap:10px;">
+            <button onclick="restartGame()" style="flex:1;background:linear-gradient(135deg,#dc2626,#b91c1c);color:white;border:none;border-bottom:4px solid #7f1d1d;padding:14px;font-size:15px;font-weight:bold;font-family:inherit;border-radius:10px;cursor:pointer;transition:transform 0.1s;" onmousedown="this.style.transform='translateY(2px)'" onmouseup="this.style.transform=''">▶ Try Again</button>
+            <button onclick="backToMainMenu()" style="flex:1;background:rgba(55,65,81,0.9);color:rgba(255,255,255,0.8);border:none;border-bottom:4px solid #1f2937;padding:14px;font-size:15px;font-weight:bold;font-family:inherit;border-radius:10px;cursor:pointer;transition:transform 0.1s;" onmousedown="this.style.transform='translateY(2px)'" onmouseup="this.style.transform=''">🏠 Menu</button>
+        </div>
+        <div style="margin-top:12px;">
+            <button onclick="fixButtons()" style="background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.25);border:1px dashed rgba(255,255,255,0.15);padding:5px 14px;border-radius:5px;cursor:pointer;font-size:10px;font-family:inherit;">🔧 Buttons not working? Click here</button>
+        </div>
     </div>
 </div>
 
 <!-- YOU WIN SCREEN -->
-<div id="youWinScreen" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.95);z-index:2000;flex-direction:column;align-items:center;justify-content:center;text-align:center;font-family:inherit;">
-    <div style="background:linear-gradient(135deg,rgba(5,150,105,0.15),rgba(251,191,36,0.1));border:3px solid #fbbf24;border-radius:18px;padding:48px 52px;max-width:460px;width:90%;box-shadow:0 0 60px rgba(251,191,36,0.35);">
-        <div style="font-size:52px;margin-bottom:8px;">🏆</div>
-        <h2 style="font-size:36px;font-weight:900;color:#fbbf24;margin:0 0 6px;letter-spacing:2px;text-shadow:0 0 30px rgba(251,191,36,0.6);">YOU WIN!</h2>
-        <div style="font-size:13px;color:rgba(255,255,255,0.5);margin-bottom:28px;letter-spacing:1px;">WAVE 1000 CLEARED</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:28px;">
-            <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:14px;">
-                <div style="font-size:10px;color:rgba(255,255,255,0.4);margin-bottom:4px;letter-spacing:0.5px;">WAVE</div>
-                <div style="font-size:24px;font-weight:bold;color:#34d399;" id="ywWave">1000</div>
-            </div>
-            <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:14px;">
-                <div style="font-size:10px;color:rgba(255,255,255,0.4);margin-bottom:4px;letter-spacing:0.5px;">KILLS</div>
-                <div style="font-size:24px;font-weight:bold;color:#f87171;" id="ywKills">0</div>
-            </div>
-            <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:14px;">
-                <div style="font-size:10px;color:rgba(255,255,255,0.4);margin-bottom:4px;letter-spacing:0.5px;">LEVEL</div>
-                <div style="font-size:24px;font-weight:bold;color:#60a5fa;" id="ywLevel">1</div>
-            </div>
-            <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:14px;">
-                <div style="font-size:10px;color:rgba(255,255,255,0.4);margin-bottom:4px;letter-spacing:0.5px;">GOLD EARNED</div>
-                <div style="font-size:24px;font-weight:bold;color:#fbbf24;">$<span id="ywGold">0</span></div>
+<div id="youWinScreen" style="display:none;position:fixed;inset:0;z-index:2000;flex-direction:column;align-items:center;justify-content:center;text-align:center;font-family:inherit;overflow:hidden;">
+    <!-- Animated background -->
+    <div id="ywBg" style="position:absolute;inset:0;background:radial-gradient(ellipse at 50% 30%,rgba(251,191,36,0.18) 0%,rgba(5,150,105,0.10) 40%,rgba(0,0,0,0.97) 80%);"></div>
+    <!-- Stars -->
+    <canvas id="ywCanvas" style="position:absolute;inset:0;pointer-events:none;"></canvas>
+
+    <div style="position:relative;z-index:1;max-width:520px;width:93%;animation:ywSlideIn 0.55s cubic-bezier(0.175,0.885,0.32,1.275) both;">
+        <!-- Trophy header -->
+        <div style="margin-bottom:6px;">
+            <div id="ywTrophy" style="font-size:72px;display:block;animation:ywBounce 0.6s 0.4s cubic-bezier(0.175,0.885,0.32,1.275) both;">🏆</div>
+        </div>
+        <h1 id="ywTitle" style="font-size:42px;font-weight:900;margin:0 0 4px;letter-spacing:3px;background:linear-gradient(135deg,#fbbf24,#f59e0b,#fde68a);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;filter:drop-shadow(0 0 20px rgba(251,191,36,0.6));">VICTORY!</h1>
+        <div id="ywSubtitle" style="font-size:12px;color:rgba(255,255,255,0.5);letter-spacing:2px;margin-bottom:20px;text-transform:uppercase;">WAVE 1000 CLEARED</div>
+
+        <!-- Grade badge -->
+        <div style="display:flex;align-items:center;justify-content:center;gap:14px;margin-bottom:18px;">
+            <div id="ywGradeBadge" style="width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:900;border:3px solid #fbbf24;background:rgba(251,191,36,0.15);box-shadow:0 0 24px rgba(251,191,36,0.4);">S</div>
+            <div style="text-align:left;">
+                <div id="ywGradeLabel" style="font-size:13px;font-weight:bold;color:#fbbf24;">PERFECT RUN</div>
+                <div id="ywCharLabel" style="font-size:11px;color:rgba(255,255,255,0.45);margin-top:2px;">The Veteran</div>
             </div>
         </div>
-        <button onclick="restartGame();document.getElementById('youWinScreen').style.display='none';" style="background:#059669;color:white;border:none;border-bottom:4px solid #065f46;padding:13px 32px;font-size:15px;font-weight:bold;font-family:inherit;border-radius:8px;cursor:pointer;margin:6px;width:100%;">▶ Play Again</button>
-        <button onclick="backToMainMenu()" style="background:#374151;color:rgba(255,255,255,0.7);border:none;border-bottom:3px solid #1f2937;padding:11px 24px;font-size:14px;font-family:inherit;border-radius:8px;cursor:pointer;margin:6px;width:100%;">🏠 Main Menu</button>
+
+        <!-- Stats grid -->
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;">
+            <div class="yw-stat-box">
+                <div class="yw-stat-label">⚔️ KILLS</div>
+                <div class="yw-stat-val" id="ywKills" style="color:#f87171;">0</div>
+            </div>
+            <div class="yw-stat-box">
+                <div class="yw-stat-label">🌊 WAVE</div>
+                <div class="yw-stat-val" id="ywWave" style="color:#34d399;">1000</div>
+            </div>
+            <div class="yw-stat-box">
+                <div class="yw-stat-label">⭐ LEVEL</div>
+                <div class="yw-stat-val" id="ywLevel" style="color:#60a5fa;">1</div>
+            </div>
+            <div class="yw-stat-box">
+                <div class="yw-stat-label">💰 GOLD</div>
+                <div class="yw-stat-val" id="ywGold" style="color:#fbbf24;">$0</div>
+            </div>
+            <div class="yw-stat-box">
+                <div class="yw-stat-label">🔥 BEST COMBO</div>
+                <div class="yw-stat-val" id="ywCombo" style="color:#f97316;">x1</div>
+            </div>
+            <div class="yw-stat-box">
+                <div class="yw-stat-label">⏱️ TIME</div>
+                <div class="yw-stat-val" id="ywTime" style="color:#a78bfa;">0:00</div>
+            </div>
+        </div>
+
+        <!-- Boss Rush splits (hidden by default) -->
+        <div id="ywBossRushSplits" style="display:none;background:rgba(251,191,36,0.06);border:1px solid rgba(251,191,36,0.2);border-radius:10px;padding:12px;margin-bottom:14px;">
+            <div style="font-size:10px;font-weight:bold;color:#fbbf24;letter-spacing:2px;margin-bottom:8px;">👑 BOSS SPLITS</div>
+            <div id="ywSplitsList" style="display:flex;flex-direction:column;gap:4px;font-size:11px;color:rgba(255,255,255,0.7);"></div>
+        </div>
+
+        <!-- Buttons -->
+        <div style="display:flex;gap:10px;margin-top:4px;">
+            <button onclick="document.getElementById('youWinScreen').style.display='none';restartGame();" style="flex:1;background:linear-gradient(135deg,#059669,#047857);color:white;border:none;border-bottom:4px solid #065f46;padding:14px;font-size:15px;font-weight:bold;font-family:inherit;border-radius:10px;cursor:pointer;transition:transform 0.1s;" onmousedown="this.style.transform='translateY(2px)'" onmouseup="this.style.transform=''">▶ Play Again</button>
+            <button onclick="backToMainMenu()" style="flex:1;background:rgba(55,65,81,0.9);color:rgba(255,255,255,0.8);border:none;border-bottom:4px solid #1f2937;padding:14px;font-size:15px;font-weight:bold;font-family:inherit;border-radius:10px;cursor:pointer;transition:transform 0.1s;" onmousedown="this.style.transform='translateY(2px)'" onmouseup="this.style.transform=''">🏠 Menu</button>
+        </div>
     </div>
 </div>
+
+<style>
+@keyframes ywSlideIn { from { opacity:0; transform:translateY(40px) scale(0.9); } to { opacity:1; transform:translateY(0) scale(1); } }
+@keyframes ywBounce  { from { opacity:0; transform:scale(0) rotate(-20deg); } to { opacity:1; transform:scale(1) rotate(0); } }
+.yw-stat-box { background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:10px; padding:10px 6px; }
+.yw-stat-label { font-size:9px; color:rgba(255,255,255,0.35); letter-spacing:0.5px; margin-bottom:4px; }
+.yw-stat-val { font-size:22px; font-weight:900; }
+</style>
 
 <div id="moneyPopup">
     <h3 id="popupTitle">💰 Bonus!</h3>
@@ -4205,6 +4292,8 @@ let overloadCharges = 0;
 
 let runGold = 0;
 let runKills = 0;
+let runStartTime = Date.now();  // tracked for win screen time display
+let winType = 'wave';           // 'wave' or 'bossrush'
 let runDamage = 0;
 let playerWebSlowTimer = 0;
 let playerSilencedTimer = 0;
@@ -12025,6 +12114,108 @@ function updateSkinOverlay(ts) {
     skinOverlay.style.border    = `2px solid ${sk.shadow}`;
 }
 
+function calcWinGrade(kills, combo, timeSec, isBossRush) {
+    let score = 0;
+    if(isBossRush) {
+        if(timeSec < 120)      score = 7; // SSS
+        else if(timeSec < 180) score = 5; // SS
+        else if(timeSec < 300) score = 4; // S
+        else if(timeSec < 480) score = 3; // A
+        else                   score = 2; // B
+    } else {
+        if(kills >= 6000)      score += 3; else if(kills >= 3000) score += 2; else if(kills >= 1500) score += 1;
+        if(combo >= 10)        score += 4; else if(combo >= 8) score += 3; else if(combo >= 5) score += 2; else if(combo >= 3) score += 1;
+    }
+    if(score >= 7) return { grade:'SSS', label:'TRANSCENDENT',  color:'#ff6ef7', fontSize:'22px' };
+    if(score >= 5) return { grade:'SS',  label:'ELITE RUN',     color:'#f0abfc', fontSize:'26px' };
+    if(score >= 4) return { grade:'S',   label:'PERFECT RUN',   color:'#fbbf24', fontSize:'30px' };
+    if(score >= 3) return { grade:'A',   label:'GREAT RUN',     color:'#34d399', fontSize:'30px' };
+    if(score >= 2) return { grade:'B',   label:'SOLID RUN',     color:'#60a5fa', fontSize:'30px' };
+    return             { grade:'C',   label:'KEEP GRINDING', color:'#a78bfa', fontSize:'30px' };
+}
+
+function showWinScreen(isBossRush=false) {
+    winType = isBossRush ? 'bossrush' : 'wave';
+    const timeSec = Math.floor((Date.now() - runStartTime) / 1000);
+    const mins = Math.floor(timeSec/60), secs = timeSec%60;
+    const timeStr = `${mins}:${secs.toString().padStart(2,'0')}`;
+    const charData = CHARACTERS[currentCharacter] || {};
+    const charName = charData.name || currentCharacter;
+    const grade = calcWinGrade(player.kills, comboPeak||1, timeSec, isBossRush);
+
+    // Populate fields
+    document.getElementById('ywTitle').textContent    = isBossRush ? 'BOSS RUSH!' : 'VICTORY!';
+    document.getElementById('ywSubtitle').textContent = isBossRush ? 'ALL 5 BOSSES DEFEATED' : 'WAVE 1000 CLEARED';
+    document.getElementById('ywTrophy').textContent   = isBossRush ? '👑' : '🏆';
+    document.getElementById('ywKills').textContent    = player.kills.toLocaleString();
+    document.getElementById('ywWave').textContent     = isBossRush ? '5/5' : currentRound;
+    document.getElementById('ywLevel').textContent    = player.level;
+    document.getElementById('ywGold').textContent     = '$' + sessionMoney.toLocaleString();
+    document.getElementById('ywCombo').textContent    = 'x' + (comboPeak||1);
+    document.getElementById('ywTime').textContent     = timeStr;
+    document.getElementById('ywCharLabel').textContent= `Playing as: ${charName}`;
+
+    // Grade badge
+    const gb = document.getElementById('ywGradeBadge');
+    gb.textContent = grade.grade;
+    gb.style.color = grade.color; gb.style.borderColor = grade.color;
+    gb.style.boxShadow = `0 0 24px ${grade.color}66`;
+    gb.style.fontSize = grade.fontSize || '30px';
+    document.getElementById('ywGradeLabel').style.color = grade.color;
+    document.getElementById('ywGradeLabel').textContent = grade.label;
+
+    // Boss Rush splits
+    const splitsEl = document.getElementById('ywBossRushSplits');
+    if(isBossRush && bossRushBossTimers && bossRushBossTimers.length) {
+        splitsEl.style.display = '';
+        const names = ['▲ Triangle','💎 Rhomboid','⬠ Pentagon','⬡ Hexagon','🔷 Octagon'];
+        document.getElementById('ywSplitsList').innerHTML = bossRushBossTimers.map((ms,i)=>{
+            const s=Math.floor(ms/1000), m=Math.floor(s/60);
+            return `<div style="display:flex;justify-content:space-between;padding:2px 4px;"><span>${names[i]||'Boss '+(i+1)}</span><span style="color:#fbbf24;font-weight:bold;">${m}:${(s%60).toString().padStart(2,'0')}</span></div>`;
+        }).join('');
+    } else { splitsEl.style.display = 'none'; }
+
+    // Show screen
+    document.getElementById('youWinScreen').style.display = 'flex';
+
+    // Launch confetti canvas
+    startWinConfetti();
+}
+
+function startWinConfetti() {
+    const ywc = document.getElementById('ywCanvas');
+    if(!ywc) return;
+    ywc.width = window.innerWidth; ywc.height = window.innerHeight;
+    const ctx2 = ywc.getContext('2d');
+    const pieces = Array.from({length:120},()=>({
+        x: Math.random()*ywc.width, y: -20-Math.random()*ywc.height*0.5,
+        vx:(Math.random()-0.5)*3, vy:1.5+Math.random()*3,
+        rot:Math.random()*360, rotV:(Math.random()-0.5)*8,
+        w:8+Math.random()*8, h:4+Math.random()*5,
+        color:['#fbbf24','#34d399','#60a5fa','#f87171','#c084fc','#ffffff'][Math.floor(Math.random()*6)],
+        alpha:1
+    }));
+    let frame=0;
+    function drawConfetti(){
+        if(document.getElementById('youWinScreen').style.display==='none') return;
+        ctx2.clearRect(0,0,ywc.width,ywc.height);
+        pieces.forEach(p=>{
+            p.x+=p.vx; p.y+=p.vy; p.rot+=p.rotV;
+            if(frame>180) p.alpha=Math.max(0,p.alpha-0.008);
+            if(p.y>ywc.height+20){ p.y=-20; p.x=Math.random()*ywc.width; p.alpha=1; }
+            ctx2.save(); ctx2.globalAlpha=p.alpha;
+            ctx2.translate(p.x,p.y); ctx2.rotate(p.rot*Math.PI/180);
+            ctx2.fillStyle=p.color;
+            ctx2.fillRect(-p.w/2,-p.h/2,p.w,p.h);
+            ctx2.restore();
+        });
+        frame++;
+        if(frame<600) requestAnimationFrame(drawConfetti);
+        else ctx2.clearRect(0,0,ywc.width,ywc.height);
+    }
+    drawConfetti();
+}
+
 function triggerYouWin() {
     if (currentCharacter === 'default') {
         veteranWins++;
@@ -12046,15 +12237,9 @@ function triggerYouWin() {
     gameRunning = false;
     skinOverlay.style.display = 'none';
     stopJackpotMusic(); stopCharMusicAudio(); stopMainTheme();
-    document.getElementById('youWinScreen').style.display = 'flex';
-    document.getElementById('ywWave').textContent = currentRound;
-    document.getElementById('ywKills').textContent = player.kills;
-    document.getElementById('ywLevel').textContent = player.level;
-    document.getElementById('ywGold').textContent = sessionMoney;
     if (typeof RUN_SLOT_KEYS !== 'undefined') RUN_SLOT_KEYS.forEach(k => localStorage.removeItem(k));
     else localStorage.removeItem('ballRPGRunSave');
-    // Celebration particles
-    for(let i=0;i<120;i++) setTimeout(()=>particles.push(new Particle(Math.random()*canvas.width,Math.random()*canvas.height,'#fbbf24')),Math.random()*1200);
+    showWinScreen(false);
 }
 
 function endGame(sukunaKilled=false){
@@ -12099,16 +12284,49 @@ function endGame(sukunaKilled=false){
         savePersistentData();
         updateMoneyDisplay();
     }
-    document.getElementById('gameOver').style.display='block';
-    document.getElementById('finalLevel').textContent=player.level;
-    document.getElementById('finalKills').textContent=player.kills;
-    document.getElementById('finalWave').textContent=currentRound;
-    document.getElementById('moneyEarned').textContent=sessionMoney;
+    document.getElementById('gameOver').style.display='flex';
+    // Stats
+    const timeSec = Math.floor((Date.now()-runStartTime)/1000);
+    const mins=Math.floor(timeSec/60), secs=timeSec%60;
+    document.getElementById('finalLevel').textContent = player.level;
+    document.getElementById('finalKills').textContent = player.kills.toLocaleString();
+    document.getElementById('finalWave').textContent  = currentRound;
+    document.getElementById('moneyEarned').textContent= '$'+sessionMoney.toLocaleString();
+    document.getElementById('goCombo').textContent    = 'x'+(comboPeak||1);
+    document.getElementById('goTime').textContent     = `${mins}:${secs.toString().padStart(2,'0')}`;
+    // Character label
+    const charData = CHARACTERS[currentCharacter]||{};
+    document.getElementById('goCharLabel').textContent = 'Playing as: '+(charData.name||currentCharacter);
+    // Grade
+    let score=0;
+    if(currentRound>=800) score+=4; else if(currentRound>=500) score+=3; else if(currentRound>=200) score+=2; else if(currentRound>=50) score+=1;
+    if((comboPeak||1)>=10) score+=3; else if((comboPeak||1)>=6) score+=2; else if((comboPeak||1)>=3) score+=1;
+    const gb = document.getElementById('goGradeBadge');
+    const gl = document.getElementById('goGradeLabel');
+    if(score>=7){      gb.textContent='SSS'; gb.style.color='#ff6ef7'; gb.style.borderColor='#ff6ef7'; gb.style.boxShadow='0 0 32px #ff6ef7aa'; gl.textContent='TRANSCENDENT'; gl.style.color='#ff6ef7'; document.getElementById('goSubtitle').textContent='BEYOND HUMAN LIMITS'; gb.style.fontSize='22px'; }
+    else if(score>=5){ gb.textContent='SS';  gb.style.color='#f0abfc'; gb.style.borderColor='#f0abfc'; gb.style.boxShadow='0 0 28px #f0abfc88'; gl.textContent='ELITE RUN';    gl.style.color='#f0abfc'; document.getElementById('goSubtitle').textContent='OUTSTANDING EFFORT'; gb.style.fontSize='26px'; }
+    else if(score>=4){ gb.textContent='S';   gb.style.color='#fbbf24'; gb.style.borderColor='#fbbf24'; gb.style.boxShadow='0 0 24px #fbbf2466'; gl.textContent='LEGENDARY';     gl.style.color='#fbbf24'; document.getElementById('goSubtitle').textContent='AN INCREDIBLE RUN'; }
+    else if(score>=3){ gb.textContent='A';   gb.style.color='#34d399'; gb.style.borderColor='#34d399'; gb.style.boxShadow='0 0 24px #34d39966'; gl.textContent='GREAT RUN';     gl.style.color='#34d399'; }
+    else if(score>=2){ gb.textContent='B';   gb.style.color='#60a5fa'; gb.style.borderColor='#60a5fa'; gb.style.boxShadow='0 0 24px #60a5fa66'; gl.textContent='SOLID EFFORT';  gl.style.color='#60a5fa'; }
+    else {             gb.textContent='C';   gb.style.color='#f87171'; gb.style.borderColor='#f87171'; gb.style.boxShadow='0 0 24px #f8717166'; gl.textContent='KEEP GRINDING'; gl.style.color='#f87171'; }
+    // Ember/ash particle effect
+    const goc = document.getElementById('goCanvas');
+    if(goc){ goc.width=window.innerWidth; goc.height=window.innerHeight;
+        const gctx=goc.getContext('2d');
+        const embers=Array.from({length:80},()=>({x:Math.random()*goc.width,y:goc.height+20,vx:(Math.random()-0.5)*1.5,vy:-(0.8+Math.random()*2),alpha:0.7+Math.random()*0.3,size:2+Math.random()*4,wobble:Math.random()*Math.PI*2}));
+        let gf=0;
+        function drawEmbers(){if(document.getElementById('gameOver').style.display==='none')return;
+            gctx.clearRect(0,0,goc.width,goc.height);
+            embers.forEach(e=>{e.x+=e.vx+Math.sin(e.wobble)*0.4;e.y+=e.vy;e.wobble+=0.06;if(gf>120)e.alpha-=0.005;if(e.y<-20||e.alpha<=0){e.y=goc.height+20;e.x=Math.random()*goc.width;e.alpha=0.7+Math.random()*0.3;}
+                gctx.save();gctx.globalAlpha=e.alpha;gctx.fillStyle=Math.random()<0.3?'#fbbf24':'#ef4444';gctx.shadowBlur=8;gctx.shadowColor='#ef4444';
+                gctx.beginPath();gctx.arc(e.x,e.y,e.size,0,Math.PI*2);gctx.fill();gctx.restore();});
+            gf++;if(gf<500)requestAnimationFrame(drawEmbers);else gctx.clearRect(0,0,goc.width,goc.height);}
+        drawEmbers(); }
     // Clear the slot that corresponds to the active run (all slots wipe on death)
     if (typeof RUN_SLOT_KEYS !== 'undefined') RUN_SLOT_KEYS.forEach(k => localStorage.removeItem(k));
     else localStorage.removeItem('ballRPGRunSave');
 }
-function restartGame(){document.getElementById('gameOver').style.display='none';document.body.classList.add('game-active');mousePos={x:canvas.width/2,y:canvas.height/2};resetGame();gameRunning=true;mainTheme.pause();mainTheme.currentTime=0;fadeInMainTheme(1200);requestAnimationFrame(gameLoop);}
+function restartGame(){document.getElementById('gameOver').style.display='none';document.getElementById('youWinScreen').style.display='none';document.body.classList.add('game-active');mousePos={x:canvas.width/2,y:canvas.height/2};resetGame();gameRunning=true;mainTheme.pause();mainTheme.currentTime=0;fadeInMainTheme(1200);requestAnimationFrame(gameLoop);}
 
 const NAV_CELL = 20;
 let navGrid = null;
@@ -12580,7 +12798,7 @@ function resetGame(){
     autoFireEnabled=true;specialInProgress=false;
     dreamArmorAnnounce=null;lastDreamTierIdx=-1;bloodGodAnnounce=null;
     mgLastShot=0; lastTs=0;
-    runGold=0; runKills=0; runDamage=0; runSpecialUses=0; runPlayTime=0; activeAbilities=[]; activePassives=[]; lastShopWave=0; shopRerollCost=30;
+    runGold=0; runKills=0; runStartTime=Date.now(); winType='wave'; runDamage=0; runSpecialUses=0; runPlayTime=0; activeAbilities=[]; activePassives=[]; lastShopWave=0; shopRerollCost=30;
     runTookDamage=false; runShopPurchases=0;
     playerWebSlowTimer=0; playerSilencedTimer=0;
     if(currentCharacter==='hornet'){hornetMasks=10;hornetSilk=0;hornetShardTraps=[];hornetSpeedTimer=0;}
@@ -16739,8 +16957,6 @@ function startGame(){
     updateBiome();
     updateBiomeColors();
     showBiomeIndicator();
-    mainTheme.pause();
-    mainTheme.currentTime = 0;
     const _cgMap = getCharMusicMap();
     if (_cgMap[currentCharacter]) {
         syncCharMusicToGameState();
@@ -16748,7 +16964,7 @@ function startGame(){
         stopCharMusicAudio();
         fadeInMainTheme(1200);
     }
-    requestAnimationFrame(gameLoop);
+    if(gameRunning) requestAnimationFrame(gameLoop);
 }
 function startBossRush(){
     bossRushMode=true; bossRushBossIndex=0; bossRushRestTimer=0; bossRushScore=0; bossRushBossTimers=[]; bossRushBossStart=Date.now();
@@ -16772,11 +16988,16 @@ function bossRushNextBoss(){
     bossRushBossTimers.push(Date.now()-bossRushBossStart);
     bossRushBossIndex++;
     if(bossRushBossIndex>=5){
-        // ALL BOSSES CLEARED
+        // ALL BOSSES CLEARED — show win screen
         bossRushMode=false;
+        gameRunning=false;
+        stopJackpotMusic(); stopCharMusicAudio(); stopMainTheme();
+        skinOverlay.style.display='none';
+        savePersistentData();
+        if (typeof RUN_SLOT_KEYS !== 'undefined') RUN_SLOT_KEYS.forEach(k => localStorage.removeItem(k));
         const totalSec=Math.round(bossRushBossTimers.reduce((a,b)=>a+b,0)/1000);
         floatMoneyText(`👑 BOSS RUSH COMPLETE! Total: ${totalSec}s`);
-        setTimeout(()=>endGame(true),1500);
+        setTimeout(()=>showWinScreen(true), 800);
         return;
     }
     enemies=[]; bossBullets=[]; miniTriangles=[]; rhomboidBullets=[]; rhomboidMinions=[]; pentagonBullets=[]; hexagonBullets=[]; octagonBullets=[];
