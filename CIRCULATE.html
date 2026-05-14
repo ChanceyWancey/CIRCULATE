@@ -2921,6 +2921,7 @@
             <div class="character-ability" data-ability-key>Earns 2× gold per kill<br>PASSIVE: Greed stacks<br>[ABILITY]: Cash Out<br>convert greed to power</div>
             <div class="character-price">$500</div>
             <button class="info-btn" onclick="event.stopPropagation();showCharInfo('goldhoarder')">INFO</button>
+            <button class="mastery-btn" onclick="event.stopPropagation();showMastery('goldhoarder')">🏅 MASTERY</button>
         </div>
 
         <div class="character-card" onclick="selectCharacter('vampire')" id="vampireCharacter">
@@ -2937,6 +2938,7 @@
             <div class="character-ability" data-ability-key>Places turrets that shoot<br>PASSIVE: Blueprint — more turrets<br>[ABILITY]: Deploy Turret<br>up to 4 active at once</div>
             <div class="character-price">$1500</div>
             <button class="info-btn" onclick="event.stopPropagation();showCharInfo('builder')">INFO</button>
+            <button class="mastery-btn" onclick="event.stopPropagation();showMastery('builder')">🏅 MASTERY</button>
         </div>
 
         <div class="character-card" onclick="selectCharacter('phantom')" id="phantomCharacter">
@@ -12237,7 +12239,7 @@ function triggerYouWin() {
     gameRunning = false;
     skinOverlay.style.display = 'none';
     stopJackpotMusic(); stopCharMusicAudio(); stopMainTheme();
-    if (typeof RUN_SLOT_KEYS !== 'undefined') RUN_SLOT_KEYS.forEach(k => localStorage.removeItem(k));
+    if (typeof RUN_SLOT_KEYS !== 'undefined') { if(activeRunSlot) localStorage.removeItem(RUN_SLOT_KEYS[activeRunSlot-1]); }
     else localStorage.removeItem('ballRPGRunSave');
     showWinScreen(false);
 }
@@ -12322,8 +12324,8 @@ function endGame(sukunaKilled=false){
                 gctx.beginPath();gctx.arc(e.x,e.y,e.size,0,Math.PI*2);gctx.fill();gctx.restore();});
             gf++;if(gf<500)requestAnimationFrame(drawEmbers);else gctx.clearRect(0,0,goc.width,goc.height);}
         drawEmbers(); }
-    // Clear the slot that corresponds to the active run (all slots wipe on death)
-    if (typeof RUN_SLOT_KEYS !== 'undefined') RUN_SLOT_KEYS.forEach(k => localStorage.removeItem(k));
+    // Clear only the active run slot on death
+    if (typeof RUN_SLOT_KEYS !== 'undefined') { if(typeof activeRunSlot!=='undefined'&&activeRunSlot) localStorage.removeItem(RUN_SLOT_KEYS[activeRunSlot-1]); }
     else localStorage.removeItem('ballRPGRunSave');
 }
 function restartGame(){document.getElementById('gameOver').style.display='none';document.getElementById('youWinScreen').style.display='none';document.body.classList.add('game-active');mousePos={x:canvas.width/2,y:canvas.height/2};resetGame();gameRunning=true;mainTheme.pause();mainTheme.currentTime=0;fadeInMainTheme(1200);requestAnimationFrame(gameLoop);}
@@ -16931,7 +16933,8 @@ function backToMenu(){
     bossRushMode=false; bossRushBossIndex=0; bossRushRestTimer=0; bossRushScore=0;
     renderHQPanel();document.getElementById('tutorial').style.display='none';document.getElementById('characterShop').style.display='none';document.getElementById('questsPage').style.display='none';document.getElementById('moneyPopup').classList.remove('show');document.getElementById('mainMenu').style.display='block';updateMoneyDisplay();}
 function startGame(){
-    if(!bossRushMode) { bossRushBossIndex=0; bossRushRestTimer=0; bossRushScore=0; } // clear stale state if not a boss rush launch
+    activeRunSlot = null; // clear stale slot — loadRun will set this if loading from a save
+    if(!bossRushMode) { bossRushBossIndex=0; bossRushRestTimer=0; bossRushScore=0; }
     endlessMode = false;
     document.getElementById('mainMenu').style.display='none';
     document.getElementById('playMenu').style.display='none';
@@ -16994,7 +16997,7 @@ function bossRushNextBoss(){
         stopJackpotMusic(); stopCharMusicAudio(); stopMainTheme();
         skinOverlay.style.display='none';
         savePersistentData();
-        if (typeof RUN_SLOT_KEYS !== 'undefined') RUN_SLOT_KEYS.forEach(k => localStorage.removeItem(k));
+        if (typeof RUN_SLOT_KEYS !== 'undefined') { if(activeRunSlot) localStorage.removeItem(RUN_SLOT_KEYS[activeRunSlot-1]); }
         const totalSec=Math.round(bossRushBossTimers.reduce((a,b)=>a+b,0)/1000);
         floatMoneyText(`👑 BOSS RUSH COMPLETE! Total: ${totalSec}s`);
         setTimeout(()=>showWinScreen(true), 800);
@@ -17346,6 +17349,7 @@ function computeSaveHash(data) {
 // ===== MULTI-SLOT RUN SAVE SYSTEM =====
 const RUN_SLOT_KEYS = ['ballRPGRunSave_1','ballRPGRunSave_2','ballRPGRunSave_3'];
 const NUM_SLOTS = 3;
+let activeRunSlot = null; // tracks which slot is currently being played
 
 // Migrate any legacy single save into slot 1
 (function migrateLegacySave() {
@@ -17411,6 +17415,7 @@ function _buildSaveObject() {
 
 function saveRun(slot) {
     if (!gameRunning && !gamePaused) return;
+    activeRunSlot = slot;
     const save = _buildSaveObject();
     localStorage.setItem(RUN_SLOT_KEYS[slot - 1], JSON.stringify(save));
     floatMoneyText('💾 Saved to Slot ' + slot + ' - Wave ' + currentRound);
@@ -17421,6 +17426,7 @@ function saveRun(slot) {
 function loadRun(slot) {
     const save = getRunSlot(slot);
     if (!save) return;
+    activeRunSlot = slot;
 
     // Silently switch to the saved character - the slot card already shows who it belongs to
     if (save.character !== currentCharacter) {
@@ -17929,21 +17935,27 @@ function submitCode() {
         allChars.forEach(char => {
             if (!unlockedCharacters.includes(char)) unlockedCharacters.push(char);
         });
+        // Unlock + equip all masteries
         if (!unlockedMasteries.includes('default')) unlockedMasteries.push('default');
         if (!equippedMasteries.includes('default')) equippedMasteries.push('default');
         veteranWins = Math.max(veteranWins, 5);
         if (!unlockedMasteries.includes('builder')) unlockedMasteries.push('builder');
+        if (!equippedMasteries.includes('builder')) equippedMasteries.push('builder');
         builderWallsBuilt = Math.max(builderWallsBuilt, 250);
         if (!unlockedMasteries.includes('goldhoarder')) unlockedMasteries.push('goldhoarder');
+        if (!equippedMasteries.includes('goldhoarder')) equippedMasteries.push('goldhoarder');
         ghBestRun = Math.max(ghBestRun, 100000);
         gojoSukunaKills = Math.max(gojoSukunaKills, 20);
         if (!unlockedMasteries.includes('gojo')) unlockedMasteries.push('gojo');
+        if (!equippedMasteries.includes('gojo')) equippedMasteries.push('gojo');
         Object.keys(MASTERY_DATA).forEach(m => {
             if (!unlockedMasteries.includes(m)) unlockedMasteries.push(m);
+            if (!equippedMasteries.includes(m)) equippedMasteries.push(m);
         });
-        
+        // Add the $50,000
+        totalMoney += codeData.amount;
+        // Complete all quests
         HONORED_QUESTS.forEach(q => { if (!hqCompleted.includes(q.id)) hqCompleted.push(q.id); });
-        
         const hornetKillTypes = ['normal','triangle','shielder','splitter','healer','bomber','charger','regen_e','berserker_e','phantom_e','leech','sniper_e','puller','mirror_e','timebomb','guardian','golem','dasher','boomerang','swarm_unit','magnet','webber','silencer','mimic','echo','void_rift'];
         hornetKillTypes.forEach(t => { if ((enemyKillCounts[t] || 0) < 25) enemyKillCounts[t] = 25; });
         hornetNoDmgWave  = Math.max(hornetNoDmgWave, 100);
@@ -17953,9 +17965,10 @@ function submitCode() {
         localStorage.setItem('ballRPGHornetNoDmg', hornetNoDmgWave);
         localStorage.setItem('ballRPGHornetNoShop', hornetNoShopWins);
         renderHQPanel();
-        
         savePersistentData();
         updateShopDisplay();
+        updateMoneyDisplay();
+        updateMasteryCardButtons();
         floatMoneyText(codeData.message);
         alert(codeData.message);
     }
