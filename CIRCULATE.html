@@ -2885,6 +2885,19 @@
         </div>
     </div>
 
+    <div class="quest-board" style="margin-top:24px;">
+        <div class="quest-board-header" style="color:#fca5a5;border-color:rgba(220,38,38,0.4);">
+            <span class="quest-board-icon">🩸</span>
+            <span>Bloodseeker</span>
+            <span class="quest-board-reward" style="color:#ef4444;">Reward: Bloodseeker Mastery</span>
+        </div>
+        <div id="bloodseekerList"></div>
+        <div id="bloodseekerReveal" style="display:none;margin-top:10px;text-align:center;padding:10px;background:rgba(220,38,38,0.08);border-radius:8px;border:1px solid rgba(220,38,38,0.35);">
+            <span style="display:block;font-size:11px;color:#fca5a5;margin-bottom:4px;">All Bloodseeker quests complete! Mastery unlocked.</span>
+            <span style="display:block;font-size:12px;color:#f87171;font-style:italic;">The blood calls. Equip the Vampire mastery to play as Bloodseeker.</span>
+        </div>
+    </div>
+
     <div style="text-align:center;margin-top:24px;">
         <button class="menu-btn" onclick="backToMenu()" style="min-width:160px;padding:12px 24px;font-size:13px;">← Back</button>
     </div>
@@ -2918,7 +2931,7 @@
         <div class="character-card" onclick="selectCharacter('goldhoarder')" id="goldhoarderCharacter">
             <div class="character-preview" style="background:linear-gradient(135deg,#92400e,#fbbf24);box-shadow:0 0 18px rgba(251,191,36,.8);"></div>
             <div class="character-name">Gold Hoarder</div>
-            <div class="character-ability" data-ability-key>Earns 2× gold per kill<br>PASSIVE: Greed stacks<br>[ABILITY]: Cash Out<br>convert greed to power</div>
+            <div class="character-ability" data-ability-key>6.25× all gold income<br>PASSIVE: Gold Multiplier<br>[R]: Gold Rush — 40 mana<br>converts enemies into coins</div>
             <div class="character-price">$500</div>
             <button class="info-btn" onclick="event.stopPropagation();showCharInfo('goldhoarder')">INFO</button>
             <button class="mastery-btn" onclick="event.stopPropagation();showMastery('goldhoarder')">🏅 MASTERY</button>
@@ -2927,15 +2940,16 @@
         <div class="character-card" onclick="selectCharacter('vampire')" id="vampireCharacter">
             <div class="character-preview" style="background:linear-gradient(135deg,#3b0764,#a21caf);box-shadow:0 0 18px rgba(162,28,175,.7);"></div>
             <div class="character-name">Vampire</div>
-            <div class="character-ability" data-ability-key>Life steal on hit<br>PASSIVE: Blood Frenzy<br>[ABILITY]: Bat Swarm<br>bonus from enemy count</div>
+            <div class="character-ability" data-ability-key>+8 HP on every kill<br>PASSIVE: Bloodsucker<br>DASH: Vampire Blink (teleport)<br>No ability — kill to heal</div>
             <div class="character-price">$750</div>
             <button class="info-btn" onclick="event.stopPropagation();showCharInfo('vampire')">INFO</button>
+            <button class="mastery-btn" onclick="event.stopPropagation();showMastery('vampire')">🏅 MASTERY</button>
         </div>
 
         <div class="character-card" onclick="selectCharacter('builder')" id="builderCharacter">
             <div class="character-preview" style="background:linear-gradient(135deg,#1c1917,#a16207);box-shadow:0 0 18px rgba(161,98,7,.7);"></div>
             <div class="character-name">The Builder</div>
-            <div class="character-ability" data-ability-key>Places turrets that shoot<br>PASSIVE: Blueprint — more turrets<br>[ABILITY]: Deploy Turret<br>up to 4 active at once</div>
+            <div class="character-ability" data-ability-key>Build walls to block enemies<br>PASSIVE: Construction (8 walls)<br>[R]: Reinforce — 30 mana<br>E: Move existing walls</div>
             <div class="character-price">$1500</div>
             <button class="info-btn" onclick="event.stopPropagation();showCharInfo('builder')">INFO</button>
             <button class="mastery-btn" onclick="event.stopPropagation();showMastery('builder')">🏅 MASTERY</button>
@@ -2944,7 +2958,7 @@
         <div class="character-card" onclick="selectCharacter('phantom')" id="phantomCharacter">
             <div class="character-preview" style="background:linear-gradient(135deg,#0f0f0f,#7c3aed);box-shadow:0 0 18px rgba(124,58,237,.7);"></div>
             <div class="character-name">Phantom</div>
-            <div class="character-ability" data-ability-key>Phases through walls<br>PASSIVE: Ghost Walk<br>[ABILITY]: Phase Shift<br>2s invulnerable</div>
+            <div class="character-ability" data-ability-key>Shots phase through walls<br>PASSIVE: Ethereal Shots<br>[R]: Ghost Walk — 20 mana<br>4s phase + 1.8× speed + invuln</div>
             <div class="character-price">$1000</div>
             <button class="info-btn" onclick="event.stopPropagation();showCharInfo('phantom')">INFO</button>
         </div>
@@ -2952,7 +2966,7 @@
         <div class="character-card" onclick="selectCharacter('boxer')" id="boxerCharacter">
             <div class="character-preview" style="background:linear-gradient(135deg,#991b1b,#ef4444);box-shadow:0 0 18px rgba(239,68,68,.7);"></div>
             <div class="character-name">Boxer</div>
-            <div class="character-ability" data-ability-key>Melee close-range dmg<br>PASSIVE: Jab Combo<br>[ABILITY]: Uppercut<br>massive knockback</div>
+            <div class="character-ability" data-ability-key>2× damage — close range shots<br>PASSIVE: Close-Range Fighter<br>[R]: Power Dash — 25 mana<br>dash through &amp; damage enemies</div>
             <div class="character-price">$500</div>
             <button class="info-btn" onclick="event.stopPropagation();showCharInfo('boxer')">INFO</button>
         </div>
@@ -2960,7 +2974,7 @@
         <div class="character-card" onclick="selectCharacter('fire')" id="fireCharacter">
             <div class="character-preview" style="background:linear-gradient(135deg,#7c2d12,#f97316);box-shadow:0 0 18px rgba(249,115,22,.7);"></div>
             <div class="character-name">Fire Ball</div>
-            <div class="character-ability" data-ability-key>Burn DoT on hit<br>PASSIVE: Ignition<br>[ABILITY]: Inferno Burst<br>AoE fire explosion</div>
+            <div class="character-ability" data-ability-key>Shots leave burning patches<br>PASSIVE: Burning Ground<br>[R]: Inferno — 25 mana<br>ignite all + 16-shot fire ring</div>
             <div class="character-price">$1000</div>
             <button class="info-btn" onclick="event.stopPropagation();showCharInfo('fire')">INFO</button>
         </div>
@@ -2968,7 +2982,7 @@
         <div class="character-card" onclick="selectCharacter('druid')" id="druidCharacter">
             <div class="character-preview" style="background:linear-gradient(135deg,#14532d,#22c55e);box-shadow:0 0 18px rgba(34,197,94,.7);"></div>
             <div class="character-name">Druid</div>
-            <div class="character-ability" data-ability-key>Nature-based shots<br>PASSIVE: Regrowth (regen)<br>[ABILITY]: Thorn Wall<br>root + damage zone</div>
+            <div class="character-ability" data-ability-key>Shots root enemies 1.5s<br>PASSIVE: Vine Shots<br>[R]: Heal Mushrooms — 35 mana<br>5 healing zones around you</div>
             <div class="character-price">$1500</div>
             <button class="info-btn" onclick="event.stopPropagation();showCharInfo('druid')">INFO</button>
         </div>
@@ -2976,7 +2990,7 @@
         <div class="character-card" onclick="selectCharacter('ice')" id="iceCharacter">
             <div class="character-preview" style="background:linear-gradient(135deg,#0c4a6e,#38bdf8);box-shadow:0 0 18px rgba(56,189,248,.7);"></div>
             <div class="character-name">Ice Ball</div>
-            <div class="character-ability" data-ability-key>Freeze on hit<br>PASSIVE: Cryo Field<br>[ABILITY]: Blizzard<br>AoE slow + damage</div>
+            <div class="character-ability" data-ability-key>Piercing shots freeze 1.5s<br>PASSIVE: Shatter — 3× dmg on frozen<br>[R]: Blizzard — 30 mana<br>freeze all enemies in 350px</div>
             <div class="character-price">$1000</div>
             <button class="info-btn" onclick="event.stopPropagation();showCharInfo('ice')">INFO</button>
         </div>
@@ -2984,7 +2998,7 @@
         <div class="character-card" onclick="selectCharacter('pyromancer')" id="pyromancerCharacter">
             <div class="character-preview" style="background:linear-gradient(135deg,#450a0a,#dc2626);box-shadow:0 0 18px rgba(220,38,38,.7);"></div>
             <div class="character-name">Pyromancer</div>
-            <div class="character-ability" data-ability-key>Fireballs with splash<br>PASSIVE: Heat Wave<br>[ABILITY]: Meteor Strike<br>massive AoE impact</div>
+            <div class="character-ability" data-ability-key>Hold to charge shots (5× max)<br>PASSIVE: Charge Shot<br>[R]: Meteor Strike — 45 mana<br>8× AoE impact at cursor</div>
             <div class="character-price">$2000</div>
             <button class="info-btn" onclick="event.stopPropagation();showCharInfo('pyromancer')">INFO</button>
         </div>
@@ -2993,7 +3007,7 @@
             <div class="new-badge" style="background:linear-gradient(135deg,#15803d,#22c55e);">TOUGH</div>
             <div class="character-preview" style="background:linear-gradient(135deg,#14532d,#4ade80);box-shadow:0 0 18px rgba(74,222,128,.7);"></div>
             <div class="character-name">Tank</div>
-            <div class="character-ability">High HP · Low speed<br>PASSIVE: Iron Skin — reduce dmg<br>[ABILITY]: Shield Bash<br>stun all nearby enemies</div>
+            <div class="character-ability">500 HP · No shooting<br>PASSIVE: Body Slam — touch = 50 dmg<br>[R]: Ground Slam — 0 mana<br>4× AoE stun in 180px</div>
             <div class="character-price">$2000</div>
             <button class="info-btn" onclick="event.stopPropagation();showCharInfo('tank')">INFO</button>
         </div>
@@ -3001,7 +3015,7 @@
         <div class="character-card" onclick="selectCharacter('electric')" id="electricCharacter">
             <div class="character-preview" style="background:linear-gradient(135deg,#1e1b4b,#818cf8);box-shadow:0 0 18px rgba(129,140,248,.7);"></div>
             <div class="character-name">Tesla</div>
-            <div class="character-ability" data-ability-key>Chain lightning shots<br>PASSIVE: Conductor<br>[ABILITY]: Overload<br>rapid-fire surge</div>
+            <div class="character-ability" data-ability-key>Shots chain to 3 enemies<br>PASSIVE: Auto-Chain Lightning<br>[R]: Overload — 35 mana<br>8 shots chain to ALL enemies</div>
             <div class="character-price">$2000</div>
             <button class="info-btn" onclick="event.stopPropagation();showCharInfo('electric')">INFO</button>
         </div>
@@ -3010,7 +3024,7 @@
             <div class="new-badge" style="background:linear-gradient(135deg,#a16207,#facc15);">FAST</div>
             <div class="character-preview" style="background:linear-gradient(135deg,#713f12,#facc15);box-shadow:0 0 18px rgba(250,204,21,.8);"></div>
             <div class="character-name">Speedrunner</div>
-            <div class="character-ability">Ultra fast movement<br>PASSIVE: Momentum stacks<br>[ABILITY]: Blitz Dash<br>temporary speed burst</div>
+            <div class="character-ability">Damage scales with speed<br>PASSIVE: Velocity Damage<br>[R]: Sprint Burst — 0 mana<br>2.5× speed for 3s = max damage</div>
             <div class="character-price">$2500</div>
             <button class="info-btn" onclick="event.stopPropagation();showCharInfo('speedrunner')">INFO</button>
         </div>
@@ -3018,7 +3032,7 @@
         <div class="character-card" onclick="selectCharacter('cyborg')" id="cyborgCharacter">
             <div class="character-preview" style="background:linear-gradient(135deg,#1e3a5f,#38bdf8);box-shadow:0 0 18px rgba(56,189,248,.7);"></div>
             <div class="character-name">Cyborg</div>
-            <div class="character-ability" data-ability-key>Tech-enhanced shots<br>PASSIVE: Overclock<br>[ABILITY]: Missile Salvo<br>multi-target barrage</div>
+            <div class="character-ability" data-ability-key>E: Toggle Rapid ↔ Heavy mode<br>RAPID: fast weak · HEAVY: 2.8× slow<br>[R]: Laser Sweep — 30 mana<br>360° spinning laser hits all</div>
             <div class="character-price">$3000</div>
             <button class="info-btn" onclick="event.stopPropagation();showCharInfo('cyborg')">INFO</button>
         </div>
@@ -3027,7 +3041,7 @@
             <div class="new-badge" style="background:linear-gradient(135deg,#0e7490,#22d3ee);">RISKY</div>
             <div class="character-preview" style="background:linear-gradient(135deg,#164e63,#67e8f9);box-shadow:0 0 18px rgba(103,232,249,.8);"></div>
             <div class="character-name">Glass Cannon</div>
-            <div class="character-ability">1 HP · Extreme damage<br>PASSIVE: Adrenaline stacks<br>[ABILITY]: Nuke Shot<br>massive single burst</div>
+            <div class="character-ability">1 HP — any hit kills you<br>PASSIVE: Adrenaline +5 dmg/kill<br>Adrenaline resets on hit<br>No ability — pure offense</div>
             <div class="character-price">$3500</div>
             <button class="info-btn" onclick="event.stopPropagation();showCharInfo('glass_cannon')">INFO</button>
         </div>
@@ -3036,7 +3050,7 @@
             <div class="new-badge" style="background:linear-gradient(135deg,#4c1d95,#7c3aed);">UNDEAD</div>
             <div class="character-preview" style="background:linear-gradient(135deg,#1e1b4b,#8b5cf6);box-shadow:0 0 18px rgba(139,92,246,.8);"></div>
             <div class="character-name">Necromancer</div>
-            <div class="character-ability">Raises fallen enemies<br>PASSIVE: Soul Harvest<br>[ABILITY]: Death Wave<br>AoE necrotic burst</div>
+            <div class="character-ability">30% chance to raise killed enemy<br>PASSIVE: Dark Resurrection<br>[R]: Soul Burst — 40 mana<br>all minions explode (3× dmg)</div>
             <div class="character-price">$4000</div>
             <button class="info-btn" onclick="event.stopPropagation();showCharInfo('necromancer')">INFO</button>
         </div>
@@ -3052,7 +3066,7 @@
         <div class="character-card" onclick="selectCharacter('wemmbu')" id="wemmbuCharacter">
             <div class="character-preview" style="background:linear-gradient(135deg,#1e3a5f,#3b82f6);box-shadow:0 0 18px rgba(59,130,246,.7);"></div>
             <div class="character-name">Wemmbu</div>
-            <div class="character-ability" data-ability-key>Creator character<br>Unique passive abilities<br>[ABILITY]: Wemmbu Power<br>special burst</div>
+            <div class="character-ability" data-ability-key>Instant-kill everything in 280px<br>PASSIVE: Ground Slam (3s CD)<br>[R]: Ground Slam — 35 mana<br>erase all enemies in radius</div>
             <div class="character-price">Special</div>
             <button class="info-btn" onclick="event.stopPropagation();showCharInfo('wemmbu')">INFO</button>
         </div>
@@ -3060,7 +3074,7 @@
         <div class="character-card" onclick="selectCharacter('eggchan')" id="eggchanCharacter">
             <div class="character-preview" style="background:linear-gradient(135deg,#fef9c3,#fde047);box-shadow:0 0 18px rgba(253,224,71,.7);border-radius:50%;"></div>
             <div class="character-name">Eggchan</div>
-            <div class="character-ability" data-ability-key>Egg-themed attacks<br>PASSIVE: Yolk Burst<br>[ABILITY]: Scramble<br>AoE yolk splash</div>
+            <div class="character-ability" data-ability-key>Normal shots + R bow spam<br>PASSIVE: R costs only 1 mana<br>[R]: Bow Shot — 2× DMG<br>spam 100 arrows at 100 mana</div>
             <div class="character-price">Special</div>
             <button class="info-btn" onclick="event.stopPropagation();showCharInfo('eggchan')">INFO</button>
         </div>
@@ -3087,8 +3101,8 @@
         <div class="character-card limited-card" onclick="selectCharacter('dice')" id="diceCharacter">
             <div class="character-preview" style="background:linear-gradient(135deg,#1e1b4b,#8b5cf6);box-shadow:0 0 18px rgba(139,92,246,.7);"></div>
             <div class="character-name">Dice</div>
-            <div class="character-ability" data-ability-key>RNG-based combat<br>PASSIVE: Lucky Roll<br>[ABILITY]: High Stakes<br>double or nothing</div>
-            <div class="character-price">Limited</div>
+            <div class="character-ability" data-ability-key>10–150 random DMG per shot<br>PASSIVE: Random speed &amp; HP<br>[R]: Random Special (random cost)<br>chaos — adapt to survive</div>
+            <div class="character-price">$2,345</div>
             <div class="limited-timer" id="diceTimer"></div>
             <button class="info-btn" onclick="event.stopPropagation();showCharInfo('dice')">INFO</button>
         </div>
@@ -3097,16 +3111,15 @@
             <div class="character-preview" style="background:linear-gradient(135deg,#7f1d1d,#e84d4d);box-shadow:0 0 18px rgba(232,77,77,.8);border-radius:50%;"></div>
             <div class="character-name">Yuji Itadori</div>
             <div class="character-ability">180 HP · Speed 5.2 · 28 DMG<br>PASSIVE: 20% damage reduction<br>PASSIVE: Cursed Energy Residue (2× next 3 shots after ability)<br>Z: Divergent Fist — 4× + delayed burst<br>X: Manji Kick — 2.5× cone + knockback<br>R: Black Flash — 12× charge strike<br>🩸 20 Sukuna Fingers → SUKUNA</div>
-            <div class="character-price">Limited</div>
+            <div class="character-price">$28,000</div>
             <div class="limited-timer" id="yujiTimer"></div>
-            <button class="info-btn" onclick="event.stopPropagation();showCharInfo('yuji_itadori')">INFO</button>
         </div>
 
         <div class="character-card limited-card" onclick="selectCharacter('hakari_v2')" id="hakariCharacter">
             <div class="character-preview" style="background:linear-gradient(135deg,#831843,#f9a8d4);box-shadow:0 0 18px rgba(249,168,212,.7);border-radius:50%;"></div>
             <div class="character-name">Hakari</div>
-            <div class="character-ability" data-ability-key>Jackpot mechanic<br>PASSIVE: Domain Gambling<br>[ABILITY]: Idle Death Gamble<br>infinite regen on win</div>
-            <div class="character-price">Limited</div>
+            <div class="character-ability" data-ability-key>Domain blocks all enemies 60s<br>PASSIVE: 10% jackpot per roll<br>[R]: Domain Expansion — free<br>jackpot: 50× DMG + 4m11s regen</div>
+            <div class="character-price">$35,000</div>
             <div class="limited-timer" id="hakariTimer"></div>
             <button class="info-btn" onclick="event.stopPropagation();showCharInfo('hakari_v2')">INFO</button>
         </div>
@@ -3114,8 +3127,8 @@
         <div class="character-card limited-card" onclick="selectCharacter('character10b')" id="character10bCharacter">
             <div class="character-preview" style="background:linear-gradient(135deg,#0c4a6e,#38bdf8);box-shadow:0 0 18px rgba(56,189,248,.7);"></div>
             <div class="character-name">Character</div>
-            <div class="character-ability" data-ability-key>Coming soon...<br>Limited availability</div>
-            <div class="character-price">Limited</div>
+            <div class="character-ability" data-ability-key>11 HP · 10,000,000,000 DMG<br>PASSIVE: Godlike Power<br>[R]: Omnipotent — 1 mana<br>full heal + kill ALL enemies</div>
+            <div class="character-price">$50,000</div>
             <div class="limited-timer" id="character10bTimer"></div>
             <button class="info-btn" onclick="event.stopPropagation();showCharInfo('character10b')">INFO</button>
         </div>
@@ -3150,10 +3163,18 @@
         <!-- ═══════════ QUEST / SECRET CHARACTERS ═══════════ -->
         <div class="character-section-header quest-header">🔒 Quest &amp; Secret Characters</div>
 
+        <div class="character-card" onclick="selectCharacter('bloodseeker')" id="bloodseekerCharacter" style="display:none;border-color:rgba(220,38,38,0.5);background:linear-gradient(135deg,rgba(69,10,10,0.4),rgba(127,29,29,0.15));">
+            <div class="character-preview" style="background:linear-gradient(135deg,#450a0a,#7f1d1d);box-shadow:0 0 22px rgba(220,38,38,0.9);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:26px;">🩸</div>
+            <div class="character-name" style="color:#f87171;">Bloodseeker</div>
+            <div class="character-ability">75 HP · Speed 6 · 25 DMG · FR 4<br>PASSIVE: Bloodlet — 5% HP on kill / overheal shield<br>PASSIVE: Bloodmage — mana → lifesteal<br>R: Blood Beam (pierce all, -15 HP)<br>Z: Blood Wave (one-shot base, -25 HP)<br>X: Blood Hunt (2× FR + 45% LS, -50 HP)</div>
+            <div class="character-price">🧛 Vampire Mastery</div>
+            <button class="info-btn" onclick="event.stopPropagation();showCharInfo('bloodseeker')" style="border-color:rgba(220,38,38,0.5);color:#f87171;">INFO</button>
+        </div>
+
         <div class="character-card" onclick="selectCharacter('war_veteran')" id="warVeteranCharacter" style="display:none;border-color:rgba(251,191,36,0.4);">
             <div class="character-preview" style="background:linear-gradient(135deg,#78350f,#fbbf24);box-shadow:0 0 18px rgba(251,191,36,.7);"></div>
             <div class="character-name">War Veteran</div>
-            <div class="character-ability" data-ability-key>Battle-hardened fighter<br>PASSIVE: Combat veteran<br>[ABILITY]: War Cry<br>temporary power surge</div>
+            <div class="character-ability" data-ability-key>Promotes every 45s (5 ranks)<br>PASSIVE: +7.5 DMG per promotion<br>[R]: Ranked Bombardment<br>power changes each rank</div>
             <div class="character-price">Quest Reward</div>
             <button class="info-btn" onclick="event.stopPropagation();showCharInfo('war_veteran')">INFO</button>
         </div>
@@ -3161,7 +3182,7 @@
         <div class="character-card" onclick="selectCharacter('prime_veteran')" id="primeVeteranCharacter" style="display:none;">
             <div class="character-preview" style="background:linear-gradient(135deg,#1e3a5f,#3b82f6);box-shadow:0 0 18px rgba(59,130,246,.7);"></div>
             <div class="character-name">Prime Veteran</div>
-            <div class="character-ability" data-ability-key>Evolved Veteran form<br>PASSIVE: Peak Condition<br>[ABILITY]: Prime Strike<br>max power output</div>
+            <div class="character-ability" data-ability-key>OG Veteran — classic form<br>PASSIVE: Evolves every 30s<br>[R]: Veteran Burst — 20 mana<br>radial shot burst per tier</div>
             <div class="character-price">Quest Reward</div>
             <button class="info-btn" onclick="event.stopPropagation();showCharInfo('prime_veteran')">INFO</button>
         </div>
@@ -3169,7 +3190,7 @@
         <div class="character-card" onclick="selectCharacter('last_architect')" id="lastArchitectCharacter" style="display:none;border-color:rgba(167,139,250,0.4);">
             <div class="character-preview" style="background:linear-gradient(135deg,#1e1b4b,#a78bfa);box-shadow:0 0 18px rgba(167,139,250,.7);"></div>
             <div class="character-name">The Last Architect</div>
-            <div class="character-ability" data-ability-key>Builds reality itself<br>PASSIVE: Blueprint mastery<br>[ABILITY]: Construct<br>shape the arena</div>
+            <div class="character-ability" data-ability-key>Sentries: 2× DMG, 3× duration<br>PASSIVE: Grand Design<br>[R]: Ancient Construction — 35 mana<br>Turret Mode or Robot Mode</div>
             <div class="character-price">Quest Reward</div>
             <button class="info-btn" onclick="event.stopPropagation();showCharInfo('last_architect')">INFO</button>
         </div>
@@ -3177,7 +3198,7 @@
         <div class="character-card" onclick="selectCharacter('coin_king')" id="coinKingCharacter" style="display:none;border-color:rgba(251,191,36,0.5);">
             <div class="character-preview" style="background:linear-gradient(135deg,#713f12,#fbbf24);box-shadow:0 0 22px rgba(251,191,36,.85);"></div>
             <div class="character-name">The Coin King</div>
-            <div class="character-ability" data-ability-key>Gold powers everything<br>PASSIVE: Royal Treasury<br>[ABILITY]: Gold Rush<br>money = damage</div>
+            <div class="character-ability" data-ability-key>10× all gold income<br>PASSIVE: +3 HP per kill<br>[R]: Gold Shower — 50 mana<br>20 coins in 360° ring (30 dmg each)</div>
             <div class="character-price">Quest Reward</div>
             <button class="info-btn" onclick="event.stopPropagation();showCharInfo('coin_king')">INFO</button>
         </div>
@@ -3185,7 +3206,7 @@
         <div class="character-card" onclick="selectCharacter('megumi')" id="megumiCharacter" style="display:none;border-color:rgba(125,211,252,0.5);background:linear-gradient(135deg,rgba(15,23,42,0.4),rgba(99,102,241,0.1));">
             <div class="character-preview" style="background:linear-gradient(135deg,#0f172a,#6366f1);box-shadow:0 0 18px rgba(99,102,241,.7);border-radius:50%;"></div>
             <div class="character-name">Megumi Fushiguro</div>
-            <div class="character-ability" data-ability-key>Ten Shadows Technique<br>PASSIVE: Shikigami summon<br>[ABILITY]: Divine Dogs<br>shadow beast assault</div>
+            <div class="character-ability" data-ability-key>CE regen + 22 CE per kill<br>PASSIVE: Ten Shadows Technique<br>[R]: 3 Divine Dogs (35 CE)<br>Wave 100+ hold R: MAHORAGAH</div>
             <div class="character-price">Quest Reward</div>
             <button class="info-btn" onclick="event.stopPropagation();showCharInfo('megumi')">INFO</button>
         </div>
@@ -3201,7 +3222,7 @@
         <div class="character-card" onclick="selectCharacter('gojo')" id="gojoCharacter" style="display:none;border-color:rgba(99,102,241,0.6);background:linear-gradient(135deg,rgba(49,46,129,0.3),rgba(99,102,241,0.15));">
             <div class="character-preview" style="background:linear-gradient(135deg,#312e81,#6366f1);box-shadow:0 0 22px rgba(99,102,241,.9);border-radius:50%;"></div>
             <div class="character-name">Gojo Satoru</div>
-            <div class="character-ability">28 DMG • Pierce shots<br>35% Infinity block<br>R: Unlimited Void freeze all<br>The Honored One</div>
+            <div class="character-ability">Shots pierce all enemies<br>PASSIVE: Infinity (15%→70% block)<br>[R]: Unlimited Void — 60 CE<br>Grows: Baby→Teen→Adult→Strongest</div>
             <div class="character-price">♾️ Secret Code</div>
             <button class="info-btn" onclick="event.stopPropagation();showCharInfo('gojo')">INFO</button>
             <button class="mastery-btn" onclick="event.stopPropagation();showMastery('gojo')">🏅 MASTERY</button>
@@ -4004,6 +4025,7 @@ let unlockedMasteries = JSON.parse(localStorage.getItem('ballRPGMasteries')) || 
 let equippedMasteries = JSON.parse(localStorage.getItem('ballRPGEquippedMasteries')) || [];
 let veteranWins = parseInt(localStorage.getItem('ballRPGVeteranWins')) || 0;
 let ghBestRun = parseInt(localStorage.getItem('ballRPGGhBestRun')) || 0;
+let vampireKills = parseInt(localStorage.getItem('ballRPGVampireKills')) || 0;
 let gojoSukunaKills = parseInt(localStorage.getItem('ballRPGGojoSukunaKills')) || 0;
 let unlockedAchievements = JSON.parse(localStorage.getItem('ballRPGAchievements')) || [];
 let achievementDates = JSON.parse(localStorage.getItem('ballRPGAchievDates')) || {};
@@ -4066,7 +4088,7 @@ const LIMITED_CARD_IDS = {
 const LIMITED_EXPIRY = {
     'dice': new Date(2026, 2, 8, 23, 59, 59),
     'hakari_v2': new Date(2026, 2, 8, 23, 59, 59),
-    'yuji_itadori': new Date(2026, 4, 22, 23, 59, 59),
+    'yuji_itadori': new Date(2026, 4, 29, 23, 59, 59),
     'character10b': new Date(2026, 2, 6, 23, 59, 59),
     'higuruma': new Date(2026, 4, 21, 18, 0, 0),
     'rouge_square': new Date(2026, 2, 13, 12, 0, 0),
@@ -4161,6 +4183,7 @@ const CHARACTERS = {
     luffy: { name:'Luffy', color:'#e63946', shadow:'#7f1d1d', projColor:'#ff6b6b', ability:'arm_haki', manaCost:0, cdMax:0, isLuffy:true, useImg:false },
     naruto: { name:'Naruto Uzumaki', color:'#ff6600', shadow:'#cc3300', projColor:'#ff9900', ability:'nine_tails', manaCost:0, cdMax:0, isNaruto:true, useImg:false },
     higuruma: { name:'Hiromi Higuruma', color:'#1f2937', shadow:'#111827', projColor:'#fbbf24', ability:'deadly_sentencing', manaCost:0, cdMax:0, isHiguruma:true, useImg:false },
+    bloodseeker: { name:'Bloodseeker', color:'#7f1d1d', shadow:'#450a0a', projColor:'#dc2626', ability:'blood_beam', manaCost:0, cdMax:0, isBloodseeker:true, useImg:false },
     merchant: { name:'The Merchant', color:'#b45309', shadow:'#78350f', projColor:'#fbbf24', ability:'merchant_shop', manaCost:0, cdMax:0, isMerchant:true, useImg:false },
 };
 
@@ -4294,6 +4317,10 @@ let overloadCharges = 0;
 
 let runGold = 0;
 let runKills = 0;
+let bsMassacreKills = parseInt(localStorage.getItem('ballRPGBsMassacre')) || 0;
+let runMaxDmgStat = 0;
+let runMaxLifestealPct = 0;
+let runHpUpgrades = 0;
 let runStartTime = Date.now();  // tracked for win screen time display
 let winType = 'wave';           // 'wave' or 'bossrush'
 let runDamage = 0;
@@ -4420,6 +4447,38 @@ const HONORED_QUESTS = [
         check: () => megumiStreakReached,
         progress: () => `${Math.min(megumiKillStreak,50)}/50 (no damage)`,
     },
+    {
+        id: 'bs_massacre',
+        character: 'Bloodseeker',
+        label:'Massacre',
+        desc:'Kill 10,000 total enemies across all runs.',
+        check: () => bsMassacreKills >= 10000,
+        progress: () => `${Math.min(bsMassacreKills,10000).toLocaleString()}/10,000`,
+    },
+    {
+        id: 'bs_sharpened_fangs',
+        character: 'Bloodseeker',
+        label:'Sharpened Fangs',
+        desc:'Reach 500+ damage in a single run.',
+        check: () => runMaxDmgStat >= 500,
+        progress: () => `${Math.floor(runMaxDmgStat)}/500 DMG`,
+    },
+    {
+        id: 'bs_bloodthirsty',
+        character: 'Bloodseeker',
+        label:'Bloodthirsty',
+        desc:'Reach 100% lifesteal in a single run.',
+        check: () => runMaxLifestealPct >= 100,
+        progress: () => `${runMaxLifestealPct.toFixed(1)}%/100%`,
+    },
+    {
+        id: 'bs_endurance',
+        character: 'Bloodseeker',
+        label:'Endurance',
+        desc:'Survive to wave 300 without buying any HP upgrades.',
+        check: () => currentRound >= 300 && runHpUpgrades === 0,
+        progress: () => runHpUpgrades > 0 ? `BOUGHT ${runHpUpgrades} HP upgrade(s) — restart` : `Wave ${Math.min(currentRound,300)}/300`,
+    },
 ];
 
 let hqCompleted = JSON.parse(localStorage.getItem('ballRPGHQCompleted')) || [];
@@ -4437,6 +4496,11 @@ function saveHQ() {
 }
 
 function checkHonored() {
+    if (gameRunning && player) {
+        if ((player.damage||0) > runMaxDmgStat) runMaxDmgStat = player.damage;
+        const _totalLS = (passiveState.lifesteal||0) * 5 + (typeof bsLifesteal !== 'undefined' ? bsLifesteal : 0);
+        if (_totalLS > runMaxLifestealPct) runMaxLifestealPct = _totalLS;
+    }
     const LIMITED = ['rouge_square'];
     if (LIMITED.includes(currentCharacter)) return;
     let changed = false;
@@ -4456,12 +4520,21 @@ function checkHonored() {
         try { saveHQ(); } catch(e) {}
         try { renderHQPanel(); } catch(e) {}
     }
+    // Bloodseeker mastery unlock via quests
+    const bsQuestIds = ['bs_massacre','bs_sharpened_fangs','bs_bloodthirsty','bs_endurance'];
+    if (bsQuestIds.every(id => hqCompleted.includes(id)) && !unlockedMasteries.includes('vampire')) {
+        unlockedMasteries.push('vampire');
+        savePersistentData();
+        try { floatMoneyText('🩸 BLOODSEEKER MASTERY UNLOCKED! All quests complete!'); } catch(e) {}
+        try { for(let i=0;i<40;i++) particles.push(new Particle(player.x+(Math.random()-0.5)*120, player.y+(Math.random()-0.5)*120, '#dc2626')); } catch(e) {}
+    }
 }
 
 function renderHQPanel() {
     const gojoQuests   = HONORED_QUESTS.filter(q => q.character === 'Satoru Gojo');
     const hornetQuests = HONORED_QUESTS.filter(q => q.character === 'Hornet');
     const megumiQuests = HONORED_QUESTS.filter(q => q.character === 'Megumi Fushiguro');
+    const bsQuests     = HONORED_QUESTS.filter(q => q.character === 'Bloodseeker');
 
     function renderList(listId, quests) {
         const list = document.getElementById(listId);
@@ -4480,6 +4553,7 @@ function renderHQPanel() {
     renderList('hqList', gojoQuests);
     renderList('hornetList', hornetQuests);
     renderList('megumiList', megumiQuests);
+    renderList('bloodseekerList', bsQuests);
 
     const gojoAllDone = gojoQuests.every(q => hqCompleted.includes(q.id));
     const reveal = document.getElementById('hqReveal');
@@ -4492,6 +4566,10 @@ function renderHQPanel() {
     const megumiAllDone = megumiQuests.every(q => hqCompleted.includes(q.id));
     const megumiReveal = document.getElementById('megumiReveal');
     if (megumiReveal) megumiReveal.style.display = megumiAllDone ? 'block' : 'none';
+
+    const bsAllDone = bsQuests.every(q => hqCompleted.includes(q.id));
+    const bsReveal = document.getElementById('bloodseekerReveal');
+    if (bsReveal) bsReveal.style.display = bsAllDone ? 'block' : 'none';
 }
 
 let shopRerollCost = 30;
@@ -4689,7 +4767,7 @@ const SHOP_PASSIVES = [
       onBuy: ()=>{ passiveState.treasureSense = (passiveState.treasureSense||0) + 1; }
     },
     { id:'fortify',       name:'Fortify',          icon:'🏰', desc:'Max HP +50, receive 20% less damage. One time purchase.', cost:150, tier:'expensive', maxStack:2, stackDesc:'+50 HP and +20% reduction per stack.',
-      onBuy: ()=>{ player.maxHealth+=50; player.health=Math.min(player.health+50,player.maxHealth); passiveState.armor=(passiveState.armor||0)+0.20; updateHUD(); }
+      onBuy: ()=>{ player.maxHealth+=50; player.health=Math.min(player.health+50,player.maxHealth); passiveState.armor=(passiveState.armor||0)+0.20; runHpUpgrades++; updateHUD(); }
     },
     { id:'piercing_shots',name:'Piercing Ammo',    icon:'🔱', desc:'Bullets pass through up to 2 additional enemies.', cost:120, tier:'expensive', maxStack:3, stackDesc:'+1 pierce per stack.',
       onBuy: ()=>{ passiveState.piercing = (passiveState.piercing||0) + 2; }
@@ -6082,6 +6160,107 @@ function tickNewCharacters(ts, dt) {
         }
     }
 
+    if (skin === 'bloodseeker') {
+        if(bsBeamCd  > 0) bsBeamCd  -= dt;
+        if(bsWaveCd  > 0) bsWaveCd  -= dt;
+        if(bsHuntCd  > 0) bsHuntCd  -= dt;
+
+        // ── Bloodmage: convert mana upgrades to lifesteal ──
+        if(player.maxMana > bsPrevMaxMana) {
+            const gained = player.maxMana - bsPrevMaxMana;
+            bsLifesteal = Math.min(1, bsLifesteal + gained * 0.0005); // 10 mana = 0.5%
+            floatMoneyText(`💉 Bloodmage: +${(gained*0.05).toFixed(1)}% lifesteal → ${(bsLifesteal*100).toFixed(1)}% total`);
+            player.maxMana = 0; player.mana = 0;
+        }
+        bsPrevMaxMana = player.maxMana;
+
+        // ── Blood Hunt timer ──
+        if(bsHuntActive) {
+            bsHuntTimer -= dt;
+            // Rage aura
+            ctx.save();
+            ctx.globalAlpha = 0.3 + 0.15*Math.sin(ts*0.02);
+            const rg = ctx.createRadialGradient(player.x,player.y,0,player.x,player.y,player.radius+22);
+            rg.addColorStop(0,'rgba(220,38,38,0.7)'); rg.addColorStop(1,'rgba(0,0,0,0)');
+            ctx.fillStyle = rg; ctx.shadowBlur=_shadowsEnabled?30:0; ctx.shadowColor='#dc2626';
+            ctx.beginPath(); ctx.arc(player.x,player.y,player.radius+22,0,Math.PI*2); ctx.fill();
+            ctx.restore();
+            if(bsHuntTimer <= 0) {
+                bsHuntActive = false; bsHuntCd = 2100; // 35s after end
+                floatMoneyText('🩸 Blood Hunt ended. 35s cooldown.');
+                for(let i=0;i<30;i++) particles.push(new Particle(player.x+(Math.random()-0.5)*40,player.y+(Math.random()-0.5)*40,'#7f1d1d'));
+            }
+        }
+
+        // ── Overheal shield ring ──
+        if(bsShield > 0) {
+            ctx.save();
+            ctx.globalAlpha = 0.7 + 0.2*Math.sin(ts*0.01);
+            ctx.strokeStyle = '#fbbf24'; ctx.lineWidth = 3;
+            ctx.shadowBlur = _shadowsEnabled ? 18 : 0; ctx.shadowColor = '#fbbf24';
+            ctx.beginPath(); ctx.arc(player.x,player.y,player.radius+7,0,Math.PI*2); ctx.stroke();
+            ctx.restore();
+        }
+
+        // ── Blood Beam charge & fire ──
+        if(bsBeamCharging) {
+            bsBeamChargeTimer += dt;
+            const chargeRatio = Math.min(bsBeamChargeTimer/30, 1);
+            // Update aim live
+            bsBeamAngle = Math.atan2(mousePos.y-player.y, mousePos.x-player.x);
+            // Charge buildup ring
+            ctx.save();
+            ctx.globalAlpha = chargeRatio * 0.8;
+            ctx.strokeStyle = '#dc2626'; ctx.lineWidth = 2+chargeRatio*3;
+            ctx.shadowBlur = _shadowsEnabled ? 20 : 0; ctx.shadowColor = '#ef4444';
+            ctx.beginPath(); ctx.arc(player.x,player.y,player.radius+4+chargeRatio*10,0,Math.PI*2); ctx.stroke();
+            ctx.restore();
+            if(bsBeamChargeTimer >= 30) { // 0.5s
+                bsBeamCharging = false; bsBeamCd = 270; // 4.5s
+                player.health -= 15; updateHUD();
+                if(player.health <= 0) { endGame(); return; }
+                // Fire piercing beam
+                const bx2 = player.x + Math.cos(bsBeamAngle)*800, by2 = player.y + Math.sin(bsBeamAngle)*800;
+                // Draw beam
+                ctx.save();
+                ctx.strokeStyle = '#dc2626'; ctx.lineWidth = 8;
+                ctx.shadowBlur = _shadowsEnabled ? 30 : 0; ctx.shadowColor = '#ef4444';
+                ctx.globalAlpha = 0.9;
+                ctx.beginPath(); ctx.moveTo(player.x,player.y); ctx.lineTo(bx2,by2); ctx.stroke();
+                ctx.strokeStyle = '#fca5a5'; ctx.lineWidth = 3;
+                ctx.beginPath(); ctx.moveTo(player.x,player.y); ctx.lineTo(bx2,by2); ctx.stroke();
+                ctx.restore();
+                // Hit all enemies on line
+                let beamHits = 0;
+                enemies.forEach(e => {
+                    if(!e.alive) return;
+                    const ldx=bx2-player.x, ldy=by2-player.y;
+                    const lt=Math.max(0,Math.min(1,((e.x-player.x)*ldx+(e.y-player.y)*ldy)/(ldx*ldx+ldy*ldy)));
+                    const cx2=player.x+lt*ldx, cy2=player.y+lt*ldy;
+                    if(Math.hypot(e.x-cx2,e.y-cy2) > e.radius+6) return;
+                    const dmg = applyPassiveDamageBoost(player.damage * 8);
+                    if(!damageEnemy(e,dmg,player.x,player.y)) return;
+                    // Lifesteal
+                    const heal = dmg * (bsHuntActive ? 0.45 : bsLifesteal);
+                    if(heal > 0){ player.health=Math.min(player.maxHealth,player.health+heal); updateHUD(); }
+                    if(e.health<=0&&e.alive){e.alive=false;player.kills++;gainExp(e.expValue);handleKill(e);}
+                    for(let i=0;i<8;i++) particles.push(new Particle(e.x,e.y,'#dc2626'));
+                    beamHits++;
+                });
+                floatMoneyText(`🩸 BLOOD BEAM! ${beamHits} hit! (-15 HP)`);
+                playSound(120,0.3,'sawtooth'); playSound(80,0.2,'square');
+            }
+        }
+
+        // ── HUD ──
+        ctx.save();
+        ctx.font='bold 10px Arial'; ctx.textAlign='left';
+        ctx.fillStyle='rgba(220,38,38,0.9)'; ctx.shadowBlur=_shadowsEnabled?6:0; ctx.shadowColor='#dc2626';
+        const huntTxt = bsHuntActive ? ` | 🔴 HUNT ${Math.ceil(bsHuntTimer/60)}s` : bsHuntCd>0 ? ` | Hunt CD ${(bsHuntCd/60).toFixed(0)}s` : '';
+        ctx.fillText(`🩸 BLOODSEEKER  R: Beam  Z: Wave  X: Hunt${huntTxt}  💉${(bsLifesteal*100).toFixed(1)}% LS  🛡️${Math.round(bsShield)}`, 12, 22);
+        ctx.restore();
+    }
+
     if (skin === 'yuji_itadori' && !yujiIsSukuna) {
         if(yujiZCd > 0) yujiZCd -= dt;
         if(yujiXCd > 0) yujiXCd -= dt;
@@ -6514,6 +6693,14 @@ function applyPassiveDamageBoost(baseDmg) {
 
 function applyPassiveIncomingDamage(dmg) {
     if(passiveState.ghostly > 0 && Math.random() < passiveState.ghostly) { floatMoneyText('DODGED!'); if(passiveState.dodgeRegen>0){player.health=Math.min(player.health+passiveState.dodgeRegen,player.maxHealth);updateHUD();} return 0; }
+    // Bloodseeker: overheal shield absorbs first
+    if(currentCharacter === 'bloodseeker' && bsShield > 0) {
+        const absorbed = Math.min(bsShield, dmg);
+        bsShield = Math.max(0, bsShield - absorbed);
+        dmg -= absorbed;
+        if(bsShield === 0) floatMoneyText('🛡️ Shield broken!');
+        if(dmg <= 0) return 0;
+    }
     // Yuji: Superhuman Durability — 20% DR (not while Sukuna)
     if(currentCharacter === 'yuji_itadori' && !yujiIsSukuna) { dmg *= 0.80; }
     if(currentCharacter === 'luffy' && Math.random() < 0.35) { floatMoneyText('👁️ OBS. HAKI! DODGED!'); return 0; }
@@ -9906,6 +10093,17 @@ function specialAttack(){
             floatMoneyText('🔥 INFERNO!');
             setTimeout(()=>{specialInProgress=false;autoFireEnabled=true;},800); break;
         }
+        case 'blood_beam': {
+            if(bsBeamCharging){ floatMoneyText('🩸 Charging...'); return; }
+            if(bsBeamCd > 0){ floatMoneyText(`⏳ Blood Beam: ${(bsBeamCd/60).toFixed(1)}s`); return; }
+            if(player.health <= 20){ floatMoneyText('❌ Not enough HP for Blood Beam!'); return; }
+            bsBeamCharging    = true;
+            bsBeamChargeTimer = 0;
+            bsBeamAngle       = Math.atan2(mousePos.y-player.y, mousePos.x-player.x);
+            playSound(300,0.15,'sine'); playSound(200,0.1,'sawtooth');
+            floatMoneyText('🩸 Blood Beam charging...');
+            break;
+        }
         case 'black_flash': {
             if(yujiIsSukuna) { sk.ability='malevolentshrine'; sk.manaCost=0; break; }
             if(yujiBlackFlashCharging) { floatMoneyText('⚡ Charging...'); return; }
@@ -10394,6 +10592,45 @@ function specialAttack(){
     updateHUD();
 } // close specialAttack
 
+// ===== BLOODSEEKER ABILITIES =====
+function bs_bloodWave() {
+    if(bsWaveCd > 0){ floatMoneyText(`⏳ Blood Wave: ${(bsWaveCd/60).toFixed(1)}s`); return; }
+    if(player.health <= 30){ floatMoneyText('❌ Not enough HP for Blood Wave!'); return; }
+    bsWaveCd = 450; // 7.5s
+    player.health -= 25; updateHUD();
+    const radius = 150;
+    let killed = 0;
+    enemies.forEach(e => {
+        if(!e.alive) return;
+        if(Math.hypot(e.x-player.x, e.y-player.y) > radius) return;
+        const isBoss = e.isElite || e.isMiniB || currentBoss===e || currentRhomboid===e;
+        const dmg = isBoss ? player.damage * 25 : 999999;
+        if(!damageEnemy(e, dmg, player.x, player.y)) return;
+        if(e.health <= 0 && e.alive){ e.alive=false; player.kills++; gainExp(e.expValue); handleKill(e); }
+        for(let i=0;i<10;i++) particles.push(new Particle(e.x+(Math.random()-0.5)*20,e.y+(Math.random()-0.5)*20,'#dc2626'));
+        killed++;
+    });
+    // Wave ring particles
+    for(let a=0;a<Math.PI*2;a+=0.12){
+        const p=new Particle(player.x+Math.cos(a)*radius*0.5,player.y+Math.sin(a)*radius*0.5,'#dc2626');
+        p.vx=Math.cos(a)*5; p.vy=Math.sin(a)*5; particles.push(p);
+    }
+    floatMoneyText(`🩸 BLOOD WAVE! ${killed} obliterated! (-25 HP)`);
+    playSound(150,0.2,'sawtooth'); playSound(80,0.15,'square');
+}
+
+function bs_bloodHunt() {
+    if(bsHuntCd > 0){ floatMoneyText(`⏳ Blood Hunt: ${(bsHuntCd/60).toFixed(1)}s`); return; }
+    if(bsHuntActive){ floatMoneyText('🩸 Blood Hunt already raging!'); return; }
+    if(player.health <= 55){ floatMoneyText('❌ Not enough HP for Blood Hunt! (need 55+)'); return; }
+    player.health -= 50; updateHUD();
+    bsHuntActive = true;
+    bsHuntTimer  = 750; // 12.5s
+    floatMoneyText('🔴 BLOOD HUNT! 2× FIRE RATE + 45% LIFESTEAL! 12.5s!');
+    for(let i=0;i<60;i++){const a=Math.random()*Math.PI*2; const p=new Particle(player.x,player.y,'#dc2626'); p.vx=Math.cos(a)*7; p.vy=Math.sin(a)*7; particles.push(p);}
+    playSound(100,0.3,'sawtooth'); playSound(60,0.2,'square'); playSound(200,0.15,'sine');
+}
+
 // ===== YUJI ITADORI ABILITIES =====
 function yuji_divergentFist() {
     if(yujiZCd > 0) { floatMoneyText(`⏳ Divergent Fist: ${(yujiZCd/60).toFixed(1)}s`); return; }
@@ -10767,6 +11004,8 @@ function dash(){
 function handleKill(e) {
     const dropChance = Math.random(); if (dropChance < 0.3) createOrb(e.x, e.y, "HP"); if (dropChance > 0.6) createOrb(e.x, e.y, "MANA");
     runKills++;
+    bsMassacreKills++;
+    localStorage.setItem('ballRPGBsMassacre', bsMassacreKills);
     
     const eType = e.type || 'normal';
     if (!seenEnemyTypes.includes(eType)) { seenEnemyTypes.push(eType); }
@@ -10838,6 +11077,26 @@ function handleKill(e) {
         floatMoneyText('⚡⚡ BLACK FLASH BUFF! 3× DMG 5s!');
         for(let i=0;i<50;i++){const a=Math.random()*Math.PI*2; const p=new Particle(e.x+(Math.random()-0.5)*30,e.y+(Math.random()-0.5)*30,'#a78bfa'); p.vx=Math.cos(a)*5; p.vy=Math.sin(a)*5; particles.push(p);}
         playSound(150,0.2,'sine'); playSound(250,0.15,'sine');
+    }
+
+    // ── Bloodseeker: Bloodlet passive ──
+    if(currentCharacter === 'bloodseeker') {
+        if(player.health >= player.maxHealth) {
+            bsShield = Math.min(player.maxHealth * 0.5, bsShield + player.maxHealth * 0.05);
+            floatMoneyText('🛡️ Overheal shield!');
+        } else {
+            player.health = Math.min(player.maxHealth, player.health + player.maxHealth * 0.05);
+            updateHUD();
+        }
+    }
+    if(currentCharacter === 'vampire') {
+        vampireKills++;
+        localStorage.setItem('ballRPGVampireKills', vampireKills);
+        if(vampireKills >= 500 && !unlockedMasteries.includes('vampire')) {
+            unlockedMasteries.push('vampire');
+            savePersistentData();
+            floatMoneyText('🧛 VAMPIRE MASTERY UNLOCKED! Bloodseeker available!');
+        } else if(vampireKills === 250) { floatMoneyText(`🧛 ${vampireKills}/500 kills — halfway to Bloodseeker!`); }
     }
 
     // ── Elite drop ──
@@ -11385,6 +11644,19 @@ function drawGamepadCursor() {
 }
 
 // ===========================
+// ===== BLOODSEEKER (Vampire Mastery) =====
+let bsBeamCd          = 0;
+let bsBeamCharging    = false;
+let bsBeamChargeTimer = 0;
+let bsBeamAngle       = 0;
+let bsWaveCd          = 0;
+let bsHuntCd          = 0;
+let bsHuntActive      = false;
+let bsHuntTimer       = 0;       // 750 ticks = 12.5s
+let bsLifesteal       = 0;       // 0.0–1.0 from Bloodmage
+let bsShield          = 0;       // overheal shield HP
+let bsPrevMaxMana     = 0;       // detect mana upgrades for Bloodmage
+
 let bossRushMode      = false;
 let bossRushBossIndex = 0;   // 0=Triangle,1=Rhomboid,2=Pentagon,3=Hexagon,4=Octagon
 let bossRushRestTimer = 0;   // ticks countdown between bosses
@@ -11669,13 +11941,13 @@ const LEVEL_UP_POOL = [
     // ── Common stat boosts ──
     { id:'hp_sm',    icon:'❤️',  label:'+30 Max Health',             rarity:'common',
       canUse: sk => !sk.lockHpUpgrade,
-      apply: () => { player.maxHealth+=30; player.health=player.maxHealth; } },
+      apply: () => { player.maxHealth+=30; player.health=player.maxHealth; runHpUpgrades++; } },
     { id:'hp_lg',    icon:'💖',  label:'+60 Max Health',             rarity:'rare',
       canUse: sk => !sk.lockHpUpgrade,
-      apply: () => { player.maxHealth+=60; player.health=player.maxHealth; } },
+      apply: () => { player.maxHealth+=60; player.health=player.maxHealth; runHpUpgrades++; } },
     { id:'hp_heal',  icon:'🏥',  label:'+20 Max Health + Full Heal', rarity:'common',
       canUse: sk => !sk.lockHpUpgrade,
-      apply: () => { player.maxHealth+=20; player.health=player.maxHealth; } },
+      apply: () => { player.maxHealth+=20; player.health=player.maxHealth; runHpUpgrades++; } },
     { id:'dmg_sm',   icon:'⚔️',  label:'+5 Damage',                 rarity:'common',
       canUse: sk => !sk.isMachineGun && !sk.lockDmgUpgrade,
       apply: () => { player.damage+=5; } },
@@ -11698,7 +11970,7 @@ const LEVEL_UP_POOL = [
     // ── Combo boosts ──
     { id:'tank',     icon:'🛡️',  label:'+25 HP + 15% Damage Reduction', rarity:'uncommon',
       canUse: sk => !sk.lockHpUpgrade,
-      apply: () => { player.maxHealth+=25; player.health=Math.min(player.health+25,player.maxHealth); passiveState.armor=Math.min(passiveState.armor+0.15,0.60); } },
+      apply: () => { player.maxHealth+=25; player.health=Math.min(player.health+25,player.maxHealth); passiveState.armor=Math.min(passiveState.armor+0.15,0.60); runHpUpgrades++; } },
     { id:'caster',   icon:'🔮',  label:'+30 Mana + +3 Damage',          rarity:'uncommon',
       canUse: sk => !sk.lockManaUpgrade,
       apply: () => { const _sk=CHARACTERS[currentCharacter]; player.maxMana+=30; player.mana=player.maxMana; if(!_sk||!_sk.isMachineGun)player.damage+=3; } },
@@ -11707,7 +11979,7 @@ const LEVEL_UP_POOL = [
       apply: () => { player.damage+=8; player.speed+=1; } },
     { id:'balanced', icon:'⚖️',  label:'+15 HP, +3 Dmg, +10 Mana',     rarity:'uncommon',
       canUse: sk => !sk.lockHpUpgrade,
-      apply: () => { const _sk=CHARACTERS[currentCharacter]; player.maxHealth+=15; player.health=Math.min(player.health+15,player.maxHealth); if(!_sk||!_sk.isMachineGun)player.damage+=3; player.maxMana+=10; player.mana=Math.min(player.mana+10,player.maxMana); } },
+      apply: () => { const _sk=CHARACTERS[currentCharacter]; player.maxHealth+=15; player.health=Math.min(player.health+15,player.maxHealth); if(!_sk||!_sk.isMachineGun)player.damage+=3; player.maxMana+=10; player.mana=Math.min(player.mana+10,player.maxMana); runHpUpgrades++; } },
     { id:'glass',    icon:'💥',  label:'+20 Damage, -30 Max HP',         rarity:'uncommon',
       canUse: sk => !sk.isMachineGun && !sk.lockDmgUpgrade && player.maxHealth > 50,
       apply: () => { player.damage+=20; player.maxHealth=Math.max(30,player.maxHealth-30); player.health=Math.min(player.health,player.maxHealth); } },
@@ -12932,7 +13204,7 @@ function resetGame(){
     dreamArmorAnnounce=null;lastDreamTierIdx=-1;bloodGodAnnounce=null;
     mgLastShot=0; lastTs=0;
     runGold=0; runKills=0; runStartTime=Date.now(); winType='wave'; runDamage=0; runSpecialUses=0; runPlayTime=0; activeAbilities=[]; activePassives=[]; lastShopWave=0; shopRerollCost=30;
-    runTookDamage=false; runShopPurchases=0;
+    runTookDamage=false; runShopPurchases=0; runMaxDmgStat=0; runMaxLifestealPct=0; runHpUpgrades=0;
     playerWebSlowTimer=0; playerSilencedTimer=0;
     if(currentCharacter==='hornet'){hornetMasks=10;hornetSilk=0;hornetShardTraps=[];hornetSpeedTimer=0;}
     turrets=[]; pendingAirstrikes=[]; firePatches=[]; overloadCharges=0;
@@ -12997,6 +13269,8 @@ function resetGame(){
     if(currentCharacter==='merchant'){ player.maxHealth=100; player.health=100; player.speed=5; player.damage=15; }
     higuruma_evidence=0; higuruma_gavelCd=0; higuruma_judgemanCd=0; higuruma_judgemanActive=false; higuruma_judgemanTimer=0; higuruma_judgemanAngle=0; higuruma_judgemanShot=0; higuruma_domainActive=false; higuruma_domainTimer=0; higuruma_domainBullets=[]; higuruma_verdicts=[];
     if(currentCharacter==='higuruma'){ player.maxHealth=120; player.health=120; player.speed=4.5; player.damage=28; }
+    bsBeamCd=0; bsBeamCharging=false; bsBeamChargeTimer=0; bsWaveCd=0; bsHuntCd=0; bsHuntActive=false; bsHuntTimer=0; bsLifesteal=0; bsShield=0; bsPrevMaxMana=0;
+    if(currentCharacter==='bloodseeker'){ player.maxHealth=75; player.health=75; player.speed=6; player.damage=25; player.maxMana=0; player.mana=0; }
     // Naruto reset
     narutoUltBar=0; narutoUltActive=false; narutoUltTimer=0; narutoClones=[]; narutoZCd=0; narutoXCd=0; narutoRasenCd=0; narutoCloneKillCount=0;
     if(currentCharacter==='naruto'){ player.maxHealth=140;player.health=140;player.speed=5.5;player.damage=22; }
@@ -13466,6 +13740,43 @@ function drawPlayer(ts, dt=1){
         ctx.restore(); ctx.save(); ctx.translate(player.x,player.y); ctx.rotate(ts*0.005);
         ctx.strokeStyle=`rgba(251,191,36,${0.3+mPulse})`; ctx.lineWidth=2; ctx.setLineDash([4,5]);
         ctx.beginPath(); ctx.arc(0,0,player.radius+8,0,Math.PI*2); ctx.stroke();
+        ctx.restore();
+        return;
+    }
+
+    if(currentCharacter === 'bloodseeker') {
+        ctx.save();
+        if(player.invulnerable>0&&Math.floor(ts/100)%2===0) ctx.globalAlpha=0.5;
+        const bsPulse = bsHuntActive ? 0.35+0.25*Math.sin(ts*0.018) : 0.1+0.05*Math.sin(ts*0.005);
+        const bsCol = bsHuntActive ? '#dc2626' : '#7f1d1d';
+        const bsG = ctx.createRadialGradient(player.x-4,player.y-4,1,player.x,player.y,player.radius);
+        bsG.addColorStop(0, bsHuntActive?'#fca5a5':'#ef4444');
+        bsG.addColorStop(0.5, bsHuntActive?'#dc2626':'#7f1d1d');
+        bsG.addColorStop(1,'#450a0a');
+        ctx.shadowBlur=_shadowsEnabled?(bsHuntActive?40:18):0; ctx.shadowColor=bsCol;
+        ctx.fillStyle=bsG;
+        ctx.beginPath(); ctx.arc(player.x,player.y,player.radius,0,Math.PI*2); ctx.fill();
+        // Blood drip marks
+        ctx.strokeStyle='rgba(0,0,0,0.4)'; ctx.lineWidth=1.5;
+        for(let i=0;i<3;i++){
+            const da=(Math.PI*2/3)*i+Math.PI/6;
+            ctx.beginPath(); ctx.moveTo(player.x+Math.cos(da)*player.radius*0.3,player.y+Math.sin(da)*player.radius*0.3);
+            ctx.lineTo(player.x+Math.cos(da)*player.radius*0.75,player.y+Math.sin(da)*player.radius*0.75); ctx.stroke();
+        }
+        // Hunt rage spikes
+        if(bsHuntActive){
+            ctx.save(); ctx.translate(player.x,player.y); ctx.rotate(ts*0.012);
+            ctx.strokeStyle=`rgba(220,38,38,${0.6+bsPulse})`; ctx.lineWidth=2.5; ctx.setLineDash([3,4]);
+            ctx.beginPath(); ctx.arc(0,0,player.radius+9,0,Math.PI*2); ctx.stroke();
+            ctx.setLineDash([]); ctx.restore();
+        }
+        // Shield ring
+        if(bsShield>0){
+            ctx.save(); ctx.strokeStyle='#fbbf24'; ctx.lineWidth=2.5;
+            ctx.shadowBlur=_shadowsEnabled?14:0; ctx.shadowColor='#fbbf24'; ctx.globalAlpha=0.85;
+            ctx.beginPath(); ctx.arc(player.x,player.y,player.radius+6,0,Math.PI*2); ctx.stroke();
+            ctx.restore();
+        }
         ctx.restore();
         return;
     }
@@ -14064,7 +14375,7 @@ function gameLoop(ts){
             const overclockMult = 1 - Math.min(passiveState.overclock * 0.25, 0.75);
 
             const srMult = currentCharacter==='speedrunner' ? Math.max(0.3, 1 - Math.hypot(speedrunnerVelX,speedrunnerVelY)*0.04) : 1;
-            const fireInterval = 250 * overclockMult * srMult;
+            const fireInterval = 250 * overclockMult * srMult * (bsHuntActive ? 0.5 : 1);
             if (ts - autoFireLastShot > fireInterval) { if(!gojoHollowAnimating) shootProjectile(); autoFireLastShot = ts; }
         }
     }
@@ -14588,6 +14899,8 @@ function gameLoop(ts){
                 }
                 runDamage += pdmg; if(currentCharacter!=='gojo' && currentCharacter!=='the_strongest_today' && !proj.isHollowPurple) proj.alive=false;
                 if(runDamage >= 10000 && !hqCompleted.includes('hq_damage')) { checkHonored(); }
+                // Bloodseeker lifesteal
+                if(currentCharacter==='bloodseeker'){const ls=bsHuntActive?0.45:bsLifesteal;if(ls>0){player.health=Math.min(player.maxHealth,player.health+pdmg*ls);updateHUD();}}
 
                 // Luffy: G1 Bazooka knockback
                 if(proj.luffyKB){ luffyKnockback(e, proj.luffyKB, proj.x, proj.y); }
@@ -16368,6 +16681,10 @@ document.addEventListener('keydown',e=>{
         if(k === 'z') yuji_divergentFist();
         if(k === 'x') yuji_manjiKick();
     }
+    if(currentCharacter === 'bloodseeker' && gameRunning) {
+        if(k === 'z') bs_bloodWave();
+        if(k === 'x') bs_bloodHunt();
+    }
     // Mod character extra keys (z, x, c, q, e, f, g, h, etc.)
     const _modSk = CHARACTERS[currentCharacter];
     if(gameRunning && _modSk && _modSk._isModChar && _modSk._extraKeyFns && _modSk._extraKeyFns[k]) {
@@ -16654,6 +16971,19 @@ const CHAR_INFO = {
         abilities:`<b>Passive Shadow Clone:</b> Every 30 kills a Shadow Clone spawns (up to 3) and fights alongside you for 10 seconds, shooting enemies automatically.<br><br><b>Z – Rasengan (10s CD):</b> Fire a large spiraling ball that deals 3.5x damage on contact. In Nine-Tails Mode, deals 10.5x damage.<br><br><b>X – Rasenshuriken (15s CD):</b> Launch a spinning shuriken that pierces ALL enemies, dealing 5.5x AoE damage and slowing every target for 3 seconds.<br><br><b>R – Nine-Tails Chakra Mode:</b> Requires 100 kill bar (fills by 1 per kill). When active: 3x damage, 1.4x speed, 3 battle clones, and a blazing orange aura for 60 seconds. Bar resets after use.`,
         playstyle:'Kill-accumulation powerhouse. Farm the ultimate bar and explode on bosses with Nine-Tails. Use Z and X on cooldown for burst and crowd control.',
         tip:'💡 Tip: Save Nine-Tails for boss waves (50, 100, 150…). Rasenshuriken the entire screen first to slow everyone, then activate Nine-Tails for maximum chaos.',
+    },
+    bloodseeker: {
+        name:'Bloodseeker', tag:'🧛 Vampire Mastery · Glass Cannon', icon:'🩸',
+        iconBg:'linear-gradient(135deg,#450a0a,#7f1d1d)', iconGlow:'#dc2626',
+        stats:[
+            {label:'HP',value:'75'},{label:'Damage',value:'25'},{label:'Speed',value:'6'},
+            {label:'Mana',value:'0 — converts to lifesteal via Bloodmage'},
+            {label:'Fire Rate',value:'4 (doubles during Blood Hunt)'},
+            {label:'Difficulty',value:'Hard / Risky'},
+        ],
+        abilities:`<b>Passive — Bloodlet:</b> Every kill heals 5% of max HP. Killing at full HP creates an <b>overheal shield</b> that absorbs damage before your HP.<br><br><b>Passive — Bloodmage:</b> Mana stays 0. Every mana gained from upgrades converts: <b>10 mana = +0.5% lifesteal</b>. Stack mana upgrades religiously.<br><br><b>R — Blood Beam (4.5s CD, -15 HP):</b> 0.5s charge, then a piercing crimson beam across the whole arena. Hits everything in its path. Lifesteal applies per enemy.<br><br><b>Z — Blood Wave (7.5s CD, -25 HP):</b> Blood explosion in 150px radius. <b>One-shots all base enemies.</b> 25× damage to elites/bosses.<br><br><b>X — Blood Hunt (35s after end, -50 HP):</b> Blind rage for 12.5s: <b>2× fire rate + 45% lifesteal</b>. 35s cooldown begins when it ends.`,
+        playstyle:'A HP-spending glass cannon that heals through everything. Stack lifesteal with mana upgrades, then Blood Hunt into a wave for near-invulnerability.',
+        tip:'💡 Tip: Buy every mana upgrade in the shop — Bloodmage converts them all to permanent lifesteal. At high stacks, Blood Hunt makes you effectively unkillable.',
     },
     merchant: {
         name:'The Merchant', tag:'$8,000 · Gold Scales Everything', icon:'💰',
@@ -17233,6 +17563,7 @@ function updateShopDisplay(){
         'the_strongest_today': 'theStrongestTodayCharacter',
         'luffy': 'luffyCharacter',
         'higuruma': 'higurumaCharacter',
+        'bloodseeker': 'bloodseekerCharacter',
     };
 
     const wvCard = document.getElementById('warVeteranCharacter');
@@ -17307,6 +17638,17 @@ function updateShopDisplay(){
         megumiCard.style.display = megumiQuestsDone ? '' : 'none';
         megumiCard.classList.remove('selected','locked');
         if (megumiQuestsDone && currentCharacter === 'megumi') megumiCard.classList.add('selected');
+    }
+
+    const bsCardShop = document.getElementById('bloodseekerCharacter');
+    if (bsCardShop) {
+        const vMasteryUnlocked = unlockedMasteries.includes('vampire');
+        const vMasteryEquipped = equippedMasteries.includes('vampire');
+        bsCardShop.style.display = (vMasteryUnlocked && vMasteryEquipped) ? '' : 'none';
+        bsCardShop.classList.remove('selected', 'locked');
+        if (currentCharacter === 'bloodseeker') bsCardShop.classList.add('selected');
+        const bsPriceEl = bsCardShop.querySelector('.character-price');
+        if (bsPriceEl) bsPriceEl.textContent = vMasteryEquipped ? '🩸 Vampire Mastery' : `🩸 ${typeof vampireKills !== 'undefined' ? vampireKills : 0}/500 kills`;
     }
 
     document.querySelectorAll('.character-card').forEach(card => {
@@ -17452,6 +17794,7 @@ function savePersistentData(){
         ballRPGBuilderWallsBuilt: builderWallsBuilt,
         ballRPGGhBestRun: ghBestRun,
         ballRPGGojoSukunaKills: gojoSukunaKills,
+        ballRPGVampireKills: vampireKills,
         ballRPGAchievements: JSON.stringify(unlockedAchievements),
         ballRPGAchievDates: JSON.stringify(achievementDates),
         ballRPGSeenEnemies: JSON.stringify(seenEnemyTypes),
@@ -18091,8 +18434,9 @@ function submitCode() {
         if (!unlockedMasteries.includes('goldhoarder')) unlockedMasteries.push('goldhoarder');
         if (!equippedMasteries.includes('goldhoarder')) equippedMasteries.push('goldhoarder');
         ghBestRun = Math.max(ghBestRun, 100000);
-        gojoSukunaKills = Math.max(gojoSukunaKills, 20);
-        if (!unlockedMasteries.includes('gojo')) unlockedMasteries.push('gojo');
+        if (!unlockedMasteries.includes('vampire')) unlockedMasteries.push('vampire');
+        if (!equippedMasteries.includes('vampire')) equippedMasteries.push('vampire');
+        vampireKills = Math.max(vampireKills, 500);
         if (!equippedMasteries.includes('gojo')) equippedMasteries.push('gojo');
         Object.keys(MASTERY_DATA).forEach(m => {
             if (!unlockedMasteries.includes(m)) unlockedMasteries.push(m);
@@ -18132,6 +18476,30 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 const MASTERY_DATA = {
+    vampire: {
+        name:'Bloodseeker',
+        tag: 'Kill 500 enemies as Vampire',
+        icon: '🩸',
+        iconBg: 'linear-gradient(135deg,#450a0a,#7f1d1d)',
+        iconGlow: '#dc2626',
+        stats: [
+            { label:'HP',          value:'75' },
+            { label:'Damage',      value:'25' },
+            { label:'Speed',       value:'6' },
+            { label:'Mana',        value:'0 (converts to lifesteal)' },
+            { label:'Fire Rate',   value:'4 (doubles during Blood Hunt)' },
+            { label:'Equip Effect',value:'Unlocks Bloodseeker in character menu' },
+            { label:'Unlock',      value:'Kill 500 enemies as Vampire' },
+        ],
+        passive: `<b>Bloodlet:</b> Every kill heals 5% of max HP. Killing at full HP adds an overheal shield (gold ring) that absorbs damage before your HP is touched.<br><br><b>Bloodmage:</b> Every 10 mana gained from shop upgrades converts to +0.5% permanent lifesteal. Mana stays at 0 — blood is your resource.`,
+        tiers: null,
+        abilities: [
+            { label:'R — Blood Beam (4.5s CD)', color:'#dc2626', desc:'After a 0.5s wind-up fires a crimson beam that pierces every enemy and wall in a line across the entire arena. Costs 15 HP. Lifesteal applies to all enemies hit.' },
+            { label:'Z — Blood Wave (7.5s CD)', color:'#b91c1c', desc:'Releases a wave of blood in a 150px radius around you. Costs 25 HP. One-shots all base enemies instantly. Deals 25× damage to elite/boss targets.' },
+            { label:'X — Blood Hunt (35s CD after end)', color:'#7f1d1d', desc:'Costs 50 HP. Enter a blind rage for 12.5 seconds: fire rate doubles, gain 45% lifesteal on every hit. After the buff ends a 35-second cooldown begins.' },
+        ],
+        tip:'💡 Tip: Build lifesteal through Bloodmage early — take every mana upgrade in the shop to stack it. Then Blood Hunt becomes near-immortal with enough lifesteal.',
+    },
     default: {
         name:'War Veteran',
         tag: 'Win 5 games as The Veteran',
@@ -18265,6 +18633,13 @@ function showMastery(skin) {
             });
             html += `</div>`;
         }
+        if (data.abilities) {
+            html += `<div class="mastery-section"><div class="mastery-section-title">Abilities</div>`;
+            data.abilities.forEach(a => {
+                html += `<div class="mastery-tier"><span style="color:${a.color};font-weight:bold;">${a.label}:</span> ${a.desc}</div>`;
+            });
+            html += `</div>`;
+        }
         if (!data.tiers && skin === 'builder') {
             html += `<div class="mastery-section"><div class="mastery-section-title">R - Ancient Construction (35 Mana)</div>`;
             html += `<div class="mastery-desc"><b style="color:#a78bfa">Turret Mode:</b> Summons a turret at your location with a high fire rate that targets the lowest HP enemy in range. Lasts 60 seconds (tripled to 3 min by passive).<br><br><b style="color:#c4b5fd">Robot Mode:</b> Deploys a roaming robot that stays near you but roams freely. Fires high-damage (50 DMG) lasers at the highest HP enemy in range. Slow fire rate. Lasts 45 seconds (tripled by passive).<br><br>Shift+Click during a game to switch between Turret and Robot Mode.</div>`;
@@ -18327,6 +18702,9 @@ function toggleMasteryEquip(skin) {
         if (skin === 'gojo' && currentCharacter === 'the_strongest_today') {
             currentCharacter = 'gojo';
         }
+        if (skin === 'vampire' && currentCharacter === 'bloodseeker') {
+            currentCharacter = 'vampire';
+        }
     } else {
         equippedMasteries.push(skin);
         if (skin === 'default') {
@@ -18340,6 +18718,9 @@ function toggleMasteryEquip(skin) {
         }
         if (skin === 'gojo') {
             currentCharacter = 'the_strongest_today';
+        }
+        if (skin === 'vampire') {
+            currentCharacter = 'bloodseeker';
         }
     }
     savePersistentData();
@@ -18361,6 +18742,11 @@ function toggleMasteryEquip(skin) {
     if (skin === 'gojo') {
         const tstCard = document.getElementById('theStrongestTodayCharacter');
         if (tstCard) tstCard.style.display = equippedMasteries.includes('gojo') ? '' : 'none';
+        updateShopDisplay();
+    }
+    if (skin === 'vampire') {
+        const bsCard = document.getElementById('bloodseekerCharacter');
+        if (bsCard) bsCard.style.display = equippedMasteries.includes('vampire') ? '' : 'none';
         updateShopDisplay();
     }
     showMastery(skin);
@@ -18396,12 +18782,17 @@ function updateMasteryCardButtons() {
                     btn.textContent = `🏅 $${pct >= 1000 ? (pct/1000).toFixed(0)+'k' : pct}/$100k`;
                 } else if (skin === 'gojo') {
                     btn.textContent = `🏅 ${Math.min(gojoSukunaKills, 20)}/20 Kills`;
+                } else if (skin === 'vampire') {
+                    btn.textContent = `🏅 ${Math.min(vampireKills, 500)}/500 Kills`;
                 } else {
                     btn.textContent = '🏅 MASTERY';
                 }
             }
         }
     });
+    // Show Bloodseeker card when vampire mastery is unlocked and equipped
+    const bsCard = document.getElementById('bloodseekerCharacter');
+    if(bsCard) bsCard.style.display = (unlockedMasteries.includes('vampire') && equippedMasteries.includes('vampire')) ? '' : 'none';
 }
 
 function closeMastery() {
