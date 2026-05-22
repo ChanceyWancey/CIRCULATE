@@ -3583,16 +3583,6 @@
     </div>
 
     <div class="settings-section">
-        <h3>⬆️ Passives Per Level Up</h3>
-        <p style="font-size:11px;color:rgba(255,255,255,0.45);margin-bottom:8px;">How many upgrades you pick each time you level up.</p>
-        <div style="display:flex;gap:8px;margin-bottom:4px;">
-            <button id="ppl1" onclick="setPassivesPerLevel(1)" style="flex:1;padding:8px 4px;font-size:11px;font-weight:bold;border-radius:6px;border:2px solid #3b82f6;background:rgba(59,130,246,0.2);color:white;cursor:pointer;transition:all 0.15s;">1 Pick</button>
-            <button id="ppl2" onclick="setPassivesPerLevel(2)" style="flex:1;padding:8px 4px;font-size:11px;font-weight:bold;border-radius:6px;border:2px solid rgba(255,255,255,0.2);background:rgba(255,255,255,0.05);color:white;cursor:pointer;transition:all 0.15s;">2 Picks</button>
-            <button id="ppl3" onclick="setPassivesPerLevel(3)" style="flex:1;padding:8px 4px;font-size:11px;font-weight:bold;border-radius:6px;border:2px solid rgba(255,255,255,0.2);background:rgba(255,255,255,0.05);color:white;cursor:pointer;transition:all 0.15s;">3 Picks</button>
-        </div>
-    </div>
-
-    <div class="settings-section">
         <h3>🎨 Graphics Quality</h3>
         <div style="display:flex;gap:8px;margin-bottom:6px;">
             <button id="gfxHigh"   onclick="setGraphics('high')"   style="flex:1;padding:8px 4px;font-size:11px;font-weight:bold;border-radius:6px;border:2px solid #3b82f6;background:rgba(59,130,246,0.2);color:white;cursor:pointer;transition:all 0.15s;">🔥 High</button>
@@ -5163,6 +5153,11 @@ function renderShop() {
 }
 
 function openWaveShop(wave) {
+    // Gold Interest passive: earn % of current gold per wave
+    if(passiveState.goldInterest > 0 && runGold > 0) {
+        const interest = Math.floor(runGold * passiveState.goldInterest);
+        if(interest > 0) { runGold += interest; floatMoneyText('🏦 Interest: +' + interest + ' gold!'); }
+    }
     if (CHARACTERS[currentCharacter] && CHARACTERS[currentCharacter].lockWaveShop) {
         floatMoneyText('🔒 The Strongest Today needs no shop already at full power!');
         gameRunning = true;
@@ -6684,6 +6679,8 @@ function applyPassiveDamageBoost(baseDmg) {
     if(passiveState.rageStacks > 0) dmg *= passiveState.rageDmgMult || 1;
     // Adrenaline: 1% per 10 kills
     if(passiveState.adrenaline > 0) dmg *= 1 + (passiveState.adrenaline * 0.01 * Math.floor((player.kills||0) / 10));
+    // Bloodlust: below 30% HP = 2x damage
+    if(passiveState.bloodlust && player.health < player.maxHealth * 0.30) dmg *= 2;
     // Yuji: Cursed Energy Residue — next 3 shots 2×
     if(currentCharacter === 'yuji_itadori' && !yujiIsSukuna && yujiResidueCount > 0) { dmg *= 2; yujiResidueCount--; if(yujiResidueCount===0) floatMoneyText('💜 Residue spent.'); }
     // Yuji: Black Flash Buff — 3× for 5s after Black Flash kill
@@ -6706,7 +6703,16 @@ function applyPassiveIncomingDamage(dmg) {
     if(currentCharacter === 'luffy' && Math.random() < 0.35) { floatMoneyText('👁️ OBS. HAKI! DODGED!'); return 0; }
     // Bullet Shield passive (intercept projectile)
     if(passiveState.bulletShield > 0 && Math.random() < passiveState.bulletShield) { floatMoneyText('🛡️ Bullet Intercepted!'); return 0; }
-    // HP Shield absorbs first
+    // God Armor: cap damage at 1 for N hits
+    if(passiveState.godArmor > 0 && dmg > 1) { dmg = 1; passiveState.godArmor--; floatMoneyText('👑 GOD ARMOR! (' + passiveState.godArmor + ' left)'); }
+    // Energy Shield (level-up) absorbs damage
+    if(passiveState.energyShield > 0) {
+        const absorbed = Math.min(passiveState.energyShield, dmg);
+        passiveState.energyShield = Math.max(0, passiveState.energyShield - absorbed);
+        dmg -= absorbed;
+        if(dmg <= 0) { floatMoneyText('🛡️ Shield: -' + absorbed); return 0; }
+    }
+    // HP Shield (shieldRegen passive) absorbs first
     if(passiveState.shield > 0) {
         const absorbed = Math.min(passiveState.shield, dmg);
         passiveState.shield = Math.max(0, passiveState.shield - absorbed);
@@ -6874,6 +6880,62 @@ function tickPassives(dt) {
         });
     }
     // Gold interest — applied at wave start (tracked via earnRunGold calls at wave end)
+    // Gold Rush (LU): count down timer each frame
+    if(passiveState.goldRush > 0) passiveState.goldRush -= dt;
+    // Kill Rush speed decay
+    if(passiveState.killSpeedBonus > 0) {
+        passiveState.killSpeedTimer = (passiveState.killSpeedTimer||0) + dt;
+        if(passiveState.killSpeedTimer >= 120) { passiveState.killSpeedBonus = Math.max(0, passiveState.killSpeedBonus - 0.5); passiveState.killSpeedTimer = 0; }
+    }
+    // Bullet Hell: fire 360° volley every 2 seconds
+    if(passiveState.bulletHell) {
+        passiveState.bulletHellTimer = (passiveState.bulletHellTimer||0) + dt;
+        if(passiveState.bulletHellTimer >= 120) {
+            passiveState.bulletHellTimer = 0;
+            const bhCol = CHARACTERS[currentCharacter]?.projColor || '#60a5fa';
+            const bhDmg = player.damage * 1.2;
+            for(let i=0;i<16;i++){ const a=(Math.PI*2/16)*i; const p=new Projectile(player.x,player.y,a,bhDmg,bhCol,true); projectiles.push(p); }
+            for(let i=0;i<12;i++) particles.push(new Particle(player.x+(Math.random()-0.5)*60,player.y+(Math.random()-0.5)*60,'#facc15'));
+        }
+    }
+    // Damage Aura: 8 dps to enemies within 80px
+    if(passiveState.damageAura) {
+        const auraDmg = (passiveState.damageAuraDps||8) * dt / 60;
+        enemies.forEach(e => {
+            if(!e.alive) return;
+            if(Math.hypot(e.x-player.x, e.y-player.y) < 80) {
+                if(!damageEnemy(e, auraDmg, player.x, player.y)) return;
+                if(e.health <= 0 && e.alive) { e.alive=false; player.kills++; gainExp(e.expValue); handleKill(e); }
+            }
+        });
+    }
+    // Gravity Well: pull enemies within 300px toward player
+    if(passiveState.gravityWell) {
+        enemies.forEach(e => {
+            if(!e.alive) return;
+            const gd = Math.hypot(player.x-e.x, player.y-e.y);
+            if(gd > 0 && gd < 300) { const pull = 1.8 * dt; e.x += (player.x-e.x)/gd*pull; e.y += (player.y-e.y)/gd*pull; }
+        });
+    }
+    // Poison Cloud: tick active clouds and expire them
+    if(window._poisonClouds && window._poisonClouds.length > 0) {
+        window._poisonClouds = window._poisonClouds.filter(c => {
+            c.timer -= dt;
+            if(c.timer <= 0) return false;
+            if(Math.floor(c.timer) % 6 === 0) { // damage tick every 6 frames (~0.1s)
+                enemies.forEach(e => {
+                    if(!e.alive) return;
+                    if(Math.hypot(e.x-c.x, e.y-c.y) < c.radius) {
+                        if(!damageEnemy(e, c.dmgPerTick, c.x, c.y)) return;
+                        if(e.health<=0&&e.alive){e.alive=false;player.kills++;gainExp(e.expValue);handleKill(e);}
+                    }
+                });
+            }
+            return true;
+        });
+    }
+    // Decay Shatter (weakness) timers on enemies
+    enemies.forEach(e => { if(e._weakTimer > 0) e._weakTimer -= dt; });
     // Undying passive — prevent death
     if(passiveState.undying && !passiveState.undyingUsed && player.health <= 0) {
         player.health = 1; passiveState.undyingUsed = true;
@@ -6921,6 +6983,8 @@ function fireWithPassives(baseAngle) {
         if(hakariJackpotActive) dmg *= 50;
         const p = new Projectile(player.x,player.y,finalAngle,dmg,col,false,false,sk.isMachineGun);
         if(passiveState.homingshot>0) p.homing=true;
+        if(passiveState.bulletsize > 0 && !sk.isMachineGun) p.radius *= (1 + passiveState.bulletsize * 0.5);
+        if(passiveState.piercing  > 0) p.pierceLeft = passiveState.piercing;
         projectiles.push(p);
     });
 }
@@ -7020,7 +7084,7 @@ function toggleStatsDisplay() {
 function updateStatsDisplay() {
     if(!statsDisplayOpen) return;
     const totalArmor = Math.min(passiveState.armor * 15, 60);
-    const lifestealPct = passiveState.lifesteal * 5;
+    const lifestealPct = passiveState.lifesteal;
     document.getElementById('statBiome').textContent = currentBiome.name;
     document.getElementById('statBiomeEffect').textContent = currentBiome.description;
     document.getElementById('statHealth').textContent = `${Math.floor(player.health)}/${player.maxHealth}`;
@@ -7030,7 +7094,7 @@ function updateStatsDisplay() {
     document.getElementById('statKills').textContent = player.kills;
     document.getElementById('statWave').textContent = currentRound;
     document.getElementById('statArmor').textContent = totalArmor + '%';
-    document.getElementById('statLifesteal').textContent = lifestealPct + '%';
+    document.getElementById('statLifesteal').textContent = lifestealPct > 0 ? (lifestealPct + ' HP/kill') : '0';
 }
 
 function updateBiome() {
@@ -7156,12 +7220,16 @@ class Projectile {
     constructor(x,y,angle,dmg,color,isSpecial=false,isBow=false,isMG=false) {
         this.x=x; this.y=y;
         this.speed=isBow?18:isMG?14:12;
+        if(passiveState.sniperMode && !isMG && !isBow) this.speed *= 2.5;
         this.vx=Math.cos(angle)*this.speed; this.vy=Math.sin(angle)*this.speed;
         this.radius=isMG?2.5:isBow?4:6;
+        if(passiveState.bulletsize > 0 && !isMG && !isBow) this.radius *= (1 + passiveState.bulletsize * 0.5);
         this.damage=dmg; this.color=color;
         this.alive=true; this.isSpecial=isSpecial; this.isBow=isBow; this.isMG=isMG; this.angle=angle;
         this.isAdmin = false;
         this.hue = 0;
+        this.bounceCount = (!isMG && !isBow) ? (passiveState.ricochet || 0) : 0;
+        this.pierceLeft   = (!isMG) ? (passiveState.piercing || 0) : 0;
     }
     update(dt=1) {
         if(this.homing && enemies.length>0){
@@ -7178,7 +7246,17 @@ class Projectile {
         }
         this.x+=this.vx*dt; this.y+=this.vy*dt;
         this.hue = (this.hue + 5*dt) % 360;
-        if(this.x<-20||this.x>canvas.width+20||this.y<-20||this.y>canvas.height+20) this.alive=false;
+        // Ricochet: bounce off walls instead of dying
+        if(this.bounceCount > 0) {
+            let bounced = false;
+            if(this.x <= this.radius && this.vx < 0)                    { this.x = this.radius; this.vx = Math.abs(this.vx); this.bounceCount--; bounced=true; }
+            else if(this.x >= canvas.width-this.radius && this.vx > 0)  { this.x = canvas.width-this.radius; this.vx = -Math.abs(this.vx); this.bounceCount--; bounced=true; }
+            if(!bounced) {
+                if(this.y <= this.radius && this.vy < 0)                 { this.y = this.radius; this.vy = Math.abs(this.vy); this.bounceCount--; }
+                else if(this.y >= canvas.height-this.radius && this.vy > 0){ this.y = canvas.height-this.radius; this.vy = -Math.abs(this.vy); this.bounceCount--; }
+            }
+            if(this.x<-20||this.x>canvas.width+20||this.y<-20||this.y>canvas.height+20) this.alive=false;
+        } else if(this.x<-20||this.x>canvas.width+20||this.y<-20||this.y>canvas.height+20) { this.alive=false; }
     }
     draw() {
         ctx.save();
@@ -8438,6 +8516,10 @@ function damageEnemy(e, dmg, srcX, srcY) {
         }
     }
     e.health -= dmg;
+    // Amp Field: +20% damage per stack if enemy is within 80px of player
+    if(passiveState.ampfield > 0 && Math.hypot(e.x-player.x, e.y-player.y) < 80) { e.health -= dmg * passiveState.ampfield; }
+    // Shatter (weaknessDebuff): enemy takes extra damage while debuffed
+    if(e._weakTimer > 0 && (e._weakPct || 0) > 0) { e.health -= dmg * e._weakPct; }
     // Vampiric passive: heal % of damage dealt
     if(passiveState.vampiric && dmg > 0) {
         player.health = Math.min(player.health + dmg * passiveState.vampiric, player.maxHealth);
@@ -9798,7 +9880,16 @@ function specialAttack(){
     if(sk.cdMax>0&&player.specialCooldown>0)return;
     if(specialInProgress&&sk.ability!=='bowshot')return;
     if(sk.ability==='domainexpansion'||sk.ability==='cursedslash'||sk.ability==='malevolentshrine'){player.mana=0;}else if(!sk.isHornet){player.mana-=sk.manaCost;}
-    if(sk.cdMax>0)player.specialCooldown=sk.cdMax;
+    if(sk.cdMax>0)player.specialCooldown=sk.cdMax * (passiveState.cdrMult||1);
+    // Heat Seeker: fire homing missiles on ability use
+    if(passiveState.heatSeekCount > 0) {
+        for(let _hs=0;_hs<passiveState.heatSeekCount;_hs++){
+            const ha=Math.random()*Math.PI*2;
+            const hp=new Projectile(player.x,player.y,ha,player.damage*1.5,CHARACTERS[currentCharacter]?.projColor||'#f97316',true);
+            hp.homing=true; projectiles.push(hp);
+        }
+        floatMoneyText('🚀 Heat Seeker x' + passiveState.heatSeekCount + '!');
+    }
     switch(sk.ability){
         case 'ghostwalk': {
             playSound(250, 0.08, 'sine');
@@ -10959,6 +11050,13 @@ function luffyCAbility() {
 // ===== END LUFFY ABILITIES =====
 
 function dash(){
+    // Extra dash charges: allow dashing while on cooldown if charges remain
+    const maxCharges = 1 + (passiveState.extraDashes||0);
+    if(passiveState._dashCharges === undefined) passiveState._dashCharges = maxCharges;
+    if(player.dashCooldown > 0) {
+        if(passiveState._dashCharges <= 0) return; // on cooldown, no charges left
+        passiveState._dashCharges--;
+    }
     const sk = CHARACTERS[currentCharacter] || {};
     if(currentCharacter === 'hornet') {
         const dashDist=90;
@@ -11167,6 +11265,53 @@ function handleKill(e) {
     if(passiveState.goldonkill && Math.random() < passiveState.goldonkill) {
         runGold += 1;
     }
+    // Lifesteal: heal HP on every kill
+    if(passiveState.lifesteal > 0) {
+        player.health = Math.min(player.health + passiveState.lifesteal, player.maxHealth);
+    }
+    // Kill Rush: gain speed burst on kill
+    if(passiveState.killSpeed > 0) {
+        passiveState.killSpeedBonus = Math.min((passiveState.killSpeedBonus||0) + 0.5 * passiveState.killSpeed, passiveState.killSpeed * 2);
+        passiveState.killSpeedTimer = 0;
+    }
+    // Treasure Sense: double the run gold earned on kill
+    if(passiveState.treasureSense > 0) {
+        const tsBonus = Math.max(1, Math.floor(passiveState.treasureSense * 2));
+        runGold += tsBonus;
+    }
+    // Gold Rush (LU): +3 run gold per kill while timer active
+    if(passiveState.goldRush > 0) {
+        runGold += 3;
+    }
+    // XP Boost: 30% more XP per kill (applied in gainExp, but mark flag here)
+    // Chain Kill: fire bullets outward on kill
+    if(passiveState.chainKill > 0) {
+        const chainDmg = player.damage * 0.7;
+        const chainCol  = CHARACTERS[currentCharacter]?.projColor || '#60a5fa';
+        for(let i=0;i<passiveState.chainKill;i++){
+            const a=(Math.PI*2/passiveState.chainKill)*i;
+            projectiles.push(new Projectile(e.x,e.y,a,chainDmg,chainCol,true));
+        }
+    }
+    // Poison Cloud: spawn a lingering cloud on kill
+    if(passiveState.poisonCloud > 0) {
+        if(!window._poisonClouds) window._poisonClouds = [];
+        window._poisonClouds.push({ x:e.x, y:e.y, radius:60+(passiveState.poisonCloud-1)*18, timer:180, dmgPerTick:5+passiveState.poisonCloud*2 });
+        for(let i=0;i<8;i++) particles.push(new Particle(e.x+(Math.random()-0.5)*40,e.y+(Math.random()-0.5)*40,'#4ade80'));
+        floatMoneyText('☠️ Poison Cloud!');
+    }
+    // Supernova: 25% chance AoE on kill
+    if(passiveState.supernova && !e.isBoss && Math.random() < 0.25) {
+        enemies.forEach(ne => {
+            if(!ne.alive || ne===e) return;
+            if(Math.hypot(ne.x-e.x, ne.y-e.y) < 120) {
+                damageEnemy(ne, player.damage * 3, e.x, e.y);
+                if(ne.health<=0&&ne.alive){ne.alive=false;player.kills++;gainExp(ne.expValue);handleKill(ne);}
+            }
+        });
+        for(let i=0;i<30;i++) particles.push(new Particle(e.x+(Math.random()-0.5)*120,e.y+(Math.random()-0.5)*120,i%2===0?'#fbbf24':'#ef4444'));
+        floatMoneyText('💥 SUPERNOVA!');
+    }
     // Momentum reset on kill (don't penalise)
     // no reset on kill - momentum persists
     updateHUD();
@@ -11174,7 +11319,8 @@ function handleKill(e) {
 
 function gainExp(amount){
     playSound(800, 0.08, 'sine');
-    player.exp+=amount;
+    const xpMult = 1 + ((passiveState.expBoost||0) * 0.30);
+    player.exp += amount * xpMult;
     if(player.exp>=expToNextLevel){
         player.level++;player.exp-=expToNextLevel;expToNextLevel=Math.floor(expToNextLevel*1.5);
         earnMoney(10, `level ${player.level}!`);
@@ -11991,7 +12137,7 @@ const LEVEL_UP_POOL = [
     { id:'lu_lifesteal', icon:'🩸', label:'Lifesteal: +5 HP per kill',   rarity:'uncommon',
       canUse: ()=>true,
       apply: () => { passiveState.lifesteal+=5; } },
-    { id:'lu_regen',     icon:'💚', label:'Regeneration: +1.5 HP/sec',   rarity:'common',
+    { id:'lu_regen',     icon:'💚', label:'Regeneration: +1.5 HP per 2s',   rarity:'common',
       canUse: ()=>true,
       apply: () => { passiveState.regen+=1.5; } },
     { id:'lu_manaflow',  icon:'🌊', label:'Mana Flow: +3 Mana/sec',      rarity:'common',
@@ -12093,7 +12239,7 @@ const LEVEL_UP_POOL = [
       apply: () => { passiveState.pierce=true; floatMoneyText('🏹 Piercing shots enabled!'); } },
     { id:'lu_bounce',    icon:'🏀', label:'Ricochet: Bullets bounce off walls 3x', rarity:'rare',
       canUse: ()=>!passiveState.ricochet,
-      apply: () => { passiveState.ricochet=true; passiveState.ricochetCount=3; floatMoneyText('🏀 Ricochet enabled!'); } },
+      apply: () => { passiveState.ricochet=(passiveState.ricochet||0)+3; floatMoneyText('🏀 Ricochet +3 bounces!'); } },
     { id:'lu_split',     icon:'✂️', label:'Split Shot: Bullets split into 2 on hit', rarity:'epic',
       canUse: ()=>!passiveState.splitShot,
       apply: () => { passiveState.splitShot=true; floatMoneyText('✂️ Split Shot! Bullets divide!'); } },
@@ -12130,7 +12276,7 @@ const LEVEL_UP_POOL = [
     // ── NEW: Survival / Utility ──
     { id:'lu_shield',    icon:'🛡️', label:'Energy Shield: Absorbs next 80 damage', rarity:'uncommon',
       canUse: ()=>true,
-      apply: () => { passiveState.energyShield=(passiveState.energyShield||0)+80; floatMoneyText('🛡️ Shield up!'); } },
+      apply: () => { passiveState.energyShield=(passiveState.energyShield||0)+80; floatMoneyText('🛡️ +80 Energy Shield!'); } },
     { id:'lu_revive',    icon:'💫', label:'Second Chance: Revive once with 50 HP', rarity:'epic',
       canUse: ()=>!passiveState.revive,
       apply: () => { passiveState.revive=true; floatMoneyText('💫 Second Chance ready!'); } },
@@ -12257,7 +12403,7 @@ function showLevelUp(){
 
     // ── Generic randomised level up ──
     const sk = CHARACTERS[currentCharacter] || {};
-    const picksAllowed = (settings && settings.passivesPerLevel > 1) ? settings.passivesPerLevel : 1;
+    const picksAllowed = 1;
     const poolSize = picksAllowed + 2; // show 2 extra choices beyond how many you can pick
     const opts = _pickLevelUpOptions(sk, Math.max(3, poolSize));
     let picksLeft = picksAllowed;
@@ -13288,7 +13434,7 @@ function resetGame(){
     currentOctagon=null; octagonBullets=[];
     // Boss Rush reset
     if(!bossRushMode){ bossRushBossIndex=0; bossRushRestTimer=0; bossRushScore=0; bossRushBossTimers=[]; }
-    passiveState={lifesteal:0,thorns:0,regen:0,manaflow:0,armor:0,magnet:0,explosive:0,crit:0,multishot:0,ghostly:0,goldmag:0,overclock:0,trishot:0,homingshot:0,novaleak:0,aimassist:0,novaHitCount:0,berserkerActive:false,berserkerTimer:0,timeslowActive:false,timeslowTimer:0,regenTimer:0,trishotTimer:0,homingTimer:0,blackholeActive:false,blackholeTimer:0};
+    passiveState={lifesteal:0,thorns:0,regen:0,manaflow:0,armor:0,magnet:0,explosive:0,crit:0,multishot:0,ghostly:0,goldmag:0,overclock:0,trishot:0,homingshot:0,novaleak:0,aimassist:0,novaHitCount:0,berserkerActive:false,berserkerTimer:0,timeslowActive:false,timeslowTimer:0,regenTimer:0,trishotTimer:0,homingTimer:0,blackholeActive:false,blackholeTimer:0,vampiric:0,ricochet:0,bulletsize:0,goldonkill:0,ampfield:0,hpshield:0,hpshieldMax:0,hpshieldTimer:0,coldtouch:0,soulharvest:false,soulharvestCount:0,momentum:false,momentumBonus:0,momentumTimer:0,burnOnHit:0,splash:0,killSpeed:0,killSpeedTimer:0,killSpeedBonus:0,dodgeRegen:0,execute:0,shieldRegen:0,shieldMax:0,shield:0,hp_steal:0,mana_battery:0,lastStand:false,goldInterest:0,chainKill:0,bulletShield:0,expBoost:0,adrenaline:0,poisonCloud:0,rageStacks:0,rageDmgMult:1,rageTimer:0,treasureSense:0,piercing:0,haste:0,undying:false,undyingUsed:false,tornadoActive:false,tornadoTimer:0,tornadoX:0,tornadoY:0,tornadoAngle:0,_powerSurge:0,_gravWell:0,sniperMode:false,heatSeekCount:0,knockbackForce:0,stunChance:0,slowField:false,weaknessDebuff:false,energyShield:0,revive:false,extraDashes:0,_dashCharges:1,cdrMult:1,damageAura:false,damageAuraDps:0,mirrorShield:false,radar:false,goldRush:0,bloodlust:false,noKnockback:false,gravityWell:false,bulletHell:false,bulletHellTimer:0,overchargeMythic:false,overchargeHitCounter:0,godArmor:0,darkPact:false,echoShot:false,supernova:false,bouncy_shots:false,ricochetCount:0};
     player._theEnemySlowMult = 1;
     const darkReset = document.getElementById('theEnemyDarkness'); if(darkReset) darkReset.style.opacity='0';
     hakariDomainActive = false;
@@ -14375,7 +14521,8 @@ function gameLoop(ts){
             const overclockMult = 1 - Math.min(passiveState.overclock * 0.25, 0.75);
 
             const srMult = currentCharacter==='speedrunner' ? Math.max(0.3, 1 - Math.hypot(speedrunnerVelX,speedrunnerVelY)*0.04) : 1;
-            const fireInterval = 250 * overclockMult * srMult * (bsHuntActive ? 0.5 : 1);
+            const sniperSlowMult = passiveState.sniperMode ? 2.0 : 1;
+            const fireInterval = 250 * overclockMult * srMult * (bsHuntActive ? 0.5 : 1) * sniperSlowMult;
             if (ts - autoFireLastShot > fireInterval) { if(!gojoHollowAnimating) shootProjectile(); autoFireLastShot = ts; }
         }
     }
@@ -14413,18 +14560,21 @@ function gameLoop(ts){
             player._gridMoveTimer = 0;
         }
     } else {
-        if(mx||my){const m=Math.sqrt(mx*mx+my*my);const bSpd=passiveState.berserkerActive?1.5:1;const ghSpd=CHARACTERS[currentCharacter].isGoldHoarder?GH_SPEED_MULT:1;const biomeSpd=1+biomeSpeedBonus;const teSlow=player._theEnemySlowMult!==undefined?player._theEnemySlowMult:1;const webSlow=playerWebSlowTimer>0?0.4:1;const momBonus=passiveState.momentum?(passiveState.momentumBonus||0):0;
+        if(mx||my){const m=Math.sqrt(mx*mx+my*my);const bSpd=passiveState.berserkerActive?1.5:1;const ghSpd=CHARACTERS[currentCharacter].isGoldHoarder?GH_SPEED_MULT:1;const biomeSpd=1+biomeSpeedBonus;const teSlow=player._theEnemySlowMult!==undefined?player._theEnemySlowMult:1;const webSlow=playerWebSlowTimer>0?0.4:1;const momBonus=passiveState.momentum?(passiveState.momentumBonus||0):0;const ksBonus=passiveState.killSpeedBonus||0;
         if(!gojoHollowAnimating){
             const cursedSlowMult = player._cursedSlow || 1;
-            player.x+=(mx/m)*(player.speed+momBonus)*dt*bSpd*ghSpd*biomeSpd*teSlow*webSlow*cursedSlowMult;
-            player.y+=(my/m)*(player.speed+momBonus)*dt*bSpd*ghSpd*biomeSpd*teSlow*webSlow*cursedSlowMult;
+            player.x+=(mx/m)*(player.speed+momBonus+ksBonus)*dt*bSpd*ghSpd*biomeSpd*teSlow*webSlow*cursedSlowMult;
+            player.y+=(my/m)*(player.speed+momBonus+ksBonus)*dt*bSpd*ghSpd*biomeSpd*teSlow*webSlow*cursedSlowMult;
         }}
     }
     player.x=Math.max(player.radius,Math.min(canvas.width-player.radius,player.x));
     player.y=Math.max(player.radius,Math.min(canvas.height-player.radius,player.y));
     const pResolved = (currentCharacter==='phantom'&&phantomPhasing) ? {x:player.x,y:player.y} : resolveCircleWall(player.x, player.y, player.radius);
     player.x = pResolved.x; player.y = pResolved.y;
-    if(player.dashCooldown>0)player.dashCooldown-=dt;
+    if(player.dashCooldown>0){
+        player.dashCooldown-=dt;
+        if(player.dashCooldown<=0){ passiveState._dashCharges = 1 + (passiveState.extraDashes||0); }
+    }
     if(player.invulnerable>0)player.invulnerable-=dt;
     if(player.specialCooldown>0){player.specialCooldown-=dt;updateHUD();}
     if(playerWebSlowTimer>0){playerWebSlowTimer-=dt;if(playerWebSlowTimer<=0)floatMoneyText('🕸️ Web cleared!');}
@@ -14897,7 +15047,9 @@ function gameLoop(ts){
                     runDamage += pdmg;
                     continue;
                 }
-                runDamage += pdmg; if(currentCharacter!=='gojo' && currentCharacter!=='the_strongest_today' && !proj.isHollowPurple) proj.alive=false;
+                runDamage += pdmg; if(currentCharacter!=='gojo' && currentCharacter!=='the_strongest_today' && !proj.isHollowPurple) {
+                    if((proj.pierceLeft||0) > 0) { proj.pierceLeft--; } else { proj.alive=false; }
+                }
                 if(runDamage >= 10000 && !hqCompleted.includes('hq_damage')) { checkHonored(); }
                 // Bloodseeker lifesteal
                 if(currentCharacter==='bloodseeker'){const ls=bsHuntActive?0.45:bsLifesteal;if(ls>0){player.health=Math.min(player.maxHealth,player.health+pdmg*ls);updateHUD();}}
@@ -14968,6 +15120,56 @@ function gameLoop(ts){
                         for(let i=0;i<12;i++)particles.push(new Particle(e.x,e.y,'#a855f7'));
                     }
                 }
+                // ── Bullet-hit passive effects ──────────────────────────────
+                // Ignite: 25% chance to burn enemy
+                if(passiveState.burnOnHit > 0 && Math.random() < passiveState.burnOnHit) {
+                    e.burning = (e.burning||0) + 180; e.burnDmg = pdmg * 0.4;
+                    for(let i=0;i<4;i++) particles.push(new Particle(e.x,e.y,'#ff4500'));
+                }
+                // Splash Damage: 30% AoE around impact point
+                if(passiveState.splash > 0) {
+                    enemies.forEach(se => {
+                        if(!se.alive || se===e) return;
+                        if(Math.hypot(se.x-e.x, se.y-e.y) < 45) {
+                            damageEnemy(se, pdmg * 0.40, e.x, e.y);
+                            if(se.health<=0&&se.alive){se.alive=false;player.kills++;gainExp(se.expValue);handleKill(se);}
+                        }
+                    });
+                }
+                // Cold Touch / Cryo Rounds: slow enemy 30% for 1.5s per stack
+                if(passiveState.coldtouch > 0) {
+                    e.slowTimer  = 90;
+                    e.slowAmount = Math.min(0.30 * passiveState.coldtouch, 0.90);
+                }
+                // Slow Field: slow 40% for 2s
+                if(passiveState.slowField) { e.slowTimer = 120; e.slowAmount = Math.max(e.slowAmount||0, 0.40); }
+                // Shatter: apply 20% vulnerability for 3s
+                if(passiveState.weaknessDebuff) { e._weakTimer = 180; e._weakPct = 0.20; }
+                // Stunner: 15% (+per stack) chance to stun for 0.8s
+                if(passiveState.stunChance > 0 && Math.random() < passiveState.stunChance) {
+                    e.frozen = Math.max(e.frozen||0, 48);
+                    for(let i=0;i<5;i++) particles.push(new Particle(e.x,e.y,'#facc15'));
+                }
+                // Knockback Force: push enemy away from bullet
+                if(passiveState.knockbackForce > 0) {
+                    const kbDx = e.x-proj.x, kbDy = e.y-proj.y, kbD = Math.hypot(kbDx,kbDy);
+                    if(kbD > 0) { e.x += (kbDx/kbD)*(passiveState.knockbackForce*0.5); e.y += (kbDy/kbD)*(passiveState.knockbackForce*0.5); }
+                }
+                // Echo Chamber: fire a copy of this bullet after 0.3s
+                if(passiveState.echoShot) {
+                    const _ex=player.x,_ey=player.y,_ea=Math.atan2(e.y-player.y,e.x-player.x),_ed=pdmg,_ec=proj.color;
+                    setTimeout(()=>{ if(typeof gameRunning!=='undefined'&&gameRunning) projectiles.push(new Projectile(_ex,_ey,_ea,_ed,_ec,true)); },300);
+                }
+                // Overcharge: every 10th hit triggers a screen-wide nuke
+                if(passiveState.overchargeMythic) {
+                    passiveState.overchargeHitCounter=(passiveState.overchargeHitCounter||0)+1;
+                    if(passiveState.overchargeHitCounter % 10 === 0) {
+                        enemies.forEach(oe=>{ if(!oe.alive)return; damageEnemy(oe,player.damage*10,e.x,e.y); if(oe.health<=0&&oe.alive){oe.alive=false;player.kills++;gainExp(oe.expValue);handleKill(oe);} });
+                        for(let i=0;i<60;i++) particles.push(new Particle(e.x+(Math.random()-0.5)*200,e.y+(Math.random()-0.5)*200,i%2===0?'#facc15':'#ffffff'));
+                        floatMoneyText('⚡ OVERCHARGE!');
+                    }
+                }
+                // ────────────────────────────────────────────────────────────
                 if(e.health<=0&&e.alive){e.alive=false;player.kills++;gainExp(e.expValue);
 
                     if (e.isSplitter) {
@@ -15115,6 +15317,7 @@ function gameLoop(ts){
                 ctx.restore();
 
                 if (Math.hypot(b.x - player.x, b.y - player.y) < b.radius + player.radius && player.invulnerable <= 0) {
+                    if(passiveState.mirrorShield && Math.random() < 0.5) { b.vx=-b.vx; b.vy=-b.vy; b.damage*=2; for(let i=0;i<8;i++) particles.push(new Particle(b.x,b.y,'#e0e7ff')); floatMoneyText('🪞 Reflected!'); return true; }
                     let dmg = applyDreamArmor(b.damage);
                     dmg = applyPassiveIncomingDamage(dmg);
                     player.health -= dmg;
@@ -15405,7 +15608,46 @@ function gameLoop(ts){
         ctx.restore();
     }
 
-    // ===== ELITE DROPS =====
+    // ===== RADAR (passiveState.radar) =====
+    if(passiveState.radar && enemies.length > 0) {
+        const rCX = canvas.width - 54, rCY = 54, rRadius = 44;
+        ctx.save();
+        ctx.globalAlpha = 0.55;
+        ctx.strokeStyle = '#3b82f6'; ctx.lineWidth = 1.5;
+        ctx.beginPath(); ctx.arc(rCX, rCY, rRadius, 0, Math.PI*2); ctx.stroke();
+        ctx.fillStyle = 'rgba(0,0,40,0.45)';
+        ctx.beginPath(); ctx.arc(rCX, rCY, rRadius, 0, Math.PI*2); ctx.fill();
+        ctx.globalAlpha = 1;
+        enemies.forEach(e => {
+            if(!e.alive) return;
+            const relX = (e.x - player.x) / canvas.width  * rRadius * 1.6;
+            const relY = (e.y - player.y) / canvas.height * rRadius * 1.6;
+            const clampedX = Math.max(-rRadius+3, Math.min(rRadius-3, relX));
+            const clampedY = Math.max(-rRadius+3, Math.min(rRadius-3, relY));
+            const blipColor = e.isBoss ? '#ef4444' : e.isElite ? '#fbbf24' : '#f87171';
+            ctx.globalAlpha = e.isBoss ? 1 : 0.75;
+            ctx.fillStyle = blipColor;
+            ctx.beginPath(); ctx.arc(rCX+clampedX, rCY+clampedY, e.isBoss?3.5:2, 0, Math.PI*2); ctx.fill();
+        });
+        // Player dot
+        ctx.globalAlpha = 1;
+        ctx.fillStyle = '#60a5fa';
+        ctx.beginPath(); ctx.arc(rCX, rCY, 3, 0, Math.PI*2); ctx.fill();
+        ctx.restore();
+    }
+
+    // ===== POISON CLOUDS =====
+    if(window._poisonClouds && window._poisonClouds.length > 0) {
+        window._poisonClouds.forEach(c => {
+            const alpha = Math.min(0.35, c.timer / 180 * 0.35);
+            ctx.save();
+            ctx.globalAlpha = alpha;
+            ctx.fillStyle = '#4ade80';
+            ctx.shadowBlur = _shadowsEnabled ? 20 : 0; ctx.shadowColor = '#22c55e';
+            ctx.beginPath(); ctx.arc(c.x, c.y, c.radius, 0, Math.PI*2); ctx.fill();
+            ctx.restore();
+        });
+    }
     eliteDrops = eliteDrops.filter(drop => {
         drop.timer -= dt;
         if(drop.timer <= 0) return false;
@@ -16107,9 +16349,7 @@ function saveSettings() {
 }
 
 function setPassivesPerLevel(n) {
-    settings.passivesPerLevel = n;
-    saveSettings();
-    applySettings();
+    // Passives per level is hardcoded to 1; this setting is removed.
 }
 
 function applySettings() {
@@ -16127,13 +16367,6 @@ function applySettings() {
     document.getElementById('deathFeed').style.display = settings.deathFeed ? 'flex' : 'none';
     applyGraphicsButtons(settings.graphics || 'high');
     applyMusicVolume();
-    const ppl = settings.passivesPerLevel || 1;
-    ['ppl1','ppl2','ppl3'].forEach(id => {
-        const el = document.getElementById(id);
-        if(el) { const v=parseInt(id.replace('ppl',''));
-            el.style.borderColor = v===ppl?'#3b82f6':'rgba(255,255,255,0.2)';
-            el.style.background  = v===ppl?'rgba(59,130,246,0.25)':'rgba(255,255,255,0.05)'; }
-    });
 }
 
 const GFX_PRESETS = {
