@@ -3095,6 +3095,14 @@
             <button class="info-btn" onclick="event.stopPropagation();showCharInfo('naruto')">INFO</button>
         </div>
 
+        <div class="character-card" onclick="selectCharacter('pacman')" id="pacmanCharacter" style="border-color:rgba(255,215,0,0.6);background:linear-gradient(135deg,rgba(30,25,0,0.5),rgba(255,215,0,0.08));">
+            <div class="character-preview" style="background:linear-gradient(135deg,#b8860b,#ffd700);box-shadow:0 0 22px rgba(255,215,0,0.9);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:30px;">👾</div>
+            <div class="character-name" style="color:#ffd700;">Pac-Man</div>
+            <div class="character-ability">120 HP · Speed 5 · No Weapons<br>PASSIVE: Power Pellets — 1 pellet always on map<br>Eat it → 10s POWERED mode:<br> • Invulnerable &amp; enemies flee from you<br> • Run into enemies to EAT them<br> • Each kill grants a random buff!</div>
+            <div class="character-price">$200,000</div>
+            <button class="info-btn" onclick="event.stopPropagation();showCharInfo('pacman')">INFO</button>
+        </div>
+
         <!-- ═══════════ LIMITED CHARACTERS ═══════════ -->
         <div class="character-section-header limited-header">⏱️ Limited Characters</div>
 
@@ -4175,6 +4183,7 @@ const CHARACTERS = {
     higuruma: { name:'Hiromi Higuruma', color:'#1f2937', shadow:'#111827', projColor:'#fbbf24', ability:'deadly_sentencing', manaCost:0, cdMax:0, isHiguruma:true, useImg:false },
     bloodseeker: { name:'Bloodseeker', color:'#7f1d1d', shadow:'#450a0a', projColor:'#dc2626', ability:'blood_beam', manaCost:0, cdMax:0, isBloodseeker:true, useImg:false },
     merchant: { name:'The Merchant', color:'#b45309', shadow:'#78350f', projColor:'#fbbf24', ability:'merchant_shop', manaCost:0, cdMax:0, isMerchant:true, useImg:false },
+    pacman: { name:'Pac-Man', color:'#ffd700', shadow:'#b8860b', projColor:'#ffd700', ability:null, manaCost:0, cdMax:0, isPacman:true, useImg:false },
 };
 
 const SKIN_URLS = {
@@ -4194,7 +4203,7 @@ const PRICES = {
     phantom:250, druid:750, pyromancer:1500, cyborg:3000, timewizard:4500,
     fire:500, ice:1000, electric:2500, boxer:500,
     wemmbu:5000, eggchan:5000, dice:2345, hakari_v2:35000, yuji_itadori:28000, character10b:50000, war_veteran:0, prime_veteran:0, last_architect:0, coin_king:0, rouge_square:250000, gojo:0, the_strongest_today:0,
-    necromancer:4000, glass_cannon:3500, tank:2000, speedrunner:2500, hornet:0, megumi:0, luffy:1000000, naruto:25000, higuruma:300000, merchant:8000
+    necromancer:4000, glass_cannon:3500, tank:2000, speedrunner:2500, hornet:0, megumi:0, luffy:1000000, naruto:25000, higuruma:300000, merchant:8000, pacman:200000
 };
 
 const CHARACTER_ORDER = Object.keys(PRICES).sort((a, b) => PRICES[a] - PRICES[b]);
@@ -4253,7 +4262,7 @@ function getProjectileDamage() {
     return baseDmg;
 }
 
-let expToNextLevel=100, projectiles=[], enemies=[], particles=[], items=[];
+let expToNextLevel=200, projectiles=[], enemies=[], particles=[], items=[];
 let lastEnemySpawn=0, autoFireEnabled=true, specialInProgress=false;
 let spawnIndicators = [];
 
@@ -4677,7 +4686,7 @@ const SHOP_PASSIVES = [
       onBuy: ()=>{ passiveState.ricochet = (passiveState.ricochet||0) + 1; }
     },
     { id:'bulletsize', name:'Big Bullets',     icon:'🔵', desc:'Your bullets are 50% larger & pierce 1 enemy.', cost:90, tier:'pricey', maxStack:2,
-      onBuy: ()=>{ passiveState.bulletsize = (passiveState.bulletsize||0) + 0.5; }
+      onBuy: ()=>{ passiveState.bulletsize = (passiveState.bulletsize||0) + 0.5; passiveState.piercing = (passiveState.piercing||0) + 1; }
     },
     { id:'goldonkill', name:'Treasure Hunter', icon:'🏺', desc:'Each kill has 30% chance to drop +3 gold.', cost:55, tier:'mid', maxStack:3, stackDesc:'+30% more drop chance per stack.',
       onBuy: ()=>{ passiveState.goldonkill = (passiveState.goldonkill||0) + 0.30; }
@@ -4759,7 +4768,7 @@ const SHOP_PASSIVES = [
     { id:'fortify',       name:'Fortify',          icon:'🏰', desc:'Max HP +50, receive 20% less damage. One time purchase.', cost:150, tier:'expensive', maxStack:2, stackDesc:'+50 HP and +20% reduction per stack.',
       onBuy: ()=>{ player.maxHealth+=50; player.health=Math.min(player.health+50,player.maxHealth); passiveState.armor=(passiveState.armor||0)+0.20; runHpUpgrades++; updateHUD(); }
     },
-    { id:'piercing_shots',name:'Piercing Ammo',    icon:'🔱', desc:'Bullets pass through up to 2 additional enemies.', cost:120, tier:'expensive', maxStack:3, stackDesc:'+1 pierce per stack.',
+    { id:'piercing_shots',name:'Piercing Ammo',    icon:'🔱', desc:'Bullets pass through up to 2 additional enemies.', cost:120, tier:'expensive', maxStack:3, stackDesc:'+2 pierce per stack.',
       onBuy: ()=>{ passiveState.piercing = (passiveState.piercing||0) + 2; }
     },
     { id:'haste',         name:'Haste',            icon:'🐆', desc:'+20% fire rate permanently.', cost:110, tier:'pricey', maxStack:5, stackDesc:'+20% fire rate per stack.',
@@ -4942,7 +4951,7 @@ let passiveState = {
     hp_steal: 0, mana_battery: 0, lastStand: false,
     goldInterest: 0, chainKill: 0, bulletShield: 0, expBoost: 0,
     adrenaline: 0, poisonCloud: 0, rageStacks: 0, rageDmgMult: 1, rageTimer: 0,
-    treasureSense: 0, piercing: 0, haste: 0, undying: false, undyingUsed: false,
+    treasureSense: 0, piercing: 0, haste: 0, undying: false, undyingUsed: false, _reviveUsed: false,
     // ability purchases
     tornadoActive: false, tornadoTimer: 0, tornadoX: 0, tornadoY: 0, tornadoAngle: 0,
     _powerSurge: 0, _gravWell: 0,
@@ -4966,7 +4975,7 @@ const BIOMES = [
     { name:'🌀 Mana Vortex', effect: 'mana_vortex', damageBonus: 0.2, speedBonus: 0, description:'+75% mana regen, spells cost 50% less', gridColor: 'rgba(139,92,246,0.12)', playerGlow: '#8b5cf6', uiColor: '#7c3aed', bgOverlay: 'rgba(139, 92, 246, 0.05)' },
     { name:'⚔️ Warrior\'s Arena', effect: 'warrior_arena', damageBonus: 0.35, speedBonus: 0, description:'+35% damage, enemies deal 20% less', gridColor: 'rgba(239,68,68,0.1)', playerGlow: '#ef4444', uiColor: '#dc2626', bgOverlay: 'rgba(239, 68, 68, 0.06)' },
     { name:'🌬️ Windy Platwo :D', effect: 'windy', damageBonus: -0.1, speedBonus: 0.5, description:'-10% damage, +50% speed, strong winds', gridColor: 'rgba(148,163,184,0.12)', playerGlow: '#cbd5e1', uiColor: '#94a3b8', bgOverlay: 'rgba(148, 163, 184, 0.06)' },
-    { name:'💎 Crystal Cavern', effect: 'crystal', damageBonus: 0.2, speedBonus: 0.1, description:'+20% damage, +10% speed, projectiles pierce harder', gridColor: 'rgba(34,211,238,0.12)', playerGlow: '#06b6d4', uiColor: '#0891b2', bgOverlay: 'rgba(34, 211, 238, 0.06)' },
+    { name:'💎 Crystal Cavern', effect: 'crystal', damageBonus: 0.2, speedBonus: 0.1, pierceBonus: 2, description:'+20% damage, +10% speed, projectiles pierce harder', gridColor: 'rgba(34,211,238,0.12)', playerGlow: '#06b6d4', uiColor: '#0891b2', bgOverlay: 'rgba(34, 211, 238, 0.06)' },
     { name:'🌙 Moon\'s Glow', effect: 'moonlight', damageBonus: 0.05, speedBonus: 0.25, description:'+5% damage, +25% speed, +2 HP/sec healing', gridColor: 'rgba(226,232,240,0.1)', playerGlow: '#f1f5f9', uiColor: '#cbd5e1', bgOverlay: 'rgba(226, 232, 240, 0.08)' },
     { name:'🔮 Arcane Nexus', effect: 'arcane', damageBonus: 0.25, speedBonus: 0, description:'+25% damage, +100% mana regen, spells free', gridColor: 'rgba(168,85,247,0.12)', playerGlow: '#a855f7', uiColor: '#9333ea', bgOverlay: 'rgba(168, 85, 247, 0.06)' },
     { name:'💥 Chaos Realm', effect: 'chaos', damageBonus: 0.3, speedBonus: 0.3, description:'+30% damage, +30% speed, 50% enemy damage', gridColor: 'rgba(244,63,94,0.12)', playerGlow: '#f43f5e', uiColor: '#e11d48', bgOverlay: 'rgba(244, 63, 94, 0.07)' },
@@ -5006,6 +5015,7 @@ function getBiomeColors() {
 let currentBiome = BIOMES[0];
 let biomeDamageBonus = 0;
 let biomeSpeedBonus = 0;
+let biomePierceBonus = 0;
 let statsDisplayOpen = false;
 let statsUpdateTimer = 0;
 let nextBiomeChangeWave = 5 + Math.floor(Math.random() * 10);
@@ -5413,6 +5423,13 @@ function spawnTurret(forceX, forceY, infinite=false){
 
 let phantomPhasing = false;
 let phantomPhaseTimer = 0;
+
+// ===== PACMAN STATE =====
+let pacmanPellet = null;      // { x, y } - current power pellet on map
+let pacmanPoweredUp = false;  // powered-up mode active
+let pacmanPowerTimer = 0;     // countdown in frames (600 = 10s)
+let pacmanMouthAngle = 0;     // mouth open/close animation
+let pacmanPelletCooldown = 0; // frames before next pellet spawns (600 = 10s)
 let druidRoots = [];
 let pyroChargeTimer = 0;
 let pyroCharging = false;
@@ -6592,6 +6609,144 @@ function tickNewCharacters(ts, dt) {
         ctx.beginPath(); ctx.arc(0,0,player.radius+14,0,Math.PI*2); ctx.stroke();
         ctx.restore();
     }
+
+    // ═══════════════════════════ PAC-MAN ═══════════════════════════════════════
+    if (skin === 'pacman') {
+        pacmanMouthAngle += dt * 0.15;
+
+        // ── Spawn power pellet if none exists and not currently powered ──────────
+        if (!pacmanPellet && !pacmanPoweredUp) {
+            if (pacmanPelletCooldown > 0) {
+                pacmanPelletCooldown -= dt;
+                // Show countdown hint
+                const cdSec = Math.ceil(pacmanPelletCooldown / 60);
+                ctx.save();
+                ctx.font = 'bold 11px Arial'; ctx.textAlign = 'left';
+                ctx.fillStyle = 'rgba(255,215,0,0.5)'; ctx.shadowBlur = 0;
+                ctx.fillText('\u25CF Pellet respawning in ' + cdSec + 's...', 12, 22);
+                ctx.restore();
+            } else {
+                const margin = 60;
+                pacmanPellet = {
+                    x: margin + Math.random() * (canvas.width  - margin * 2),
+                    y: margin + Math.random() * (canvas.height - margin * 2)
+                };
+            }
+        }
+
+        // ── Draw + check collection of power pellet ──────────────────────────────
+        if (pacmanPellet) {
+            const pulseA = 0.65 + 0.35 * Math.sin(ts * 0.012);
+            ctx.save();
+            ctx.globalAlpha = pulseA;
+            ctx.shadowBlur = _shadowsEnabled ? 28 : 0; ctx.shadowColor = '#ffffff';
+            ctx.fillStyle = '#ffffff';
+            ctx.beginPath(); ctx.arc(pacmanPellet.x, pacmanPellet.y, 12, 0, Math.PI * 2); ctx.fill();
+            ctx.globalAlpha = 1;
+            ctx.shadowBlur = _shadowsEnabled ? 16 : 0; ctx.shadowColor = '#ffffaa';
+            ctx.fillStyle = '#ffd700';
+            ctx.beginPath(); ctx.arc(pacmanPellet.x, pacmanPellet.y, 6, 0, Math.PI * 2); ctx.fill();
+            ctx.restore();
+
+            // Player picks up pellet
+            if (!pacmanPoweredUp && Math.hypot(player.x - pacmanPellet.x, player.y - pacmanPellet.y) < player.radius + 14) {
+                pacmanPellet = null;
+                pacmanPoweredUp = true;
+                pacmanPowerTimer = 600; // 10 seconds at 60fps
+                for (let i = 0; i < 40; i++) particles.push(new Particle(player.x + (Math.random()-0.5)*50, player.y + (Math.random()-0.5)*50, '#ffffff'));
+                floatMoneyText('⚡ POWER PELLET! Chase them down!');
+                playSound(700, 0.12, 'sine'); playSound(900, 0.09, 'sine');
+            }
+        }
+
+        // ── Powered-up mode ───────────────────────────────────────────────────────
+        if (pacmanPoweredUp) {
+            pacmanPowerTimer -= dt;
+            player.invulnerable = 10; // stay invincible each frame
+
+            // Flag enemies to flee
+            enemies.forEach(e => { if (e.alive) e._pacmanFlee = true; });
+
+            // Glowing power aura
+            ctx.save();
+            ctx.globalAlpha = 0.18 + 0.12 * Math.sin(ts * 0.025);
+            const rg2 = ctx.createRadialGradient(player.x, player.y, 0, player.x, player.y, player.radius + 30);
+            rg2.addColorStop(0, 'rgba(255,255,255,0.7)');
+            rg2.addColorStop(1, 'rgba(0,0,0,0)');
+            ctx.fillStyle = rg2;
+            ctx.beginPath(); ctx.arc(player.x, player.y, player.radius + 30, 0, Math.PI * 2); ctx.fill();
+            ctx.restore();
+
+            // HUD label
+            const secLeft = Math.ceil(pacmanPowerTimer / 60);
+            ctx.save();
+            ctx.font = 'bold 11px Arial'; ctx.textAlign = 'left';
+            ctx.fillStyle = '#ffd700'; ctx.shadowBlur = _shadowsEnabled ? 8 : 0; ctx.shadowColor = '#ffd700';
+            ctx.fillText('\u26A1 POWERED ' + secLeft + 's \u2014 Run into enemies to EAT them!', 12, 22);
+            ctx.restore();
+
+            // ── Eat enemies on contact ──────────────────────────────────────────
+            const PACMAN_BUFFS = [
+                { name: '+4 Speed (4s)', fn: () => {
+                    const prev = player.speed; player.speed += 4;
+                    setTimeout(() => { player.speed = Math.max(1, player.speed - 4); }, 4000);
+                }},
+                { name: '+20% Max HP', fn: () => {
+                    const bonus = Math.max(10, Math.round(player.maxHealth * 0.20));
+                    player.maxHealth += bonus; player.health = Math.min(player.health + bonus, player.maxHealth); updateHUD();
+                }},
+                { name: 'Full Heal!', fn: () => { player.health = player.maxHealth; updateHUD(); }},
+                { name: '+25 DMG (perm)', fn: () => { player.damage += 25; }},
+                { name: 'Freeze All 3s', fn: () => { enemies.forEach(en => { en.frozen = (en.frozen||0) + 180; }); }},
+                { name: '+3s Power Time', fn: () => { pacmanPowerTimer = Math.min(pacmanPowerTimer + 180, 600); }},
+                { name: 'Waka Explosion!', fn: () => {
+                    enemies.forEach(en => {
+                        if (!en.alive) return;
+                        const d2 = Math.hypot(player.x - en.x, player.y - en.y);
+                        if (d2 < 130) { en.health -= 200; if (en.health <= 0 && en.alive) { en.alive = false; player.kills++; gainExp(en.expValue); handleKill(en); } }
+                    });
+                    for (let i = 0; i < 40; i++) particles.push(new Particle(player.x + (Math.random()-0.5)*130, player.y + (Math.random()-0.5)*130, '#ffd700'));
+                }},
+                { name: '+60 Run Gold', fn: () => { earnRunGold(60); }},
+                { name: '+30 Max HP (perm)', fn: () => { player.maxHealth += 30; player.health = Math.min(player.health + 30, player.maxHealth); updateHUD(); }},
+                { name: '2x DMG (5s)', fn: () => {
+                    const orig = player.damage; player.damage *= 2;
+                    setTimeout(() => { player.damage = Math.max(1, orig); }, 5000);
+                }},
+            ];
+
+            for (let i = enemies.length - 1; i >= 0; i--) {
+                const e = enemies[i];
+                if (!e.alive) continue;
+                const d = Math.hypot(player.x - e.x, player.y - e.y);
+                if (d < player.radius + e.radius) {
+                    e.alive = false;
+                    player.kills++;
+                    gainExp(e.expValue);
+                    handleKill(e);
+                    for (let j = 0; j < 22; j++) particles.push(new Particle(e.x + (Math.random()-0.5)*30, e.y + (Math.random()-0.5)*30, '#ffd700'));
+                    playSound(550 + Math.random()*200, 0.09, 'sine');
+                    const buff = PACMAN_BUFFS[Math.floor(Math.random() * PACMAN_BUFFS.length)];
+                    buff.fn();
+                    floatMoneyText('\uD83C\uDF81 ' + buff.name);
+                }
+            }
+
+            // ── Power timer expired ─────────────────────────────────────────────
+            if (pacmanPowerTimer <= 0) {
+                pacmanPoweredUp = false;
+                player.invulnerable = 0;
+                pacmanPelletCooldown = 600; // 10s before next pellet spawns
+                enemies.forEach(e => { e._pacmanFlee = false; });
+                floatMoneyText('Power Pellet wore off... \uD83D\uDC7B');
+                playSound(200, 0.08, 'sawtooth');
+            }
+        } else {
+            // Not powered: clear flee flags just in case
+            enemies.forEach(e => { if (e._pacmanFlee) e._pacmanFlee = false; });
+        }
+    }
+    // ═══════════════════════════════════════════════════════════════════════════
 }
 
 function tickNewCharAutoFire(ts, dt) {
@@ -6942,6 +7097,12 @@ function tickPassives(dt) {
         for(let i=0;i<40;i++) particles.push(new Particle(player.x+(Math.random()-0.5)*60,player.y+(Math.random()-0.5)*60,'#f9a8d4'));
         floatMoneyText('💪 UNDYING RESOLVE! You lived with 1 HP!');
     }
+    // Revive passive — second chance on death
+    if(passiveState.revive && !passiveState._reviveUsed && player.health <= 0) {
+        player.health = 50; passiveState._reviveUsed = true;
+        for(let i=0;i<60;i++) particles.push(new Particle(player.x+(Math.random()-0.5)*80,player.y+(Math.random()-0.5)*80,'#a78bfa'));
+        floatMoneyText('💫 SECOND CHANCE! Revived with 50 HP!');
+    }
 }
 
 function fireWithPassives(baseAngle) {
@@ -6985,6 +7146,7 @@ function fireWithPassives(baseAngle) {
         if(passiveState.homingshot>0) p.homing=true;
         if(passiveState.bulletsize > 0 && !sk.isMachineGun) p.radius *= (1 + passiveState.bulletsize * 0.5);
         if(passiveState.piercing  > 0) p.pierceLeft = passiveState.piercing;
+        if(biomePierceBonus > 0) p.pierceLeft = (p.pierceLeft||0) + biomePierceBonus;
         projectiles.push(p);
     });
 }
@@ -7134,6 +7296,7 @@ function updateBiome() {
         currentBiome = BIOMES[randomIndex];
         biomeDamageBonus = currentBiome.damageBonus;
         biomeSpeedBonus = currentBiome.speedBonus;
+        biomePierceBonus = currentBiome.pierceBonus || 0;
         floatMoneyText(`🌍 BIOME CHANGED: ${currentBiome.name}`);
         nextBiomeChangeWave = currentRound + 8 + Math.floor(Math.random() * 8);
 
@@ -7229,7 +7392,7 @@ class Projectile {
         this.isAdmin = false;
         this.hue = 0;
         this.bounceCount = (!isMG && !isBow) ? (passiveState.ricochet || 0) : 0;
-        this.pierceLeft   = (!isMG) ? (passiveState.piercing || 0) : 0;
+        this.pierceLeft   = (!isMG) ? ((passiveState.piercing || 0) + (biomePierceBonus || 0)) : 0;
     }
     update(dt=1) {
         if(this.homing && enemies.length>0){
@@ -7461,6 +7624,18 @@ class Enemy {
             // 'chase' falls through to default movement below
         }
         // ────────────────────────────────────────────────────────────
+
+        // ── PACMAN FLEE ──────────────────────────────────────────────────────────
+        if (this._pacmanFlee && currentCharacter === 'pacman' && pacmanPoweredUp) {
+            const fleeMag = this.speed * 2.5;
+            const angle = Math.atan2(this.y - player.y, this.x - player.x);
+            tx = this.x + Math.cos(angle) * fleeMag * 30;
+            ty = this.y + Math.sin(angle) * fleeMag * 30;
+            const margin = this.radius + 10;
+            tx = Math.max(margin, Math.min(canvas.width - margin, tx));
+            ty = Math.max(margin, Math.min(canvas.height - margin, ty));
+        }
+        // ─────────────────────────────────────────────────────────────────────────
 
         const ddx = tx - this.x, ddy = ty - this.y, ddist = Math.sqrt(ddx*ddx + ddy*ddy);
         if(ddist > 0 && !this.isBoomerang && !this.isVoidRift && !this.isDasher && !this._zaFrozen) {
@@ -11322,7 +11497,7 @@ function gainExp(amount){
     const xpMult = 1 + ((passiveState.expBoost||0) * 0.30);
     player.exp += amount * xpMult;
     if(player.exp>=expToNextLevel){
-        player.level++;player.exp-=expToNextLevel;expToNextLevel=Math.floor(expToNextLevel*1.5);
+        player.level++;player.exp-=expToNextLevel;expToNextLevel=Math.floor(expToNextLevel*1.7);
         earnMoney(10, `level ${player.level}!`);
         if(player.level===10) earnMoney(50, 'Level 10 milestone!');
         showLevelUp();
@@ -12214,44 +12389,28 @@ const LEVEL_UP_POOL = [
       apply: () => { passiveState.zaWarudoUnlocked=true; floatMoneyText('🕰️ ZA WARUDOOO! Press B to freeze time!'); } },
 
     // ── NEW: Elemental Procs ──
-    { id:'lu_ignite',    icon:'🔥', label:'Ignite Rounds: 30% Burn on hit', rarity:'uncommon',
+    { id:'lu_ignite',    icon:'🔥', label:'Ignite Rounds: 30% chance to burn on hit', rarity:'uncommon',
       canUse: ()=>true,
-      apply: () => { passiveState.igniteChance=(passiveState.igniteChance||0)+0.30; } },
-    { id:'lu_freeze_rd', icon:'❄️', label:'Cryo Rounds: 20% Freeze on hit 1.5s', rarity:'uncommon',
+      apply: () => { passiveState.burnOnHit=(passiveState.burnOnHit||0)+0.30; floatMoneyText('🔥 Ignite Rounds!'); } },
+    { id:'lu_freeze_rd', icon:'❄️', label:'Cryo Rounds: Bullets slow enemies 30% on hit', rarity:'uncommon',
       canUse: ()=>true,
-      apply: () => { passiveState.cryoChance=(passiveState.cryoChance||0)+0.20; } },
-    { id:'lu_poison',    icon:'☠️', label:'Venom: 25% Poison (5 dmg/s, 4s)', rarity:'uncommon',
+      apply: () => { passiveState.coldtouch=(passiveState.coldtouch||0)+1; floatMoneyText('❄️ Cryo Rounds!'); } },
+    { id:'lu_poison',    icon:'☠️', label:'Venom Cloud: Kills leave a lingering poison cloud', rarity:'uncommon',
       canUse: ()=>true,
-      apply: () => { passiveState.poisonChance=(passiveState.poisonChance||0)+0.25; } },
-    { id:'lu_shock',     icon:'⚡', label:'Static Shock: 15% Chain to 2 enemies', rarity:'rare',
+      apply: () => { passiveState.poisonCloud=(passiveState.poisonCloud||0)+1; floatMoneyText('☠️ Venom Cloud!'); } },
+    { id:'lu_shock',     icon:'⚡', label:'Static Shock: Kills fire chain bolts to 2 nearby enemies', rarity:'rare',
       canUse: ()=>true,
-      apply: () => { passiveState.shockChance=(passiveState.shockChance||0)+0.15; } },
-    { id:'lu_leech_rd',  icon:'🩸', label:'Leech Rounds: Drain 8% HP per hit', rarity:'rare',
+      apply: () => { passiveState.chainKill=(passiveState.chainKill||0)+2; floatMoneyText('⚡ Static Shock!'); } },
+    { id:'lu_leech_rd',  icon:'🩸', label:'Leech Rounds: +8% lifesteal on every hit', rarity:'rare',
       canUse: ()=>true,
-      apply: () => { passiveState.leechRound=(passiveState.leechRound||0)+0.08; } },
-    { id:'lu_void',      icon:'🌑', label:'Void Touch: Bullets shrink enemies by 15%', rarity:'epic',
-      canUse: ()=>!(passiveState.voidTouch),
-      apply: () => { passiveState.voidTouch=true; floatMoneyText('🌑 Void Touch! Enemies shrink!'); } },
-
+      apply: () => { passiveState.vampiric=(passiveState.vampiric||0)+0.08; floatMoneyText('🩸 Leech Rounds +8% lifesteal!'); } },
     // ── NEW: Bullet Behavior ──
     { id:'lu_pierce',    icon:'🏹', label:'Piercing Shots: Bullets go through enemies', rarity:'rare',
-      canUse: ()=>!passiveState.pierce,
-      apply: () => { passiveState.pierce=true; floatMoneyText('🏹 Piercing shots enabled!'); } },
+      canUse: ()=>(passiveState.piercing||0) < 6,
+      apply: () => { passiveState.piercing = (passiveState.piercing||0) + 2; floatMoneyText('🏹 Piercing shots +2!'); } },
     { id:'lu_bounce',    icon:'🏀', label:'Ricochet: Bullets bounce off walls 3x', rarity:'rare',
       canUse: ()=>!passiveState.ricochet,
       apply: () => { passiveState.ricochet=(passiveState.ricochet||0)+3; floatMoneyText('🏀 Ricochet +3 bounces!'); } },
-    { id:'lu_split',     icon:'✂️', label:'Split Shot: Bullets split into 2 on hit', rarity:'epic',
-      canUse: ()=>!passiveState.splitShot,
-      apply: () => { passiveState.splitShot=true; floatMoneyText('✂️ Split Shot! Bullets divide!'); } },
-    { id:'lu_orbit',     icon:'🪐', label:'Orbital: 3 bullets orbit you permanently', rarity:'epic',
-      canUse: ()=>!passiveState.orbital,
-      apply: () => { passiveState.orbital=true; passiveState.orbitalCount=3; passiveState.orbitalAngle=0; floatMoneyText('🪐 Orbital active!'); } },
-    { id:'lu_spiral',    icon:'🌀', label:'Spiral: Every shot fires in a spiral burst', rarity:'rare',
-      canUse: ()=>!passiveState.spiral,
-      apply: () => { passiveState.spiral=true; passiveState.spiralAngle=0; floatMoneyText('🌀 Spiral fire!'); } },
-    { id:'lu_shotgun',   icon:'💥', label:'Shotgun: Every 3rd shot fires a spread of 5', rarity:'uncommon',
-      canUse: ()=>!passiveState.shotgunRound,
-      apply: () => { passiveState.shotgunRound=true; passiveState.shotgunCounter=0; floatMoneyText('💥 Shotgun rounds!'); } },
     { id:'lu_sniper',    icon:'🎯', label:'Sniper: +30 DMG, +150% bullet speed, -50% fire rate', rarity:'uncommon',
       canUse: sk=>!sk.isMachineGun&&!sk.lockDmgUpgrade&&!passiveState.sniperMode,
       apply: () => { passiveState.sniperMode=true; player.damage+=30; floatMoneyText('🎯 Sniper mode engaged!'); } },
@@ -12554,13 +12713,13 @@ function updateHUD(){
             rEl.style.fontSize='7px'; rEl.style.color = wt.color;
             rEl.textContent = player.mana < sk.manaCost ? 'LOW' : wt.name;
             if(ab)ab.style.display='block';
-            if(af){ const pct = warVeteranTier >= WAR_VETERAN_TIERS.length-1 ? 100 : Math.min((warVeteranTimer/2700)*100,100); af.style.width=pct+'%'; af.style.background=wt.color; }
+            if(af){ const pct = warVeteranTier >= WAR_VETERAN_TIERS.length-1 ? 100 : Math.min((warVeteranTimer/3600)*100,100); af.style.width=pct+'%'; af.style.background=wt.color; }
         } else {
             const t=VETERAN_TIERS[veteranTier];
             rEl.style.fontSize='7px';rEl.style.color=t.color;
             rEl.textContent=player.mana<sk.manaCost?'LOW':t.name;
             if(ab)ab.style.display='block';
-            if(af){const pct=veteranTier>=VETERAN_TIERS.length-1?100:Math.min((veteranTimer/1800)*100,100);af.style.width=pct+'%';af.style.background=t.color;}
+            if(af){const pct=veteranTier>=VETERAN_TIERS.length-1?100:Math.min((veteranTimer/3600)*100,100);af.style.width=pct+'%';af.style.background=t.color;}
         }
     } else if(sk.isPhantom){
         if(rLabel)rLabel.textContent='GHOST'; const ab=document.getElementById('armorBar');if(ab)ab.style.display='none';
@@ -13333,7 +13492,7 @@ function resetGame(){
         player.health=player.maxHealth;
         player.damage=Math.round(10+Math.random()*140);
     }
-    expToNextLevel=100;projectiles=[];enemies=[];particles=[];items=[];floatingTexts=[];orbs.length=0;shopOpen=false;statsDisplayOpen=false;document.getElementById('statsPanel').classList.remove('show');
+    expToNextLevel=200;projectiles=[];enemies=[];particles=[];items=[];floatingTexts=[];orbs.length=0;shopOpen=false;statsDisplayOpen=false;document.getElementById('statsPanel').classList.remove('show');
     walls=[];generateWalls();
     if(currentCharacter==='builder'){
         builderWalls=[];
@@ -13413,6 +13572,8 @@ function resetGame(){
     // Merchant
     merchantWealth=0; merchantZCd=0; merchantXCd=0; merchantShopActive=false; merchantShopTimer=0; merchantDmgBonus=1;
     if(currentCharacter==='merchant'){ player.maxHealth=100; player.health=100; player.speed=5; player.damage=15; }
+    if(currentCharacter==='pacman'){ player.maxHealth=120; player.health=120; player.speed=5; player.damage=10; }
+    pacmanPellet=null; pacmanPoweredUp=false; pacmanPowerTimer=0; pacmanMouthAngle=0; pacmanPelletCooldown=0;
     higuruma_evidence=0; higuruma_gavelCd=0; higuruma_judgemanCd=0; higuruma_judgemanActive=false; higuruma_judgemanTimer=0; higuruma_judgemanAngle=0; higuruma_judgemanShot=0; higuruma_domainActive=false; higuruma_domainTimer=0; higuruma_domainBullets=[]; higuruma_verdicts=[];
     if(currentCharacter==='higuruma'){ player.maxHealth=120; player.health=120; player.speed=4.5; player.damage=28; }
     bsBeamCd=0; bsBeamCharging=false; bsBeamChargeTimer=0; bsWaveCd=0; bsHuntCd=0; bsHuntActive=false; bsHuntTimer=0; bsLifesteal=0; bsShield=0; bsPrevMaxMana=0;
@@ -13434,7 +13595,7 @@ function resetGame(){
     currentOctagon=null; octagonBullets=[];
     // Boss Rush reset
     if(!bossRushMode){ bossRushBossIndex=0; bossRushRestTimer=0; bossRushScore=0; bossRushBossTimers=[]; }
-    passiveState={lifesteal:0,thorns:0,regen:0,manaflow:0,armor:0,magnet:0,explosive:0,crit:0,multishot:0,ghostly:0,goldmag:0,overclock:0,trishot:0,homingshot:0,novaleak:0,aimassist:0,novaHitCount:0,berserkerActive:false,berserkerTimer:0,timeslowActive:false,timeslowTimer:0,regenTimer:0,trishotTimer:0,homingTimer:0,blackholeActive:false,blackholeTimer:0,vampiric:0,ricochet:0,bulletsize:0,goldonkill:0,ampfield:0,hpshield:0,hpshieldMax:0,hpshieldTimer:0,coldtouch:0,soulharvest:false,soulharvestCount:0,momentum:false,momentumBonus:0,momentumTimer:0,burnOnHit:0,splash:0,killSpeed:0,killSpeedTimer:0,killSpeedBonus:0,dodgeRegen:0,execute:0,shieldRegen:0,shieldMax:0,shield:0,hp_steal:0,mana_battery:0,lastStand:false,goldInterest:0,chainKill:0,bulletShield:0,expBoost:0,adrenaline:0,poisonCloud:0,rageStacks:0,rageDmgMult:1,rageTimer:0,treasureSense:0,piercing:0,haste:0,undying:false,undyingUsed:false,tornadoActive:false,tornadoTimer:0,tornadoX:0,tornadoY:0,tornadoAngle:0,_powerSurge:0,_gravWell:0,sniperMode:false,heatSeekCount:0,knockbackForce:0,stunChance:0,slowField:false,weaknessDebuff:false,energyShield:0,revive:false,extraDashes:0,_dashCharges:1,cdrMult:1,damageAura:false,damageAuraDps:0,mirrorShield:false,radar:false,goldRush:0,bloodlust:false,noKnockback:false,gravityWell:false,bulletHell:false,bulletHellTimer:0,overchargeMythic:false,overchargeHitCounter:0,godArmor:0,darkPact:false,echoShot:false,supernova:false,bouncy_shots:false,ricochetCount:0};
+    passiveState={lifesteal:0,thorns:0,regen:0,manaflow:0,armor:0,magnet:0,explosive:0,crit:0,multishot:0,ghostly:0,goldmag:0,overclock:0,trishot:0,homingshot:0,novaleak:0,aimassist:0,novaHitCount:0,berserkerActive:false,berserkerTimer:0,timeslowActive:false,timeslowTimer:0,regenTimer:0,trishotTimer:0,homingTimer:0,blackholeActive:false,blackholeTimer:0,vampiric:0,ricochet:0,bulletsize:0,goldonkill:0,ampfield:0,hpshield:0,hpshieldMax:0,hpshieldTimer:0,coldtouch:0,soulharvest:false,soulharvestCount:0,momentum:false,momentumBonus:0,momentumTimer:0,burnOnHit:0,splash:0,killSpeed:0,killSpeedTimer:0,killSpeedBonus:0,dodgeRegen:0,execute:0,shieldRegen:0,shieldMax:0,shield:0,hp_steal:0,mana_battery:0,lastStand:false,goldInterest:0,chainKill:0,bulletShield:0,expBoost:0,adrenaline:0,poisonCloud:0,rageStacks:0,rageDmgMult:1,rageTimer:0,treasureSense:0,piercing:0,haste:0,undying:false,undyingUsed:false,_reviveUsed:false,tornadoActive:false,tornadoTimer:0,tornadoX:0,tornadoY:0,tornadoAngle:0,_powerSurge:0,_gravWell:0,sniperMode:false,heatSeekCount:0,knockbackForce:0,stunChance:0,slowField:false,weaknessDebuff:false,energyShield:0,revive:false,extraDashes:0,_dashCharges:1,cdrMult:1,damageAura:false,damageAuraDps:0,mirrorShield:false,radar:false,goldRush:0,bloodlust:false,noKnockback:false,gravityWell:false,bulletHell:false,bulletHellTimer:0,overchargeMythic:false,overchargeHitCounter:0,godArmor:0,darkPact:false,echoShot:false,supernova:false,bouncy_shots:false,ricochetCount:0};
     player._theEnemySlowMult = 1;
     const darkReset = document.getElementById('theEnemyDarkness'); if(darkReset) darkReset.style.opacity='0';
     hakariDomainActive = false;
@@ -13511,6 +13672,52 @@ function resetGame(){
 
 function drawPlayer(ts, dt=1){
     const sk=CHARACTERS[currentCharacter];
+
+    // ── PAC-MAN ─────────────────────────────────────────────────────────────────
+    if (currentCharacter === 'pacman') {
+        ctx.save();
+        if (player.invulnerable > 0 && !pacmanPoweredUp && Math.floor(ts / 100) % 2 === 0) ctx.globalAlpha = 0.5;
+        const r = player.radius;
+        // Face nearest enemy, fallback to cursor
+        let facingAng = Math.atan2(mousePos.y - player.y, mousePos.x - player.x);
+        let nearestDist = Infinity;
+        for (const e of enemies) {
+            if (!e.alive) continue;
+            const d = Math.hypot(e.x - player.x, e.y - player.y);
+            if (d < nearestDist) { nearestDist = d; facingAng = Math.atan2(e.y - player.y, e.x - player.x); }
+        }
+        const ang = facingAng;
+        // Animated mouth (open/close)
+        const mouthOpen = Math.abs(Math.sin(pacmanMouthAngle)) * 0.35 + 0.05;
+        const col = pacmanPoweredUp ? '#ffffff' : '#ffd700';
+        const shadowCol = pacmanPoweredUp ? '#aaffff' : '#b8860b';
+        ctx.shadowBlur = _shadowsEnabled ? (pacmanPoweredUp ? 30 : 18) : 0;
+        ctx.shadowColor = shadowCol;
+        ctx.fillStyle = col;
+        ctx.beginPath();
+        ctx.moveTo(player.x, player.y);
+        ctx.arc(player.x, player.y, r, ang + mouthOpen, ang + Math.PI * 2 - mouthOpen);
+        ctx.closePath();
+        ctx.fill();
+        // Eye
+        ctx.shadowBlur = 0;
+        ctx.fillStyle = '#111';
+        const eyeX = player.x + Math.cos(ang - 0.7) * r * 0.55;
+        const eyeY = player.y + Math.sin(ang - 0.7) * r * 0.55;
+        ctx.beginPath(); ctx.arc(eyeX, eyeY, r * 0.13, 0, Math.PI * 2); ctx.fill();
+        // Power pellet glow ring when powered
+        if (pacmanPoweredUp) {
+            ctx.strokeStyle = '#ffd700';
+            ctx.lineWidth = 3;
+            ctx.shadowBlur = _shadowsEnabled ? 20 : 0; ctx.shadowColor = '#ffd700';
+            ctx.setLineDash([5, 4]);
+            ctx.beginPath(); ctx.arc(player.x, player.y, r + 8 + Math.abs(Math.sin(ts * 0.015)) * 4, 0, Math.PI * 2); ctx.stroke();
+            ctx.setLineDash([]);
+        }
+        ctx.restore();
+        return;
+    }
+    // ─────────────────────────────────────────────────────────────────────────────
 
     if(currentCharacter === 'luffy') {
         ctx.save();
@@ -14107,7 +14314,7 @@ function tickVeteran(dt) {
     if (currentCharacter === 'war_veteran') {
         if (warVeteranTier >= WAR_VETERAN_TIERS.length - 1) return;
         warVeteranTimer += dt;
-        if (warVeteranTimer >= 2700) {
+        if (warVeteranTimer >= 3600) {
             warVeteranTimer = 0;
             warVeteranTier = Math.min(warVeteranTier + 1, WAR_VETERAN_TIERS.length - 1);
             const wt = WAR_VETERAN_TIERS[warVeteranTier];
@@ -14121,7 +14328,7 @@ function tickVeteran(dt) {
 
     if(veteranTier >= VETERAN_TIERS.length - 1) return;
     veteranTimer += dt;
-    if(veteranTimer >= 1800) {
+    if(veteranTimer >= 3600) {
         veteranTimer = 0;
         veteranTier = Math.min(veteranTier + 1, VETERAN_TIERS.length - 1);
         const t = VETERAN_TIERS[veteranTier];
@@ -14515,7 +14722,7 @@ function gameLoop(ts){
         const gojoFireInterval = GOJO_PHASES[gojoPhase].fireRate * overclockMult;
         if (ts - autoFireLastShot > gojoFireInterval) { if(!gojoHollowAnimating) shootProjectile(); autoFireLastShot = ts; }
     }
-    if (!CHARACTERS[currentCharacter].isMachineGun && !CHARACTERS[currentCharacter].isGoldHoarder && !CHARACTERS[currentCharacter].isBoxer && !CHARACTERS[currentCharacter].isGojo && !CHARACTERS[currentCharacter].isTank && !CHARACTERS[currentCharacter].isLuffy && autoFireEnabled &&
+    if (!CHARACTERS[currentCharacter].isMachineGun && !CHARACTERS[currentCharacter].isGoldHoarder && !CHARACTERS[currentCharacter].isBoxer && !CHARACTERS[currentCharacter].isGojo && !CHARACTERS[currentCharacter].isTank && !CHARACTERS[currentCharacter].isLuffy && !CHARACTERS[currentCharacter].isPacman && autoFireEnabled &&
         !document.getElementById('levelUpNotice').classList.contains('show')) {
         if (!tickNewCharAutoFire(ts, dt)) {
             const overclockMult = 1 - Math.min(passiveState.overclock * 0.25, 0.75);
@@ -14897,13 +15104,13 @@ function gameLoop(ts){
     if(currentCharacter==='default'){
         if (currentCharacter === 'war_veteran') {
             const wt = WAR_VETERAN_TIERS[warVeteranTier];
-            const secLeft = warVeteranTier < WAR_VETERAN_TIERS.length-1 ? Math.ceil((2700-warVeteranTimer)/60) : 'MAX';
+            const secLeft = warVeteranTier < WAR_VETERAN_TIERS.length-1 ? Math.ceil((3600-warVeteranTimer)/60) : 'MAX';
             ctx.save();ctx.font='bold 10px Arial';ctx.fillStyle=wt.color;ctx.textAlign='left';
             ctx.shadowBlur = _shadowsEnabled ? 8 : 0;ctx.shadowColor=wt.shadow;
             ctx.fillText(`🎖️ ${wt.name} R: Ranked Bombardment | promotes in: ${secLeft}s`,12,22);ctx.restore();
         } else {
             const vt=VETERAN_TIERS[veteranTier];
-            const secLeft=veteranTier<VETERAN_TIERS.length-1?Math.ceil((1800-veteranTimer)/60):'MAX';
+            const secLeft=veteranTier<VETERAN_TIERS.length-1?Math.ceil((3600-veteranTimer)/60):'MAX';
             ctx.save();ctx.font='bold 10px Arial';ctx.fillStyle=vt.color;ctx.textAlign='left';
             ctx.shadowBlur = _shadowsEnabled ? 8 : 0;ctx.shadowColor=vt.shadow;
             ctx.fillText(`⭐ ${vt.name} R: ${vt.label} | evolves in: ${secLeft}s`,12,22);ctx.restore();
@@ -17006,7 +17213,7 @@ canvas.addEventListener('mousedown',e=>{
         return;
     }
     if(currentCharacter==='pyromancer'&&gameRunning){pyroCharging=true;pyroChargeTimer=0;}
-    else if(currentCharacter!=='boxer'&&currentCharacter!=='tank'&&gameRunning&&!gojoHollowAnimating) shootProjectile();
+    else if(currentCharacter!=='boxer'&&currentCharacter!=='tank'&&currentCharacter!=='pacman'&&gameRunning&&!gojoHollowAnimating) shootProjectile();
 });
 canvas.addEventListener('mouseup',e=>{
     builderSelectedWall = null;
@@ -17585,6 +17792,34 @@ const CHAR_INFO = {
         playstyle:'An aggressive skirmisher that lives or dies by silk economy. You have no HP recovery except Bind so avoid getting hit. Use Shard Traps to cover your flanks, dash through crowds for damage and speed boosts, and save silk for Bind when things get hairy. Silk Storm is your panic button for surrounded moments.',
         tip:'🗡️ Tip: Think of silk as your lifeline. Killing enemies fills it, Bind and Silk Storm drain it. Never drop below 9 silk unless you are confident you won\'t need emergency healing. Shard Traps are free - always have one deployed.',
     },
+
+    pacman: {
+        icon:'👾', iconBg:'linear-gradient(135deg,#b8860b,#ffd700)', iconGlow:'#ffd700',
+        name:'Pac-Man', tag:'🟡 The Pellet Hunter — Passive-Only Predator',
+        stats:[
+            { label:'HP',         value:'120' },
+            { label:'Speed',      value:'5' },
+            { label:'Damage',     value:'0 (no weapons!)' },
+            { label:'Ability',    value:'None — pure passive only' },
+            { label:'Power Pellet', value:'Always 1 on the map. Eat it to power up!' },
+            { label:'Powered Mode', value:'10 seconds of invincibility + flee aura' },
+            { label:'Kill Method', value:'Run into fleeing enemies while powered' },
+            { label:'On Kill',    value:'Random buff chosen from 10 possibilities' },
+        ],
+        abilities:`<b>Passive — Power Pellets:</b> There is always exactly one Power Pellet glowing on the map. Once you eat an active pellet, a new one will NOT spawn until your powered mode ends.<br><br>
+<b>Powered Mode (10 seconds):</b><br>
+• You become fully invulnerable — no enemies can hurt you<br>
+• All enemies on screen immediately flee away from you<br>
+• Running into an enemy EATS them instantly<br>
+• Each eaten enemy grants a random buff<br><br>
+<b>Possible Random Buffs:</b><br>
+🏃 +4 Speed for 4s &nbsp;&nbsp; 💛 +20% Max HP &nbsp;&nbsp; ❤️ Full Heal<br>
+⚔️ +25 permanent DMG &nbsp;&nbsp; ❄️ Freeze All 3s<br>
+⏰ +3s Power Time &nbsp;&nbsp; 💥 Waka Explosion (AoE)<br>
+💰 +60 Run Gold &nbsp;&nbsp; 💪 +30 Max HP (perm) &nbsp;&nbsp; 🔥 2× DMG for 5s`,
+        playstyle:'Pac-Man cannot attack at all — your entire strategy revolves around the Power Pellet cycle. Between pellets, you must dodge enemies while hunting down the glowing orb. Once powered, sprint directly into enemies for kills and buffs. Stack beneficial buffs over multiple waves to compensate for your total lack of active offense.',
+        tip:'⚡ Tip: Don\'t waste powered time — immediately chase the nearest cluster of enemies! The "+3s Power Time" buff can chain into extended frenzies. The "2× DMG" buff is deceptively useful since shop upgrades can increase your base 10 DMG over time.',
+    },
 };
 
 function showCharInfo(skin) {
@@ -17797,6 +18032,7 @@ function updateShopDisplay(){
         'luffy': 'luffyCharacter',
         'higuruma': 'higurumaCharacter',
         'bloodseeker': 'bloodseekerCharacter',
+        'pacman': 'pacmanCharacter',
     };
 
     const wvCard = document.getElementById('warVeteranCharacter');
@@ -18176,7 +18412,7 @@ function loadRun(slot) {
     lastShopWave    = save.lastShopWave   || 0;
     shopRerollCost  = save.shopRerollCost || 30;
     runShopPurchases = save.runShopPurchases || 0;
-    expToNextLevel  = save.expToNextLevel || 100;
+    expToNextLevel  = save.expToNextLevel || 200;
     activeAbilities = save.activeAbilities ? [...save.activeAbilities] : [];
     activePassives  = save.activePassives  ? [...save.activePassives]  : [];
     if (save.passive) Object.assign(passiveState, save.passive);
@@ -22318,7 +22554,7 @@ function aimJoyStart(e) {
     if (!_mobileAutoFire) {
         _mobileAutoFire = setInterval(() => {
             if (gameRunning && !gamePaused && _aimJoy.active && (_aimJoy.dx !== 0 || _aimJoy.dy !== 0)) {
-                if (currentCharacter !== 'boxer' && currentCharacter !== 'tank') shootProjectile();
+                if (currentCharacter !== 'boxer' && currentCharacter !== 'tank' && currentCharacter !== 'pacman') shootProjectile();
             }
         }, 180);
     }
