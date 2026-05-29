@@ -2692,7 +2692,7 @@
 <div id="mainMenu">
 
     <h1 id="menuTitle">⚔️ CIRCULATE ⚔️</h1>
-    <p style="font-family:'Press Start 2P',monospace;font-size:11px;color:#fbbf24;margin:0 0 12px 0;opacity:0.85;">NEW ENEMY BESTAIRY!! more cursed zones...?</p>
+    <p style="font-family:'Press Start 2P',monospace;font-size:11px;color:#fbbf24;margin:0 0 12px 0;opacity:0.85;">I CAN RETURN BY D-</p>
     <div class="currency-display">💰 $<span id="totalMoney">0</span></div>
     <button class="menu-btn" onclick="showCharacterShop()">Characters</button>
     <button id="deleteRunSaveBtn" onclick="deleteRunSave()" style="display:none;background:rgba(220,38,38,0.12);border:1px solid rgba(220,38,38,0.35);color:rgba(255,120,120,0.7);font-size:10px;padding:4px 14px;border-radius:5px;cursor:pointer;margin-bottom:3px;font-family:inherit;">🗑️ Delete Run Save</button>
@@ -3093,6 +3093,15 @@
             <div class="character-ability">140 HP · Speed 5.5<br>PASSIVE: Shadow Clone every 30 kills<br>Z: Rasengan (3.5x DMG)<br>X: Rasenshuriken (5.5x AoE + slow)<br>R: Nine-Tails (100 kill bar · 60s · 3x DMG)</div>
             <div class="character-price">$25,000</div>
             <button class="info-btn" onclick="event.stopPropagation();showCharInfo('naruto')">INFO</button>
+        </div>
+
+        <div class="character-card" onclick="selectCharacter('natsuki')" id="natsukiCharacter" style="position:relative;border-color:rgba(186,85,211,0.5);background:linear-gradient(135deg,rgba(30,10,50,0.4),rgba(186,85,211,0.1));">
+            <div class="new-badge" style="background:linear-gradient(135deg,#6b21a8,#a855f7);">RBD</div>
+            <div class="character-preview" style="background:linear-gradient(135deg,#1a0030,#7c3aed);box-shadow:0 0 22px rgba(139,92,246,.9);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:26px;">💀</div>
+            <div class="character-name">Subaru Natsuki</div>
+            <div class="character-ability">120 HP · Speed 5<br>PASSIVE: Return By Death<br>Every 3–7 min a checkpoint saves<br>On death: respawn at last checkpoint</div>
+            <div class="character-price">$30,000</div>
+            <button class="info-btn" onclick="event.stopPropagation();showCharInfo('natsuki')">INFO</button>
         </div>
 
         <!-- ═══════════ LIMITED CHARACTERS ═══════════ -->
@@ -4175,6 +4184,7 @@ const CHARACTERS = {
     higuruma: { name:'Hiromi Higuruma', color:'#1f2937', shadow:'#111827', projColor:'#fbbf24', ability:'deadly_sentencing', manaCost:0, cdMax:0, isHiguruma:true, useImg:false },
     bloodseeker: { name:'Bloodseeker', color:'#7f1d1d', shadow:'#450a0a', projColor:'#dc2626', ability:'blood_beam', manaCost:0, cdMax:0, isBloodseeker:true, useImg:false },
     merchant: { name:'The Merchant', color:'#b45309', shadow:'#78350f', projColor:'#fbbf24', ability:'merchant_shop', manaCost:0, cdMax:0, isMerchant:true, useImg:false },
+    natsuki: { name:'Subaru Natsuki', color:'#a855f7', shadow:'#4c1d95', projColor:'#c084fc', ability:null, manaCost:0, cdMax:0, isNatsuki:true, useImg:false },
 };
 
 const SKIN_URLS = {
@@ -4194,7 +4204,7 @@ const PRICES = {
     phantom:250, druid:750, pyromancer:1500, cyborg:3000, timewizard:4500,
     fire:500, ice:1000, electric:2500, boxer:500,
     wemmbu:5000, eggchan:5000, dice:2345, hakari_v2:35000, yuji_itadori:28000, character10b:50000, war_veteran:0, prime_veteran:0, last_architect:0, coin_king:0, rouge_square:250000, gojo:0, the_strongest_today:0,
-    necromancer:4000, glass_cannon:3500, tank:2000, speedrunner:2500, hornet:0, megumi:0, luffy:1000000, naruto:25000, higuruma:300000, merchant:8000
+    necromancer:4000, glass_cannon:3500, tank:2000, speedrunner:2500, hornet:0, megumi:0, luffy:1000000, naruto:25000, higuruma:300000, merchant:8000, natsuki:30000
 };
 
 const CHARACTER_ORDER = Object.keys(PRICES).sort((a, b) => PRICES[a] - PRICES[b]);
@@ -5659,6 +5669,14 @@ let yujiDivergentBursts = []; // {x, y, timer, maxTimer, damage}
 
 let rougeSquareSawBlades = [];
 let rougeSquareSawTimer = 0;
+// ========== NATSUKI STATE (Return By Death) ==========
+let natsukiCheckpoint = null;          // {x, y, health, mana, wave, kills}
+let natsukiCheckpointTimer = 0;        // ticks since last checkpoint
+let natsukiNextCheckpointIn = 0;       // ticks until next checkpoint saves
+let natsukiRBDUsed = false;            // whether the current checkpoint has been consumed
+let natsukiFlashTimer = 0;             // white flash on respawn
+let natsukiCheckpointPulse = 0;        // pulse aura when checkpoint just saved
+// ====================================================
 let rougeSquareDungeonLockWalls = [];
 
 // ===== NARUTO STATE =====
@@ -6731,9 +6749,6 @@ function applyPassiveIncomingDamage(dmg) {
 
     if(megumiIsMahoragah) dmg *= 0.4;
 
-    // Death Mark debuff: doubles all incoming damage for 10s after 3s in zone
-    if(player._deathMarkDebuffTimer > 0) dmg *= 2;
-
     // Rage: build stacks on hit
     if(passiveState.rageStacks > 0) {
         passiveState.rageDmgMult = Math.min(3.0, (passiveState.rageDmgMult||1) + 0.08 * passiveState.rageStacks);
@@ -7233,15 +7248,7 @@ class Projectile {
         this.x=x; this.y=y;
         this.speed=isBow?18:isMG?14:12;
         if(passiveState.sniperMode && !isMG && !isBow) this.speed *= 2.5;
-        if(!isMG && !isBow && player._cursedSlowBullets) this.speed *= 0.38;
         this.vx=Math.cos(angle)*this.speed; this.vy=Math.sin(angle)*this.speed;
-        // Scatter shot zone: ±34° random spread
-        if(!isMG && !isBow && player._cursedScatter) {
-            const sc = (Math.random()-0.5)*1.2;
-            this.vx = Math.cos(angle+sc)*this.speed; this.vy = Math.sin(angle+sc)*this.speed;
-        }
-        // Overcharge zone: bullet damage locked to 1
-        if(!isMG && !isBow && player._cursedOvercharge) { this.damage = 1; }
         this.radius=isMG?2.5:isBow?4:6;
         if(passiveState.bulletsize > 0 && !isMG && !isBow) this.radius *= (1 + passiveState.bulletsize * 0.5);
         this.damage=dmg; this.color=color;
@@ -7368,23 +7375,11 @@ class Enemy {
         if(type==='void_rift') { this.radius=18; this.drawAlpha=1; this.voidSpawnTimer=120; this.speed=0; }
         this.isShade = type==='shade';
         if(type==='shade')     { this.radius=15; this.drawAlpha=0.15; this.shadePhaseTimer=Math.random()*120; this.shadeVisible=false; this.shadeShotTimer=0; this.shadeTeleTimer=0; }
-
-        this.isZoneWalker = type==='zone_walker';
-        if(type==='zone_walker') {
-            this.radius=18; this.drawAlpha=1;
-            const zTypes = Object.keys(CURSED_ZONE_TYPES);
-            this.zoneType = zTypes[Math.floor(Math.random()*zTypes.length)];
-            this.zoneRadius = 65 + Math.random()*25;
-            this.zonePulse = Math.random()*Math.PI*2;
-            this.zoneDriftAngle = Math.random()*Math.PI*2;
-            this.zoneDriftTimer = 0;
-        }
     }
     update(dt=1) {
         if(this.frozen>0){this.frozen-=dt;return;}
 
         let effectiveSlowMult = this._inHasteZone ? 1.35 : 1;
-        if(this._inTimeWarpZone) effectiveSlowMult *= 0.28;
         if(this.slowTimer !== undefined && this.slowTimer > 0) {
             this.slowTimer -= dt;
             effectiveSlowMult = 1 - this.slowAmount;
@@ -7495,27 +7490,9 @@ class Enemy {
         // ────────────────────────────────────────────────────────────
 
         const ddx = tx - this.x, ddy = ty - this.y, ddist = Math.sqrt(ddx*ddx + ddy*ddy);
-        if(ddist > 0 && !this.isBoomerang && !this.isVoidRift && !this.isDasher && !this._zaFrozen && !this.isZoneWalker) {
+        if(ddist > 0 && !this.isBoomerang && !this.isVoidRift && !this.isDasher && !this._zaFrozen) {
             this.x += (ddx/ddist) * this.speed * dt * slowMult * effectiveSlowMult;
             this.y += (ddy/ddist) * this.speed * dt * slowMult * effectiveSlowMult;
-        }
-        // Zone Walker: slow drift with occasional direction changes, loosely tracking player
-        if(this.isZoneWalker && !this._zaFrozen) {
-            this.zoneDriftTimer = (this.zoneDriftTimer||0) + dt;
-            if(this.zoneDriftTimer >= 90 + Math.random()*60) {
-                this.zoneDriftTimer = 0;
-                // Bias toward player but with randomness
-                const baseAng = Math.atan2(player.y-this.y, player.x-this.x);
-                this.zoneDriftAngle = baseAng + (Math.random()-0.5)*1.4;
-            }
-            this.x += Math.cos(this.zoneDriftAngle)*this.speed*dt*slowMult*effectiveSlowMult;
-            this.y += Math.sin(this.zoneDriftAngle)*this.speed*dt*slowMult*effectiveSlowMult;
-            // Keep on screen
-            const pad2 = (this.zoneRadius||70)+10;
-            if(this.x < pad2) { this.x = pad2; this.zoneDriftAngle = Math.abs(this.zoneDriftAngle); }
-            if(this.x > canvas.width-pad2) { this.x = canvas.width-pad2; this.zoneDriftAngle = Math.PI-this.zoneDriftAngle; }
-            if(this.y < pad2) { this.y = pad2; this.zoneDriftAngle = -Math.abs(this.zoneDriftAngle); }
-            if(this.y > canvas.height-pad2) { this.y = canvas.height-pad2; this.zoneDriftAngle = Math.PI-(-Math.abs(this.zoneDriftAngle)); }
         }
 
         // Hard-clamp mod enemies inside the canvas so they can never die off-screen
@@ -8121,43 +8098,6 @@ class Enemy {
             ctx.shadowBlur=_shadowsEnabled?8:0; ctx.shadowColor='#fbbf24';
             ctx.fillText('BOSS',this.x,this.y-this.radius-4);
 
-        } else if (this.isZoneWalker) {
-            // A cursed zone that walks — draws its aura + a pulsing core
-            const cfg = CURSED_ZONE_TYPES[this.zoneType] || CURSED_ZONE_TYPES.slow;
-            const zt = performance.now() * 0.003;
-            this.zonePulse = (this.zonePulse||0) + 0.04;
-            const auraAlpha = 0.22 + 0.08 * Math.sin(this.zonePulse);
-            // Aura
-            ctx.save(); ctx.globalAlpha = auraAlpha;
-            ctx.fillStyle = cfg.color;
-            ctx.shadowBlur = _shadowsEnabled ? 22 : 0; ctx.shadowColor = cfg.border;
-            ctx.beginPath(); ctx.arc(this.x, this.y, this.zoneRadius, 0, Math.PI*2); ctx.fill();
-            // Dashed aura ring
-            ctx.globalAlpha = 0.45 + 0.2*Math.sin(this.zonePulse*0.8);
-            ctx.strokeStyle = cfg.border; ctx.lineWidth = 2;
-            ctx.setLineDash([6,5]);
-            ctx.beginPath(); ctx.arc(this.x, this.y, this.zoneRadius, 0, Math.PI*2); ctx.stroke();
-            ctx.setLineDash([]);
-            // Core body
-            ctx.globalAlpha = (this.drawAlpha||1);
-            const cg = ctx.createRadialGradient(this.x-4, this.y-4, 2, this.x, this.y, this.radius);
-            cg.addColorStop(0, '#ffffff'); cg.addColorStop(0.4, cfg.border); cg.addColorStop(1, 'rgba(0,0,0,0.8)');
-            ctx.shadowBlur = _shadowsEnabled ? 25 : 0; ctx.shadowColor = cfg.border;
-            ctx.fillStyle = cg;
-            ctx.beginPath(); ctx.arc(this.x, this.y, this.radius, 0, Math.PI*2); ctx.fill();
-            // Rotating ring around core
-            ctx.globalAlpha = 0.7;
-            ctx.strokeStyle = cfg.border; ctx.lineWidth = 2; ctx.setLineDash([4,4]);
-            ctx.save(); ctx.translate(this.x, this.y); ctx.rotate(zt*1.5);
-            ctx.beginPath(); ctx.arc(0, 0, this.radius+6, 0, Math.PI*2); ctx.restore(); ctx.stroke();
-            ctx.setLineDash([]);
-            // Zone type label below aura
-            ctx.globalAlpha = 0.75;
-            ctx.font = 'bold 8px Arial'; ctx.textAlign = 'center';
-            ctx.fillStyle = cfg.labelColor; ctx.shadowBlur = 0;
-            ctx.fillText(cfg.label, this.x, this.y + this.zoneRadius + 12);
-            ctx.restore();
-
         } else if (this.isShade) {
             // 👤 SHADE - near-invisible dark purple with a faint dark core and purple wisps
             this._shadeRot = ((this._shadeRot||0)+0.06*(this.shadeVisible?2:0.5))%(Math.PI*2);
@@ -8255,7 +8195,6 @@ class Enemy {
             else if (this.isMimic)        label = this.mimicRevealed ? '⚠️ Mimic' : null;
             else if (this.isEcho)         label = '🪞 Echo';
             else if (this.isVoidRift)     label = '🌀 Void Rift';
-            else if (this.isZoneWalker)   label = '☠️ Zone Walker';
             else if (this.isTriangle)     label = '▲ Triangle';
             else if (this.isMiniBoss)     label = '⚔️ Mini Boss';
             else if (this.isShade)        label = this.shadeVisible ? '👤 Shade' : null;
@@ -8536,7 +8475,6 @@ function getEnemyStats(type){
     if(type==='echo')      return{health:Math.round((260+d*60)*em), speed:eSpd(1.8+d*0.08), damage:Math.round((15+d*3)*em)};
     if(type==='void_rift') return{health:Math.round((400+d*80)*em), speed:0,                damage:Math.round((8+d*2)*em)};
     if(type==='shade')     return{health:Math.round((300+d*65)*em), speed:eSpd(2.5+d*0.12), damage:Math.round((20+d*4)*em)};
-    if(type==='zone_walker') return{health:Math.round((350+d*75)*em), speed:eSpd(0.75+d*0.04), damage:Math.round((10+d*2)*em)};
 
     let healthMult = 1, speedMult = 1, damageMult = 1;
     if(currentRound>=50 && currentRound<500) {
@@ -9013,7 +8951,6 @@ function spawnWave(){
             if(currentRound >= 38) typePool.push('void_rift');
             if(currentRound >= 35) typePool.push('mirror_e');
             if(currentRound >= 42) typePool.push('shade','shade');
-            if(currentRound >= 45) typePool.push('zone_walker');
             modEnemyIds.forEach(id => typePool.push(id));
         }
         const type = typePool[Math.floor(Math.random()*typePool.length)];
@@ -9054,7 +8991,6 @@ function spawnWave(){
             if(e.isEcho)         { e.color='#e879f9'; e.expValue=28; }
             if(e.isVoidRift)     { e.color='#7c3aed'; e.expValue=45; }
             if(e.isShade)        { e.color='#4b0082'; e.expValue=30; }
-            if(e.isZoneWalker)  { e.color = CURSED_ZONE_TYPES[e.zoneType]?.border || '#7c3aed'; e.expValue=35; }
             // Swarm: replace single enemy with 6 tiny swarm units
             if(e.isSwarm) {
                 for(let si=0;si<6;si++){
@@ -9819,19 +9755,9 @@ function spawnOctagon(hpOverride){
 // 🟣 CURSED ZONES
 // ===========================
 const CURSED_ZONE_TYPES = {
-    slow:         { color:'rgba(124,58,237,0.18)',  border:'#7c3aed', label:'⬇ SLOW ZONE',      labelColor:'#c084fc' },
-    haste:        { color:'rgba(220,38,38,0.15)',   border:'#dc2626', label:'⚡ ENEMY HASTE',   labelColor:'#fca5a5' },
-    drain:        { color:'rgba(15,23,42,0.35)',    border:'#1e40af', label:'💧 MANA DRAIN',    labelColor:'#93c5fd' },
-    health_drop:  { color:'rgba(185,28,28,0.22)',   border:'#b91c1c', label:'💔 HEALTH DROP',   labelColor:'#fca5a5' },
-    slow_bullets: { color:'rgba(14,165,233,0.18)',  border:'#0ea5e9', label:'🔵 SLOW BULLETS',  labelColor:'#7dd3fc' },
-    fog_war:      { color:'rgba(30,30,50,0.20)',    border:'#64748b', label:'🌫️ FOG OF WAR',    labelColor:'#94a3b8' },
-    reverse_ctrl: { color:'rgba(239,68,68,0.14)',   border:'#ef4444', label:'🔄 REVERSE CTRL',  labelColor:'#fca5a5' },
-    gold_drain:   { color:'rgba(234,179,8,0.16)',   border:'#eab308', label:'💸 GOLD DRAIN',    labelColor:'#fde047' },
-    scatter_shot: { color:'rgba(168,85,247,0.16)',  border:'#a855f7', label:'🎯 SCATTER SHOT',  labelColor:'#d8b4fe' },
-    overcharge:   { color:'rgba(251,191,36,0.16)',  border:'#f59e0b', label:'⚡ OVERCHARGE',    labelColor:'#fde68a' },
-    time_warp:    { color:'rgba(6,182,212,0.16)',   border:'#06b6d4', label:'⏳ TIME WARP',     labelColor:'#a5f3fc' },
-    mirrored:     { color:'rgba(236,72,153,0.16)',  border:'#ec4899', label:'🪞 MIRRORED',      labelColor:'#fbcfe8' },
-    death_mark:   { color:'rgba(0,0,0,0.28)',       border:'#dc2626', label:'☠️ DEATH MARK',    labelColor:'#f87171' },
+    slow:   { color:'rgba(124,58,237,0.18)', border:'#7c3aed', label:'⬇ SLOW ZONE',      labelColor:'#c084fc' },
+    haste:  { color:'rgba(220,38,38,0.15)',  border:'#dc2626', label:'⚡ ENEMY HASTE',   labelColor:'#fca5a5' },
+    drain:  { color:'rgba(15,23,42,0.35)',   border:'#1e40af', label:'💧 MANA DRAIN',    labelColor:'#93c5fd' },
 };
 function spawnCursedZone(){
     if(cursedZones.length >= 4) return;
@@ -12577,13 +12503,17 @@ function updateHUD(){
     } else if (currentCharacter === 'naruto') {
         document.getElementById('health').textContent=`${Math.max(0,Math.floor(player.health))}/${player.maxHealth}`;
         document.getElementById('mana').textContent=`${narutoUltBar}/100 kills`;
+    } else if (currentCharacter === 'natsuki') {
+        document.getElementById('health').textContent=`${Math.max(0,Math.floor(player.health))}/${player.maxHealth}`;
+        const hasCp = natsukiCheckpoint && !natsukiRBDUsed;
+        document.getElementById('mana').textContent = 'Return By Death';
     } else {
         document.getElementById('health').textContent=`${Math.max(0,Math.floor(player.health))}/${player.maxHealth}`;
         document.getElementById('mana').textContent=`${Math.floor(player.mana)}/${player.maxMana}`;
     }
     const ceChars = ['gojo','yuji_itadori','hakari_v2','megumi'];
     const manaLbl = document.getElementById('manaLabel');
-    if(manaLbl) manaLbl.textContent = currentCharacter==='hornet' ? 'SILK' : currentCharacter==='naruto' ? (narutoUltActive ? '🦊 NINE-TAILS' : '🔥 ULT BAR') : (ceChars.includes(currentCharacter) || currentCharacter==='the_strongest_today' ? 'CURSED ENERGY' : 'MANA');
+    if(manaLbl) manaLbl.textContent = currentCharacter==='hornet' ? 'SILK' : currentCharacter==='naruto' ? (narutoUltActive ? '🦊 NINE-TAILS' : '🔥 ULT BAR') : currentCharacter==='natsuki' ? 'Return By Death' : (ceChars.includes(currentCharacter) || currentCharacter==='the_strongest_today' ? 'CURSED ENERGY' : 'MANA');
     const ctrlEl = document.getElementById('controls');
     if(ctrlEl) {
         if(currentCharacter === 'the_strongest_today') {
@@ -12602,6 +12532,11 @@ function updateHUD(){
         document.getElementById('healthBar').style.width=(player.health/player.maxHealth*100)+'%';
         document.getElementById('manaBar').style.width=(narutoUltBar)+'%';
         document.getElementById('manaBar').style.background = narutoUltActive ? '#ff3300' : narutoUltBar>=100 ? '#fbbf24' : '#ff6600';
+    } else if (currentCharacter === 'natsuki') {
+        document.getElementById('healthBar').style.width=(player.health/player.maxHealth*100)+'%';
+        const hasCp = natsukiCheckpoint && !natsukiRBDUsed;
+        document.getElementById('manaBar').style.width = hasCp ? '100%' : Math.max(0, 100 - (natsukiNextCheckpointIn / ((3*60)*60) * 100)) + '%';
+        document.getElementById('manaBar').style.background = hasCp ? '#a855f7' : '#4c1d95';
     } else {
         document.getElementById('healthBar').style.width=(player.health/player.maxHealth*100)+'%';
         document.getElementById('manaBar').style.width=(player.mana/player.maxMana*100)+'%';
@@ -12921,7 +12856,7 @@ function endGame(sukunaKilled=false){
         updateMoneyDisplay();
     }
     document.getElementById('gameOver').style.display='flex';
-    // Stats
+    updateTabTitle();
     const timeSec = Math.floor((Date.now()-runStartTime)/1000);
     const mins=Math.floor(timeSec/60), secs=timeSec%60;
     document.getElementById('finalLevel').textContent = player.level;
@@ -12962,7 +12897,48 @@ function endGame(sukunaKilled=false){
     if (typeof RUN_SLOT_KEYS !== 'undefined') { if(typeof activeRunSlot!=='undefined'&&activeRunSlot) localStorage.removeItem(RUN_SLOT_KEYS[activeRunSlot-1]); }
     else localStorage.removeItem('ballRPGRunSave');
 }
-function restartGame(){document.getElementById('gameOver').style.display='none';document.getElementById('youWinScreen').style.display='none';document.body.classList.add('game-active');mousePos={x:canvas.width/2,y:canvas.height/2};resetGame();gameRunning=true;mainTheme.pause();mainTheme.currentTime=0;fadeInMainTheme(1200);requestAnimationFrame(gameLoop);}
+
+// ===== NATSUKI: Return By Death — intercept endGame =====
+const _origEndGame = endGame;
+endGame = function(sukunaKilled=false) {
+    if (currentCharacter === 'natsuki' && natsukiCheckpoint) {
+        // Respawn at checkpoint — never consumed, always reusable
+        player.health = Math.max(1, natsukiCheckpoint.health);
+        player.mana   = natsukiCheckpoint.mana;
+        player.x      = natsukiCheckpoint.x;
+        player.y      = natsukiCheckpoint.y;
+        player.invulnerable = 300; // 5s invulnerability after respawn
+        // Reset wave to checkpoint wave
+        currentRound = natsukiCheckpoint.wave;
+        // Clear all enemies so wave resets cleanly
+        enemies = [];
+        bossBullets = []; miniTriangles = [];
+        currentBoss = null; bossSpawned = false;
+        rhomboidBullets = []; rhomboidMinions = []; currentRhomboid = null;
+        pentagonBullets = []; currentPentagon = null;
+        hexagonBullets = []; currentHexagon = null;
+        octagonBullets = []; currentOctagon = null;
+        projectiles = [];
+        natsukiFlashTimer = 90; // white flash for 1.5s
+        // Dramatic particles
+        for (let i = 0; i < 80; i++) {
+            particles.push(new Particle(
+                player.x + (Math.random()-0.5)*200,
+                player.y + (Math.random()-0.5)*200,
+                i % 2 === 0 ? '#a855f7' : '#1a0030'
+            ));
+        }
+        floatMoneyText('💀 RETURN BY DEATH — I remember everything.');
+        try { const rbdAudio = new Audio('https://res.cloudinary.com/dz1dungk5/video/upload/v1780043732/re-zero-return-by-death_ofnbs2.mp3'); rbdAudio.volume = getMusicVol(); rbdAudio.play().catch(()=>{}); } catch(e) {}
+        // Make absolutely sure music stays off
+        stopMainTheme(); stopCharMusicAudio();
+        updateHUD();
+        return; // do NOT end game
+    }
+    _origEndGame(sukunaKilled);
+};
+// =======================================================
+function restartGame(){document.getElementById('gameOver').style.display='none';document.getElementById('youWinScreen').style.display='none';document.body.classList.add('game-active');mousePos={x:canvas.width/2,y:canvas.height/2};resetGame();gameRunning=true;if(currentCharacter==='natsuki'){mainTheme.pause();mainTheme.currentTime=0;stopMainTheme();}else{mainTheme.pause();mainTheme.currentTime=0;fadeInMainTheme(1200);}requestAnimationFrame(gameLoop);}
 
 const NAV_CELL = 20;
 let navGrid = null;
@@ -13570,6 +13546,17 @@ function resetGame(){
     if (currentCharacter === 'megumi') { player.maxHealth=140; player.health=140; player.speed=6; player.damage=30; player.maxMana=100; player.mana=0; }
     glassCannAdrenaline = 0;
     speedrunnerSprintActive = false; speedrunnerSprintTimer = 0; speedrunnerVelX = 0; speedrunnerVelY = 0;
+    // Natsuki: Return By Death
+    natsukiCheckpoint = null;
+    natsukiCheckpointTimer = 0;
+    natsukiNextCheckpointIn = (180 + Math.floor(Math.random() * 240)) * 60; // 3-7 min in frames
+    natsukiRBDUsed = false;
+    natsukiFlashTimer = 0;
+    natsukiCheckpointPulse = 0;
+    if (currentCharacter === 'natsuki') { player.maxHealth=120; player.health=120; player.speed=5; player.damage=22;
+        // Save the very start as the first checkpoint
+        natsukiCheckpoint = { x: player.x, y: player.y, health: player.health, mana: player.mana, wave: 0, kills: 0 };
+    }
     cursedWaveActive = false;
     bountyActive = false; currentBountyEnemy = null; bountyGold = 0; bountyLabel = '';
     if (currentCharacter === 'hornet') { player.maxHealth = 999; player.health = 999; player.speed = 6; player.damage = 27.5; hornetMasks=HORNET_MAX_MASKS; hornetSilk=0; hornetShardTraps=[]; hornetSpeedTimer=0; hornetSpeedBonus=0; hornetShardCooldown=0; hornetBindWindup=0; }
@@ -14083,6 +14070,49 @@ function drawPlayer(ts, dt=1){
         return;
     }
 
+    if(currentCharacter === 'natsuki') {
+        ctx.save();
+        if(player.invulnerable>0&&Math.floor(ts/100)%2===0) ctx.globalAlpha=0.5;
+        const hasCp = natsukiCheckpoint && !natsukiRBDUsed;
+        const pulse = hasCp ? 0.35+0.25*Math.sin(ts*0.012) : 0;
+        const nG = ctx.createRadialGradient(player.x-4,player.y-5,2,player.x,player.y,player.radius);
+        nG.addColorStop(0, hasCp ? '#e9d5ff' : '#c4b5fd');
+        nG.addColorStop(0.5, hasCp ? '#7c3aed' : '#4c1d95');
+        nG.addColorStop(1, '#1a0030');
+        ctx.shadowBlur = _shadowsEnabled ? (hasCp ? 28+pulse*12 : 18) : 0;
+        ctx.shadowColor = hasCp ? '#a855f7' : '#6d28d9';
+        ctx.beginPath(); ctx.arc(player.x,player.y,player.radius,0,Math.PI*2);
+        ctx.fillStyle = nG; ctx.fill();
+        // Skull icon
+        ctx.font='13px Arial'; ctx.textAlign='center'; ctx.shadowBlur=0;
+        ctx.fillText('💀', player.x, player.y+5);
+        // Checkpoint saved aura ring
+        if (hasCp) {
+            ctx.save(); ctx.translate(player.x,player.y); ctx.rotate(-ts*0.006);
+            ctx.strokeStyle=`rgba(168,85,247,${0.55+pulse})`; ctx.lineWidth=2.5; ctx.setLineDash([5,4]);
+            ctx.beginPath(); ctx.arc(0,0,player.radius+9,0,Math.PI*2); ctx.stroke();
+            ctx.setLineDash([]); ctx.restore();
+        }
+        // Checkpoint pulse ring (just after save)
+        if (natsukiCheckpointPulse > 0) {
+            const cpA = natsukiCheckpointPulse / 120;
+            ctx.save(); ctx.globalAlpha = cpA * 0.6; ctx.strokeStyle='#a855f7'; ctx.lineWidth=3;
+            ctx.shadowBlur = _shadowsEnabled ? 20 : 0; ctx.shadowColor='#a855f7';
+            ctx.beginPath(); ctx.arc(player.x,player.y,player.radius+22*(1-cpA+0.01),0,Math.PI*2); ctx.stroke();
+            ctx.restore();
+        }
+        // RBD flash on respawn
+        if (natsukiFlashTimer > 0) {
+            const flashA = Math.min(1, natsukiFlashTimer / 90) * 0.7;
+            ctx.save(); ctx.globalAlpha = flashA;
+            ctx.fillStyle = '#e9d5ff';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.restore();
+        }
+        ctx.restore();
+        return;
+    }
+
     if(currentCharacter === 'goldhoarder') {
         ctx.save();
         if(player.invulnerable>0&&Math.floor(ts/100)%2===0)ctx.globalAlpha=0.5;
@@ -14431,11 +14461,38 @@ function gameLoop(ts){
         _fpsDisplay = Math.round(_fpsFrames / (_fpsTimer / 1000));
         _fpsFrames = 0;
         _fpsTimer = 0;
+        updateTabTitle();
     }
 
     tickGoldFormEnemies(dt);
 
     updateBiome();
+
+    // ===== NATSUKI: Return By Death checkpoint logic =====
+    if (currentCharacter === 'natsuki' && gameRunning) {
+        // Always silence music
+        if (!mainTheme.paused) { mainTheme.pause(); mainTheme.currentTime = 0; mainTheme.volume = 0; }
+        if (typeof charMusicAudio !== 'undefined' && !charMusicAudio.paused) { charMusicAudio.pause(); charMusicAudio.currentTime = 0; }
+        natsukiCheckpointTimer += dt;
+        natsukiNextCheckpointIn -= dt;
+        if (natsukiFlashTimer > 0) { natsukiFlashTimer -= dt; }
+        if (natsukiCheckpointPulse > 0) { natsukiCheckpointPulse -= dt; }
+        if (natsukiNextCheckpointIn <= 0) {
+            // Save checkpoint
+            natsukiCheckpoint = {
+                x: player.x, y: player.y,
+                health: player.health, mana: player.mana,
+                wave: currentRound, kills: player.kills,
+            };
+            natsukiRBDUsed = false;
+            natsukiCheckpointPulse = 120; // pulse for 2 seconds
+            natsukiNextCheckpointIn = (180 + Math.floor(Math.random() * 240)) * 60; // next in 3-7 min
+            floatMoneyText('💀 CHECKPOINT SAVED — Return By Death ready!');
+            for (let i = 0; i < 30; i++) particles.push(new Particle(player.x + (Math.random()-0.5)*80, player.y + (Math.random()-0.5)*80, '#a855f7'));
+            playSound(400, 0.08, 'sine'); playSound(600, 0.06, 'sine');
+        }
+    }
+    // ===================================================
 
     if(statsDisplayOpen) {
         statsUpdateTimer += dt;
@@ -14607,7 +14664,7 @@ function gameLoop(ts){
 
             const srMult = currentCharacter==='speedrunner' ? Math.max(0.3, 1 - Math.hypot(speedrunnerVelX,speedrunnerVelY)*0.04) : 1;
             const sniperSlowMult = passiveState.sniperMode ? 2.0 : 1;
-            const fireInterval = 250 * overclockMult * srMult * (bsHuntActive ? 0.5 : 1) * sniperSlowMult * (player._cursedOvercharge ? 0.05 : 1);
+            const fireInterval = 250 * overclockMult * srMult * (bsHuntActive ? 0.5 : 1) * sniperSlowMult;
             if (ts - autoFireLastShot > fireInterval) { if(!gojoHollowAnimating) shootProjectile(); autoFireLastShot = ts; }
         }
     }
@@ -14618,16 +14675,6 @@ function gameLoop(ts){
         if(keys[binds.moveLeft]||keys['arrowleft'])mx-=1;if(keys[binds.moveRight]||keys['arrowright'])mx+=1;
         // Gamepad left stick
         if(gpConnected){ mx+=gpMoveX; my+=gpMoveY; }
-    }
-    // ── Cursed zone: Reverse Controls ──
-    if(player._reversedControls) { mx = -mx; my = -my; }
-    // ── Cursed zone: Mirrored (random axis swap every 2s) ──
-    if(player._mirroredControls) {
-        const m = player._mirrorSwapMode || 0;
-        if(m===0)      { mx=-mx; }
-        else if(m===1) { my=-my; }
-        else if(m===2) { const t=mx; mx=my; my=t; }
-        else           { mx=-mx; my=-my; }
     }
 
     if (currentCharacter === 'speedrunner') {
@@ -15783,20 +15830,11 @@ function gameLoop(ts){
         const spawnInterval = Math.max(1800, 3600 - currentRound*10);
         if(cursedZoneSpawnTimer >= spawnInterval){ cursedZoneSpawnTimer=0; spawnCursedZone(); }
     }
-    // Reset per-frame enemy zone flags
-    enemies.forEach(e => { if(e.alive) { e._inTimeWarpZone = false; e._inHasteZone = false; } });
-
-    let playerInSlow=false, playerInHaste=false, playerInDrain=false,
-        playerInHealthDrop=false, playerInSlowBullets=false,
-        playerInFogWar=false, playerInReverseCtrl=false, playerInGoldDrain=false,
-        playerInScatterShot=false, playerInOvercharge=false,
-        playerInTimeWarp=false, playerInMirrored=false, playerInDeathMark=false;
-
+    let playerInSlow=false, playerInHaste=false, playerInDrain=false;
     cursedZones = cursedZones.filter(zone => {
         zone.timer -= dt;
         if(zone.timer <= 0) return false;
         const cfg = CURSED_ZONE_TYPES[zone.type];
-        if(!cfg) return false;
         const alpha = Math.min(0.85, zone.timer/120) * (0.6+0.2*Math.sin(ts*0.005));
         ctx.save();
         ctx.globalAlpha = alpha;
@@ -15810,157 +15848,31 @@ function gameLoop(ts){
         ctx.globalAlpha = 0.85; ctx.shadowBlur = 0;
         ctx.fillText(cfg.label, zone.x, zone.y + zone.radius + 13);
         ctx.restore();
-        // Haste: boost enemies in zone
+        // Apply effects to enemies in haste zone
         if(zone.type === 'haste') {
-            enemies.forEach(e => { if(e.alive && Math.hypot(e.x-zone.x,e.y-zone.y) < zone.radius) e._inHasteZone = true; });
-        }
-        // Time Warp: slow enemies in zone
-        if(zone.type === 'time_warp') {
-            enemies.forEach(e => { if(e.alive && Math.hypot(e.x-zone.x,e.y-zone.y) < zone.radius) e._inTimeWarpZone = true; });
+            enemies.forEach(e => {
+                if(!e.alive) return;
+                if(Math.hypot(e.x-zone.x, e.y-zone.y) < zone.radius) e._inHasteZone = true;
+                else e._inHasteZone = false;
+            });
         }
         // Track player overlap
         if(Math.hypot(player.x-zone.x, player.y-zone.y) < zone.radius){
-            if(zone.type==='slow')         playerInSlow         = true;
-            if(zone.type==='haste')        playerInHaste        = true;
-            if(zone.type==='drain')        playerInDrain        = true;
-            if(zone.type==='health_drop')  playerInHealthDrop   = true;
-            if(zone.type==='slow_bullets') playerInSlowBullets  = true;
-            if(zone.type==='fog_war')      playerInFogWar       = true;
-            if(zone.type==='reverse_ctrl') playerInReverseCtrl  = true;
-            if(zone.type==='gold_drain')   playerInGoldDrain    = true;
-            if(zone.type==='scatter_shot') playerInScatterShot  = true;
-            if(zone.type==='overcharge')   playerInOvercharge   = true;
-            if(zone.type==='time_warp')    playerInTimeWarp     = true;
-            if(zone.type==='mirrored')     playerInMirrored     = true;
-            if(zone.type==='death_mark')   playerInDeathMark    = true;
+            if(zone.type==='slow')  playerInSlow  = true;
+            if(zone.type==='haste') playerInHaste = true;
+            if(zone.type==='drain') playerInDrain = true;
         }
         return true;
     });
-
-    // Zone Walker aura projections
-    enemies.forEach(e => {
-        if(!e.alive || !e.isZoneWalker) return;
-        const inAura = Math.hypot(player.x-e.x, player.y-e.y) < e.zoneRadius;
-        // Time warp aura also slows other enemies
-        if(e.zoneType==='time_warp') {
-            enemies.forEach(oe => { if(oe.alive && oe!==e && Math.hypot(oe.x-e.x,oe.y-e.y)<e.zoneRadius) oe._inTimeWarpZone=true; });
-        }
-        if(e.zoneType==='haste') {
-            enemies.forEach(oe => { if(oe.alive && oe!==e && Math.hypot(oe.x-e.x,oe.y-e.y)<e.zoneRadius) oe._inHasteZone=true; });
-        }
-        if(!inAura) return;
-        if(e.zoneType==='slow')         playerInSlow         = true;
-        if(e.zoneType==='haste')        playerInHaste        = true;
-        if(e.zoneType==='drain')        playerInDrain        = true;
-        if(e.zoneType==='health_drop')  playerInHealthDrop   = true;
-        if(e.zoneType==='slow_bullets') playerInSlowBullets  = true;
-        if(e.zoneType==='fog_war')      playerInFogWar       = true;
-        if(e.zoneType==='reverse_ctrl') playerInReverseCtrl  = true;
-        if(e.zoneType==='gold_drain')   playerInGoldDrain    = true;
-        if(e.zoneType==='scatter_shot') playerInScatterShot  = true;
-        if(e.zoneType==='overcharge')   playerInOvercharge   = true;
-        if(e.zoneType==='time_warp')    playerInTimeWarp     = true;
-        if(e.zoneType==='mirrored')     playerInMirrored     = true;
-        if(e.zoneType==='death_mark')   playerInDeathMark    = true;
-    });
-
-    // ── Apply all zone effects ──
-
-    // Slow / time warp player movement (time warp overrides slow)
-    player._cursedSlow        = playerInTimeWarp ? 0.2 : playerInSlow ? 0.45 : 1;
-    player._cursedDrain       = playerInDrain;
-    player._cursedSlowBullets = playerInSlowBullets;
-    player._cursedScatter     = playerInScatterShot;
-    player._cursedOvercharge  = playerInOvercharge;
-    player._reversedControls  = playerInReverseCtrl;
-    player._mirroredControls  = playerInMirrored;
-
-    // Mirrored: tick and randomly change swap mode every 2s (120 frames)
-    if(playerInMirrored) {
-        player._mirrorSwapTimer = (player._mirrorSwapTimer||0) + dt;
-        if(player._mirrorSwapTimer >= 120) {
-            player._mirrorSwapTimer = 0;
-            player._mirrorSwapMode = Math.floor(Math.random()*4);
-        }
-    } else {
-        player._mirrorSwapTimer = 0;
-        player._mirrorSwapMode  = 0;
-    }
-
-    // Mana drain
+    // Apply zone effects to player
+    player._cursedSlow  = playerInSlow  ? 0.45 : 1;
+    player._cursedDrain = playerInDrain;
     if(playerInDrain && player.mana > 0) { player.mana = Math.max(0, player.mana - 0.25*dt); updateHUD(); }
-
-    // Health drop: -1 HP/sec
-    if(playerInHealthDrop && player.invulnerable <= 0) {
-        player._healthDropTimer = (player._healthDropTimer||0) + dt;
-        if(player._healthDropTimer >= 60) { player._healthDropTimer=0; player.health=Math.max(1,player.health-1); updateHUD(); }
-    } else if(!playerInHealthDrop) { player._healthDropTimer = 0; }
-
-    // Gold drain: -2 run gold/sec (but not below 0)
-    if(playerInGoldDrain && runGold > 0) {
-        player._goldDrainTimer = (player._goldDrainTimer||0) + dt;
-        if(player._goldDrainTimer >= 30) { // every 0.5s drain 1 gold
-            player._goldDrainTimer = 0;
-            runGold = Math.max(0, runGold - 1);
-            updateHUD();
-        }
-    } else if(!playerInGoldDrain) { player._goldDrainTimer = 0; }
-
-    // Death mark: after 3s continuous exposure, apply 10s debuff (2x incoming damage)
-    if(playerInDeathMark) {
-        player._deathMarkZoneTimer = (player._deathMarkZoneTimer||0) + dt;
-        if(player._deathMarkZoneTimer >= 180 && !(player._deathMarkDebuffTimer > 0)) {
-            player._deathMarkDebuffTimer = 600; // 10s
-            floatMoneyText('☠️ DEATH MARK! 2× damage for 10s!');
-            for(let i=0;i<30;i++) particles.push(new Particle(player.x+(Math.random()-0.5)*40,player.y+(Math.random()-0.5)*40,'#dc2626'));
-        }
-    } else {
-        player._deathMarkZoneTimer = 0;
-    }
-    if(player._deathMarkDebuffTimer > 0) {
-        player._deathMarkDebuffTimer -= dt;
-        if(player._deathMarkDebuffTimer <= 0) { player._deathMarkDebuffTimer=0; floatMoneyText('☠️ Death Mark expired'); }
-    }
-
-    // ── HUD zone indicator ──
-    const anyZone = playerInSlow||playerInHaste||playerInDrain||playerInHealthDrop||playerInSlowBullets||
-                    playerInFogWar||playerInReverseCtrl||playerInGoldDrain||playerInScatterShot||
-                    playerInOvercharge||playerInTimeWarp||playerInMirrored||playerInDeathMark||
-                    (player._deathMarkDebuffTimer > 0);
-    if(anyZone) {
-        ctx.save(); ctx.font='bold 10px Arial'; ctx.textAlign='center'; ctx.shadowBlur=_shadowsEnabled?6:0;
-        let zMsg, zCol;
-        if(player._deathMarkDebuffTimer>0){ zMsg=`☠️ MARKED! ${Math.ceil(player._deathMarkDebuffTimer/60)}s`; zCol='#f87171'; ctx.shadowColor='#dc2626'; }
-        else if(playerInDeathMark){ const s=Math.max(0,Math.ceil((180-(player._deathMarkZoneTimer||0))/60)); zMsg=`☠️ DEATH MARK ${s}s...`; zCol='#fca5a5'; ctx.shadowColor='#dc2626'; }
-        else if(playerInTimeWarp){ zMsg='⏳ TIME WARP'; zCol='#a5f3fc'; ctx.shadowColor='#06b6d4'; }
-        else if(playerInReverseCtrl){ zMsg='🔄 REVERSED!'; zCol='#fca5a5'; ctx.shadowColor='#ef4444'; }
-        else if(playerInMirrored){ zMsg='🪞 MIRRORED!'; zCol='#fbcfe8'; ctx.shadowColor='#ec4899'; }
-        else if(playerInOvercharge){ zMsg='⚡ OVERCHARGE'; zCol='#fde68a'; ctx.shadowColor='#f59e0b'; }
-        else if(playerInScatterShot){ zMsg='🎯 SCATTER SHOT'; zCol='#d8b4fe'; ctx.shadowColor='#a855f7'; }
-        else if(playerInGoldDrain){ zMsg='💸 GOLD DRAIN'; zCol='#fde047'; ctx.shadowColor='#eab308'; }
-        else if(playerInFogWar){ zMsg='🌫️ FOG OF WAR'; zCol='#94a3b8'; ctx.shadowColor='#64748b'; }
-        else if(playerInHealthDrop){ zMsg='💔 HEALTH DROP'; zCol='#f87171'; ctx.shadowColor='#b91c1c'; }
-        else if(playerInSlowBullets){ zMsg='🔵 SLOW BULLETS'; zCol='#7dd3fc'; ctx.shadowColor='#0ea5e9'; }
-        else if(playerInSlow){ zMsg='⬇ SLOWED'; zCol='#c084fc'; ctx.shadowColor='#7c3aed'; }
-        else if(playerInDrain){ zMsg='💧 MANA DRAIN'; zCol='#93c5fd'; ctx.shadowColor='#1e40af'; }
-        else { zMsg='⬆ HASTE ZONE'; zCol='#fca5a5'; ctx.shadowColor='#dc2626'; }
-        ctx.fillStyle=zCol;
-        ctx.fillText(zMsg, player.x, player.y - player.radius - 18);
-        ctx.restore();
-    }
-
-    // ── Fog of War overlay (drawn last so it covers game world but not HUD) ──
-    if(playerInFogWar) {
-        ctx.save();
-        const vr = 160; // visible radius
-        const fog = ctx.createRadialGradient(player.x, player.y, vr*0.45, player.x, player.y, vr*1.6);
-        fog.addColorStop(0, 'rgba(0,0,0,0)');
-        fog.addColorStop(0.55,'rgba(0,0,0,0)');
-        fog.addColorStop(0.80,'rgba(5,5,15,0.78)');
-        fog.addColorStop(1,   'rgba(5,5,15,0.97)');
-        ctx.fillStyle = fog;
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.restore();
+    if(playerInSlow || playerInHaste || playerInDrain){
+        ctx.save(); ctx.font = 'bold 10px Arial'; ctx.textAlign = 'center'; ctx.fillStyle = '#c084fc';
+        ctx.shadowBlur = _shadowsEnabled ? 6 : 0; ctx.shadowColor = '#7c3aed';
+        const zoneMsg = playerInSlow?'⬇ SLOWED':playerInDrain?'💧 MANA DRAIN':'⬆ HASTE ZONE';
+        ctx.fillText(zoneMsg, player.x, player.y - player.radius - 18); ctx.restore();
     }
 
     // ===== MERCHANT TICK =====
@@ -16687,6 +16599,7 @@ function showSettings(fromPause) {
     document.getElementById('settingsMenu').style.display = 'block';
     renderKeybindRows();
     applySettings();
+    updateTabTitle();
 }
 
 function closeSettings() {
@@ -16697,14 +16610,14 @@ function closeSettings() {
         document.getElementById('mainMenu').style.display = 'block';
         updateMoneyDisplay();
     }
+    updateTabTitle();
 }
 
 function openSettingsFromPause() {
     showSettings(true);
 }
 
-function pauseGame() {
-    if (!gameRunning && !gamePaused) return;
+function pauseGame() {    if (!gameRunning && !gamePaused) return;
     gamePaused = true;
     gameRunning = false;
     fadeOutMainTheme(600, true);
@@ -16713,6 +16626,7 @@ function pauseGame() {
     if (!charMusicAudio.paused) charMusicAudio.pause();
     document.getElementById('pauseOverlay').style.display = 'block';
     document.getElementById('pauseMenu').style.display = 'block';
+    updateTabTitle();
 }
 
 function resumeGame() {
@@ -16720,12 +16634,13 @@ function resumeGame() {
     gameRunning = true;
     document.getElementById('pauseOverlay').style.display = 'none';
     document.getElementById('pauseMenu').style.display = 'none';
-    if (hakariJackpotActive) {
+    if (currentCharacter === 'natsuki') {
+        stopMainTheme(); stopCharMusicAudio();
+    } else if (hakariJackpotActive) {
         resumeJackpotMusic();
     } else {
         const _resumeMap = getCharMusicMap();
         if (_resumeMap[currentCharacter] && charMusicAudio._currentCharId === currentCharacter) {
-            // Resume custom character music
             charMusicAudio.volume = getMusicVol();
             charMusicAudio.play().catch(() => {});
         } else {
@@ -16733,6 +16648,7 @@ function resumeGame() {
         }
     }
     lastTs = 0;
+    updateTabTitle();
     requestAnimationFrame(gameLoop);
 }
 
@@ -17815,6 +17731,26 @@ const CHAR_INFO = {
         playstyle:'An aggressive skirmisher that lives or dies by silk economy. You have no HP recovery except Bind so avoid getting hit. Use Shard Traps to cover your flanks, dash through crowds for damage and speed boosts, and save silk for Bind when things get hairy. Silk Storm is your panic button for surrounded moments.',
         tip:'🗡️ Tip: Think of silk as your lifeline. Killing enemies fills it, Bind and Silk Storm drain it. Never drop below 9 silk unless you are confident you won\'t need emergency healing. Shard Traps are free - always have one deployed.',
     },
+
+    natsuki: {
+        icon: '💀',
+        iconBg: 'linear-gradient(135deg,#1a0030,#7c3aed)',
+        iconGlow: '#a855f7',
+        name: 'Subaru Natsuki',
+        tag: '♻️ THE WITCH\'S POWER',
+        stats: [
+            { label:'HP', value:'120' },
+            { label:'Damage', value:'22' },
+            { label:'Speed', value:'5' },
+            { label:'Passive', value:'Return By Death' },
+            { label:'Checkpoint', value:'Saves randomly every 3–7 minutes' },
+            { label:'On Death', value:'Respawn at last checkpoint (once per checkpoint)' },
+            { label:'Price', value:'$30,000' },
+        ],
+        abilities:`<b>Passive: Return By Death</b><br>The Witch\'s curse grants Subaru one brutal advantage — he cannot truly die. Every 3 to 7 minutes (chosen randomly), the game secretly saves a checkpoint of his position, HP, wave, and kill count. A purple pulse confirms it saved.<br><br>When Subaru would die, instead of the game ending, he is hurled back to that checkpoint — enemies reset to that wave, his health restores to checkpoint HP, and the run continues. The checkpoint is then consumed (one use only) until a new one is saved.<br><br><b>No active abilities.</b> Subaru relies entirely on surviving long enough to bank a new checkpoint before the next death.`,
+        playstyle:'A passive-only survivor who trades all active power for a death cheat. You play carefully and aggressively at the same time — recklessly burning through enemies while always knowing a checkpoint is coming. After a Return By Death, you\'ll remember exactly what killed you. Use that knowledge.',
+        tip:'💀 The checkpoint timer is secret and random (3–7 min). A purple aura flashes when one saves. If you haven\'t seen a pulse recently, play safe — you may have no safety net. After respawning, enemies reset to the checkpointed wave.',
+    },
 };
 
 function showCharInfo(skin) {
@@ -17850,9 +17786,10 @@ function showQuestsPage(){
     document.getElementById('mainMenu').style.display='none';
     document.getElementById('questsPage').style.display='block';
     renderHQPanel();
+    updateTabTitle();
 }
 
-function showCharacterShop(){stopMainTheme();document.getElementById('mainMenu').style.display='none';document.getElementById('gameContainer').style.display='none';document.getElementById('characterShop').style.display='block';updateShopDisplay();updateMasteryCardButtons();
+function showCharacterShop(){stopMainTheme();document.getElementById('mainMenu').style.display='none';document.getElementById('gameContainer').style.display='none';document.getElementById('characterShop').style.display='block';updateShopDisplay();updateMasteryCardButtons();updateTabTitle();
     applyCharMusicForCharacter(currentCharacter);
     const wvCard = document.getElementById('warVeteranCharacter');
     if (wvCard) wvCard.style.display = (unlockedMasteries.includes('default') && equippedMasteries.includes('default')) ? '' : 'none';
@@ -17870,9 +17807,35 @@ function backToMenu(){
     stopCharMusicAudio();
     hideSlotMachine();
     bossRushMode=false; bossRushBossIndex=0; bossRushRestTimer=0; bossRushScore=0;
-    renderHQPanel();document.getElementById('tutorial').style.display='none';document.getElementById('characterShop').style.display='none';document.getElementById('questsPage').style.display='none';document.getElementById('moneyPopup').classList.remove('show');document.getElementById('mainMenu').style.display='block';updateMoneyDisplay();}
+    renderHQPanel();document.getElementById('tutorial').style.display='none';document.getElementById('characterShop').style.display='none';document.getElementById('questsPage').style.display='none';document.getElementById('moneyPopup').classList.remove('show');document.getElementById('mainMenu').style.display='block';updateMoneyDisplay();updateTabTitle();}
+function updateTabTitle() {
+    try {
+        // In-game
+        if (typeof gameRunning !== 'undefined' && gameRunning) {
+            const char = (typeof CHARACTERS !== 'undefined' && typeof currentCharacter !== 'undefined') ? (CHARACTERS[currentCharacter]?.name || currentCharacter) : '';
+            const wave = typeof currentRound !== 'undefined' ? currentRound : 0;
+            const mode = (typeof bossRushMode !== 'undefined' && bossRushMode) ? ' | Boss Rush' : (typeof endlessMode !== 'undefined' && endlessMode) ? ' | Endless' : '';
+            if (typeof gamePaused !== 'undefined' && gamePaused) {
+                document.title = `⏸ Wave ${wave} — ${char}${mode} | CIRCULATE`;
+            } else {
+                document.title = `⚔ Wave ${wave} — ${char}${mode} | CIRCULATE`;
+            }
+            return;
+        }
+        // Menus
+        if (document.getElementById('characterShop')?.style.display === 'block') { document.title = '🧑 Characters | CIRCULATE'; return; }
+        if (document.getElementById('questsPage')?.style.display === 'block')    { document.title = '📜 Quests | CIRCULATE'; return; }
+        if (document.getElementById('modsMenu')?.style.display === 'block' || document.getElementById('modsOverlay')?.style.display === 'block') { document.title = '🧩 Mods | CIRCULATE'; return; }
+        if (document.getElementById('settingsMenu')?.style.display === 'block')  { document.title = '⚙️ Settings | CIRCULATE'; return; }
+        if (document.getElementById('playMenu')?.style.display === 'block')      { document.title = '▶ Play | CIRCULATE'; return; }
+        if (document.getElementById('gameOver')?.style.display === 'flex')       { document.title = '💀 Game Over | CIRCULATE'; return; }
+        if (document.getElementById('youWinScreen')?.style.display === 'flex' || document.getElementById('youWinScreen')?.style.display === 'block') { document.title = '🏆 You Win! | CIRCULATE'; return; }
+        document.title = 'CIRCULATE';
+    } catch(e) {}
+}
+
 function startGame(){
-    activeRunSlot = null; // clear stale slot — loadRun will set this if loading from a save
+    updateTabTitle();
     if(!bossRushMode) { bossRushBossIndex=0; bossRushRestTimer=0; bossRushScore=0; }
     endlessMode = false;
     document.getElementById('mainMenu').style.display='none';
@@ -17900,7 +17863,10 @@ function startGame(){
     updateBiomeColors();
     showBiomeIndicator();
     const _cgMap = getCharMusicMap();
-    if (_cgMap[currentCharacter]) {
+    if (currentCharacter === 'natsuki') {
+        stopCharMusicAudio();
+        stopMainTheme();
+    } else if (_cgMap[currentCharacter]) {
         syncCharMusicToGameState();
     } else {
         stopCharMusicAudio();
@@ -17984,7 +17950,7 @@ function startEndlessMode(){
     startGame(); // startGame resets endlessMode to false, so we override after
     endlessMode = true;
 }
-function backToMainMenu(){stopJackpotMusic();stopMainTheme();stopCharMusicAudio();hideSlotMachine();bossRushMode=false;bossRushBossIndex=0;bossRushRestTimer=0;bossRushScore=0;document.getElementById('gameOver').style.display='none';document.getElementById('youWinScreen').style.display='none';document.getElementById('gameContainer').style.display='none';document.body.classList.remove('game-active');skinOverlay.style.display='none';document.getElementById('playMenu').style.display='none';document.getElementById('mainMenu').style.display='block';updateMoneyDisplay();const cBM=document.getElementById('gameCanvas');if(cBM){cBM.style.transform='';}checkRunSave();}
+function backToMainMenu(){stopJackpotMusic();stopMainTheme();stopCharMusicAudio();hideSlotMachine();bossRushMode=false;bossRushBossIndex=0;bossRushRestTimer=0;bossRushScore=0;document.getElementById('gameOver').style.display='none';document.getElementById('youWinScreen').style.display='none';document.getElementById('gameContainer').style.display='none';document.body.classList.remove('game-active');skinOverlay.style.display='none';document.getElementById('playMenu').style.display='none';document.getElementById('mainMenu').style.display='block';updateMoneyDisplay();const cBM=document.getElementById('gameCanvas');if(cBM){cBM.style.transform='';}checkRunSave();updateTabTitle();}
 function updateMoneyDisplay(){document.getElementById('totalMoney').textContent=totalMoney;document.getElementById('shopMoney').textContent=totalMoney;}
 function updateShopDisplay(){
     updateMoneyDisplay();
@@ -18027,6 +17993,7 @@ function updateShopDisplay(){
         'luffy': 'luffyCharacter',
         'higuruma': 'higurumaCharacter',
         'bloodseeker': 'bloodseekerCharacter',
+        'natsuki': 'natsukiCharacter',
     };
 
     const wvCard = document.getElementById('warVeteranCharacter');
@@ -18453,11 +18420,13 @@ function openPlayMenu() {
     renderPlayMenu();
     document.getElementById('mainMenu').style.display = 'none';
     document.getElementById('playMenu').style.display = 'block';
+    updateTabTitle();
 }
 
 function closePlayMenu() {
     document.getElementById('playMenu').style.display = 'none';
     document.getElementById('mainMenu').style.display = 'block';
+    updateTabTitle();
 }
 
 function renderPlayMenu() {
@@ -19324,7 +19293,6 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 const BESTIARY = [
-    { icon:'☠️', name:'The Cursed Zones', bType:'cursed_zones', color:'#7c3aed', round:8, desc:'Hazard zones that spawn randomly on the map. Each type applies a unique debuff while you stand inside. Click to see all zone types.' },
     { icon:'⬛', name:'Normal',      bType:'normal',       color:'#ef4444', round:1,  desc:'Basic enemy. Walks straight at you. No tricks - just pressure in numbers.' },
     { icon:'▲',  name:'Triangle',   bType:'triangle',     color:'#7c3aed', round:3,  desc:'Fast and agile. Slightly harder to hit due to its small size and speed.' },
     { icon:'💥', name:'Splitter',   bType:'splitter',     color:'#f97316', round:10, desc:'Splits into two Mini Splitters when killed. Kill the minis fast before they overwhelm you.' },
@@ -19350,7 +19318,6 @@ const BESTIARY = [
     { icon:'🌀', name:'Void Rift',  bType:'void_rift',    color:'#7c3aed', round:38, desc:'A stationary portal that continuously spawns weak enemies. Destroy it immediately or it will flood the arena.' },
     { icon:'🌀', name:'Puller',     bType:'puller',       color:'#7c3aed', round:40, desc:"Pulls you toward it from a distance. Pair that with other enemies and it's very dangerous." },
     { icon:'🛡', name:'Guardian',   bType:'guardian',     color:'#b45309', round:45, desc:'Orbits the highest-HP enemy and protects it. Kill the guardian first to expose its target.' },
-    { icon:'☠️', name:'Zone Walker', bType:'zone_walker',  color:'#7c3aed', round:45, desc:"A moving cursed zone. Carries a random zone aura that debuffs you on contact — it can drain health, slow your bullets, slow you, or haste nearby enemies. Kill it to remove the aura." },
     { icon:'💣', name:'Time Bomb',  bType:'timebomb',     color:'#dc2626', round:55, desc:'Nearly unkillable - just a walking timer. When it detonates it deals massive AoE damage to everything nearby. Run away!' },
 ];
 
@@ -19434,29 +19401,30 @@ function openBestiary() {
     _bestiarySelected = null;
     document.getElementById('bestiaryDetail').style.display = 'none';
 
-    grid.innerHTML = BESTIARY.map((e, i) => {
-        const isCZ = e.bType === 'cursed_zones';
-        const cardStyle = isCZ
-            ? `background:rgba(124,58,237,0.10);border:2px solid rgba(124,58,237,0.5);border-radius:10px;padding:14px 16px;display:flex;gap:12px;align-items:flex-start;cursor:pointer;transition:background 0.15s;box-shadow:0 0 18px rgba(124,58,237,0.2);`
-            : `background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-left:4px solid ${e.color};border-radius:8px;padding:14px 16px;display:flex;gap:12px;align-items:flex-start;cursor:pointer;transition:background 0.15s, border-color 0.15s;`;
-        return `
-        <div class="bestiary-card" data-idx="${i}" onclick="selectBestiaryEnemy(${i})" style="${cardStyle}${isCZ ? 'grid-column:1/-1;' : ''}">
+    grid.innerHTML = BESTIARY.map((e, i) => `
+        <div class="bestiary-card" data-idx="${i}" onclick="selectBestiaryEnemy(${i})" style="
+            background:rgba(255,255,255,0.04);
+            border:1px solid rgba(255,255,255,0.08);
+            border-left:4px solid ${e.color};
+            border-radius:8px; padding:14px 16px;
+            display:flex; gap:12px; align-items:flex-start;
+            cursor:pointer; transition:background 0.15s, border-color 0.15s;
+        ">
             <div style="
                 font-size:22px; min-width:36px; height:36px;
-                background:${isCZ ? 'rgba(124,58,237,0.25)' : 'rgba(255,255,255,0.07)'};
+                background:rgba(255,255,255,0.07);
                 border-radius:6px; display:flex;
                 align-items:center; justify-content:center;
             ">${e.icon}</div>
             <div style="flex:1;">
                 <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
                     <span style="font-size:13px;font-weight:bold;color:${e.color};">${e.name}</span>
-                    <span style="font-size:9px;color:rgba(255,255,255,0.3);background:rgba(255,255,255,0.06);padding:2px 6px;border-radius:10px;">${isCZ ? 'Wave 8+' : 'Round ' + e.round + '+'}</span>
-                    ${isCZ ? '<span style="font-size:9px;background:rgba(124,58,237,0.3);color:#c084fc;padding:2px 8px;border-radius:10px;border:1px solid rgba(124,58,237,0.5);">13 ZONES</span>' : ''}
+                    <span style="font-size:9px;color:rgba(255,255,255,0.3);background:rgba(255,255,255,0.06);padding:2px 6px;border-radius:10px;">Round ${e.round}+</span>
                 </div>
                 <span style="font-size:11px;color:rgba(255,255,255,0.6);line-height:1.6;">${e.desc}</span>
             </div>
         </div>
-    `}).join('');
+    `).join('');
 
     document.getElementById('bestiaryModal').style.display = 'flex';
 }
@@ -19474,67 +19442,12 @@ function selectBestiaryEnemy(idx) {
         el.style.borderLeftColor = BESTIARY[i].color;
     });
 
+    // Get base stats
+    const stats = getBestiaryStats(e.bType);
+
+    // Draw preview canvas
     const detail = document.getElementById('bestiaryDetail');
     detail.style.display = 'block';
-
-    // ── Special: Cursed Zone compendium ──
-    if(e.bType === 'cursed_zones') {
-        const ZONE_DESCS = {
-            slow:         { label:'⬇ Slow Zone',      color:'#7c3aed', desc:'Reduces your movement speed to 45%. Hard to escape in a crowded room.' },
-            haste:        { label:'⚡ Enemy Haste',    color:'#dc2626', desc:'All enemies inside move 35% faster. Step out to stop the buff.' },
-            drain:        { label:'💧 Mana Drain',     color:'#3b82f6', desc:'Drains your mana at 0.25/tick. Ability-heavy characters get crippled fast.' },
-            health_drop:  { label:'💔 Health Drop',    color:'#b91c1c', desc:'Deals 1 HP per second. Can\'t kill you outright (floors at 1 HP) but stacks badly with enemy damage.' },
-            slow_bullets: { label:'🔵 Slow Bullets',   color:'#0ea5e9', desc:'New projectiles you fire travel at 38% of normal speed. Full damage, just very slow.' },
-            fog_war:      { label:'🌫️ Fog of War',    color:'#64748b', desc:'Shrinks your vision to a small circle around you. Everything beyond ~160px vanishes into darkness.' },
-            reverse_ctrl: { label:'🔄 Reverse Ctrl',  color:'#ef4444', desc:'Flips all your movement inputs. Left goes right, up goes down. Disorienting in a crowd.' },
-            gold_drain:   { label:'💸 Gold Drain',     color:'#eab308', desc:'Bleeds 2 run gold per second. Brutal for Merchant. Won\'t go below zero.' },
-            scatter_shot: { label:'🎯 Scatter Shot',   color:'#a855f7', desc:'Adds ±34° random angular spread to every shot. You still fire at full speed and damage, bullets just scatter wildly.' },
-            overcharge:   { label:'⚡ Overcharge',     color:'#f59e0b', desc:'Fire rate becomes 20× faster, but every single bullet deals exactly 1 damage. Looks insane, does nothing.' },
-            time_warp:    { label:'⏳ Time Warp',      color:'#06b6d4', desc:'Slows YOU to 20% movement speed AND slows all enemies inside to 28% speed. Basically everything halts.' },
-            mirrored:     { label:'🪞 Mirrored',       color:'#ec4899', desc:'Randomly scrambles your controls every 2 seconds: flip horizontal, flip vertical, swap axes, or flip both.' },
-            death_mark:   { label:'☠️ Death Mark',     color:'#dc2626', desc:'After 3 continuous seconds inside, you get MARKED for 10 seconds. While marked, all incoming damage is doubled.' },
-        };
-        const rows = Object.entries(ZONE_DESCS).map(([key, z]) => `
-            <div style="
-                display:flex; gap:14px; align-items:flex-start;
-                background:rgba(255,255,255,0.03);
-                border:1px solid ${z.color}44;
-                border-left:4px solid ${z.color};
-                border-radius:8px; padding:12px 14px;
-            ">
-                <div style="
-                    width:32px; height:32px; border-radius:50%; flex-shrink:0;
-                    background:${z.color}33;
-                    border:2px solid ${z.color}88;
-                    box-shadow:0 0 10px ${z.color}55;
-                    display:flex; align-items:center; justify-content:center;
-                    font-size:13px;
-                ">${z.label.split(' ')[0]}</div>
-                <div style="flex:1;">
-                    <div style="font-size:12px;font-weight:bold;color:${z.color};margin-bottom:4px;">${z.label}</div>
-                    <div style="font-size:11px;color:rgba(255,255,255,0.6);line-height:1.6;">${z.desc}</div>
-                </div>
-            </div>
-        `).join('');
-
-        detail.innerHTML = `
-            <div style="margin-bottom:14px;">
-                <div style="font-size:15px;font-weight:bold;color:#c084fc;margin-bottom:4px;">☠️ Cursed Zones — Field Guide</div>
-                <div style="font-size:11px;color:rgba(255,255,255,0.35);line-height:1.6;">
-                    Zones spawn randomly starting at Wave 8. Up to 4 active at once.
-                    A <span style="color:#7c3aed;">Zone Walker</span> enemy (Wave 45+) carries a random zone aura wherever it goes.
-                    Zones last 20–30 seconds each.
-                </div>
-            </div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-                ${rows}
-            </div>
-        `;
-        return;
-    }
-
-    // ── Normal enemy detail ──
-    const stats = getBestiaryStats(e.bType);
     detail.innerHTML = `
         <div style="display:flex;gap:24px;align-items:center;flex-wrap:wrap;">
             <canvas id="bestiaryCanvas" width="120" height="120" style="
@@ -19711,10 +19624,12 @@ function openModsMenu() {
     modsTab('create');
     document.getElementById('modsModal').style.display = 'flex';
     refreshModPrompt();
+    updateTabTitle();
 }
 
 function closeModsMenu() {
     document.getElementById('modsModal').style.display = 'none';
+    updateTabTitle();
 }
 
 function modsTab(tab) {
