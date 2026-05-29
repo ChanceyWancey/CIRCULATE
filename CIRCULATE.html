@@ -3099,7 +3099,7 @@
             <div class="new-badge" style="background:linear-gradient(135deg,#6b21a8,#a855f7);">RBD</div>
             <div class="character-preview" style="background:linear-gradient(135deg,#1a0030,#7c3aed);box-shadow:0 0 22px rgba(139,92,246,.9);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:26px;">💀</div>
             <div class="character-name">Subaru Natsuki</div>
-            <div class="character-ability">120 HP · Speed 5<br>PASSIVE: Return By Death<br>Every 3–7 min a checkpoint saves<br>On death: respawn at last checkpoint</div>
+            <div class="character-ability">120 HP · Speed 5<br>PASSIVE: Return By Death<br>Every 3–7 min a checkpoint saves<br>On death: always respawn · 2x enemies<br>R: Witch's Stench (4x enemies, 5 waves)</div>
             <div class="character-price">$30,000</div>
             <button class="info-btn" onclick="event.stopPropagation();showCharInfo('natsuki')">INFO</button>
         </div>
@@ -4184,7 +4184,7 @@ const CHARACTERS = {
     higuruma: { name:'Hiromi Higuruma', color:'#1f2937', shadow:'#111827', projColor:'#fbbf24', ability:'deadly_sentencing', manaCost:0, cdMax:0, isHiguruma:true, useImg:false },
     bloodseeker: { name:'Bloodseeker', color:'#7f1d1d', shadow:'#450a0a', projColor:'#dc2626', ability:'blood_beam', manaCost:0, cdMax:0, isBloodseeker:true, useImg:false },
     merchant: { name:'The Merchant', color:'#b45309', shadow:'#78350f', projColor:'#fbbf24', ability:'merchant_shop', manaCost:0, cdMax:0, isMerchant:true, useImg:false },
-    natsuki: { name:'Subaru Natsuki', color:'#a855f7', shadow:'#4c1d95', projColor:'#c084fc', ability:null, manaCost:0, cdMax:0, isNatsuki:true, useImg:false },
+    natsuki: { name:'Subaru Natsuki', color:'#a855f7', shadow:'#4c1d95', projColor:'#c084fc', ability:'natsuki_rbd', manaCost:0, cdMax:0, isNatsuki:true, useImg:false },
 };
 
 const SKIN_URLS = {
@@ -5676,6 +5676,8 @@ let natsukiNextCheckpointIn = 0;       // ticks until next checkpoint saves
 let natsukiRBDUsed = false;            // whether the current checkpoint has been consumed
 let natsukiFlashTimer = 0;             // white flash on respawn
 let natsukiCheckpointPulse = 0;        // pulse aura when checkpoint just saved
+let natsukiStenchActive = false;       // Witch's Stench mode active
+let natsukiStenchWavesLeft = 0;        // waves remaining at 4x enemies
 // ====================================================
 let rougeSquareDungeonLockWalls = [];
 
@@ -8430,6 +8432,10 @@ function getSpawnCount(){
     if(currentBiome.effect === 'starfall') biomeMultiplier = 1.2;
     if(currentBiome.effect === 'electric') biomeMultiplier = 1.15;
 
+    if (currentCharacter === 'natsuki') {
+        biomeMultiplier *= natsukiStenchActive ? 4 : 2;
+    }
+
     return Math.round(baseCount * biomeMultiplier);
 }
 function getSpawnInterval(){
@@ -8855,6 +8861,17 @@ function tickSpecialEnemies(dt) {
 function spawnWave(){
     // Don't spawn anything once this wave's budget is exhausted
     if (waveEnemiesSpawned >= waveEnemyBudget) return;
+
+    // Natsuki: tick down Witch's Stench
+    if (currentCharacter === 'natsuki' && natsukiStenchActive && natsukiStenchWavesLeft > 0) {
+        natsukiStenchWavesLeft--;
+        if (natsukiStenchWavesLeft <= 0) {
+            natsukiStenchActive = false;
+            floatMoneyText('✨ Witch\'s Stench lifted. Back to 2x enemies.');
+        } else {
+            floatMoneyText(`☠️ Witch's Stench: ${natsukiStenchWavesLeft} waves remaining...`);
+        }
+    }
 
     // Boss/mini-boss waves spawn once and set their own budget
     if(currentRound > 0 && currentRound % 15 === 0) {
@@ -10655,8 +10672,24 @@ function specialAttack(){
             for(let i=0;i<180;i++){ const a=Math.random()*Math.PI*2,r=Math.random()*200; const p=new Particle(player.x+Math.cos(a)*r,player.y+Math.sin(a)*r,i%3===0?'#fbbf24':i%3===1?'#374151':'#ef4444'); p.vx=Math.cos(a)*2; p.vy=Math.sin(a)*2; particles.push(p); }
             break;
         }
+        case 'natsuki_rbd': {
+            if (natsukiStenchActive) { floatMoneyText(`☠️ Already cursed! ${natsukiStenchWavesLeft} waves left...`); return; }
+            natsukiStenchActive = true;
+            natsukiStenchWavesLeft = 5;
+            floatMoneyText('💬 "I CAN RETURN BY D—"');
+            setTimeout(() => {
+                floatMoneyText('☠️ THE WITCH\'S STENCH DESCENDS...');
+                for (let i = 0; i < 100; i++) {
+                    const a = Math.random() * Math.PI * 2, r = Math.random() * 220;
+                    const p = new Particle(player.x + Math.cos(a)*r, player.y + Math.sin(a)*r, i%2===0?'#4c1d95':'#1a0030');
+                    p.vx = Math.cos(a)*1.5; p.vy = Math.sin(a)*1.5; particles.push(p);
+                }
+                playSound(80, 0.25, 'sawtooth'); playSound(60, 0.2, 'square');
+                floatMoneyText('⚠️ 4x ENEMIES for 5 waves!');
+            }, 1200);
+            break;
+        }
         case 'nine_tails': {
-            if (narutoUltBar < 100) { floatMoneyText(`🦊 Nine-Tails: ${narutoUltBar}/100 kills needed!`); return; }
             if (narutoUltActive) { floatMoneyText('🔥 Nine-Tails already active!'); return; }
             narutoUltActive = true;
             narutoUltTimer = 3600; // 60 seconds
@@ -13406,7 +13439,7 @@ function resetGame(){
         builderWalls=[];
     }
     lastEnemySpawn=0;roundTimer=0;spawnIndicators=[];currentRound=currentCharacter==='character10b'?500:0;killStreak=0;sessionMoney=0;
-    waveEnemiesSpawned=0; waveEnemyBudget=1; // wave 0→1 on first advance
+    waveEnemiesSpawned=0; waveEnemyBudget= currentCharacter==='natsuki' ? 2 : 1; // wave 0→1 on first advance
     autoFireEnabled=true;specialInProgress=false;
     dreamArmorAnnounce=null;lastDreamTierIdx=-1;bloodGodAnnounce=null;
     mgLastShot=0; lastTs=0;
@@ -13553,6 +13586,8 @@ function resetGame(){
     natsukiRBDUsed = false;
     natsukiFlashTimer = 0;
     natsukiCheckpointPulse = 0;
+    natsukiStenchActive = false;
+    natsukiStenchWavesLeft = 0;
     if (currentCharacter === 'natsuki') { player.maxHealth=120; player.health=120; player.speed=5; player.damage=22;
         // Save the very start as the first checkpoint
         natsukiCheckpoint = { x: player.x, y: player.y, health: player.health, mana: player.mana, wave: 0, kills: 0 };
@@ -14572,6 +14607,9 @@ function gameLoop(ts){
         waveEnemiesSpawned=0;
         // Budget: +1 enemy per wave for every 15 waves completed (wave 1 = 1, wave 15 = 2, wave 30 = 3, etc.)
         waveEnemyBudget = Math.floor(currentRound / 15) + 1;
+        if (currentCharacter === 'natsuki') {
+            waveEnemyBudget *= natsukiStenchActive ? 4 : 2;
+        }
         if(gameRunning) { checkHonored(); }
         if (currentCharacter === 'gojo') {
             const newPhase = getGojoPhase(currentRound);
@@ -17737,19 +17775,21 @@ const CHAR_INFO = {
         iconBg: 'linear-gradient(135deg,#1a0030,#7c3aed)',
         iconGlow: '#a855f7',
         name: 'Subaru Natsuki',
-        tag: '♻️ THE WITCH\'S POWER',
+        tag: '♻️ THE WITCH\'S CURSE',
         stats: [
             { label:'HP', value:'120' },
             { label:'Damage', value:'22' },
             { label:'Speed', value:'5' },
             { label:'Passive', value:'Return By Death' },
             { label:'Checkpoint', value:'Saves randomly every 3–7 minutes' },
-            { label:'On Death', value:'Respawn at last checkpoint (once per checkpoint)' },
+            { label:'On Death', value:'Always respawn at last checkpoint' },
+            { label:'Enemies', value:'2x all waves (baseline)' },
+            { label:'R — Witch\'s Stench', value:'4x enemies for 5 waves' },
             { label:'Price', value:'$30,000' },
         ],
-        abilities:`<b>Passive: Return By Death</b><br>The Witch\'s curse grants Subaru one brutal advantage — he cannot truly die. Every 3 to 7 minutes (chosen randomly), the game secretly saves a checkpoint of his position, HP, wave, and kill count. A purple pulse confirms it saved.<br><br>When Subaru would die, instead of the game ending, he is hurled back to that checkpoint — enemies reset to that wave, his health restores to checkpoint HP, and the run continues. The checkpoint is then consumed (one use only) until a new one is saved.<br><br><b>No active abilities.</b> Subaru relies entirely on surviving long enough to bank a new checkpoint before the next death.`,
-        playstyle:'A passive-only survivor who trades all active power for a death cheat. You play carefully and aggressively at the same time — recklessly burning through enemies while always knowing a checkpoint is coming. After a Return By Death, you\'ll remember exactly what killed you. Use that knowledge.',
-        tip:'💀 The checkpoint timer is secret and random (3–7 min). A purple aura flashes when one saves. If you haven\'t seen a pulse recently, play safe — you may have no safety net. After respawning, enemies reset to the checkpointed wave.',
+        abilities:`<b>Passive: Return By Death</b><br>Every 3–7 minutes a checkpoint saves your position, HP, and wave. On death you are thrown back to that checkpoint — forever. The checkpoint never expires and resets every time a new one saves.<br><br><b>Baseline: 2x Enemies</b><br>Subaru attracts twice as many enemies every wave. The Witch's lingering curse makes him a magnet for danger at all times.<br><br><b>R: Witch's Stench (Active)</b><br>Subaru attempts to say the forbidden words — <i>"I can Return By D—"</i> — and is immediately silenced by the Witch's stench. For the next 5 waves enemies spawn at 4x normal count. Use wisely; once triggered you cannot cancel it.`,
+        playstyle:'Pure endurance. You will die — a lot. Your only tool is knowing exactly what killed you last time and playing around it. The R key is a double-edged sword: useful for farming but it will get you killed if you\'re unprepared.',
+        tip:'💀 The checkpoint timer is random (3–7 min). A purple aura pulses when one saves. After a respawn you have 5 seconds of invincibility — use it. Avoid pressing R unless you have a checkpoint banked.',
     },
 };
 
