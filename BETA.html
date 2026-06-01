@@ -520,17 +520,16 @@ body{background:var(--bg);min-height:100vh;display:flex;align-items:center;justi
   const CHECK_INTERVAL=5000;
   const SAVE_KEY='htl_resume_state';
   const CHANGELOG_KEY='htl_seen_changelog';
-  const VERSION='ALPHA v2';
+  const VERSION='ALPHA v3';
   const CHANGELOG=[
-    {type:'feature',text:'Wall tower — place directly ON the enemy path. Slows enemies, takes damage, gets destroyed when HP hits zero.'},
-    {type:'feature',text:'Wall upgrades: Reinforcement (HP + regen), Spikes (damage + stun), Slowing (up to 99%).'},
-    {type:'feature',text:'Bosses instantly smash walls. Tanks drain them fast; grunts chip slowly.'},
-    {type:'change',text:'Map stone walls repositioned to path bends — now actually block tower line-of-sight.'},
-    {type:'feature',text:'Full Goldback — 30s grace period on new towers: full refund, no shooting. Ends on upgrade.'},
-    {type:'feature',text:'Tower targeting modes — FIRST, LAST, WEAK, STRONG, BOSS.'},
-    {type:'feature',text:'Resume from last session — state auto-saved on refresh.'},
-    {type:'feature',text:'Dark mode, S key deselect, auto-update checker, MOVE tool.'},
-    {type:'fix',text:'Various syntax and stability fixes.'},
+    {type:'feature',text:'Venom tower — stacking poison DoT. Each hit adds stacks; enough stacks melt anything. Paths: Poison Damage, Stack & Rate, Splash Poison.'},
+    {type:'feature',text:'Beacon tower — support aura. Passively boosts nearby towers fire rate and damage. Paths: Aura Strength, Aura Radius, Specialisation.'},
+    {type:'feature',text:'Railgun tower — ultra-piercing slug crosses the full map. Paths: Penetration, Charge Rate, Shockwave.'},
+    {type:'feature',text:'[DEV] Virus tower — infects enemies with a contagious plague. Spreads to nearby enemies on death.'},
+    {type:'feature',text:'[DEV] Black Hole tower — tears a singularity. Pulls all enemies backward along the path, slows, damages. Upgrades let it loop enemies or reach the full map.'},
+    {type:'fix',text:'Co-op money bug fixed — kill rewards and wave bonuses now only computed by the host and split equally among players. No more gold multiplication.'},
+    {type:'change',text:'Venom visual — infected enemies turn green and show stack count. Virus-infected enemies show a dashed purple ring.'},
+    {type:'change',text:'Black Hole draws a gravitational field with spinning rings on the map canvas.'},
   ];
   function showChangelog(){
     const list=document.getElementById('changelogList');
@@ -721,6 +720,35 @@ const TDEFS=[
    pA:[{n:'Smite I',c:1,d:'Dmg x2 on contact',f:t=>{t.wallDmg*=2}},{n:'Smite II',c:1,d:'Dmg x2 on contact',f:t=>{t.wallDmg*=2}},{n:'Smite III',c:1,d:'Dmg x2 on contact',f:t=>{t.wallDmg*=2}},{n:'Judgment',c:1,d:'Insta-kills all',f:t=>{t.wallDmg*=99}},{n:'Divine Wrath',c:1,d:'Burn 60s on contact',f:t=>{t.burn=60}}],
    pB:[{n:'Holy Aura I',c:1,d:'Slow 99%',f:t=>{t.slow=0.99}},{n:'Holy Aura II',c:1,d:'Stun 1s',f:t=>{t.stun=1}},{n:'Holy Aura III',c:1,d:'Stun 2s',f:t=>{t.stun=2}},{n:'Holy Aura IV',c:1,d:'Stun 3s',f:t=>{t.stun=3}},{n:'God Presence',c:1,d:'Stun 9s',f:t=>{t.stun=9}}],
    pC:[{n:'Eternal I',c:1,d:'HP regen 1B/s',f:t=>{t.wallRegen=1000000000}},{n:'Eternal II',c:1,d:'HP x Inf',f:t=>{t.wallHp=9e15;t.wallHpBase=9e15}},{n:'Eternal III',c:1,d:'HP x Inf',f:t=>{t.wallHp=9e18;t.wallHpBase=9e18}},{n:'Eternal IV',c:1,d:'HP x Inf',f:t=>{t.wallHp=9e21;t.wallHpBase=9e21}},{n:'Omnipotent',c:1,d:'Truly Infinite',f:t=>{t.wallHp=Infinity;t.wallHpBase=Infinity}}]},
+  // ── NEW REGULAR TOWERS ──────────────────────────────────────────────────
+  {id:19,name:'Venom',cost:160,clr:'#84cc16',desc:'Stacking poison DoT. Each hit adds a poison stack — enough stacks melt anything.',pathA:'Poison Damage',pathB:'Stack & Rate',pathC:'Splash Poison',dmg:5,rate:1.1,range:3.8,splash:0,slow:0.15,chain:0,burn:0,stun:0,pierce:0,multi:1,venomStacks:1,venomDmgPerStack:3,
+   pA:[{n:'Concentrated',c:130,d:'Poison dmg+3/stack',f:t=>{t.venomDmgPerStack+=3}},{n:'Virulent',c:270,d:'Poison dmg x2/stack',f:t=>{t.venomDmgPerStack*=2}},{n:'Necrotic',c:540,d:'Poison dmg x2, Slow 30%',f:t=>{t.venomDmgPerStack*=2;t.slow=0.3}},{n:'Plague',c:1100,d:'Poison dmg x3, Rate+30%',f:t=>{t.venomDmgPerStack*=3;t.rate*=1.3}},{n:'Black Death',c:2200,d:'Poison dmg x5',f:t=>{t.venomDmgPerStack*=5}}],
+   pB:[{n:'Fast Inject',c:120,d:'Rate x1.3, +1 stack/hit',f:t=>{t.rate*=1.3;t.venomStacks+=1}},{n:'Twin Fang',c:240,d:'+2 stacks/hit',f:t=>{t.venomStacks+=2}},{n:'Hydra Toxin',c:480,d:'+3 stacks/hit, Rate x1.2',f:t=>{t.venomStacks+=3;t.rate*=1.2}},{n:'Endless Venom',c:960,d:'+5 stacks, Rate x1.5',f:t=>{t.venomStacks+=5;t.rate*=1.5}},{n:'God Toxin',c:1920,d:'+10 stacks, Rate x2',f:t=>{t.venomStacks+=10;t.rate*=2}}],
+   pC:[{n:'Spore Cloud',c:120,d:'Splash 0.8 on hit',f:t=>{t.splash=0.8}},{n:'Toxic Mist',c:240,d:'Splash 1.5, Range+30%',f:t=>{t.splash=1.5;t.range*=1.3}},{n:'Plague Cloud',c:480,d:'Splash x2, +1 stack AoE',f:t=>{t.splash*=2;t.venomStacks+=1}},{n:'Pandemic',c:960,d:'Splash x2, Multi 2',f:t=>{t.splash*=2;t.multi=2}},{n:'Extinction Mist',c:1920,d:'Splash x2, Multi 3, Rate x1.5',f:t=>{t.splash*=2;t.multi=3;t.rate*=1.5}}]},
+  {id:20,name:'Beacon',cost:280,clr:'#fcd34d',desc:'Support tower. Aura boosts nearby towers fire rate and damage. Does not attack.',pathA:'Aura Strength',pathB:'Aura Radius',pathC:'Specialisation',isBeacon:true,beaconBoost:0.20,beaconRadius:2.5,beaconDmgBoost:0.10,dmg:0,rate:0,range:0,splash:0,slow:0,chain:0,burn:0,stun:0,pierce:0,multi:1,requires:{towers:2},
+   pA:[{n:'Stronger Pulse',c:200,d:'Rate boost +10%',f:t=>{t.beaconBoost+=0.10}},{n:'Power Surge',c:400,d:'Rate boost +15%',f:t=>{t.beaconBoost+=0.15}},{n:'Overdrive',c:800,d:'Rate boost +20%, Dmg boost +10%',f:t=>{t.beaconBoost+=0.20;t.beaconDmgBoost+=0.10}},{n:'Resonance',c:1600,d:'Rate boost +25%, Dmg boost +15%',f:t=>{t.beaconBoost+=0.25;t.beaconDmgBoost+=0.15}},{n:'MAX SIGNAL',c:3200,d:'Rate boost x2, Dmg boost x2',f:t=>{t.beaconBoost*=2;t.beaconDmgBoost*=2}}],
+   pB:[{n:'Wide Signal',c:180,d:'Radius +1 cell',f:t=>{t.beaconRadius+=1}},{n:'Extended Range',c:360,d:'Radius +1.5 cells',f:t=>{t.beaconRadius+=1.5}},{n:'Long Wave',c:720,d:'Radius +2 cells',f:t=>{t.beaconRadius+=2}},{n:'Mega Signal',c:1440,d:'Radius +3 cells',f:t=>{t.beaconRadius+=3}},{n:'Global Beacon',c:2880,d:'Radius +5 cells',f:t=>{t.beaconRadius+=5}}],
+   pC:[{n:'Fire Focus',c:200,d:'Dmg boost +20%',f:t=>{t.beaconDmgBoost+=0.20}},{n:'Speed Focus',c:400,d:'Rate boost +25%',f:t=>{t.beaconBoost+=0.25}},{n:'Dual Focus',c:800,d:'Both boosts +20%',f:t=>{t.beaconBoost+=0.20;t.beaconDmgBoost+=0.20}},{n:'Hyper Focus',c:1600,d:'Both boosts +30%',f:t=>{t.beaconBoost+=0.30;t.beaconDmgBoost+=0.30}},{n:'Infinite Focus',c:3200,d:'Both boosts +50%',f:t=>{t.beaconBoost+=0.50;t.beaconDmgBoost+=0.50}}]},
+  {id:21,name:'Railgun',cost:350,clr:'#38bdf8',desc:'Single ultra-high-velocity slug. Pierces every enemy in a straight line across the entire map.',pathA:'Penetration',pathB:'Charge Rate',pathC:'Shockwave',dmg:180,rate:0.18,range:99,splash:0,slow:0,chain:0,burn:0,stun:0,pierce:99,multi:1,requires:{towers:3},
+   pA:[{n:'Armor Pierce',c:280,d:'Dmg +80%',f:t=>{t.dmg*=1.8}},{n:'Tungsten Round',c:560,d:'Dmg x2',f:t=>{t.dmg*=2}},{n:'Mag Driver',c:1120,d:'Dmg x2.5, Rate+20%',f:t=>{t.dmg*=2.5;t.rate*=1.2}},{n:'Particle Beam',c:2240,d:'Dmg x3',f:t=>{t.dmg*=3}},{n:'Singularity Round',c:4480,d:'Dmg x5, Rate x1.5',f:t=>{t.dmg*=5;t.rate*=1.5}}],
+   pB:[{n:'Fast Charge',c:250,d:'Rate +30%',f:t=>{t.rate*=1.3}},{n:'Capacitor Bank',c:500,d:'Rate x1.5',f:t=>{t.rate*=1.5}},{n:'Superconductor',c:1000,d:'Rate x2',f:t=>{t.rate*=2}},{n:'Hyperdrive',c:2000,d:'Rate x2.5',f:t=>{t.rate*=2.5}},{n:'Instant Fire',c:4000,d:'Rate x4',f:t=>{t.rate*=4}}],
+   pC:[{n:'Shockwave',c:250,d:'Splash 0.8 on pierce',f:t=>{t.splash=0.8}},{n:'Impact Wave',c:500,d:'Splash 1.5, Stun 0.4s',f:t=>{t.splash=1.5;t.stun=0.4}},{n:'Frag Shell',c:1000,d:'Splash 2.5, Slow 50%',f:t=>{t.splash=2.5;t.slow=0.5}},{n:'Quake Round',c:2000,d:'Splash 3.5, Stun 1s',f:t=>{t.splash=3.5;t.stun=1.0}},{n:'Planet Buster',c:4000,d:'Splash 5, Stun 2s, Slow 80%',f:t=>{t.splash=5;t.stun=2;t.slow=0.8}}]},
+  // ── NEW DEV TOWERS ───────────────────────────────────────────────────────
+  {id:22,name:'Virus',cost:750,clr:'#f0abfc',devOnly:true,
+   desc:'[DEV] Infects enemies with a contagious plague. Infected enemies spread the virus to nearby foes on death. Stacks.',
+   pathA:'Infection',pathB:'Spread',pathC:'Lethality',
+   dmg:20,rate:0.7,range:5.0,splash:0,slow:0,chain:0,burn:0,stun:0,pierce:3,multi:1,requires:{towers:2},
+   pA:[{n:'Mutant Strain',c:300,d:'Dmg+80%, infect 4s',f:t=>{t.dmg*=1.8;t.virusDur=4}},{n:'Necrosis',c:600,d:'Infected lose 5% maxHP/s',f:t=>{t.wither=0.05}},{n:'Hemorrhage',c:1200,d:'Dmg x2, wither 12%/s',f:t=>{t.dmg*=2;t.wither=0.12}},{n:'Pandemic',c:2400,d:'Dmg x3, wither 20%/s',f:t=>{t.dmg*=3;t.wither=0.20}},{n:'Extinction',c:4800,d:'Dmg x5, instant lethal at 15% HP',f:t=>{t.dmg*=5;t.virusExecute=0.15}}],
+   pB:[{n:'Airborne',c:280,d:'Spread radius x1.5',f:t=>{t.virusSpread=(t.virusSpread||2)*1.5}},{n:'Super Spreader',c:560,d:'+2 chains on death spread',f:t=>{t.chain=(t.chain||0)+2}},{n:'Epidemic',c:1120,d:'Spread radius x2',f:t=>{t.virusSpread=(t.virusSpread||2)*2}},{n:'Pandemic Bloom',c:2240,d:'All infected spread on hit',f:t=>{t.virusBlooming=true}},{n:'World Ender',c:4480,d:'Infinite spread range',f:t=>{t.virusSpread=9999}}],
+   pC:[{n:'Burn Toxin',c:280,d:'Infected burn 8s',f:t=>{t.burn=8}},{n:'Paralysis',c:560,d:'Infected slow 60%',f:t=>{t.slow=0.6}},{n:'Full Breakdown',c:1120,d:'Infected stunned 0.5s',f:t=>{t.stun=0.5}},{n:'Bio Weapon',c:2240,d:'Dmg x2, Burn 20s, Slow 80%',f:t=>{t.dmg*=2;t.burn=20;t.slow=0.8}},{n:'Apocalypse Strain',c:4480,d:'Dmg x5, Burn 40s, Slow 99%, Stun 1s',f:t=>{t.dmg*=5;t.burn=40;t.slow=0.99;t.stun=1}}]},
+  {id:23,name:'Black Hole',cost:2500,clr:'#818cf8',devOnly:true,
+   desc:'[DEV] Tears a singularity in spacetime. Pulls all enemies backward along the path. The gravity gets stronger over time.',
+   pathA:'Gravity Well',pathB:'Event Horizon',pathC:'Tidal Force',
+   dmg:8,rate:0.6,range:7.0,splash:2.0,slow:0.85,chain:0,burn:0,stun:0,pierce:0,multi:1,requires:{towers:5},
+   isBlackhole:true,bhPull:1.5,bhRadius:5,
+   pA:[{n:'Stronger Pull',c:500,d:'Pull force x1.5',f:t=>{t.bhPull*=1.5}},{n:'Gravity Spike',c:1000,d:'Pull force x2',f:t=>{t.bhPull*=2}},{n:'Singularity',c:2000,d:'Dmg x3, Pull x1.5',f:t=>{t.dmg*=3;t.bhPull*=1.5}},{n:'Dark Matter',c:4000,d:'Pull x2, Slow 95%',f:t=>{t.bhPull*=2;t.slow=0.95}},{n:'Universe Collapse',c:8000,d:'Pull x5, Dmg x5',f:t=>{t.bhPull*=5;t.dmg*=5}}],
+   pB:[{n:'Wider Horizon',c:450,d:'Radius +2 cells',f:t=>{t.bhRadius+=2;t.range+=2}},{n:'Expanded Field',c:900,d:'Radius +3 cells',f:t=>{t.bhRadius+=3;t.range+=3}},{n:'Galactic Pull',c:1800,d:'Radius +4 cells',f:t=>{t.bhRadius+=4;t.range+=4}},{n:'Infinite Horizon',c:3600,d:'Radius +6 cells',f:t=>{t.bhRadius+=6;t.range+=6}},{n:'Reality Tear',c:7200,d:'Range = entire map',f:t=>{t.bhRadius=99;t.range=99}}],
+   pC:[{n:'Tidal Force',c:450,d:'Stun 0.5s on pull',f:t=>{t.stun=0.5}},{n:'Rip Tide',c:900,d:'Stun 1s, Dmg x1.5',f:t=>{t.stun=1;t.dmg*=1.5}},{n:'Spaghetti',c:1800,d:'Enemies can be pulled off start',f:t=>{t.bhPullPastStart=true;t.stun=1.5}},{n:'Time Dilation',c:3600,d:'Slow 99%, Stun 2s',f:t=>{t.slow=0.99;t.stun=2}},{n:'Temporal Collapse',c:7200,d:'Dmg x4, enemies loop forever',f:t=>{t.dmg*=4;t.bhLoop=true}}]},
   {id:18,name:'Nuke',cost:1000,clr:'#4ade80',devOnly:true,
    desc:'[DEV] Tactical nuclear launcher. Warheads vaporise the entire map instantly.',
    pathA:'Yield',pathB:'Fallout',pathC:'Launch Rate',
@@ -1105,6 +1133,11 @@ function update(ts){
     else{e.x+=dx/dist*step;e.y+=dy/dist*step;}
     if(e.burnT>ts){e.hp-=e.burnDmg*dt;if(e.hp<=0)killEnemy(e);}
     if((e.witherRate||0)>0){e.maxHp=Math.max(1,e.maxHp-e.witherRate*e.maxHp*dt);if(e.hp>e.maxHp){e.hp=e.maxHp;if(e.hp<=0)killEnemy(e);}}
+    // Venom stack DoT
+    if((e.venomStacks||0)>0&&e.venomExpiry>ts){
+      e.hp-=e.venomStacks*e.venomDmgPerStack*dt;
+      if(e.hp<=0&&!e.dead)killEnemy(e);
+    } else if(e.venomExpiry&&e.venomExpiry<=ts){e.venomStacks=0;}
   }
   enemies.filter(e=>e.reached&&!e.dead).forEach(e=>{
     e.dead=true;
@@ -1112,7 +1145,7 @@ function update(ts){
     else updateHUD();
   });
   for(const t of towers){
-    if(TDEFS[t.type].isAmplifier||TDEFS[t.type].isBeacon)continue;
+    if(TDEFS[t.type].isAmplifier||TDEFS[t.type].isBeacon||TDEFS[t.type].isBlackhole)continue;
     if(TDEFS[t.type].isWall){
       if(t.wallRegen>0&&t.wallHp<t.wallHpBase)t.wallHp=Math.min(t.wallHpBase,t.wallHp+t.wallRegen*dt);
       const wcx=t.col*CS+CS/2,wcy=t.row*CS+CS/2;let wallBroken=false;
@@ -1177,6 +1210,33 @@ function update(ts){
       tgts.forEach(tgt=>bullets.push(makeBullet(t,tgt)));
     }
   }
+  // ── Black Hole pull ──────────────────────
+  for(const t of towers){
+    if(!TDEFS[t.type].isBlackhole)continue;
+    const bhx=t.col*CS+CS/2,bhy=t.row*CS+CS/2;
+    const radius=(t.bhRadius||5)*CS;const pull=(t.bhPull||1.5)*dt*CS;
+    for(const e of enemies){
+      if(e.dead||e.reached)continue;
+      const dist=Math.hypot(e.x-bhx,e.y-bhy);if(dist>radius)continue;
+      // Pull enemy backward along the path
+      if(e.pi>0||(t.bhPullPastStart)){
+        const targetPi=Math.max(0,e.pi-1);
+        const prevCell=pathCells[targetPi];
+        if(prevCell){
+          const px=prevCell[0]*CS+CS/2,py=prevCell[1]*CS+CS/2;
+          const d=Math.hypot(px-e.x,py-e.y);
+          if(d>2){const s=Math.min(pull,d);e.x+=(px-e.x)/d*s;e.y+=(py-e.y)/d*s;}
+          else if(e.pi>0)e.pi--;
+        }
+      }
+      // Slow while in field
+      e.slowT=ts+200;e.slowM=1-(t.slow||0.85);
+      // Damage in field
+      if(t.dmg>0){e.hp-=t.dmg*dt;if(e.hp<=0&&!e.dead)killEnemy(e);}
+      // Loop enemies back to start if upgrade unlocked
+      if(t.bhLoop&&e.pi<=0){e.pi=Math.floor(pathCells.length*0.1);}
+    }
+  }
   for(const b of bullets){
     if(b.done)continue;if(!b.tgt.dead){b.tx=b.tgt.x;b.ty=b.tgt.y;}
     const dx=b.tx-b.x,dy=b.ty-b.y,dist=Math.hypot(dx,dy);
@@ -1186,20 +1246,32 @@ function update(ts){
   particles.forEach(p=>{p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=60*dt;p.life-=dt;});
   bullets=bullets.filter(b=>!b.done);enemies=enemies.filter(e=>!e.dead);particles=particles.filter(p=>p.life>0);
   if(waveActive&&waveQueue.length===0&&enemies.length===0){
-    waveActive=false;let bankTotal=0;
-    for(const t of towers){
-      if(TDEFS[t.type].isBank&&!TDEFS[t.type].isAmplifier){
-        const inc=t.bankIncome||TDEFS[t.type].bankIncome||0;
-        const interest=Math.floor(gold*(t.bankInterest||0));bankTotal+=inc+interest;
+    waveActive=false;
+    // In co-op: only host computes and distributes wave bonus/bank income
+    if(!mp.active||mp.isHost){
+      let bankTotal=0;
+      for(const t of towers){
+        if(TDEFS[t.type].isBank&&!TDEFS[t.type].isAmplifier){
+          const inc=t.bankIncome||TDEFS[t.type].bankIncome||0;
+          const interest=Math.floor(gold*(t.bankInterest||0));bankTotal+=inc+interest;
+        }
+      }
+      if(bankTotal>0){gold+=bankTotal;msg(`Wave ${wave} cleared! +${25+wave*6}g bonus +${bankTotal}g bank`);}
+      const bonus=25+wave*6;gold+=bonus;
+      if(bankTotal===0)msg(`Wave ${wave-1} cleared! +${bonus}g`);
+      // Broadcast the wave-clear bonus to every other player
+      if(mp.active&&mp.isHost){
+        const playerIds=Object.keys(mp.players);
+        playerIds.forEach(pid=>{
+          if(pid!==mp.myId)mpSend('gold_reward',{targetId:pid,amount:bonus+(bankTotal>0?Math.floor(bankTotal/playerIds.length):0)});
+        });
+        mpSend('wave_clear_done',{wave,bonus,bankTotal});
       }
     }
-    if(bankTotal>0){gold+=bankTotal;msg(`Wave ${wave} cleared! +${25+wave*6}g bonus +${bankTotal}g bank`);}
-    const bonus=25+wave*6;gold+=bonus;
     if(!isEndless&&!isSandbox&&wave>=TOTAL_WAVES){endGame(true);return;}
     wave++;updateHUD();
     document.getElementById('waveBtn').disabled=false;
     document.getElementById('waveBtn').textContent=isSandbox?`SPAWN WAVE ${wave}`:`SEND WAVE ${wave}`;
-    if(bankTotal===0)msg(`Wave ${wave-1} cleared! +${bonus}g`);
     applyAmpBoosts();applyBeaconBoosts();
     if(autoWave)setTimeout(()=>{if(!waveActive)startWave();},800);
   }
@@ -1267,7 +1339,7 @@ function hasLOS(x1,y1,x2,y2){
 }
 
 function findTargets(t){
-  const def=TDEFS[t.type];if(def.isBank||def.isAmplifier||def.isBeacon)return[];
+  const def=TDEFS[t.type];if(def.isBank||def.isAmplifier||def.isBeacon||def.isBlackhole)return[];
   const cx=t.col*CS+CS/2,cy=t.row*CS+CS/2,rp=t.range*CS;
   let inRange=enemies.filter(e=>!e.dead&&!e.reached&&Math.hypot(e.x-cx,e.y-cy)<=rp);
   if(!inRange.length)return[];
@@ -1285,7 +1357,7 @@ function findTargets(t){
 
 function makeBullet(t,tgt){
   const dmgMult=(t._dmgMultiplier||1);
-  return{x:t.col*CS+CS/2,y:t.row*CS+CS/2,tx:tgt.x,ty:tgt.y,tgt,spd:t.type===18?480:290,type:t.type,clr:TDEFS[t.type].clr,dmg:t.dmg*dmgMult,splash:t.splash||0,slow:t.slow||0,chain:t.chain||0,burn:t.burn||0,stun:t.stun||0,haunt:t.haunt||0,hauntMult:t.hauntMult||1.5,wither:t.wither||0,curseSplash:t.curseSplash||false,done:false};
+  return{x:t.col*CS+CS/2,y:t.row*CS+CS/2,tx:tgt.x,ty:tgt.y,tgt,spd:t.type===18?480:290,type:t.type,clr:TDEFS[t.type].clr,dmg:t.dmg*dmgMult,splash:t.splash||0,slow:t.slow||0,chain:t.chain||0,burn:t.burn||0,stun:t.stun||0,haunt:t.haunt||0,hauntMult:t.hauntMult||1.5,wither:t.wither||0,curseSplash:t.curseSplash||false,venomStacks:t.venomStacks||0,venomDmgPerStack:t.venomDmgPerStack||0,virusSpread:t.virusSpread||0,virusDur:t.virusDur||0,virusExecute:t.virusExecute||0,done:false};
 }
 
 function hitBullet(b,ts){
@@ -1300,6 +1372,21 @@ function hitBullet(b,ts){
     if(b.haunt>0){e.hauntT=ts+(b.haunt*1000);e.hauntMult=b.hauntMult||1.5;}
     if(b.wither>0)e.witherRate=Math.max(e.witherRate||0,b.wither);
     if(b.curseSplash&&e.hp<=0){enemies.filter(en=>!en.dead&&Math.hypot(en.x-e.x,en.y-e.y)<4*CS).forEach(en=>{en.hauntT=ts+(b.haunt*500);en.hauntMult=b.hauntMult||1.5;en.witherRate=Math.max(en.witherRate||0,(b.wither||0)*0.5);});}
+    // Venom stacks — each stack adds continuous poison damage
+    if(b.venomStacks>0&&b.venomDmgPerStack>0){
+      e.venomStacks=(e.venomStacks||0)+b.venomStacks;
+      e.venomDmgPerStack=b.venomDmgPerStack;
+      e.venomExpiry=ts+6000;
+    }
+    // Virus infection — marks enemy as infected; spreads on death
+    if(b.virusDur>0){
+      e.virusT=ts+(b.virusDur*1000);
+      e.virusSpread=b.virusSpread||2;
+      e.virusExecute=b.virusExecute||0;
+      e.virusBullet=b;
+    }
+    // Virus execute threshold
+    if((e.virusExecute||0)>0&&e.hp/e.maxHp<e.virusExecute&&!e.dead)killEnemy(e);
   });
   if(b.chain>0&&!b.tgt.dead){
     let last=b.tgt,chains=b.chain;const hit=new Set([last]);
@@ -1313,7 +1400,36 @@ function hitBullet(b,ts){
 }
 
 function dealDmg(e,d,_ts){const hm=(e.hauntT&&e.hauntT>(_ts||performance.now()))?(e.hauntMult||1):1;e.hp-=d*hm;if(e.hp<=0&&!e.dead)killEnemy(e);}
-function killEnemy(e){e.dead=true;gold+=e.rwd;score+=e.rwd*5;spawnFX(e.x,e.y,e.clr,5);updateHUD();}
+function killEnemy(e){
+  e.dead=true;
+  // Virus spread on death — infect nearby enemies
+  if(e.virusT&&e.virusT>performance.now()&&e.virusSpread>0&&e.virusBullet){
+    const spreadR=(e.virusSpread===9999)?99999:e.virusSpread*CS;
+    enemies.filter(en=>!en.dead&&en!==e&&Math.hypot(en.x-e.x,en.y-e.y)<spreadR).forEach(en=>{
+      en.virusT=performance.now()+4000;en.virusSpread=e.virusSpread;
+      en.virusBullet=e.virusBullet;en.virusExecute=e.virusExecute||0;
+    });
+  }
+  // In co-op: only the host awards gold (prevents every client earning the same reward).
+  // Host splits the reward equally among all players and broadcasts individual shares.
+  if(mp.active){
+    score+=e.rwd*5;spawnFX(e.x,e.y,e.clr,5);
+    if(mp.isHost){
+      const playerIds=Object.keys(mp.players);
+      const n=Math.max(1,playerIds.length);
+      const share=Math.floor(e.rwd/n);
+      const remainder=e.rwd-share*n;
+      playerIds.forEach((pid,i)=>{
+        const amt=share+(i===0?remainder:0);
+        if(pid===mp.myId){gold+=amt;}
+        else{mpSend('gold_reward',{targetId:pid,amount:amt});}
+      });
+      updateHUD();
+    }
+  } else {
+    gold+=e.rwd;score+=e.rwd*5;spawnFX(e.x,e.y,e.clr,5);updateHUD();
+  }
+}
 function spawnEnemy(type){
   const d=EDEFS[type],hm=1+(wave-1)*.35;
   const e={type,hp:d.hp*hm,maxHp:d.hp*hm,spd:d.spd,clr:d.clr,r:d.r,rwd:d.rwd,pi:0,x:pathCells[0][0]*CS+CS/2,y:pathCells[0][1]*CS+CS/2,dead:false,reached:false,slowT:0,slowM:1,burnT:0,burnDmg:0,stunT:0,hauntT:0,hauntMult:1,witherRate:0};
@@ -1398,7 +1514,26 @@ function draw(ts){
     }
     ctx.beginPath();ctx.arc(tcx,tcy,tRange,0,Math.PI*2);ctx.strokeStyle=TDEFS[t.type].clr+'55';ctx.lineWidth=1.5;ctx.setLineDash([4,4]);ctx.stroke();ctx.setLineDash([]);
   }
-  towers.forEach(t=>drawTower(t));enemies.forEach(e=>drawEnemy(e,ts));
+  towers.forEach(t=>drawTower(t));
+  // ── Black Hole gravity field ──────────────
+  for(const t of towers){
+    if(!TDEFS[t.type].isBlackhole)continue;
+    const bhx=t.col*CS+CS/2,bhy=t.row*CS+CS/2;
+    const radius=(t.bhRadius||5)*CS;const bt2=Date.now()/600;
+    ctx.save();
+    // Gradient pull field
+    const grad=ctx.createRadialGradient(bhx,bhy,0,bhx,bhy,radius);
+    grad.addColorStop(0,'rgba(129,140,248,0.25)');grad.addColorStop(0.5,'rgba(129,140,248,0.08)');grad.addColorStop(1,'rgba(129,140,248,0)');
+    ctx.fillStyle=grad;ctx.beginPath();ctx.arc(bhx,bhy,radius,0,Math.PI*2);ctx.fill();
+    // Spinning ring lines
+    for(let i=0;i<3;i++){
+      ctx.globalAlpha=0.18+0.08*Math.sin(bt2+i*2.094);
+      ctx.strokeStyle='#818cf8';ctx.lineWidth=1;ctx.setLineDash([6,8]);
+      ctx.beginPath();ctx.arc(bhx,bhy,radius*(0.4+i*0.3),bt2+i,bt2+i+Math.PI*1.5);ctx.stroke();
+    }
+    ctx.setLineDash([]);ctx.globalAlpha=1;ctx.restore();
+  }
+  enemies.forEach(e=>drawEnemy(e,ts));
   for(const b of bullets){
     if(b.type===16){ctx.save();ctx.globalAlpha=0.65;ctx.fillStyle=b.clr;ctx.beginPath();ctx.arc(b.x,b.y,5,0,Math.PI*2);ctx.fill();ctx.globalAlpha=0.35;ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(b.x,b.y,3,0,Math.PI*2);ctx.fill();ctx.restore();}
     else if(b.type===18){ctx.save();ctx.fillStyle=b.clr;ctx.beginPath();ctx.arc(b.x,b.y,9,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.stroke();ctx.globalAlpha=0.25;ctx.beginPath();ctx.arc(b.x,b.y,16,0,Math.PI*2);ctx.fill();ctx.restore();}
@@ -1481,8 +1616,7 @@ function drawTower(t){
     for(let i=0;i<pc;i++){ctx.beginPath();ctx.arc(bx+8+i*6,by+24,3,0,Math.PI*2);ctx.fill();}return;
   }
   if(id===14){
-    const bx=t.col*CS,by=t.row*CS,bw=CS*3,bh=CS*3;
-    ctx.fillStyle='rgba(0,0,0,0.07)';ctx.fillRect(bx+3,by+3,bw,bh);ctx.fillStyle=dark?'#1a0f2e':'#f3e8ff';ctx.fillRect(bx,by,bw,bh);
+    const bx=t.col*CS,by=t.row*CS,bw=CS*3,bh=CS*3;    ctx.fillStyle='rgba(0,0,0,0.07)';ctx.fillRect(bx+3,by+3,bw,bh);ctx.fillStyle=dark?'#1a0f2e':'#f3e8ff';ctx.fillRect(bx,by,bw,bh);
     ctx.strokeStyle=TDEFS[14].clr;ctx.lineWidth=2;ctx.strokeRect(bx,by,bw,bh);
     if(selTower===t){ctx.strokeStyle=TDEFS[14].clr+'88';ctx.lineWidth=3;ctx.strokeRect(bx-2,by-2,bw+4,bh+4);}
     const arad=(t.ampRadius||1)*CS+CS*1.5;ctx.beginPath();ctx.arc(bx+bw/2,by+bh/2,arad,0,Math.PI*2);ctx.strokeStyle=TDEFS[14].clr+'33';ctx.lineWidth=1.5;ctx.setLineDash([3,4]);ctx.stroke();ctx.setLineDash([]);
@@ -1493,6 +1627,47 @@ function drawTower(t){
     for(let i=0;i<pa14;i++){ctx.beginPath();ctx.arc(bx+8+i*6,by+8,3,0,Math.PI*2);ctx.fill();}ctx.fillStyle=TDEFS[14].clr+'99';
     for(let i=0;i<pb14;i++){ctx.beginPath();ctx.arc(bx+8+i*6,by+16,3,0,Math.PI*2);ctx.fill();}ctx.fillStyle=TDEFS[14].clr+'55';
     for(let i=0;i<pc14;i++){ctx.beginPath();ctx.arc(bx+8+i*6,by+24,3,0,Math.PI*2);ctx.fill();}return;
+  }
+  // id 20 — Beacon early draw (before generic white base)
+  if(id===20){
+    const bt=Date.now()/400;
+    if(selTower===t){ctx.strokeStyle=clr+'88';ctx.lineWidth=3;ctx.beginPath();ctx.arc(cx,cy,17,0,Math.PI*2);ctx.stroke();}
+    // Aura range circle
+    const arad2=(t.beaconRadius||2.5)*CS;ctx.beginPath();ctx.arc(cx,cy,arad2,0,Math.PI*2);ctx.strokeStyle=clr+'33';ctx.lineWidth=1.5;ctx.setLineDash([3,4]);ctx.stroke();ctx.setLineDash([]);
+    ctx.save();ctx.translate(cx,cy);
+    ctx.globalAlpha=0.12+0.08*Math.sin(bt);ctx.fillStyle=clr;ctx.beginPath();ctx.arc(0,0,15,0,Math.PI*2);ctx.fill();
+    ctx.globalAlpha=1;
+    ctx.fillStyle=dark?'#1e1a00':'#fffbeb';ctx.beginPath();ctx.arc(0,0,11,0,Math.PI*2);ctx.fill();
+    ctx.strokeStyle=clr;ctx.lineWidth=2;ctx.beginPath();ctx.arc(0,0,11,0,Math.PI*2);ctx.stroke();
+    ctx.globalAlpha=0.6+0.3*Math.sin(bt*1.5);ctx.strokeStyle=clr;ctx.lineWidth=1;ctx.beginPath();ctx.arc(0,0,14,0,Math.PI*2);ctx.stroke();
+    ctx.globalAlpha=1;
+    ctx.fillStyle=clr;ctx.font='bold 11px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('◈',0,0);
+    const pa=t.pA||0,pb=t.pB||0,pc=t.pC||0;
+    ctx.fillStyle=clr;for(let i=0;i<pa;i++){ctx.beginPath();ctx.arc(-7+i*3.2,16,2,0,Math.PI*2);ctx.fill();}
+    ctx.fillStyle=clr+'99';for(let i=0;i<pb;i++){ctx.beginPath();ctx.arc(-5+i*3.2,20,2,0,Math.PI*2);ctx.fill();}
+    ctx.fillStyle=clr+'55';for(let i=0;i<pc;i++){ctx.beginPath();ctx.arc(-3+i*3.2,24,2,0,Math.PI*2);ctx.fill();}
+    ctx.restore();return;
+  }
+  // id 23 — Black Hole early draw (before generic white base)
+  if(id===23){
+    const bht=Date.now()/300;
+    if(selTower===t){ctx.strokeStyle=clr+'88';ctx.lineWidth=3;ctx.beginPath();ctx.arc(cx,cy,17,0,Math.PI*2);ctx.stroke();}
+    ctx.save();ctx.translate(cx,cy);
+    for(let i=0;i<3;i++){
+      ctx.globalAlpha=(0.15+i*0.08)*Math.abs(Math.sin(bht+i));
+      ctx.strokeStyle=i===0?'#818cf8':i===1?'#c084fc':'#e879f9';
+      ctx.lineWidth=3-i;ctx.beginPath();ctx.arc(0,0,11+i*3,0,Math.PI*2);ctx.stroke();
+    }
+    ctx.globalAlpha=1;
+    ctx.fillStyle=dark?'#020617':'#1e1b4b';ctx.beginPath();ctx.arc(0,0,9,0,Math.PI*2);ctx.fill();
+    ctx.strokeStyle='#818cf8';ctx.lineWidth=2;ctx.beginPath();ctx.arc(0,0,9,0,Math.PI*2);ctx.stroke();
+    ctx.fillStyle='#c084fc';ctx.beginPath();ctx.arc(0,0,3,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(0,0,1.2,0,Math.PI*2);ctx.fill();
+    const pa=t.pA||0,pb=t.pB||0,pc=t.pC||0;
+    ctx.fillStyle=clr;for(let i=0;i<pa;i++){ctx.beginPath();ctx.arc(-7+i*3.2,16,2,0,Math.PI*2);ctx.fill();}
+    ctx.fillStyle=clr+'99';for(let i=0;i<pb;i++){ctx.beginPath();ctx.arc(-5+i*3.2,20,2,0,Math.PI*2);ctx.fill();}
+    ctx.fillStyle=clr+'55';for(let i=0;i<pc;i++){ctx.beginPath();ctx.arc(-3+i*3.2,24,2,0,Math.PI*2);ctx.fill();}
+    ctx.restore();return;
   }
   // Apply scale pop during spawn — tower bounces in from 0 to 1.1 then settles to 1
   const spawnScale=t._spawnAnim>0?(1+(Math.sin((1-t._spawnAnim)*Math.PI)*0.18)):1;
@@ -1528,7 +1703,36 @@ function drawTower(t){
     ctx.fillStyle='#1a2e1a';ctx.beginPath();ctx.arc(0,0,2.5,0,Math.PI*2);ctx.fill();ctx.restore();
     ctx.save();ctx.globalAlpha=0.2+0.15*Math.sin(nt*3);ctx.fillStyle=clr;ctx.beginPath();ctx.arc(0,0,18,0,Math.PI*2);ctx.fill();ctx.restore();
   }
-  if(![5,9,17,18].includes(id)){
+  // id 19 — Venom
+  if(id===19){
+    const vt=Date.now()/500;
+    ctx.fillStyle=clr;ctx.beginPath();ctx.arc(0,0,7,0,Math.PI*2);ctx.fill();
+    ctx.strokeStyle=dark?'#166534':'#4ade80';ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(0,0,10,0,Math.PI*2);ctx.stroke();
+    ctx.save();ctx.globalAlpha=0.4+0.2*Math.sin(vt);ctx.fillStyle=clr;ctx.beginPath();ctx.arc(0,0,13,0,Math.PI*2);ctx.fill();ctx.restore();
+    ctx.fillStyle=dark?'#14532d':'#d9f99d';ctx.font='bold 9px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('☠',0,0);
+  }
+  // id 21 — Railgun
+  if(id===21){
+    ctx.fillStyle=dark?'#0c1a2e':'#e0f2fe';ctx.beginPath();ctx.arc(0,0,9,0,Math.PI*2);ctx.fill();
+    ctx.strokeStyle=clr;ctx.lineWidth=2.5;ctx.beginPath();ctx.arc(0,0,9,0,Math.PI*2);ctx.stroke();
+    ctx.fillStyle=clr;ctx.beginPath();ctx.arc(0,0,3,0,Math.PI*2);ctx.fill();
+    // Long barrel
+    ctx.strokeStyle=clr;ctx.lineWidth=4;ctx.lineCap='round';
+    ctx.beginPath();ctx.moveTo(Math.cos(ang)*5,Math.sin(ang)*5);ctx.lineTo(Math.cos(ang)*18,Math.sin(ang)*18);ctx.stroke();
+    ctx.strokeStyle='#fff';ctx.lineWidth=1.5;
+    ctx.beginPath();ctx.moveTo(Math.cos(ang)*6,Math.sin(ang)*6);ctx.lineTo(Math.cos(ang)*17,Math.sin(ang)*17);ctx.stroke();
+  }
+  // id 22 — Virus (dev)
+  if(id===22){
+    const virt=Date.now()/350;
+    ctx.save();ctx.globalAlpha=0.5+0.25*Math.sin(virt);ctx.fillStyle=clr;ctx.beginPath();ctx.arc(0,0,12,0,Math.PI*2);ctx.fill();ctx.restore();
+    ctx.fillStyle=dark?'#4a044e':'#fdf4ff';ctx.beginPath();ctx.arc(0,0,8,0,Math.PI*2);ctx.fill();
+    ctx.strokeStyle=clr;ctx.lineWidth=2;ctx.beginPath();ctx.arc(0,0,8,0,Math.PI*2);ctx.stroke();
+    // Spiky virus protrusions
+    for(let i=0;i<8;i++){const a=i*Math.PI/4+virt*0.15;ctx.fillStyle=clr;ctx.save();ctx.rotate(a);ctx.beginPath();ctx.ellipse(11,0,2.5,1.5,0,0,Math.PI*2);ctx.fill();ctx.restore();}
+    ctx.fillStyle=clr;ctx.font='bold 8px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('⚠',0,0.5);
+  }
+  if(![5,9,17,18,20,22,23].includes(id)&&id!==19&&id!==21){
     const bl=id===1?18:id===7?14:12;ctx.strokeStyle=clr;ctx.lineWidth=id===2||id===12?4:3;ctx.lineCap='round';
     ctx.beginPath();ctx.moveTo(Math.cos(ang)*6,Math.sin(ang)*6);ctx.lineTo(Math.cos(ang)*bl,Math.sin(ang)*bl);ctx.stroke();
   }
@@ -1543,9 +1747,24 @@ function drawTower(t){
 
 function drawEnemy(e,ts){
   if(e.dead)return;const stun=e.stunT>ts,slow=e.slowT>ts,burn=e.burnT>ts,haunt=e.hauntT>ts,wither=(e.witherRate||0)>0;
+  const venom=(e.venomStacks||0)>0&&(e.venomExpiry||0)>ts;
+  const virus=(e.virusT||0)>ts;
   ctx.fillStyle='rgba(0,0,0,.1)';ctx.beginPath();ctx.ellipse(e.x,e.y+e.r-1,e.r*.7,3,0,0,Math.PI*2);ctx.fill();
-  ctx.fillStyle=stun?'#a78bfa':slow?'#93c5fd':e.clr;ctx.beginPath();ctx.arc(e.x,e.y,e.r,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle=stun?'#a78bfa':venom?'#84cc16':slow?'#93c5fd':e.clr;ctx.beginPath();ctx.arc(e.x,e.y,e.r,0,Math.PI*2);ctx.fill();
   if(burn){ctx.strokeStyle='#f97316';ctx.lineWidth=2;ctx.beginPath();ctx.arc(e.x,e.y,e.r+2,0,Math.PI*2);ctx.stroke();}
+  if(venom){
+    const vp=0.55+0.3*Math.sin(ts/120);ctx.save();ctx.globalAlpha=vp;
+    ctx.strokeStyle='#84cc16';ctx.lineWidth=2;ctx.beginPath();ctx.arc(e.x,e.y,e.r+3,0,Math.PI*2);ctx.stroke();
+    // Stack count label
+    ctx.globalAlpha=1;ctx.fillStyle='#84cc16';ctx.font=`bold 7px "DM Mono",monospace`;ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText(e.venomStacks+'☠',e.x,e.y-e.r-12);
+    ctx.restore();
+  }
+  if(virus){
+    const vip=0.4+0.3*Math.sin(ts/90);ctx.save();ctx.globalAlpha=vip;
+    ctx.strokeStyle='#f0abfc';ctx.lineWidth=2;ctx.setLineDash([3,2]);ctx.beginPath();ctx.arc(e.x,e.y,e.r+5,0,Math.PI*2);ctx.stroke();ctx.setLineDash([]);
+    ctx.restore();
+  }
   if(haunt){const pa=0.5+0.35*Math.sin(ts/180);ctx.save();ctx.globalAlpha=pa;ctx.strokeStyle='#818cf8';ctx.lineWidth=2.5;ctx.beginPath();ctx.arc(e.x,e.y,e.r+4,0,Math.PI*2);ctx.stroke();ctx.globalAlpha=pa*0.4;ctx.fillStyle='#818cf8';ctx.beginPath();ctx.arc(e.x,e.y,e.r+4,0,Math.PI*2);ctx.fill();ctx.restore();}
   if(wither){const wa=0.4+0.25*Math.sin(ts/220);ctx.save();ctx.globalAlpha=wa;ctx.strokeStyle='#86efac';ctx.lineWidth=1.5;ctx.setLineDash([3,3]);ctx.beginPath();ctx.arc(e.x,e.y,e.r+7,0,Math.PI*2);ctx.stroke();ctx.setLineDash([]);ctx.restore();}
   if(e.type===3){ctx.fillStyle='#fbbf24';ctx.font='bold 12px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('★',e.x,e.y-e.r-8);}
@@ -1758,7 +1977,7 @@ canvas.addEventListener('click',e=>{
   const cost=def.cost;if(!isSandbox&&gold<cost){msg(`Need ${cost}g.`);return;}
   const req=def.requires;if(req&&req.towers!==undefined&&towers.length<req.towers){msg(`Need ${req.towers} towers placed first.`);return;}
   if(!isSandbox)gold-=cost;
-  const newTower={col,row,type:selShopType,cd:0,ang:-Math.PI/2,pA:0,pB:0,pC:0,dmg:def.dmg,rate:def.rate,range:def.range,splash:def.splash,slow:def.slow,chain:def.chain,burn:def.burn,stun:def.stun,pierce:def.pierce,multi:def.multi||1,bankIncome:def.bankIncome||0,bankInterest:0,ampBoost:def.ampBoost||0,ampRadius:def.ampRadius||1,beaconBoost:def.beaconBoost||0,beaconRadius:def.beaconRadius||2.5,wallHp:def.wallHp||0,wallHpBase:def.wallHp||0,wallDmg:def.wallDmg||0,wallRegen:0,fgbTimer:30,_spawnAnim:1.0};
+  const newTower={col,row,type:selShopType,cd:0,ang:-Math.PI/2,pA:0,pB:0,pC:0,dmg:def.dmg,rate:def.rate,range:def.range,splash:def.splash,slow:def.slow,chain:def.chain,burn:def.burn,stun:def.stun,pierce:def.pierce,multi:def.multi||1,bankIncome:def.bankIncome||0,bankInterest:0,ampBoost:def.ampBoost||0,ampRadius:def.ampRadius||1,beaconBoost:def.beaconBoost||0,beaconRadius:def.beaconRadius||2.5,beaconDmgBoost:def.beaconDmgBoost||0,wallHp:def.wallHp||0,wallHpBase:def.wallHp||0,wallDmg:def.wallDmg||0,wallRegen:0,venomStacks:def.venomStacks||0,venomDmgPerStack:def.venomDmgPerStack||0,bhPull:def.bhPull||1.5,bhRadius:def.bhRadius||5,virusSpread:def.virusSpread||2,virusDur:def.virusDur||0,fgbTimer:30,_spawnAnim:1.0};
   if(curMap.diff==='Hard'){if(def.isAmplifier)newTower.ampBoost*=0.85;else if(!def.isBank&&!def.isBeacon){newTower.dmg*=1.25;newTower.rate*=1.25;}}
   towers.push(newTower);updateHUD();buildShop();applyAmpBoosts();applyBeaconBoosts();msg(`${def.name} placed.`);
 });
@@ -1780,7 +1999,7 @@ canvas.addEventListener('contextmenu',e=>{
 });
 
 function rebuildTowerStats(t,useOrig=false){
-  const def=TDEFS[t.type];t.dmg=def.dmg;t.rate=def.rate;t.range=def.range;t.splash=def.splash;t.slow=def.slow;t.chain=def.chain;t.burn=def.burn;t.stun=def.stun;t.pierce=def.pierce;t.multi=def.multi||1;t.bankIncome=def.bankIncome||0;t.ampBoost=def.ampBoost||0;t.ampRadius=def.ampRadius||1;t.wallHp=def.wallHp||0;t.wallHpBase=def.wallHp||0;t.wallDmg=def.wallDmg||0;t.wallRegen=0;t._ampOrig=null;t._ampBoosted=false;
+  const def=TDEFS[t.type];t.dmg=def.dmg;t.rate=def.rate;t.range=def.range;t.splash=def.splash;t.slow=def.slow;t.chain=def.chain;t.burn=def.burn;t.stun=def.stun;t.pierce=def.pierce;t.multi=def.multi||1;t.bankIncome=def.bankIncome||0;t.ampBoost=def.ampBoost||0;t.ampRadius=def.ampRadius||1;t.wallHp=def.wallHp||0;t.wallHpBase=def.wallHp||0;t.wallDmg=def.wallDmg||0;t.wallRegen=0;t._ampOrig=null;t._ampBoosted=false;t.venomStacks=def.venomStacks||0;t.venomDmgPerStack=def.venomDmgPerStack||0;t.bhPull=def.bhPull||1.5;t.bhRadius=def.bhRadius||5;t.beaconBoost=def.beaconBoost||0;t.beaconRadius=def.beaconRadius||2.5;t.beaconDmgBoost=def.beaconDmgBoost||0;
   const apply=(path,cnt)=>{const key=path==='A'?'pA':path==='B'?'pB':'pC';for(let i=0;i<cnt;i++){const up=def[key][i];(useOrig&&up.fOrig?up.fOrig:up.f)(t);}};
   apply('A',t.pA||0);apply('B',t.pB||0);apply('C',t.pC||0);
   if(curMap&&curMap.diff==='Hard'){if(def.isAmplifier)t.ampBoost*=0.85;else if(!def.isBank&&!def.isBeacon){t.dmg*=1.25;t.rate*=1.25;}}
@@ -2515,6 +2734,18 @@ function handleMpEvent(ev){
         mp.isHost=false;updateMpButtonStates();
       }
       break;
+    case 'gold_reward':
+      if(mp.active&&!mp.isHost&&ev.payload.targetId===mp.myId){
+        gold+=ev.payload.amount;updateHUD();broadcastMyGold();renderMpBar();
+      }
+      break;
+    case 'wave_clear_done':
+      if(mp.active&&!mp.isHost){
+        const wcd=ev.payload;
+        const bonusMsg=wcd.bankTotal>0?`Wave ${wcd.wave} cleared! +${wcd.bonus}g bonus +${wcd.bankTotal}g bank (split)`:(`Wave ${wcd.wave} cleared! +${wcd.bonus}g`);
+        msg(bonusMsg);
+      }
+      break;
     case 'player_gold':
       if(mp.active)updateRemoteGold(ev.payload);
       break;
@@ -3140,7 +3371,7 @@ window.showPlayerLeftToast = function(text){
 };
 </script>
 
-<div id="devBadge" style="display:none;position:fixed;bottom:12px;left:12px;z-index:9998;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.12em;text-transform:uppercase;background:#818cf8;color:#fff;padding:4px 10px;border-radius:4px;opacity:.85;pointer-events:none">DEV BUILD — Ghost · God Wall · Nuke</div>
+<div id="devBadge" style="display:none;position:fixed;bottom:12px;left:12px;z-index:9998;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.12em;text-transform:uppercase;background:#818cf8;color:#fff;padding:4px 10px;border-radius:4px;opacity:.85;pointer-events:none">DEV BUILD — Ghost · God Wall · Nuke · Virus · Black Hole</div>
 
 <script>if(typeof IS_DEV_BUILD!=='undefined'&&IS_DEV_BUILD){document.getElementById('devBadge').style.display='block';}</script>
 </body></html>
