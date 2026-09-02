@@ -464,6 +464,12 @@ body{background:var(--bg);min-height:100vh;display:flex;align-items:center;justi
       <div class="ctrl-row" id="devWallRow" style="display:none">
         <button class="gbtn out" id="wallEditBtn" style="flex:1;border-color:#818cf8;color:#818cf8">🛠 EDIT WALLS</button>
       </div>
+      <div class="ctrl-row" id="devBattleRow" style="display:none;flex-wrap:wrap;gap:4px">
+        <button class="gbtn out" onclick="devHostAction('spawn_boss')" style="flex:1;min-width:70px;font-size:9px;padding:6px 4px;border-color:#818cf8;color:#818cf8">👹 BOSS</button>
+        <button class="gbtn out" onclick="devHostAction('spawn_swarm')" style="flex:1;min-width:70px;font-size:9px;padding:6px 4px;border-color:#818cf8;color:#818cf8">🐜 SWARM</button>
+        <button class="gbtn out" onclick="devHostAction('buff_enemies')" style="flex:1;min-width:70px;font-size:9px;padding:6px 4px;border-color:#818cf8;color:#818cf8">💪 BUFF</button>
+        <button class="gbtn out" onclick="devHostAction('force_wave')" style="flex:1;min-width:70px;font-size:9px;padding:6px 4px;border-color:#818cf8;color:#818cf8">⏭ FORCE WAVE</button>
+      </div>
       <button class="gbtn out" id="mpDisconnectBtn" style="color:#dc2626;border-color:#dc2626">⊗ DISCONNECT</button>
       <div id="msgEl">Place towers, then send the wave.</div>
     </div>
@@ -526,6 +532,16 @@ body{background:var(--bg);min-height:100vh;display:flex;align-items:center;justi
       <button onclick="confirmSendGold()" style="flex:1;padding:10px;border:1.5px solid var(--ink);background:var(--ink);color:var(--surface);font-family:'DM Mono',monospace;font-size:10px;cursor:pointer;border-radius:5px;letter-spacing:.06em;transition:all .1s" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">SEND</button>
       <button onclick="closeSendGold()" style="flex:1;padding:10px;border:1.5px solid var(--border);background:transparent;color:var(--ink2);font-family:'DM Mono',monospace;font-size:10px;cursor:pointer;border-radius:5px;letter-spacing:.06em;transition:all .1s">CANCEL</button>
     </div>
+  </div>
+</div>
+
+<!-- ══════════ DEV TROLL MENU (dev builds only) ══════════ -->
+<div id="devTrollOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:500;align-items:center;justify-content:center">
+  <div style="background:var(--surface);border:1px solid #818cf8;border-radius:12px;padding:22px 24px;width:300px;box-shadow:0 12px 48px var(--shadow);display:flex;flex-direction:column;gap:10px">
+    <div style="font-size:16px;font-weight:700;letter-spacing:-.02em;color:#818cf8">🛠 Dev Troll Menu</div>
+    <div id="devTrollTo" style="font-family:'DM Mono',monospace;font-size:10px;color:var(--ink2)">Target: —</div>
+    <div style="display:flex;flex-direction:column;gap:6px" id="devTrollActions"></div>
+    <button onclick="closeDevTroll()" style="margin-top:4px;padding:9px;border:1.5px solid var(--border);background:transparent;color:var(--ink2);font-family:'DM Mono',monospace;font-size:10px;cursor:pointer;border-radius:5px;letter-spacing:.06em">CLOSE</button>
   </div>
 </div>
 
@@ -1351,6 +1367,9 @@ function generateWalls(map, pathSet, cols, rows) {
 }
 
 // ── DEV: live map wall editing (works even on a running game, synced to co-op) ──
+// Wall changes are written straight to the room's Firebase state (rooms/{code}/mapWalls)
+// rather than only broadcast as a transient event, so the change is authoritative,
+// survives the events log being pruned, and is picked up by anyone (re)connecting.
 let wallEditMode=false;
 function setWallAt(col,row,add){
   const key=`${col},${row}`;
@@ -1363,6 +1382,10 @@ function setWallAt(col,row,add){
   }
   return true;
 }
+function persistWallsServerside(){
+  if(!(mp.active&&mp.db&&mp.roomCode))return;
+  try{mp.db.ref('rooms/'+mp.roomCode+'/mapWalls').set(curMap.walls);}catch(e){}
+}
 function devToggleWall(col,row){
   if(!IS_DEV_BUILD){msg('Dev tools are not available in this build.');return;}
   if(pathSet.has(`${col},${row}`)){msg("Can't place a wall on the path.");return;}
@@ -1371,9 +1394,22 @@ function devToggleWall(col,row){
   const wasWall=wallSet.has(`${col},${row}`);
   if(!setWallAt(col,row,!wasWall))return;
   msg(wasWall?'[DEV] Wall removed.':'[DEV] Wall added.');
+  // Push an immediate event for snappy feedback, and persist the full wall list
+  // server-side so it's the durable source of truth for every client.
   if(mp.active)mpSend('dev_wall_toggle',{col,row,add:!wasWall});
+  persistWallsServerside();
 }
 function handleRemoteWallToggle(data){setWallAt(data.col,data.row,data.add);}
+// Keep local walls in lockstep with the server's authoritative copy — fires on any
+// change (ours or a teammate's) and whenever we (re)connect, so nothing gets missed.
+function applyServerWalls(snap){
+  const v=snap.val();
+  if(!v)return;
+  const arr=Array.isArray(v)?v:Object.values(v);
+  const parsed=arr.map(w=>Array.isArray(w)?[w[0],w[1]]:[w['0'],w['1']]).filter(w=>w[0]!==undefined&&w[1]!==undefined);
+  curMap.walls=parsed;
+  wallSet=new Set(curMap.walls.map(([c,r])=>`${c},${r}`));
+}
 
 function buildPath(wp){
   const c=[];
@@ -1493,6 +1529,7 @@ function canUp(t,path){
 function doUpgrade(t,path){
   if(TDEFS[t.type].devOnly&&!IS_DEV_BUILD){msg('Dev towers are not available in this build.');return;}
   if(mp.active&&t.mpOwner&&t.mpOwner!==mp.myId&&!IS_DEV_BUILD){msg("That's not your tower!");return;}
+  if(t.devLocked&&!IS_DEV_BUILD){msg('This tower has been locked and can no longer be upgraded.');return;}
   const pathKey=path==='A'?'pA':path==='B'?'pB':'pC';
   const lvl=path==='A'?(t.pA||0):path==='B'?(t.pB||0):(t.pC||0);
   const ups=TDEFS[t.type][pathKey];
@@ -1512,6 +1549,8 @@ function doUpgrade(t,path){
 }
 
 // ── DEV: strip a tower's top upgrade on a given path (works on any player's tower) ──
+// Stripping a tower this way also permanently locks it from further upgrades by its
+// actual owner — a dev-build client can still upgrade it, everyone else cannot.
 function devDowngradeTower(t,path){
   if(!IS_DEV_BUILD){msg('Dev tools are not available in this build.');return;}
   if(!t)return;
@@ -1522,11 +1561,12 @@ function devDowngradeTower(t,path){
   const removedUp=def[key][lvl-1];
   t[key]=lvl-1;
   if(t.primaryPath===path&&t[key]<3)t.primaryPath=null;
+  t.devLocked=true;
   rebuildTowerStats(t);
   applyAmpBoosts();applyBeaconBoosts();updateHUD();
   if(selTower===t)renderUpPanel(t);
-  msg(`[DEV] Removed upgrade: ${removedUp.n}`);
-  if(mp.active)mpSend('dev_tower_downgrade',{col:t.col,row:t.row,path});
+  msg(`[DEV] Removed upgrade: ${removedUp.n} — tower locked from further upgrades.`);
+  if(mp.active)mpSend('dev_tower_downgrade',{col:t.col,row:t.row,path,lock:true});
 }
 function handleRemoteDevDowngrade(data){
   const t=towers.find(t=>t.col===data.col&&t.row===data.row);
@@ -1535,6 +1575,7 @@ function handleRemoteDevDowngrade(data){
   if((t[key]||0)<=0)return;
   t[key]=(t[key]||0)-1;
   if(t.primaryPath===data.path&&t[key]<3)t.primaryPath=null;
+  if(data.lock)t.devLocked=true;
   rebuildTowerStats(t);
   applyAmpBoosts();applyBeaconBoosts();
   if(selTower===t)renderUpPanel(t);
@@ -1619,6 +1660,7 @@ function update(ts){
       continue;
     }
     t.cd=(t.cd||0)-dt;if(t.cd>0)continue;
+    if(t.frozenUntil&&ts<t.frozenUntil)continue; // [DEV] frozen tower — can't fire
     if(TDEFS[t.type].tacMode){
       const cx=t.col*CS+CS/2,cy=t.row*CS+CS/2,rp=t.range*CS;
       const anyNearby=enemies.some(e=>!e.dead&&!e.reached&&Math.hypot(e.x-cx,e.y-cy)<=rp);
@@ -2392,10 +2434,11 @@ function renderUpPanel(tower){
   // ─────────────────────────────────────────────────────────────────────────
   showUpPanel(true);const p=document.getElementById('upgradePanel');
   const def=TDEFS[tower.type],pa=tower.pA||0,pb=tower.pB||0,pc=tower.pC||0;
+  const devLockActive=!!tower.devLocked&&!IS_DEV_BUILD;
   function pathSection(path,label){
     const lvl=path==='A'?pa:path==='B'?pb:pc;const ups=def[path==='A'?'pA':path==='B'?'pB':'pC'];const maxLvl=ups.length;
     const status=getPathStatus(tower,path);const isCutoff=status==='cutoff';const isPrimary=status==='primary';const isSecondary=status==='secondary';
-    const canBuy=canUp(tower,path);const nextUp=lvl<maxLvl?ups[lvl]:null;
+    const canBuy=canUp(tower,path)&&!devLockActive;const nextUp=lvl<maxLvl?ups[lvl]:null;
     let statusLabel='';
     if(isPrimary)statusLabel=`<span class="path-status primary">★ PRIMARY</span>`;
     else if(isSecondary)statusLabel=`<span class="path-status secondary">SECONDARY</span>`;
@@ -2410,7 +2453,7 @@ function renderUpPanel(tower){
       tHTML+=`<div class="${cls}" style="${sty}">${txt}</div>`;
     }
     const nm=isCutoff?'CUT OFF':nextUp&&canBuy?nextUp.n:lvl>=maxLvl?'MAXED':nextUp?nextUp.n:'MAXED';
-    const desc=(!isCutoff&&nextUp&&canBuy)?nextUp.d:isCutoff?'Path locked — another path is primary':'';
+    const desc=(!isCutoff&&nextUp&&canBuy)?nextUp.d:isCutoff?'Path locked — another path is primary':(devLockActive?'🔒 Locked by an admin — no further upgrades.':'');
     const canAfford=nextUp&&gold>=nextUp.c;const btnDis=!nextUp||!canBuy||!canAfford||isOtherPlayerTower;
     const devStripBtn=(IS_DEV_BUILD&&lvl>0)?`<button class="dev-strip-btn" title="DEV: remove this path's top upgrade" onclick="devDowngradeTower(selTower,'${path}')">🛠 STRIP</button>`:'';
     return`<div class="path-box${isCutoff?' cutoff':''}">
@@ -2440,7 +2483,14 @@ function renderUpPanel(tower){
   const ownerBannerHTML=!belongsToOther?'':(IS_DEV_BUILD
     ?`<div style="font-family:'DM Mono',monospace;font-size:9px;padding:5px 8px;background:#818cf822;border:1px solid #818cf855;border-radius:4px;color:#818cf8;margin-bottom:4px;text-align:center">🛠 DEV OVERRIDE — editing ${ownerName}'s tower</div>`
     :`<div style="font-family:'DM Mono',monospace;font-size:9px;padding:5px 8px;background:${ownerColor}22;border:1px solid ${ownerColor}55;border-radius:4px;color:${ownerColor};margin-bottom:4px;text-align:center">🔒 ${ownerName}'s Tower — view only</div>`);
-  p.innerHTML=`<div class="up-head"><div><div class="up-name">${def.name}</div><div class="up-sub">Path ${pa}-${pb}-${pc}</div></div>${!isOtherPlayerTower?`<button class="sell-btn${isFGB?' fgb':''}" onclick="sellTower()">${sellLabel}</button>`:''}</div>${ownerBannerHTML}${fgbHTML}${wallHpHTML}${!isOtherPlayerTower?targetRowHTML:''}${pathSection('A',def.pathA||'PATH A')}${pathSection('B',def.pathB||'PATH B')}${pathSection('C',def.pathC||'PATH C')}<button class="back-btn" onclick="deselTower()">← SHOP</button>`;
+  const devLockBannerHTML=devLockActive?`<div style="font-family:'DM Mono',monospace;font-size:9px;padding:5px 8px;background:#dc262622;border:1px solid #dc262655;border-radius:4px;color:#dc2626;margin-bottom:4px;text-align:center">🔒 This tower was locked by an admin — no further upgrades.</div>`:'';
+  const isFrozenNow=!!tower.frozenUntil&&performance.now()<tower.frozenUntil;
+  const frozenBannerHTML=isFrozenNow?`<div style="font-family:'DM Mono',monospace;font-size:9px;padding:5px 8px;background:#0ea5e922;border:1px solid #0ea5e955;border-radius:4px;color:#0ea5e9;margin-bottom:4px;text-align:center">🥶 Frozen — can't fire for ${Math.ceil((tower.frozenUntil-performance.now())/1000)}s</div>`:'';
+  const devToolsRowHTML=(IS_DEV_BUILD&&!isWall)?`<div style="display:flex;gap:6px;margin-bottom:6px">
+      <button onclick="devFreezeTower(selTower)" style="flex:1;padding:6px;border:1px solid #0ea5e9;background:#0ea5e922;color:#0ea5e9;font-family:'DM Mono',monospace;font-size:9px;cursor:pointer;border-radius:4px;letter-spacing:.03em">🥶 FREEZE 8s</button>
+      <button onclick="devTeleportTower(selTower)" style="flex:1;padding:6px;border:1px solid #a855f7;background:#a855f722;color:#a855f7;font-family:'DM Mono',monospace;font-size:9px;cursor:pointer;border-radius:4px;letter-spacing:.03em">🚀 TELEPORT</button>
+    </div>`:'';
+  p.innerHTML=`<div class="up-head"><div><div class="up-name">${def.name}</div><div class="up-sub">Path ${pa}-${pb}-${pc}</div></div>${!isOtherPlayerTower?`<button class="sell-btn${isFGB?' fgb':''}" onclick="sellTower()">${sellLabel}</button>`:''}</div>${ownerBannerHTML}${devLockBannerHTML}${frozenBannerHTML}${devToolsRowHTML}${fgbHTML}${wallHpHTML}${!isOtherPlayerTower?targetRowHTML:''}${pathSection('A',def.pathA||'PATH A')}${pathSection('B',def.pathB||'PATH B')}${pathSection('C',def.pathC||'PATH C')}<button class="back-btn" onclick="deselTower()">← SHOP</button>`;
 }
 
 function deselTower(){selTower=null;_lastUpTower=null;_lastUpGold=-1;showUpPanel(false);buildShop();}
@@ -2721,7 +2771,7 @@ document.addEventListener('keydown',e=>{
   // Never fire hotkeys when typing in an input
   if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA')return;
   // Any modal open? skip game hotkeys
-  const anyModal=['settingsModal','towersModal','mpOverlay','sendGoldOverlay','changelogOverlay','updateOverlay','resumeOverlay']
+  const anyModal=['settingsModal','towersModal','mpOverlay','sendGoldOverlay','devTrollOverlay','changelogOverlay','updateOverlay','resumeOverlay']
     .some(id=>document.getElementById(id)?.classList.contains('open')||document.getElementById(id)?.style.display==='flex');
   if(anyModal)return;
 
@@ -3111,7 +3161,7 @@ const PLAYER_NAMES  = ['Vortex','Cipher','Nexus','Phantom'];
 let mp = {
   active:false, isHost:false, roomCode:null, myId:null, mySlot:0,
   players:{}, db:null, fbApp:null, listeners:[], eventsRef:null,
-  pendingMap:null, _syncInterval:null,
+  pendingMap:null, _syncInterval:null, wallsRef:null,
 };
 
 // ── Load Firebase compat SDK ──────────────
@@ -3464,6 +3514,41 @@ function handleMpEvent(ev){
     case 'dev_wall_toggle':
       if(mp.active)handleRemoteWallToggle(ev.payload);
       break;
+    case 'dev_announce':
+      if(mp.active&&ev.from!==mp.myId)handleDevAnnounce(ev.payload);
+      break;
+    case 'dev_steal_gold':
+      if(mp.active&&ev.payload.targetId===mp.myId){
+        const amt=Math.max(0,Math.min(gold,ev.payload.amount));
+        gold-=amt;updateHUD();broadcastMyGold();renderMpBar();
+        addSystemMsg(`🛠 ${ev.payload.thiefName} stole ${fmtGold(amt)}g from you!`);
+        mpSend('send_gold',{targetId:ev.payload.thiefId,senderName:'[DEV THEFT]',amount:amt});
+      }
+      break;
+    case 'dev_zero_gold':
+      if(mp.active&&ev.payload.targetId===mp.myId){
+        gold=0;updateHUD();broadcastMyGold();renderMpBar();
+        addSystemMsg(`🛠 ${ev.payload.devName} wiped your gold to 0!`);
+      }
+      break;
+    case 'dev_fake_disconnect':
+      if(mp.active&&ev.payload.targetId===mp.myId){
+        addSystemMsg('⚠ Connection lost — reconnecting…');
+        setTimeout(()=>{addSystemMsg('✓ Connected.');addSystemMsg(`🛠 That was ${ev.payload.devName} messing with you — you were never disconnected.`);},2500);
+      }
+      break;
+    case 'dev_shake':
+      if(mp.active&&ev.payload.targetId===mp.myId){htlShake();addSystemMsg(`🛠 ${ev.payload.devName} shook your screen!`);}
+      break;
+    case 'dev_tower_freeze':
+      if(mp.active)handleRemoteTowerFreeze(ev.payload);
+      break;
+    case 'dev_tower_teleport':
+      if(mp.active)handleRemoteTowerTeleport(ev.payload);
+      break;
+    case 'dev_host_action':
+      if(mp.active&&mp.isHost)performDevHostAction(ev.payload.type,ev.payload.payload||{});
+      break;
     case 'player_left':
       if(mp.active&&ev.from!==mp.myId)showPlayerLeftToast(displayName(ev.payload.name)+' left the game');
       break;
@@ -3535,6 +3620,8 @@ document.getElementById('mpStartBtn').onclick=async()=>{
   const isCoop=!!preMap.coop;
   const preWalls=generateWalls(preMap,prePathSet,isCoop?40:20,isCoop?28:14);
   const payload={mapName:preMap.name,players:mp.players,hostId:mp.myId,mode:modeSnap,walls:preWalls};
+  // Seed the authoritative server-side wall state so it exists before anyone's dev tools touch it
+  try{state.child('mapWalls').set(preWalls);}catch(e){}
   mpSend('game_start',payload);
   launchMultiplayer(payload);
 };
@@ -3574,6 +3661,12 @@ function launchMultiplayer(payload){
   const mapWithWalls=payload.walls?{...map,_overrideWalls:payload.walls}:map;
   showScreen('game');
   initGame({...mapWithWalls,endless,sandbox:false});
+  // Watch the room's authoritative wall state — keeps everyone in sync even if a
+  // dev_wall_toggle event was missed (e.g. brief disconnect / events log pruning).
+  if(mp.db&&mp.roomCode){
+    mp.wallsRef=mp.db.ref('rooms/'+mp.roomCode+'/mapWalls');
+    addListener(mp.wallsRef,'value',snap=>applyServerWalls(snap));
+  }
   lastTs=performance.now();
   if(animId)cancelAnimationFrame(animId);
   animId=requestAnimationFrame(loop);
@@ -3696,9 +3789,12 @@ function renderMpBar(){
     const sendBtn=(!isYou&&!isSandbox)
       ?`<button onclick="openSendGold('${id}','${p.name}')" style="font-family:'DM Mono',monospace;font-size:7px;padding:1px 4px;border-radius:3px;border:1px solid #d97706;background:transparent;color:#d97706;cursor:pointer;letter-spacing:.04em;margin-left:2px">SEND</button>`
       :'';
+    const trollBtn=(!isYou&&!isSandbox&&IS_DEV_BUILD)
+      ?`<button onclick="openDevTroll('${id}','${(p.name||'').replace(/'/g,"\\'")}')" title="DEV: troll this player" style="font-family:'DM Mono',monospace;font-size:7px;padding:1px 4px;border-radius:3px;border:1px solid #818cf8;background:transparent;color:#818cf8;cursor:pointer;letter-spacing:.04em;margin-left:2px">🛠</button>`
+      :'';
     el.innerHTML=`<div class="mp-bar-dot" style="background:${PLAYER_COLORS[p.slot]||'#888'}"></div>
       ${nameSpan}
-      <span class="mp-bar-gold">${fmtGold(g)}g</span>${sendBtn}`;
+      <span class="mp-bar-gold">${fmtGold(g)}g</span>${sendBtn}${trollBtn}`;
     bar.appendChild(el);
     if(i<entries.length-1){
       const sep=document.createElement('div');sep.className='mp-bar-sep';sep.textContent='·';bar.appendChild(sep);
@@ -3757,6 +3853,7 @@ function applyFullTowerSync(data){
     t.bankIncome=td.bankIncome;t.bankInterest=td.bankInterest;
     t.ampBoost=td.ampBoost;t.ampRadius=td.ampRadius;
     t.wallHp=td.wallHp;t.wallHpBase=td.wallHpBase;
+    if(td.devLocked)t.devLocked=true;
   });
   // Remove towers that host no longer has
   const hostCells=new Set(data.towers.map(t=>`${t.col},${t.row}`));
@@ -3895,7 +3992,7 @@ function checkAndPromoteHost(goneId){
     if(mp._towerSyncInterval)clearInterval(mp._towerSyncInterval);
     mp._towerSyncInterval=setInterval(()=>{
       if(!mp.active)return;
-      mpSend('full_tower_sync',{towers:towers.map(t=>({col:t.col,row:t.row,type:t.type,pA:t.pA||0,pB:t.pB||0,pC:t.pC||0,primaryPath:t.primaryPath||null,mpOwner:t.mpOwner,mpSlot:t.mpSlot,dmg:t.dmg,rate:t.rate,range:t.range,splash:t.splash,slow:t.slow,chain:t.chain,burn:t.burn,stun:t.stun,pierce:t.pierce,multi:t.multi||1,bankIncome:t.bankIncome||0,bankInterest:t.bankInterest||0,ampBoost:t.ampBoost||0,ampRadius:t.ampRadius||1,beaconBoost:t.beaconBoost||0,beaconRadius:t.beaconRadius||2.5,wallHp:t.wallHp||0,wallHpBase:t.wallHpBase||0,wallDmg:t.wallDmg||0,wallRegen:t.wallRegen||0}))});
+      mpSend('full_tower_sync',{towers:towers.map(t=>({col:t.col,row:t.row,type:t.type,pA:t.pA||0,pB:t.pB||0,pC:t.pC||0,primaryPath:t.primaryPath||null,mpOwner:t.mpOwner,mpSlot:t.mpSlot,dmg:t.dmg,rate:t.rate,range:t.range,splash:t.splash,slow:t.slow,chain:t.chain,burn:t.burn,stun:t.stun,pierce:t.pierce,multi:t.multi||1,bankIncome:t.bankIncome||0,bankInterest:t.bankInterest||0,ampBoost:t.ampBoost||0,ampRadius:t.ampRadius||1,beaconBoost:t.beaconBoost||0,beaconRadius:t.beaconRadius||2.5,wallHp:t.wallHp||0,wallHpBase:t.wallHpBase||0,wallDmg:t.wallDmg||0,wallRegen:t.wallRegen||0,devLocked:t.devLocked||false}))});
     },5000);
     mpSend('new_host',{newHostId:mp.myId});
   });
@@ -4017,6 +4114,157 @@ document.getElementById('sendGoldInput').addEventListener('keydown',e=>{
   if(e.key==='Enter'){e.preventDefault();confirmSendGold();}
   e.stopPropagation();
 });
+
+// ══════════════════════════════════════════════════════════════════════════
+// ── DEV TROLL TOOLS (dev builds only) ───────────────────────────────────────
+// Everything here announces itself — every action tells the room who did it,
+// by design (nothing here is meant to be sneaky/anonymous).
+// ══════════════════════════════════════════════════════════════════════════
+let _devTrollTargetId=null,_devTrollTargetName=null;
+
+function myDevName(){const e=mp.players[mp.myId];return e?e.name:(PLAYER_NAMES[mp.mySlot]||'Dev');}
+
+// Broadcast a system message to everyone (yourself included) so a troll action is
+// always visible to the whole room, not just the victim.
+function devAnnounce(text){
+  addSystemMsg(text);
+  if(mp.active)mpSend('dev_announce',{text});
+}
+function handleDevAnnounce(data){addSystemMsg(data.text);}
+
+function openDevTroll(targetId,targetName){
+  if(!IS_DEV_BUILD||!mp.active)return;
+  _devTrollTargetId=targetId;_devTrollTargetName=displayName(targetName);
+  document.getElementById('devTrollTo').textContent=`Target: ${_devTrollTargetName}`;
+  const wrap=document.getElementById('devTrollActions');wrap.innerHTML='';
+  const actions=[
+    ['💰 Steal Gold',()=>devStealGold(_devTrollTargetId,_devTrollTargetName)],
+    ['🕳️ Zero Out Gold',()=>devZeroGold(_devTrollTargetId,_devTrollTargetName)],
+    ['🔌 Fake Disconnect',()=>devFakeDisconnect(_devTrollTargetId,_devTrollTargetName)],
+    ['📳 Shake Their Screen',()=>devShakeScreen(_devTrollTargetId,_devTrollTargetName)],
+    ['💬 Spoof a Chat Message',()=>devSpoofChatPrompt(_devTrollTargetId,_devTrollTargetName)],
+  ];
+  actions.forEach(([label,fn])=>{
+    const b=document.createElement('button');
+    b.textContent=label;
+    b.style.cssText='padding:9px;border:1.5px solid #818cf8;background:#818cf822;color:#818cf8;font-family:"DM Mono",monospace;font-size:10px;cursor:pointer;border-radius:5px;text-align:left;letter-spacing:.02em';
+    b.onmouseover=()=>b.style.background='#818cf844';
+    b.onmouseout=()=>b.style.background='#818cf822';
+    b.onclick=()=>{fn();closeDevTroll();};
+    wrap.appendChild(b);
+  });
+  document.getElementById('devTrollOverlay').style.display='flex';
+}
+function closeDevTroll(){
+  document.getElementById('devTrollOverlay').style.display='none';
+  _devTrollTargetId=null;_devTrollTargetName=null;
+}
+document.getElementById('devTrollOverlay').addEventListener('click',e=>{
+  if(e.target===document.getElementById('devTrollOverlay'))closeDevTroll();
+});
+
+// ── Economy trolling ─────────────────────────────────────────────────────
+function devStealGold(targetId,targetName){
+  if(!IS_DEV_BUILD||!mp.active)return;
+  const approx=(mp.players[targetId]&&mp.players[targetId].gold)||0;
+  const amount=Math.max(1,Math.round(approx*0.5));
+  mpSend('dev_steal_gold',{targetId,amount,thiefId:mp.myId,thiefName:myDevName()});
+  msg(`[DEV] Reaching into ${targetName}'s wallet...`);
+}
+function devZeroGold(targetId,targetName){
+  if(!IS_DEV_BUILD||!mp.active)return;
+  mpSend('dev_zero_gold',{targetId,devName:myDevName()});
+  msg(`[DEV] Wiping ${targetName}'s gold...`);
+}
+
+// ── Screen/UI trolling ───────────────────────────────────────────────────
+function devFakeDisconnect(targetId,targetName){
+  if(!IS_DEV_BUILD||!mp.active)return;
+  mpSend('dev_fake_disconnect',{targetId,devName:myDevName()});
+  msg(`[DEV] Faking a disconnect for ${targetName}...`);
+}
+function devShakeScreen(targetId,targetName){
+  if(!IS_DEV_BUILD||!mp.active)return;
+  mpSend('dev_shake',{targetId,devName:myDevName()});
+  msg(`[DEV] Shaking ${targetName}'s screen...`);
+}
+function devSpoofChatPrompt(targetId,targetName){
+  if(!IS_DEV_BUILD||!mp.active)return;
+  const text=prompt(`Send a message that will appear to come from ${targetName}:`);
+  if(!text||!text.trim())return;
+  devSpoofChat(targetId,targetName,censorChat(text.trim()));
+}
+function devSpoofChat(targetId,targetName,text){
+  const target=mp.players[targetId];
+  const slot=target?target.slot:0;
+  addChatMsg(targetName,slot,text,false,null);
+  mpSend('chat',{name:targetName,slot,text});
+  devAnnounce(`🛠 ${myDevName()} spoofed a message as ${displayName(targetName)}.`);
+}
+
+// ── Tower trolling ───────────────────────────────────────────────────────
+function devFreezeTower(t){
+  if(!IS_DEV_BUILD||!t)return;
+  t.frozenUntil=performance.now()+8000;
+  const ownerName=(mp.active&&t.mpOwner&&mp.players[t.mpOwner])?mp.players[t.mpOwner].name:'that';
+  devAnnounce(`🛠 ${myDevName()} froze ${displayName(ownerName)}'s tower for 8s!`);
+  if(mp.active)mpSend('dev_tower_freeze',{col:t.col,row:t.row,ms:8000});
+  if(selTower===t)renderUpPanel(t);
+}
+function handleRemoteTowerFreeze(data){
+  const t=towers.find(t=>t.col===data.col&&t.row===data.row);
+  if(!t)return;
+  t.frozenUntil=performance.now()+(data.ms||8000);
+  if(selTower===t)renderUpPanel(t);
+}
+function devTeleportTower(t){
+  if(!IS_DEV_BUILD||!t)return;
+  const spots=[];
+  for(let c=0;c<COLS;c++)for(let r=0;r<ROWS;r++){
+    if(pathSet.has(`${c},${r}`))continue;
+    if(wallSet.has(`${c},${r}`))continue;
+    if(towers.some(o=>o!==t&&o.col===c&&o.row===r))continue;
+    spots.push([c,r]);
+  }
+  if(!spots.length){msg('[DEV] No open tile to teleport to.');return;}
+  const [nc,nr]=spots[Math.floor(Math.random()*spots.length)];
+  const oldCol=t.col,oldRow=t.row;
+  t.col=nc;t.row=nr;
+  const ownerName=(mp.active&&t.mpOwner&&mp.players[t.mpOwner])?mp.players[t.mpOwner].name:'that';
+  devAnnounce(`🛠 ${myDevName()} teleported ${displayName(ownerName)}'s tower!`);
+  if(mp.active)mpSend('dev_tower_teleport',{fromCol:oldCol,fromRow:oldRow,col:nc,row:nr});
+  applyAmpBoosts();applyBeaconBoosts();
+  if(selTower===t)renderUpPanel(t);
+}
+function handleRemoteTowerTeleport(data){
+  const t=towers.find(t=>t.col===data.fromCol&&t.row===data.fromRow);
+  if(!t)return;
+  t.col=data.col;t.row=data.row;
+  applyAmpBoosts();applyBeaconBoosts();
+  if(selTower===t)renderUpPanel(t);
+}
+
+// ── Battlefield trolling (host-authoritative — routed to host if we aren't one) ──
+function devHostAction(type,payload){
+  if(!IS_DEV_BUILD)return;
+  if(mp.active&&!mp.isHost){mpSend('dev_host_action',{type,payload:payload||{}});msg('[DEV] Sent to host...');return;}
+  performDevHostAction(type,payload||{});
+}
+function performDevHostAction(type,payload){
+  if(type==='spawn_boss'){
+    spawnEnemy(3);
+    devAnnounce(`🛠 ${myDevName()} dropped a surprise boss into the wave!`);
+  }else if(type==='spawn_swarm'){
+    for(let i=0;i<8;i++)spawnEnemy(0);
+    devAnnounce(`🛠 ${myDevName()} spawned a swarm of enemies!`);
+  }else if(type==='buff_enemies'){
+    enemies.forEach(e=>{if(e.dead||e.reached)return;e.maxHp*=1.5;e.hp*=1.5;e.spd*=1.3;});
+    devAnnounce(`🛠 ${myDevName()} buffed every enemy on the field!`);
+  }else if(type==='force_wave'){
+    if(!waveActive){startWave();devAnnounce(`🛠 ${myDevName()} forced the next wave to start early!`);}
+    else msg('[DEV] A wave is already active.');
+  }
+}
 
 // ── Leave / cleanup ───────────────────────
 function leaveRoom(clearActive=true){
@@ -4304,5 +4552,5 @@ window.showPlayerLeftToast = function(text){
 
 <div id="devBadge" style="display:none;position:fixed;bottom:12px;left:12px;z-index:9998;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.12em;text-transform:uppercase;background:#818cf8;color:#fff;padding:4px 10px;border-radius:4px;opacity:.85;pointer-events:none">DEV BUILD — Ghost · God Wall · Nuke · Virus · Black Hole</div>
 
-<script>if(typeof IS_DEV_BUILD!=='undefined'&&IS_DEV_BUILD){document.getElementById('devBadge').style.display='block';const _dwr=document.getElementById('devWallRow');if(_dwr)_dwr.style.display='block';}</script>
+<script>if(typeof IS_DEV_BUILD!=='undefined'&&IS_DEV_BUILD){document.getElementById('devBadge').style.display='block';const _dwr=document.getElementById('devWallRow');if(_dwr)_dwr.style.display='block';const _dbr=document.getElementById('devBattleRow');if(_dbr)_dbr.style.display='flex';}</script>
 </body></html>
