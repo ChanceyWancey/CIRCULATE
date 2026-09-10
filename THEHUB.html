@@ -51,6 +51,16 @@ footer::before,footer::after{content:'';display:block;width:32px;height:1px;back
 .status{position:fixed;bottom:24px;right:24px;z-index:2;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--ink3);display:flex;align-items:center;gap:6px;}
 .status-dot{width:6px;height:6px;border-radius:50%;background:#22c55e;animation:pulse 2s ease-in-out infinite;}
 @keyframes pulse{0%,100%{opacity:.5}50%{opacity:1}}
+
+/* ── disabled card state ── */
+.game-card.is-disabled{cursor:not-allowed;opacity:.5;filter:grayscale(.6);}
+.game-card.is-disabled:hover{transform:none;box-shadow:none;border-color:var(--border);}
+.game-card.is-disabled:hover::before,
+.game-card.is-disabled:hover::after,
+.game-card.is-disabled:hover .scanline{opacity:0;}
+.game-card.is-disabled:hover .card-arrow{transform:none;}
+.card-reason{font-family:'DM Mono',monospace;font-size:10px;color:#f74f4f;letter-spacing:.08em;line-height:1.6;text-transform:uppercase;margin-top:6px;display:block;}
+.card-arrow.is-locked{font-size:22px;}
 </style>
 </head>
 <body>
@@ -78,15 +88,17 @@ footer::before,footer::after{content:'';display:block;width:32px;height:1px;back
 </div>
 
 <script>
-// ╔══════════════════════════════════════════╗
-// ║        ADD / EDIT GAMES HERE            ║
-// ╠══════════════════════════════════════════╣
-// ║  name  — the big title on the card      ║
-// ║  tag   — small label (genre/status)     ║
-// ║  desc  — one-liner description          ║
-// ║  url   — where the button links to      ║
-// ║  color — accent color (any hex)         ║
-// ╚══════════════════════════════════════════╝
+// ╔══════════════════════════════════════════════════╗
+// ║              ADD / EDIT GAMES HERE               ║
+// ╠══════════════════════════════════════════════════╣
+// ║  name     — the big title on the card            ║
+// ║  tag      — small label (genre/status)           ║
+// ║  desc     — one-liner description                ║
+// ║  url      — where the button links to            ║
+// ║  color    — accent color (any hex)                ║
+// ║  disabled — true to make the card unclickable     ║
+// ║  reason   — shown instead of desc when disabled   ║
+// ╚══════════════════════════════════════════════════╝
 
 const GAMES = [
   {
@@ -95,6 +107,8 @@ const GAMES = [
     desc:  '',
     url:   'https://chanceywancey.github.io/CIRCULATE/CIRCULATE.html',
     color: '#4f8ef7',
+    disabled: false,
+    reason: '',
   },
   {
     name:  'Hold The Line',
@@ -102,13 +116,17 @@ const GAMES = [
     desc:  'Strategic tower defense Pre Release',
     url:   'https://chanceywancey.github.io/CIRCULATE/BETA.html',
     color: '#f74f4f',
+    disabled: false,
+    reason: '',
   },
   {
-    name:  'Down RN',
+    name:  'MiniCord',
     tag:   'Discord',
-    desc:  'Random Bullshit Not Go..?',
+    desc:  'Random Bullshit Go',
     url:   'https://automotive-immigrants-yeah-karl.trycloudflare.com',
     color: '#5534b2',
+    disabled: true,
+    reason: 'Server offline I Think :<',
   },
   {
     name:  'Stellar Drift',
@@ -116,16 +134,23 @@ const GAMES = [
     desc:  'SPAAAAAAAAAAAAAAAAACE!!!!!!!',
     url:   'https://chanceywancey.github.io/CIRCULATE/Space.html',
     color: '#fac637',
+    disabled: false,
+    reason: '',
   },
 ];
 // ── Don't touch anything below this line ──
 const list = document.getElementById('gameList');
 GAMES.forEach((g, i) => {
   const num = String(i + 1).padStart(2, '0');
+  const isDisabled = !!g.disabled;
   const a = document.createElement('a');
-  a.className = 'game-card';
-  a.href = g.url;
-  a.target = '_blank';
+  a.className = 'game-card' + (isDisabled ? ' is-disabled' : '');
+  a.href = isDisabled ? '#' : g.url;
+  if (!isDisabled) a.target = '_blank';
+  if (isDisabled) {
+    a.setAttribute('aria-disabled', 'true');
+    a.addEventListener('click', e => e.preventDefault());
+  }
   a.style.cssText = [
     `--card-color:${g.color}`,
     `--card-glow:linear-gradient(135deg,${g.color}08,transparent)`,
@@ -136,11 +161,12 @@ GAMES.forEach((g, i) => {
     <div class="scanline"></div>
     <div class="card-inner">
       <div class="card-left">
-        <span class="card-num">${num} — ${g.tag}</span>
+        <span class="card-num">${num} — ${g.tag}${isDisabled ? ' — LOCKED' : ''}</span>
         <span class="card-name">${g.name}</span>
         <span class="card-desc">${g.desc}</span>
+        ${isDisabled && g.reason ? `<span class="card-reason">⚠ ${g.reason}</span>` : ''}
       </div>
-      <span class="card-arrow">↗</span>
+      <span class="card-arrow${isDisabled ? ' is-locked' : ''}">${isDisabled ? '🔒' : '↗'}</span>
     </div>`;
   list.appendChild(a);
 });
