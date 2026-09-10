@@ -851,7 +851,14 @@
             const dy = targetY - y;
             const dist = Math.hypot(dx, dy);
             
-            let baseSpeed = (Math.random() * 1.2 + 1.8 + (score / 400)) * speedMultiplier;
+            // Size-based speed modifier: smaller obstacles get higher speed, larger ones get lower speed
+            const minSize = 16;
+            const maxSize = 38;
+            const sizeFactor = 1 - ((size - minSize) / (maxSize - minSize)); // ranges from 1 (small) to 0 (large)
+            // Small orbs are faster, big orbs are slower
+            const speedModifier = 0.6 + sizeFactor * 1.2;
+
+            let baseSpeed = (Math.random() * 1.2 + 1.8 + (score / 400)) * speedMultiplier * speedModifier;
 
             obstacles.push({
                 x: x,
