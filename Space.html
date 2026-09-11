@@ -1,1 +1,1594 @@
-refresh the hub
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stellar Drift: Sector Radar</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: #171526;
+            color: #e2d9f3;
+            font-family: 'Georgia', serif;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+
+        h1 {
+            position: absolute;
+            top: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #ffd166;
+            text-shadow: 0 0 10px rgba(255, 209, 102, 0.4);
+            font-size: 1.2rem;
+            letter-spacing: 1px;
+            font-weight: normal;
+            z-index: 20;
+            pointer-events: none;
+        }
+
+        #game-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: radial-gradient(circle at center, #27213b, #100e18);
+            overflow: hidden;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        .ui-bottom-container {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 380px;
+            max-width: 90vw;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            z-index: 5;
+            pointer-events: none;
+        }
+
+        .score-row {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            padding: 0 10px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            color: #f7ede2;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+        }
+
+        .bar-row {
+            width: 100%;
+            padding: 0 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .meter-container {
+            width: 100%;
+            height: 8px;
+            background: rgba(39, 33, 59, 0.8);
+            border: 1px solid #6c5b7b;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        #fuel-bar {
+            width: 100%;
+            height: 100%;
+            background: #06d6a0;
+            transition: width 0.1s linear;
+        }
+
+        #health-bar {
+            width: 100%;
+            height: 100%;
+            background: #e2738a;
+            transition: width 0.1s linear;
+        }
+
+        .bar-label {
+            font-size: 0.6rem;
+            color: #9b8da9;
+            letter-spacing: 0.5px;
+        }
+
+        #dock-prompt {
+            position: absolute;
+            top: 55px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(39, 33, 59, 0.92);
+            border: 1px solid #ffd166;
+            color: #ffd166;
+            padding: 6px 16px;
+            border-radius: 8px;
+            font-size: 0.78rem;
+            letter-spacing: 0.5px;
+            z-index: 15;
+            display: none;
+            text-shadow: 0 0 6px rgba(255, 209, 102, 0.5);
+        }
+
+        #dock-prompt.visible {
+            display: block;
+        }
+
+        #ability-hud {
+            background: rgba(39, 33, 59, 0.9);
+            border: 1px solid #c7b198;
+            padding: 4px 14px;
+            font-size: 0.75rem;
+            color: #ffd166;
+            border-radius: 8px;
+            text-align: center;
+            letter-spacing: 0.5px;
+            display: none;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+        }
+
+        .screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(23, 21, 38, 0.94);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 30px;
+            z-index: 30;
+        }
+
+        .screen.hidden {
+            display: none;
+        }
+
+        .screen h2 {
+            color: #ffd166;
+            margin-bottom: 10px;
+            font-size: 1.6rem;
+            font-weight: normal;
+        }
+
+        .screen p {
+            margin-bottom: 20px;
+            color: #c7b198;
+            line-height: 1.5;
+            font-size: 0.9rem;
+            max-width: 420px;
+        }
+
+        .btn-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            width: 260px;
+            max-width: 80%;
+        }
+
+        .btn {
+            background-color: #382e4e;
+            color: #f7ede2;
+            border: 1px solid #6c5b7b;
+            padding: 10px 16px;
+            font-size: 0.95rem;
+            font-family: 'Georgia', serif;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover:not(:disabled) {
+            background-color: #6c5b7b;
+            color: #ffffff;
+            box-shadow: 0 0 10px rgba(108, 91, 123, 0.5);
+        }
+
+        .btn-warm {
+            background-color: #b85b72;
+            border-color: #e2738a;
+        }
+        .btn-warm:hover:not(:disabled) {
+            background-color: #e2738a;
+        }
+
+        .shop-items {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            width: 100%;
+            max-width: 420px;
+            margin-bottom: 20px;
+            max-height: 280px;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+
+        .shop-item {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid #453a56;
+            border-radius: 6px;
+            padding: 8px 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            text-align: left;
+        }
+
+        .shop-info h4 {
+            color: #ffd166;
+            font-size: 0.85rem;
+            margin-bottom: 2px;
+        }
+        .shop-info span {
+            font-size: 0.7rem;
+            color: #9b8da9;
+        }
+
+        #cheat-status {
+            font-size: 0.75rem;
+            color: #e2738a;
+            margin-bottom: 10px;
+            min-height: 1em;
+            letter-spacing: 0.5px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>✨ Stellar Drift: Sector Radar ✨</h1>
+    <div id="dock-prompt">DOCKING RANGE — PRESS E TO ENTER SANCTUARY</div>
+    
+    <div id="game-container">
+        <div id="menu-screen" class="screen">
+            <h2>COZY SECTOR</h2>
+            <p>Pilot your zero-g cursor using <strong>W A S D</strong> through the open sector. Harvest crystals for Stardust, manage fuel and health, dock at the Sanctuary station to shop, and press <strong>ESC</strong> to pause!</p>
+            <div class="btn-group">
+                <button class="btn" id="to-game-btn">LAUNCH DRIFT</button>
+                <button class="btn" id="difficulty-toggle-btn">MODE: NORMAL</button>
+                <button class="btn" id="to-tutorial-btn">TUTORIAL</button>
+            </div>
+        </div>
+
+        <div id="tutorial-screen" class="screen hidden">
+            <h2 id="tutorial-title">FLIGHT ACADEMY</h2>
+            <p id="tutorial-text">Welcome, pilot. Let's run through your core flight operations before you hit open space.</p>
+            <div class="btn-group">
+                <button class="btn" id="tutorial-next-btn">NEXT</button>
+                <button class="btn btn-warm" id="tutorial-back-btn">RETURN</button>
+            </div>
+        </div>
+
+        <div id="shop-screen" class="screen hidden">
+            <h2>COZY SANCTUARY</h2>
+            <p>Docked at the Sanctuary station. This field auto-shatters debris on approach &mdash; you're safe here. Trade Stardust for permanent passive & active upgrades.</p>
+            
+            <div class="shop-items">
+                <div class="shop-item">
+                    <div class="shop-info">
+                        <h4>Fuel Cell Expansion</h4>
+                        <span id="fuel-upgrade-desc">+20 max fuel per tier</span>
+                    </div>
+                    <button class="btn" id="buy-fuel-upgrade-btn" onclick="buyUpgrade('fuel')">40 SD</button>
+                </div>
+                <div class="shop-item">
+                    <div class="shop-info">
+                        <h4>Ion Thruster Upgrade</h4>
+                        <span id="thruster-upgrade-desc">+0.5 top speed & faster accel per tier</span>
+                    </div>
+                    <button class="btn" id="buy-thruster-upgrade-btn" onclick="buyUpgrade('thruster')">50 SD</button>
+                </div>
+                <div class="shop-item">
+                    <div class="shop-info">
+                        <h4>Reinforced Hull Plating</h4>
+                        <span id="hull-upgrade-desc">+20 max hull HP per tier</span>
+                    </div>
+                    <button class="btn" id="buy-hull-upgrade-btn" onclick="buyUpgrade('hull')">45 SD</button>
+                </div>
+                <div class="shop-item">
+                    <div class="shop-info">
+                        <h4>Starlight Blink</h4>
+                        <span>Instantly teleport forward / 6s cooldown</span>
+                    </div>
+                    <button class="btn" onclick="buyAbility('blink', 50)">50 SD</button>
+                </div>
+                <div class="shop-item">
+                    <div class="shop-info">
+                        <h4>Supernova Pulse</h4>
+                        <span>Destroys nearby hazards / 10s cooldown</span>
+                    </div>
+                    <button class="btn" onclick="buyAbility('pulse', 75)">75 SD</button>
+                </div>
+                <div class="shop-item">
+                    <div class="shop-info">
+                        <h4>Astral Shield</h4>
+                        <span>Absorbs 1 hazard hit / 8s recharge</span>
+                    </div>
+                    <button class="btn" onclick="buyAbility('shield', 100)">100 SD</button>
+                </div>
+                <div class="shop-item">
+                    <div class="shop-info">
+                        <h4>Magnet Pulse</h4>
+                        <span>Pulls nearby crystals / 3s duration</span>
+                    </div>
+                    <button class="btn" onclick="buyAbility('magnet', 60)">60 SD</button>
+                </div>
+                <div class="shop-item">
+                    <div class="shop-info">
+                        <h4>Phase Cloak</h4>
+                        <span>Pass through hazards / 2s duration</span>
+                    </div>
+                    <button class="btn" onclick="buyAbility('cloak', 80)">80 SD</button>
+                </div>
+                <div class="shop-item">
+                    <div class="shop-info">
+                        <h4>Decoy Beacon</h4>
+                        <span>Spawns fake decoy / draws hazards</span>
+                    </div>
+                    <button class="btn" onclick="buyAbility('decoy', 70)">70 SD</button>
+                </div>
+                <div class="shop-item">
+                    <div class="shop-info">
+                        <h4>Chrono Rewind</h4>
+                        <span>Auto-rewinds before a fatal hit / 30s cooldown</span>
+                    </div>
+                    <button class="btn" onclick="buyAbility('rewind', 120)">120 SD</button>
+                </div>
+            </div>
+
+            <div id="cheat-status"></div>
+            <button class="btn btn-warm" id="back-to-menu-shop">UNDOCK</button>
+        </div>
+
+        <div id="pause-screen" class="screen hidden">
+            <h2>DRIFT PAUSED</h2>
+            <p>Take a breather, pilot. Your sector is safely frozen.</p>
+            <div class="btn-group">
+                <button class="btn" id="resume-btn">RESUME DRIFT</button>
+                <button class="btn btn-warm" id="menu-from-pause-btn">MAIN MENU</button>
+            </div>
+        </div>
+
+        <div id="gameover-screen" class="screen hidden">
+            <h2>DRIFT CONCLUDED</h2>
+            <p id="final-score-text">You gathered 0 Stardust.</p>
+            <div class="btn-group">
+                <button class="btn" id="restart-btn">REDRIFT</button>
+                <button class="btn btn-warm" id="menu-from-gameover-btn">MAIN MENU</button>
+            </div>
+        </div>
+
+        <canvas id="gameCanvas"></canvas>
+    </div>
+
+    <div class="ui-bottom-container">
+        <div class="score-row">
+            <span id="score-display">STARDUST: 0</span>
+            <span id="high-score-display">HIGH: 0</span>
+        </div>
+        <div class="bar-row">
+            <div class="meter-container">
+                <div id="health-bar"></div>
+            </div>
+            <div class="meter-container">
+                <div id="fuel-bar"></div>
+            </div>
+        </div>
+        <div id="ability-hud">BLESSING READY</div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        const scoreDisplay = document.getElementById("score-display");
+        const highScoreDisplay = document.getElementById("high-score-display");
+        const fuelBar = document.getElementById("fuel-bar");
+        const healthBar = document.getElementById("health-bar");
+        const abilityHud = document.getElementById("ability-hud");
+        const cheatStatus = document.getElementById("cheat-status");
+        const dockPrompt = document.getElementById("dock-prompt");
+
+        const WORLD_WIDTH = 3200;
+        const WORLD_HEIGHT = 3200;
+        
+        const menuScreen = document.getElementById("menu-screen");
+        const shopScreen = document.getElementById("shop-screen");
+        const tutorialScreen = document.getElementById("tutorial-screen");
+        const pauseScreen = document.getElementById("pause-screen");
+        const gameoverScreen = document.getElementById("gameover-screen");
+        const finalScoreText = document.getElementById("final-score-text");
+
+        const tutorialTitle = document.getElementById("tutorial-title");
+        const tutorialText = document.getElementById("tutorial-text");
+        const tutorialNextBtn = document.getElementById("tutorial-next-btn");
+        const difficultyToggleBtn = document.getElementById("difficulty-toggle-btn");
+
+        let score = 0;
+        let totalCredits = 0; 
+        let highScore = 0;
+        let gameRunning = false;
+        let gamePaused = false;
+        let animationFrameId;
+        let isCheatedRun = false;
+        let cheatedAbilityMode = null;
+
+        let fuel = 100;
+        let maxFuel = 100;
+
+        let maxHealth = 100;
+        let health = 100;
+        let invulnTime = 0;
+        const HIT_DAMAGE = 25;
+        const INVULN_FRAMES = 90;
+
+        let fuelTankLevel = 0;
+        let thrusterLevel = 0;
+        let hullLevel = 0;
+        const MAX_UPGRADE_LEVEL = 5;
+        const BASE_MAX_FUEL = 100;
+        const BASE_MAX_HEALTH = 100;
+        const BASE_MAX_SPEED = 5.8;
+        const BASE_ACCEL = 0.38;
+        const FUEL_PER_LEVEL = 20;
+        const HEALTH_PER_LEVEL = 20;
+        const SPEED_PER_LEVEL = 0.5;
+        const ACCEL_PER_LEVEL = 0.045;
+        const upgradeCosts = {
+            fuel: [40, 70, 110, 160, 220],
+            thruster: [50, 90, 140, 200, 270],
+            hull: [45, 80, 125, 180, 245]
+        };
+        const upgradeLabels = {
+            fuel: "Fuel Cell Expansion",
+            thruster: "Ion Thruster Upgrade",
+            hull: "Reinforced Hull Plating"
+        };
+
+        function applyUpgradeStats() {
+            maxFuel = BASE_MAX_FUEL + fuelTankLevel * FUEL_PER_LEVEL;
+            maxHealth = BASE_MAX_HEALTH + hullLevel * HEALTH_PER_LEVEL;
+            player.maxSpeed = BASE_MAX_SPEED + thrusterLevel * SPEED_PER_LEVEL;
+            player.accel = BASE_ACCEL + thrusterLevel * ACCEL_PER_LEVEL;
+        }
+
+        let docked = false;
+
+        const sanctuary = {
+            x: WORLD_WIDTH / 2 + 750,
+            y: WORLD_HEIGHT / 2 - 550,
+            radius: 55,
+            dockRange: 110,
+            safeRadius: 130
+        };
+
+        let activeEffectTimer = 0;
+        let decoyEntity = null;
+        let positionHistory = [];
+        let debrisPieces = [];
+
+        const konamiSequence = [
+            "ArrowUp", "ArrowUp", 
+            "ArrowDown", "ArrowDown", 
+            "ArrowLeft", "ArrowRight", 
+            "ArrowLeft", "ArrowRight", 
+            "KeyB", "KeyA", "Enter"
+        ];
+        let konamiInputIndex = 0;
+
+        function loadGameData() {
+            try {
+                const savedHigh = localStorage.getItem('stellar_drift_high');
+                const savedCredits = localStorage.getItem('stellar_drift_credits');
+                const savedAbility = localStorage.getItem('stellar_drift_ability');
+                const savedFuelLevel = localStorage.getItem('stellar_drift_fuel_level');
+                const savedThrusterLevel = localStorage.getItem('stellar_drift_thruster_level');
+                const savedHullLevel = localStorage.getItem('stellar_drift_hull_level');
+
+                if (savedHigh !== null) highScore = parseInt(savedHigh, 10);
+                if (savedCredits !== null) totalCredits = parseInt(savedCredits, 10);
+                if (savedAbility) {
+                    player.equippedAbility = savedAbility;
+                    if (savedAbility === 'shield') player.hasShield = true;
+                }
+                if (savedFuelLevel !== null) fuelTankLevel = parseInt(savedFuelLevel, 10);
+                if (savedThrusterLevel !== null) thrusterLevel = parseInt(savedThrusterLevel, 10);
+                if (savedHullLevel !== null) hullLevel = parseInt(savedHullLevel, 10);
+                applyUpgradeStats();
+                fuel = maxFuel;
+                health = maxHealth;
+                highScoreDisplay.textContent = `HIGH: ${highScore}`;
+            } catch (e) {}
+        }
+
+        function saveGameData() {
+            try {
+                localStorage.setItem('stellar_drift_high', highScore);
+                localStorage.setItem('stellar_drift_credits', totalCredits);
+                if (player.equippedAbility) {
+                    localStorage.setItem('stellar_drift_ability', player.equippedAbility);
+                }
+                localStorage.setItem('stellar_drift_fuel_level', fuelTankLevel);
+                localStorage.setItem('stellar_drift_thruster_level', thrusterLevel);
+                localStorage.setItem('stellar_drift_hull_level', hullLevel);
+            } catch (e) {}
+        }
+
+        let currentDifficulty = 'normal'; 
+        difficultyToggleBtn.addEventListener("click", () => {
+            if (currentDifficulty === 'normal') {
+                currentDifficulty = 'hard';
+                difficultyToggleBtn.textContent = "MODE: HARD";
+                difficultyToggleBtn.style.borderColor = "#e2738a";
+            } else if (currentDifficulty === 'hard') {
+                currentDifficulty = 'easy';
+                difficultyToggleBtn.textContent = "MODE: EASY";
+                difficultyToggleBtn.style.borderColor = "#a8dadc";
+            } else {
+                currentDifficulty = 'normal';
+                difficultyToggleBtn.textContent = "MODE: NORMAL";
+                difficultyToggleBtn.style.borderColor = "#6c5b7b";
+            }
+        });
+
+        let audioCtx = null;
+        function playSound(type) {
+            try {
+                if (!audioCtx) {
+                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                const now = audioCtx.currentTime;
+
+                if (type === 'score') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(587.33, now);
+                    osc.frequency.exponentialRampToValueAtTime(880, now + 0.15);
+                    gain.gain.setValueAtTime(0.12, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.15);
+                    osc.start(now);
+                    osc.stop(now + 0.15);
+                } else if (type === 'crystal') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(440, now);
+                    osc.frequency.exponentialRampToValueAtTime(1046.5, now + 0.3);
+                    gain.gain.setValueAtTime(0.15, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.3);
+                    osc.start(now);
+                    osc.stop(now + 0.3);
+                } else if (type === 'fuel') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(330, now);
+                    osc.frequency.exponentialRampToValueAtTime(660, now + 0.25);
+                    gain.gain.setValueAtTime(0.15, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.25);
+                    osc.start(now);
+                    osc.stop(now + 0.25);
+                } else if (type === 'bounce') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(220, now);
+                    osc.frequency.exponentialRampToValueAtTime(440, now + 0.2);
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.2);
+                    osc.start(now);
+                    osc.stop(now + 0.2);
+                } else if (type === 'blink' || type === 'special') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(300, now);
+                    osc.frequency.exponentialRampToValueAtTime(900, now + 0.2);
+                    gain.gain.setValueAtTime(0.15, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.2);
+                    osc.start(now);
+                    osc.stop(now + 0.2);
+                } else if (type === 'pulse') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(150, now);
+                    osc.frequency.exponentialRampToValueAtTime(40, now + 0.35);
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.35);
+                    osc.start(now);
+                    osc.stop(now + 0.35);
+                } else if (type === 'hit') {
+                    osc.type = 'square';
+                    osc.frequency.setValueAtTime(120, now);
+                    osc.frequency.linearRampToValueAtTime(40, now + 0.3);
+                    gain.gain.setValueAtTime(0.25, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.3);
+                    osc.start(now);
+                    osc.stop(now + 0.3);
+                } else if (type === 'cheat') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(523.25, now);
+                    osc.frequency.setValueAtTime(659.25, now + 0.1);
+                    osc.frequency.setValueAtTime(783.99, now + 0.2);
+                    osc.frequency.setValueAtTime(1046.50, now + 0.3);
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.5);
+                    osc.start(now);
+                    osc.stop(now + 0.5);
+                }
+            } catch (e) {}
+        }
+
+        let tutorialStep = 0;
+        const tutorialSteps = [
+            {
+                title: "STEP 1: ZERO-G THRUSTERS",
+                text: "Use keys <strong>W A S D</strong> to push your thrusters and roam the open sector. Moving consumes fuel!"
+            },
+            {
+                title: "STEP 2: FUEL & HULL HEALTH",
+                text: "Watch your green fuel bar and pink health bar! Collect blue fuel canisters to stay powered. Getting hit by debris costs health, but you get a moment of invulnerability right after."
+            },
+            {
+                title: "STEP 3: SECTOR CRYSTALS",
+                text: "Hover near pulsing sector crystals for a while to harvest Stardust &mdash; it's the only way to earn it, so seek them out and watch for incoming debris!"
+            },
+            {
+                title: "STEP 4: THE SANCTUARY",
+                text: "Fly to the golden Sanctuary station and press <strong>E</strong> to dock. Spend your Stardust there on permanent blessings."
+            },
+            {
+                title: "STEP 5: ABILITIES & PAUSING",
+                text: "Press <strong>SPACEBAR</strong> to activate your equipped blessing, and press <strong>ESC</strong> to pause."
+            }
+        ];
+
+        const ambientStars = [];
+        for(let i=0; i<450; i++) {
+            ambientStars.push({
+                x: Math.random() * WORLD_WIDTH,
+                y: Math.random() * WORLD_HEIGHT,
+                size: Math.random() * 2 + 1,
+                alpha: Math.random()
+            });
+        }
+
+        const camera = { x: 0, y: 0 };
+
+        let particles = [];
+        let crystals = [];
+        let fuelCanisters = [];
+        let crystalSpawnTimer = 0;
+        let fuelSpawnTimer = 0;
+
+        const player = {
+            x: WORLD_WIDTH / 2,
+            y: WORLD_HEIGHT / 2,
+            vx: 0,
+            vy: 0,
+            accel: 0.38,
+            friction: 0.93,
+            maxSpeed: 5.8,
+            size: 10,
+            equippedAbility: null, 
+            cooldownTime: 0,
+            maxCooldown: 0,
+            hasShield: false
+        };
+
+        let obstacles = [];
+        let spawnTimer = 0;
+        let spawnInterval = 55; 
+        let speedMultiplier = 1.0;
+
+        const keys = {};
+
+        window.addEventListener("keydown", (e) => {
+            keys[e.code] = true;
+            if (e.code === "Escape") {
+                if (docked) {
+                    undock();
+                } else if (gameRunning) {
+                    togglePause();
+                }
+            }
+            if (e.code === "Space" && gameRunning && !gamePaused && !docked) {
+                useAbility();
+            }
+            if (e.code === "KeyE" && gameRunning && !gamePaused && !docked) {
+                const distToSanctuary = Math.hypot(player.x - sanctuary.x, player.y - sanctuary.y);
+                if (distToSanctuary < sanctuary.dockRange) {
+                    dock();
+                }
+            }
+
+            if (!shopScreen.classList.contains("hidden")) {
+                if (e.code === konamiSequence[konamiInputIndex]) {
+                    konamiInputIndex++;
+                    if (konamiInputIndex === konamiSequence.length) {
+                        const choice = prompt("✨ KONAMI CODE ACCEPTED! Choose your cheat ability:\n1. Invincibility (Type '1')\n2. Crystal Vacuum (Type '2')\n3. Time Freeze (Type '3')");
+                        if (choice === '1') {
+                            cheatedAbilityMode = 'godmode';
+                            cheatStatus.textContent = "✨ CHEATS: INVINCIBILITY ENABLED ✨";
+                        } else if (choice === '2') {
+                            cheatedAbilityMode = 'vacuum';
+                            cheatStatus.textContent = "✨ CHEATS: CRYSTAL VACUUM ENABLED ✨";
+                        } else if (choice === '3') {
+                            cheatedAbilityMode = 'freeze';
+                            cheatStatus.textContent = "✨ CHEATS: TIME FREEZE ENABLED ✨";
+                        } else {
+                            cheatedAbilityMode = 'godmode';
+                            cheatStatus.textContent = "✨ CHEATS: INVINCIBILITY ENABLED (Default) ✨";
+                        }
+                        isCheatedRun = true;
+                        playSound('cheat');
+                        konamiInputIndex = 0;
+                    }
+                } else {
+                    konamiInputIndex = (e.code === konamiSequence[0]) ? 1 : 0;
+                }
+            }
+        });
+
+        window.addEventListener("keyup", (e) => {
+            keys[e.code] = false;
+        });
+
+        document.getElementById("to-game-btn").addEventListener("click", startGame);
+        document.getElementById("to-tutorial-btn").addEventListener("click", startTutorial);
+        document.getElementById("tutorial-next-btn").addEventListener("click", nextTutorialStep);
+        document.getElementById("tutorial-back-btn").addEventListener("click", () => showScreen(menuScreen));
+        document.getElementById("back-to-menu-shop").addEventListener("click", undock);
+        document.getElementById("resume-btn").addEventListener("click", togglePause);
+        document.getElementById("menu-from-pause-btn").addEventListener("click", () => {
+            gamePaused = false;
+            gameRunning = false;
+            docked = false;
+            dockPrompt.classList.remove("visible");
+            showScreen(menuScreen);
+        });
+        document.getElementById("restart-btn").addEventListener("click", startGame);
+        document.getElementById("menu-from-gameover-btn").addEventListener("click", () => showScreen(menuScreen));
+
+        function showScreen(screenEl) {
+            menuScreen.classList.add("hidden");
+            shopScreen.classList.add("hidden");
+            tutorialScreen.classList.add("hidden");
+            pauseScreen.classList.add("hidden");
+            gameoverScreen.classList.add("hidden");
+            screenEl.classList.remove("hidden");
+        }
+
+        function togglePause() {
+            if (!gameRunning) return;
+            gamePaused = !gamePaused;
+            if (gamePaused) {
+                showScreen(pauseScreen);
+            } else {
+                pauseScreen.classList.add("hidden");
+                loop();
+            }
+        }
+
+        function dock() {
+            docked = true;
+            gamePaused = true;
+            konamiInputIndex = 0;
+            dockPrompt.classList.remove("visible");
+            if (!cheatStatus.textContent) {
+                cheatStatus.textContent = isCheatedRun ? `✨ CHEATS: ${cheatedAbilityMode.toUpperCase()} ACTIVE ✨` : "";
+            }
+            updateUpgradeShopUI();
+            showScreen(shopScreen);
+        }
+
+        function undock() {
+            docked = false;
+            gamePaused = false;
+            shopScreen.classList.add("hidden");
+            loop();
+        }
+
+        function startTutorial() {
+            tutorialStep = 0;
+            updateTutorialContent();
+            showScreen(tutorialScreen);
+        }
+
+        function updateTutorialContent() {
+            const step = tutorialSteps[tutorialStep];
+            tutorialTitle.textContent = step.title;
+            tutorialText.innerHTML = step.text;
+            if (tutorialStep === tutorialSteps.length - 1) {
+                tutorialNextBtn.textContent = "START DRIFT";
+            } else {
+                tutorialNextBtn.textContent = "NEXT";
+            }
+        }
+
+        function nextTutorialStep() {
+            tutorialStep++;
+            if (tutorialStep >= tutorialSteps.length) {
+                startGame();
+            } else {
+                updateTutorialContent();
+            }
+        }
+
+        function buyAbility(type, cost) {
+            if (totalCredits >= cost) {
+                totalCredits -= cost;
+                player.equippedAbility = type;
+                if (type === 'shield') player.hasShield = true;
+                saveGameData();
+                alert(`Unlocked blessing: ${type.toUpperCase()}`);
+            } else {
+                alert("Not enough stardust yet! Gather more credits in the sector.");
+            }
+        }
+
+        function buyUpgrade(type) {
+            const levelMap = { fuel: fuelTankLevel, thruster: thrusterLevel, hull: hullLevel };
+            const level = levelMap[type];
+            if (level >= MAX_UPGRADE_LEVEL) return;
+            const cost = upgradeCosts[type][level];
+            if (totalCredits < cost) {
+                alert("Not enough stardust yet! Gather more credits in the sector.");
+                return;
+            }
+            totalCredits -= cost;
+            if (type === 'fuel') {
+                fuelTankLevel++;
+                applyUpgradeStats();
+                fuel = Math.min(maxFuel, fuel + FUEL_PER_LEVEL);
+            } else if (type === 'thruster') {
+                thrusterLevel++;
+                applyUpgradeStats();
+            } else if (type === 'hull') {
+                hullLevel++;
+                applyUpgradeStats();
+                health = Math.min(maxHealth, health + HEALTH_PER_LEVEL);
+            }
+            playSound('fuel');
+            saveGameData();
+            updateUpgradeShopUI();
+            updateHudDisplay();
+        }
+
+        function updateUpgradeShopUI() {
+            const levelMap = { fuel: fuelTankLevel, thruster: thrusterLevel, hull: hullLevel };
+            const descMap = {
+                fuel: (lvl) => `+${FUEL_PER_LEVEL} max fuel per tier &middot; Lv ${lvl}/${MAX_UPGRADE_LEVEL}`,
+                thruster: (lvl) => `+${SPEED_PER_LEVEL} top speed & faster accel per tier &middot; Lv ${lvl}/${MAX_UPGRADE_LEVEL}`,
+                hull: (lvl) => `+${HEALTH_PER_LEVEL} max hull HP per tier &middot; Lv ${lvl}/${MAX_UPGRADE_LEVEL}`
+            };
+            for (const type of ['fuel', 'thruster', 'hull']) {
+                const level = levelMap[type];
+                const btn = document.getElementById(`buy-${type}-upgrade-btn`);
+                const desc = document.getElementById(`${type}-upgrade-desc`);
+                if (desc) desc.innerHTML = descMap[type](level);
+                if (btn) {
+                    if (level >= MAX_UPGRADE_LEVEL) {
+                        btn.textContent = "MAXED";
+                        btn.disabled = true;
+                    } else {
+                        btn.textContent = `${upgradeCosts[type][level]} SD`;
+                        btn.disabled = false;
+                    }
+                }
+            }
+        }
+
+        function useAbility() {
+            if (!player.equippedAbility || player.cooldownTime > 0) return;
+
+            const ab = player.equippedAbility;
+            if (ab === 'blink') {
+                playSound('blink');
+                const angle = Math.atan2(player.vy, player.vx) || 0;
+                player.x += Math.cos(angle) * 70;
+                player.y += Math.sin(angle) * 70;
+                player.cooldownTime = 360;
+            } 
+            else if (ab === 'pulse') {
+                playSound('pulse');
+                obstacles = obstacles.filter(obs => Math.hypot(player.x - obs.x, player.y - obs.y) > 140);
+                player.cooldownTime = 600;
+            }
+            else if (ab === 'shield' && !player.hasShield) {
+                playSound('blink');
+                player.hasShield = true;
+                player.cooldownTime = 480;
+            }
+            else if (ab === 'magnet') {
+                playSound('special');
+                activeEffectTimer = 180;
+                player.cooldownTime = 540;
+            }
+            else if (ab === 'cloak') {
+                playSound('special');
+                activeEffectTimer = 120;
+                player.cooldownTime = 480;
+            }
+            else if (ab === 'decoy') {
+                playSound('special');
+                decoyEntity = { x: player.x, y: player.y, life: 300 };
+                player.cooldownTime = 720;
+            }
+        }
+
+        function startGame() {
+            menuScreen.classList.add("hidden");
+            shopScreen.classList.add("hidden");
+            tutorialScreen.classList.add("hidden");
+            pauseScreen.classList.add("hidden");
+            gameoverScreen.classList.add("hidden");
+
+            score = 0;
+            applyUpgradeStats();
+            fuel = maxFuel;
+            health = maxHealth;
+            invulnTime = 0;
+            docked = false;
+            obstacles = [];
+            particles = [];
+            debrisPieces = [];
+            crystals = [];
+            fuelCanisters = [];
+            positionHistory = [];
+            decoyEntity = null;
+            spawnTimer = 0;
+            crystalSpawnTimer = 0;
+            fuelSpawnTimer = 0;
+            activeEffectTimer = 0;
+            
+            if (currentDifficulty === 'easy') {
+                spawnInterval = 75;
+                speedMultiplier = 0.8;
+            } else if (currentDifficulty === 'hard') {
+                spawnInterval = 35;
+                speedMultiplier = 1.35;
+            } else {
+                spawnInterval = 55;
+                speedMultiplier = 1.0;
+            }
+
+            player.x = WORLD_WIDTH / 2;
+            player.y = WORLD_HEIGHT / 2;
+            player.vx = 0;
+            player.vy = 0;
+            player.cooldownTime = 0;
+            if (player.equippedAbility === 'shield' || isCheatedRun) {
+                player.hasShield = true;
+            }
+
+            gameRunning = true;
+            gamePaused = false;
+            scoreDisplay.textContent = `STARDUST: ${score}`;
+            updateHudDisplay();
+
+            loop();
+        }
+
+        function updateHudDisplay() {
+            fuelBar.style.width = `${Math.max(0, fuel)}%`;
+            fuelBar.style.backgroundColor = fuel < 25 ? '#e2738a' : '#06d6a0';
+
+            healthBar.style.width = `${Math.max(0, (health / maxHealth) * 100)}%`;
+            healthBar.style.opacity = (invulnTime > 0) ? 0.5 : 1.0;
+
+            if (isCheatedRun) {
+                abilityHud.style.display = "block";
+                abilityHud.textContent = `CHEAT ACTIVE: ${cheatedAbilityMode.toUpperCase()}`;
+                return;
+            }
+
+            if (!player.equippedAbility) {
+                abilityHud.style.display = "none";
+                return;
+            }
+
+            abilityHud.style.display = "block";
+            if (player.cooldownTime > 0) {
+                abilityHud.textContent = `COOLDOWN: ${Math.ceil(player.cooldownTime / 60)}s`;
+            } else if (activeEffectTimer > 0) {
+                abilityHud.textContent = `ACTIVE: ${player.equippedAbility.toUpperCase()} (${Math.ceil(activeEffectTimer/60)}s)`;
+            } else if (player.equippedAbility === 'rewind') {
+                abilityHud.textContent = `CHRONO REWIND: READY [AUTO]`;
+            } else {
+                abilityHud.textContent = `READY [SPACE]: ${player.equippedAbility.toUpperCase()}`;
+            }
+        }
+
+        function gameOver() {
+            playSound('hit');
+            gameRunning = false;
+            cancelAnimationFrame(animationFrameId);
+            
+            totalCredits += score; 
+            if (score > highScore) {
+                highScore = score;
+                highScoreDisplay.textContent = `HIGH: ${highScore}`;
+            }
+
+            saveGameData();
+
+            if (isCheatedRun) {
+                finalScoreText.textContent = `Cheated Stardust: You gathered ${score} Stardust with cheats enabled!`;
+            } else {
+                finalScoreText.textContent = `Your hull gave out. You gathered ${score} Stardust this drift! Total Pouch: ${totalCredits} SD`;
+            }
+            showScreen(gameoverScreen);
+            player.hasShield = false;
+            docked = false;
+        }
+
+        function getObstacleSpawnRadius() {
+            return Math.max(canvas.width, canvas.height) / 2 + 150;
+        }
+
+        function spawnObstacle() {
+            const size = Math.random() * 22 + 16;
+            const angle = Math.random() * Math.PI * 2;
+            const spawnRadius = getObstacleSpawnRadius();
+            let x = player.x + Math.cos(angle) * spawnRadius;
+            let y = player.y + Math.sin(angle) * spawnRadius;
+            x = Math.max(0, Math.min(WORLD_WIDTH, x));
+            y = Math.max(0, Math.min(WORLD_HEIGHT, y));
+
+            const targetX = player.x + (Math.random() - 0.5) * 300;
+            const targetY = player.y + (Math.random() - 0.5) * 300;
+            const dx = targetX - x;
+            const dy = targetY - y;
+            const dist = Math.hypot(dx, dy) || 1;
+            
+            let baseSpeed = (Math.random() * 1.2 + 1.8 + (score / 400)) * speedMultiplier;
+
+            obstacles.push({
+                x: x,
+                y: y,
+                vx: (dx / dist) * baseSpeed,
+                vy: (dy / dist) * baseSpeed,
+                size: size
+            });
+        }
+
+        function spawnCrystal() {
+            const margin = 80;
+            const range = 700;
+            let x = player.x + (Math.random() - 0.5) * range * 2;
+            let y = player.y + (Math.random() - 0.5) * range * 2;
+            x = Math.max(margin, Math.min(WORLD_WIDTH - margin, x));
+            y = Math.max(margin, Math.min(WORLD_HEIGHT - margin, y));
+            crystals.push({
+                x: x,
+                y: y,
+                progress: 0,
+                maxProgress: cheatedAbilityMode === 'vacuum' ? 60 : 600,
+                size: 12
+            });
+        }
+
+        function spawnFuel() {
+            const margin = 80;
+            const range = 700;
+            let x = player.x + (Math.random() - 0.5) * range * 2;
+            let y = player.y + (Math.random() - 0.5) * range * 2;
+            x = Math.max(margin, Math.min(WORLD_WIDTH - margin, x));
+            y = Math.max(margin, Math.min(WORLD_HEIGHT - margin, y));
+            fuelCanisters.push({
+                x: x,
+                y: y,
+                size: 10
+            });
+        }
+
+        function shatterObstacle(obs) {
+            const pieceCount = 3 + Math.floor(Math.random() * 3); // 3-5 pieces
+            for (let i = 0; i < pieceCount; i++) {
+                const angle = Math.random() * Math.PI * 2;
+                const speed = Math.random() * 2.6 + 1.4;
+                debrisPieces.push({
+                    x: obs.x,
+                    y: obs.y,
+                    vx: Math.cos(angle) * speed,
+                    vy: Math.sin(angle) * speed,
+                    size: obs.size * (0.18 + Math.random() * 0.22),
+                    rotation: Math.random() * Math.PI * 2,
+                    rotSpeed: (Math.random() - 0.5) * 0.25,
+                    life: 1.0,
+                    decay: 0.01 + Math.random() * 0.008
+                });
+            }
+        }
+
+        function update() {
+            if (gamePaused) return;
+
+            if (player.cooldownTime > 0) player.cooldownTime--;
+            if (activeEffectTimer > 0) activeEffectTimer--;
+            if (invulnTime > 0) invulnTime--;
+
+            const distToSanctuary = Math.hypot(player.x - sanctuary.x, player.y - sanctuary.y);
+            if (distToSanctuary < sanctuary.dockRange) {
+                dockPrompt.classList.add("visible");
+            } else {
+                dockPrompt.classList.remove("visible");
+            }
+
+            positionHistory.push({ x: player.x, y: player.y });
+            if (positionHistory.length > 60) positionHistory.shift();
+
+            let activeMaxSpeed = player.maxSpeed;
+            let currentAccel = player.accel;
+
+            let accelerating = false;
+            if (fuel > 0) {
+                if (keys["KeyW"] || keys["ArrowUp"]) { player.vy -= currentAccel; accelerating = true; }
+                if (keys["KeyS"] || keys["ArrowDown"]) { player.vy += currentAccel; accelerating = true; }
+                if (keys["KeyA"] || keys["ArrowLeft"]) { player.vx -= currentAccel; accelerating = true; }
+                if (keys["KeyD"] || keys["ArrowRight"]) { player.vx += currentAccel; accelerating = true; }
+            }
+
+            if (accelerating) {
+                fuel -= 0.08;
+                if (fuel <= 0) fuel = 0;
+            } else {
+                fuel += 0.02;
+                if (fuel > maxFuel) fuel = maxFuel;
+            }
+
+            player.vx *= player.friction;
+            player.vy *= player.friction;
+
+            const currentVel = Math.hypot(player.vx, player.vy);
+            if (currentVel > activeMaxSpeed) {
+                player.vx = (player.vx / currentVel) * activeMaxSpeed;
+                player.vy = (player.vy / currentVel) * activeMaxSpeed;
+            }
+
+            if (currentVel > 0.4) {
+                const moveAngle = Math.atan2(player.vy, player.vx);
+                const backX = player.x - Math.cos(moveAngle) * 10;
+                const backY = player.y - Math.sin(moveAngle) * 10;
+
+                particles.push({
+                    x: backX + (Math.random() - 0.5) * 4,
+                    y: backY + (Math.random() - 0.5) * 4,
+                    vx: -player.vx * 0.3 + (Math.random() - 0.5) * 0.8,
+                    vy: -player.vy * 0.3 + (Math.random() - 0.5) * 0.8,
+                    color: isCheatedRun ? "#ffd166" : "#ff8800",
+                    size: Math.random() * 3.5 + 1.5,
+                    life: 1.0,
+                    decay: 0.06
+                });
+            }
+
+            player.x += player.vx;
+            player.y += player.vy;
+
+            if (decoyEntity) {
+                decoyEntity.life--;
+                if (decoyEntity.life <= 0) decoyEntity = null;
+            }
+
+            for (let i = particles.length - 1; i >= 0; i--) {
+                let p = particles[i];
+                p.x += p.vx;
+                p.y += p.vy;
+                p.life -= p.decay;
+                if (p.life <= 0) particles.splice(i, 1);
+            }
+
+            for (let i = debrisPieces.length - 1; i >= 0; i--) {
+                let d = debrisPieces[i];
+                d.x += d.vx;
+                d.y += d.vy;
+                d.vx *= 0.985;
+                d.vy *= 0.985;
+                d.rotation += d.rotSpeed;
+                d.life -= d.decay;
+                if (d.life <= 0) debrisPieces.splice(i, 1);
+            }
+
+            crystalSpawnTimer++;
+            if (crystalSpawnTimer >= (cheatedAbilityMode === 'vacuum' ? 100 : 450) && crystals.length < 5) {
+                spawnCrystal();
+                crystalSpawnTimer = 0;
+            }
+
+            fuelSpawnTimer++;
+            if (fuelSpawnTimer >= 500 && fuelCanisters.length < 4) {
+                spawnFuel();
+                fuelSpawnTimer = 0;
+            }
+
+            for (let i = crystals.length - 1; i >= 0; i--) {
+                const c = crystals[i];
+                if (cheatedAbilityMode === 'vacuum' || (player.equippedAbility === 'magnet' && activeEffectTimer > 0)) {
+                    const angleToPlayer = Math.atan2(player.y - c.y, player.x - c.x);
+                    c.x += Math.cos(angleToPlayer) * 3;
+                    c.y += Math.sin(angleToPlayer) * 3;
+                }
+
+                const distToPlayer = Math.hypot(player.x - c.x, player.y - c.y);
+                if (distToPlayer <= 35) {
+                    c.progress += (cheatedAbilityMode === 'vacuum' || (player.equippedAbility === 'magnet' && activeEffectTimer > 0)) ? 25 : 1;
+                    if (c.progress >= c.maxProgress) {
+                        score += 50; 
+                        playSound('crystal');
+                        crystals.splice(i, 1);
+                        scoreDisplay.textContent = `STARDUST: ${score}`;
+                    }
+                }
+            }
+
+            for (let i = fuelCanisters.length - 1; i >= 0; i--) {
+                const f = fuelCanisters[i];
+                if (Math.hypot(player.x - f.x, player.y - f.y) < 25) {
+                    fuel = Math.min(maxFuel, fuel + 40);
+                    playSound('fuel');
+                    fuelCanisters.splice(i, 1);
+                }
+            }
+
+            // World boundary bouncing
+            const padding = 20;
+            if (player.x < padding) {
+                player.x = padding;
+                player.vx *= -0.65;
+                playSound('bounce');
+            } else if (player.x > WORLD_WIDTH - padding) {
+                player.x = WORLD_WIDTH - padding;
+                player.vx *= -0.65;
+                playSound('bounce');
+            }
+            if (player.y < padding) {
+                player.y = padding;
+                player.vy *= -0.65;
+                playSound('bounce');
+            } else if (player.y > WORLD_HEIGHT - padding) {
+                player.y = WORLD_HEIGHT - padding;
+                player.vy *= -0.65;
+                playSound('bounce');
+            }
+
+            spawnTimer++;
+            if (spawnTimer >= spawnInterval) {
+                spawnObstacle();
+                spawnTimer = 0;
+                if (spawnInterval > 20) spawnInterval -= 0.4;
+            }
+
+            for (let i = obstacles.length - 1; i >= 0; i--) {
+                let obs = obstacles[i];
+                let obsSpeedFactor = cheatedAbilityMode === 'freeze' ? 0.15 : 1.0;
+
+                if (decoyEntity) {
+                    const angleToDecoy = Math.atan2(decoyEntity.y - obs.y, decoyEntity.x - obs.x);
+                    obs.vx += Math.cos(angleToDecoy) * 0.04;
+                    obs.vy += Math.sin(angleToDecoy) * 0.04;
+                }
+
+                obs.x += obs.vx * obsSpeedFactor;
+                obs.y += obs.vy * obsSpeedFactor;
+
+                const distToSanctuaryCenter = Math.hypot(obs.x - sanctuary.x, obs.y - sanctuary.y);
+                if (distToSanctuaryCenter < sanctuary.safeRadius) {
+                    shatterObstacle(obs);
+                    obstacles.splice(i, 1);
+                    continue;
+                }
+
+                const hitDist = Math.hypot(player.x - obs.x, player.y - obs.y);
+
+                if (hitDist < player.size + obs.size / 2 && invulnTime <= 0) {
+                    let isCloaked = (player.equippedAbility === 'cloak' && activeEffectTimer > 0);
+                    if (cheatedAbilityMode === 'godmode' || player.hasShield || isCloaked) {
+                        playSound('hit');
+                        if (!cheatedAbilityMode && !isCloaked) player.hasShield = false;
+                        shatterObstacle(obs);
+                        obstacles.splice(i, 1); 
+                        player.cooldownTime = 480; 
+                        continue;
+                    } else if (player.equippedAbility === 'rewind' && player.cooldownTime === 0) {
+                        playSound('special');
+                        if (positionHistory.length > 0) {
+                            const pastPos = positionHistory[0];
+                            player.x = pastPos.x;
+                            player.y = pastPos.y;
+                            player.vx = 0;
+                            player.vy = 0;
+                        }
+                        shatterObstacle(obs);
+                        obstacles.splice(i, 1);
+                        player.cooldownTime = 1800; // 30 seconds cooldown
+                        continue;
+                    } else {
+                        playSound('hit');
+                        health -= HIT_DAMAGE;
+                        invulnTime = INVULN_FRAMES;
+                        const knockAngle = Math.atan2(player.y - obs.y, player.x - obs.x);
+                        player.vx += Math.cos(knockAngle) * 3.2;
+                        player.vy += Math.sin(knockAngle) * 3.2;
+                        shatterObstacle(obs);
+                        obstacles.splice(i, 1);
+                        if (health <= 0) {
+                            health = 0;
+                            gameOver();
+                            return;
+                        }
+                        continue;
+                    }
+                }
+
+                // Remove obstacles that have drifted far from the player (no stardust reward)
+                const despawnRadius = getObstacleSpawnRadius() + 400;
+                const distFromPlayer = Math.hypot(obs.x - player.x, obs.y - player.y);
+                if (distFromPlayer > despawnRadius) {
+                    obstacles.splice(i, 1);
+                }
+            }
+            updateHudDisplay();
+        }
+
+        function drawSanctuaryPointer(sx, sy) {
+            const margin = 44;
+            const cx = canvas.width / 2;
+            const cy = canvas.height / 2;
+
+            const onScreen = sx > margin && sx < canvas.width - margin &&
+                              sy > margin && sy < canvas.height - margin;
+            if (onScreen) return;
+
+            const angle = Math.atan2(sy - cy, sx - cx);
+            const dx = Math.cos(angle) || 0.0001;
+            const dy = Math.sin(angle) || 0.0001;
+            const halfW = canvas.width / 2 - margin;
+            const halfH = canvas.height / 2 - margin;
+            const scale = Math.min(Math.abs(halfW / dx), Math.abs(halfH / dy));
+            const px = cx + dx * scale;
+            const py = cy + dy * scale;
+
+            const dist = Math.hypot(player.x - sanctuary.x, player.y - sanctuary.y);
+            const pulse = (Math.sin(Date.now() / 300) + 1) / 2;
+
+            ctx.save();
+            ctx.translate(px, py);
+            ctx.rotate(angle + Math.PI / 2);
+            ctx.shadowBlur = 8 + pulse * 6;
+            ctx.shadowColor = "#ffd166";
+            ctx.fillStyle = "#ffd166";
+            ctx.beginPath();
+            ctx.moveTo(0, -13);
+            ctx.lineTo(-9, 9);
+            ctx.lineTo(0, 4);
+            ctx.lineTo(9, 9);
+            ctx.closePath();
+            ctx.fill();
+            ctx.restore();
+
+            ctx.save();
+            ctx.font = "bold 11px 'Segoe UI', sans-serif";
+            ctx.fillStyle = "#ffd166";
+            ctx.textAlign = "center";
+            ctx.fillText(`${Math.round(dist)}m`, px, py + (dy > 0 ? 24 : -18));
+            ctx.restore();
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            camera.x = player.x - canvas.width / 2;
+            camera.y = player.y - canvas.height / 2;
+            camera.x = Math.max(0, Math.min(WORLD_WIDTH - canvas.width, camera.x));
+            camera.y = Math.max(0, Math.min(WORLD_HEIGHT - canvas.height, camera.y));
+            const camX = camera.x;
+            const camY = camera.y;
+
+            ctx.fillStyle = "#f7ede2";
+            for(let star of ambientStars) {
+                star.alpha += 0.01;
+                let currentAlpha = (Math.sin(star.alpha) + 1) / 2 * 0.4 + 0.1;
+                ctx.globalAlpha = currentAlpha;
+                ctx.fillRect(star.x - camX, star.y - camY, star.size, star.size);
+            }
+            ctx.globalAlpha = 1.0;
+
+            // Draw world boundary
+            ctx.save();
+            ctx.strokeStyle = "rgba(108, 91, 123, 0.35)";
+            ctx.lineWidth = 3;
+            ctx.setLineDash([12, 10]);
+            ctx.strokeRect(0 - camX, 0 - camY, WORLD_WIDTH, WORLD_HEIGHT);
+            ctx.restore();
+
+            // Draw Sanctuary station
+            ctx.save();
+            const sx = sanctuary.x - camX;
+            const sy = sanctuary.y - camY;
+            const pulse = (Math.sin(Date.now() / 400) + 1) / 2;
+            ctx.shadowBlur = 20 + pulse * 10;
+            ctx.shadowColor = "#ffd166";
+            ctx.strokeStyle = "#ffd166";
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.arc(sx, sy, sanctuary.radius, 0, Math.PI * 2);
+            ctx.stroke();
+            ctx.fillStyle = "rgba(255, 209, 102, 0.15)";
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(sx, sy, sanctuary.radius * 0.5, 0, Math.PI * 2);
+            ctx.fillStyle = "#ffd166";
+            ctx.fill();
+            ctx.strokeStyle = "rgba(255, 209, 102, 0.4)";
+            ctx.setLineDash([6, 6]);
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.arc(sx, sy, sanctuary.safeRadius, 0, Math.PI * 2);
+            ctx.stroke();
+            ctx.font = "bold 13px 'Segoe UI', sans-serif";
+            ctx.fillStyle = "#ffd166";
+            ctx.textAlign = "center";
+            ctx.setLineDash([]);
+            ctx.fillText("SANCTUARY", sx, sy - sanctuary.radius - 14);
+            ctx.restore();
+
+            drawSanctuaryPointer(sx, sy);
+
+            // Draw Fuel Canisters
+            for (let f of fuelCanisters) {
+                ctx.save();
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = "#3a86ff";
+                ctx.fillStyle = "#3a86ff";
+                ctx.beginPath();
+                ctx.arc(f.x - camX, f.y - camY, f.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            }
+
+            // Draw Sector Crystals
+            for (let c of crystals) {
+                ctx.save();
+                const cx = c.x - camX;
+                const cy = c.y - camY;
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = "#06d6a0";
+                ctx.fillStyle = "#06d6a0";
+                ctx.beginPath();
+                ctx.arc(cx, cy, c.size, 0, Math.PI * 2);
+                ctx.fill();
+
+                if (c.progress > 0) {
+                    ctx.strokeStyle = "#ffd166";
+                    ctx.lineWidth = 3;
+                    ctx.beginPath();
+                    const endAngle = (c.progress / c.maxProgress) * Math.PI * 2 - Math.PI / 2;
+                    ctx.arc(cx, cy, c.size + 5, -Math.PI / 2, endAngle);
+                    ctx.stroke();
+                }
+                ctx.restore();
+            }
+
+            if (decoyEntity) {
+                ctx.save();
+                ctx.strokeStyle = "#ffd166";
+                ctx.setLineDash([4, 4]);
+                ctx.beginPath();
+                ctx.arc(decoyEntity.x - camX, decoyEntity.y - camY, 12, 0, Math.PI * 2);
+                ctx.stroke();
+                ctx.restore();
+            }
+
+            for (let p of particles) {
+                ctx.save();
+                ctx.globalAlpha = p.life;
+                ctx.fillStyle = p.color;
+                ctx.shadowBlur = 6;
+                ctx.shadowColor = p.color;
+                ctx.beginPath();
+                ctx.arc(p.x - camX, p.y - camY, p.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            }
+
+            for (let d of debrisPieces) {
+                ctx.save();
+                ctx.globalAlpha = d.life;
+                ctx.translate(d.x - camX, d.y - camY);
+                ctx.rotate(d.rotation);
+                ctx.shadowBlur = 4;
+                ctx.shadowColor = "#453a56";
+                ctx.fillStyle = "#453a56";
+                ctx.fillRect(-d.size / 2, -d.size / 2, d.size, d.size);
+                ctx.restore();
+            }
+
+            const playerScreenX = player.x - camX;
+            const playerScreenY = player.y - camY;
+            const flickerVisible = invulnTime <= 0 || Math.floor(invulnTime / 5) % 2 === 0;
+
+            if (flickerVisible) {
+                ctx.save();
+                ctx.translate(playerScreenX, playerScreenY);
+                let angle = Math.atan2(player.vy, player.vx) + Math.PI / 2;
+                if (Math.hypot(player.vx, player.vy) < 0.1) angle = 0;
+                ctx.rotate(angle);
+
+                let isCloaked = (player.equippedAbility === 'cloak' && activeEffectTimer > 0);
+                ctx.globalAlpha = isCloaked ? 0.4 : 1.0;
+
+                ctx.shadowBlur = 12;
+                ctx.shadowColor = isCheatedRun ? "#06d6a0" : "#ffd166";
+                ctx.fillStyle = isCheatedRun ? "#06d6a0" : "#ffd166";
+                
+                ctx.beginPath();
+                ctx.moveTo(0, -12);
+                ctx.lineTo(-8, 10);
+                ctx.lineTo(0, 5);
+                ctx.lineTo(8, 10);
+                ctx.closePath();
+                ctx.fill();
+                ctx.restore();
+            }
+
+            if (player.hasShield || cheatedAbilityMode === 'godmode') {
+                ctx.strokeStyle = cheatedAbilityMode === 'godmode' ? "#06d6a0" : "#e2738a";
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.arc(playerScreenX, playerScreenY, 18, 0, Math.PI * 2);
+                ctx.stroke();
+            }
+
+            ctx.shadowBlur = 8;
+            ctx.shadowColor = "#6c5b7b";
+            for (let obs of obstacles) {
+                ctx.fillStyle = "#453a56";
+                ctx.beginPath();
+                ctx.arc(obs.x - camX, obs.y - camY, obs.size/2, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            
+            ctx.shadowBlur = 0;
+            ctx.textAlign = "left";
+        }
+
+        function loop() {
+            if (!gameRunning || gamePaused) return;
+            update();
+            draw();
+            animationFrameId = requestAnimationFrame(loop);
+        }
+
+        loadGameData();
+    </script>
+</body>
+</html>
