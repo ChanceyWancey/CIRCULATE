@@ -49,6 +49,7 @@
             display: block;
             width: 100%;
             height: 100%;
+            cursor: crosshair;
         }
 
         .ui-bottom-container {
@@ -420,6 +421,20 @@
         window.addEventListener('resize', resizeCanvas);
         resizeCanvas();
 
+        canvas.addEventListener('mousemove', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            mouseScreenX = e.clientX - rect.left;
+            mouseScreenY = e.clientY - rect.top;
+        });
+        canvas.addEventListener('mousedown', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            mouseScreenX = e.clientX - rect.left;
+            mouseScreenY = e.clientY - rect.top;
+            mouseDown = true;
+            tryFireWeapon();
+        });
+        window.addEventListener('mouseup', () => { mouseDown = false; });
+
         const scoreDisplay = document.getElementById("score-display");
         const highScoreDisplay = document.getElementById("high-score-display");
         const fuelBar = document.getElementById("fuel-bar");
@@ -460,6 +475,31 @@
         let invulnTime = 0;
         const HIT_DAMAGE = 25;
         const INVULN_FRAMES = 90;
+
+        const DEBRIS_COLOR = "#453a56";
+        const ALIEN_COLOR = "#c77dff";
+
+        let playerBullets = [];
+        let alienBullets = [];
+        let shotCooldown = 0;
+        const SHOT_COOLDOWN_FRAMES = 60; // 1 second at 60fps
+        const PLAYER_BULLET_SPEED = 10;
+        const PLAYER_BULLET_DAMAGE = 30;
+        const PLAYER_BULLET_LIFE = 75;
+
+        let aliens = [];
+        let alienSpawnTimer = 0;
+        const MAX_ALIENS = 10;
+        const ALIEN_BULLET_SPEED = 5;
+        const ALIEN_BULLET_DAMAGE = 15;
+        const ALIEN_SHOOT_INTERVAL = 110;
+        const ALIEN_DETECT_RANGE = 550;
+        const ALIEN_PREFERRED_DIST = 320;
+        const ALIEN_MAX_HEALTH = 70;
+
+        let mouseDown = false;
+        let mouseScreenX = 0;
+        let mouseScreenY = 0;
 
         let fuelTankLevel = 0;
         let thrusterLevel = 0;
@@ -625,6 +665,22 @@
                     gain.gain.linearRampToValueAtTime(0.01, now + 0.5);
                     osc.start(now);
                     osc.stop(now + 0.5);
+                } else if (type === 'shoot') {
+                    osc.type = 'square';
+                    osc.frequency.setValueAtTime(760, now);
+                    osc.frequency.exponentialRampToValueAtTime(280, now + 0.1);
+                    gain.gain.setValueAtTime(0.12, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.1);
+                    osc.start(now);
+                    osc.stop(now + 0.1);
+                } else if (type === 'alienShoot') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(180, now);
+                    osc.frequency.exponentialRampToValueAtTime(90, now + 0.15);
+                    gain.gain.setValueAtTime(0.14, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.15);
+                    osc.start(now);
+                    osc.stop(now + 0.15);
                 }
             } catch (e) {}
         }
@@ -644,11 +700,15 @@
                 text: "Hover near pulsing sector crystals for a while to harvest Stardust &mdash; it's the only way to earn it, so seek them out and watch for incoming debris!"
             },
             {
-                title: "STEP 4: THE SANCTUARY",
-                text: "Fly to the golden Sanctuary station and press <strong>E</strong> to dock. Spend your Stardust there on permanent blessings."
+                title: "STEP 4: WEAPONS & ALIENS",
+                text: "Click anywhere to fire toward your cursor &mdash; your blaster has a 1 second cooldown. Debris and hostile aliens both have health bars, so it may take a few shots to break them. Aliens keep their distance and shoot back!"
             },
             {
-                title: "STEP 5: ABILITIES & PAUSING",
+                title: "STEP 5: THE SANCTUARY",
+                text: "Fly to the golden Sanctuary station and press <strong>E</strong> to dock. Its field auto-shatters any debris or aliens that get close, so you're always safe there. Spend your Stardust on permanent blessings and upgrades."
+            },
+            {
+                title: "STEP 6: ABILITIES & PAUSING",
                 text: "Press <strong>SPACEBAR</strong> to activate your equipped blessing, and press <strong>ESC</strong> to pause."
             }
         ];
@@ -916,6 +976,22 @@
             }
         }
 
+        function tryFireWeapon() {
+            if (!gameRunning || gamePaused || docked || shotCooldown > 0) return;
+            const worldX = mouseScreenX + camera.x;
+            const worldY = mouseScreenY + camera.y;
+            const angle = Math.atan2(worldY - player.y, worldX - player.x);
+            playerBullets.push({
+                x: player.x + Math.cos(angle) * 16,
+                y: player.y + Math.sin(angle) * 16,
+                vx: Math.cos(angle) * PLAYER_BULLET_SPEED,
+                vy: Math.sin(angle) * PLAYER_BULLET_SPEED,
+                life: PLAYER_BULLET_LIFE
+            });
+            shotCooldown = SHOT_COOLDOWN_FRAMES;
+            playSound('shoot');
+        }
+
         function useAbility() {
             if (!player.equippedAbility || player.cooldownTime > 0) return;
 
@@ -973,12 +1049,17 @@
             crystals = [];
             fuelCanisters = [];
             healthPickups = [];
+            aliens = [];
+            playerBullets = [];
+            alienBullets = [];
+            shotCooldown = 0;
             positionHistory = [];
             decoyEntity = null;
             spawnTimer = 0;
             crystalSpawnTimer = 0;
             fuelSpawnTimer = 0;
             healthSpawnTimer = 0;
+            alienSpawnTimer = 0;
             activeEffectTimer = 0;
             
             if (currentDifficulty === 'easy') {
@@ -1005,6 +1086,9 @@
             // is already populated, not just the area around the player
             for (let i = 0; i < 40; i++) {
                 spawnObstacle();
+            }
+            for (let i = 0; i < 6; i++) {
+                spawnAlien();
             }
 
             gameRunning = true;
@@ -1088,13 +1172,47 @@
 
             const angle = Math.random() * Math.PI * 2;
             let baseSpeed = (Math.random() * 1.2 + 1.8 + (score / 400)) * speedMultiplier;
+            const debrisHealth = Math.round(size * 2);
 
             obstacles.push({
                 x: x,
                 y: y,
                 vx: Math.cos(angle) * baseSpeed,
                 vy: Math.sin(angle) * baseSpeed,
-                size: size
+                size: size,
+                health: debrisHealth,
+                maxHealth: debrisHealth
+            });
+        }
+
+        function spawnAlien() {
+            if (aliens.length >= MAX_ALIENS) return;
+
+            let x, y, attempts = 0;
+            do {
+                x = Math.random() * WORLD_WIDTH;
+                y = Math.random() * WORLD_HEIGHT;
+                attempts++;
+            } while (
+                attempts < 20 && (
+                    Math.hypot(x - sanctuary.x, y - sanctuary.y) < sanctuary.safeRadius + 200 ||
+                    Math.hypot(x - player.x, y - player.y) < 400
+                )
+            );
+
+            const wanderAngle = Math.random() * Math.PI * 2;
+            const wanderSpeed = Math.random() * 0.6 + 0.3;
+
+            aliens.push({
+                x: x,
+                y: y,
+                vx: Math.cos(wanderAngle) * wanderSpeed,
+                vy: Math.sin(wanderAngle) * wanderSpeed,
+                size: 20,
+                health: ALIEN_MAX_HEALTH,
+                maxHealth: ALIEN_MAX_HEALTH,
+                shootCooldown: Math.random() * ALIEN_SHOOT_INTERVAL,
+                wanderTimer: 120 + Math.random() * 120
             });
         }
 
@@ -1142,21 +1260,22 @@
             });
         }
 
-        function shatterObstacle(obs) {
+        function shatterObject(obj, color) {
             const pieceCount = 3 + Math.floor(Math.random() * 3); // 3-5 pieces
             for (let i = 0; i < pieceCount; i++) {
                 const angle = Math.random() * Math.PI * 2;
                 const speed = Math.random() * 2.6 + 1.4;
                 debrisPieces.push({
-                    x: obs.x,
-                    y: obs.y,
+                    x: obj.x,
+                    y: obj.y,
                     vx: Math.cos(angle) * speed,
                     vy: Math.sin(angle) * speed,
-                    size: obs.size * (0.18 + Math.random() * 0.22),
+                    size: obj.size * (0.18 + Math.random() * 0.22),
                     rotation: Math.random() * Math.PI * 2,
                     rotSpeed: (Math.random() - 0.5) * 0.25,
                     life: 1.0,
-                    decay: 0.01 + Math.random() * 0.008
+                    decay: 0.01 + Math.random() * 0.008,
+                    color: color || DEBRIS_COLOR
                 });
             }
         }
@@ -1167,6 +1286,11 @@
             if (player.cooldownTime > 0) player.cooldownTime--;
             if (activeEffectTimer > 0) activeEffectTimer--;
             if (invulnTime > 0) invulnTime--;
+            if (shotCooldown > 0) shotCooldown--;
+
+            if (mouseDown && !docked) {
+                tryFireWeapon();
+            }
 
             const distToSanctuary = Math.hypot(player.x - sanctuary.x, player.y - sanctuary.y);
             if (distToSanctuary < sanctuary.dockRange) {
@@ -1353,7 +1477,7 @@
 
                 const distToSanctuaryCenter = Math.hypot(obs.x - sanctuary.x, obs.y - sanctuary.y);
                 if (distToSanctuaryCenter < sanctuary.safeRadius) {
-                    shatterObstacle(obs);
+                    shatterObject(obs, DEBRIS_COLOR);
                     obstacles.splice(i, 1);
                     continue;
                 }
@@ -1365,7 +1489,7 @@
                     if (cheatedAbilityMode === 'godmode' || player.hasShield || isCloaked) {
                         playSound('hit');
                         if (!cheatedAbilityMode && !isCloaked) player.hasShield = false;
-                        shatterObstacle(obs);
+                        shatterObject(obs, DEBRIS_COLOR);
                         obstacles.splice(i, 1); 
                         player.cooldownTime = 480; 
                         continue;
@@ -1378,7 +1502,7 @@
                             player.vx = 0;
                             player.vy = 0;
                         }
-                        shatterObstacle(obs);
+                        shatterObject(obs, DEBRIS_COLOR);
                         obstacles.splice(i, 1);
                         player.cooldownTime = 1800; // 30 seconds cooldown
                         continue;
@@ -1389,7 +1513,7 @@
                         const knockAngle = Math.atan2(player.y - obs.y, player.x - obs.x);
                         player.vx += Math.cos(knockAngle) * 3.2;
                         player.vy += Math.sin(knockAngle) * 3.2;
-                        shatterObstacle(obs);
+                        shatterObject(obs, DEBRIS_COLOR);
                         obstacles.splice(i, 1);
                         if (health <= 0) {
                             health = 0;
@@ -1406,6 +1530,193 @@
                 obs.x = Math.max(0, Math.min(WORLD_WIDTH, obs.x));
                 obs.y = Math.max(0, Math.min(WORLD_HEIGHT, obs.y));
             }
+
+            alienSpawnTimer++;
+            if (alienSpawnTimer >= 500 && aliens.length < MAX_ALIENS) {
+                spawnAlien();
+                alienSpawnTimer = 0;
+            }
+
+            for (let i = aliens.length - 1; i >= 0; i--) {
+                const a = aliens[i];
+
+                const distToSanctuaryC = Math.hypot(a.x - sanctuary.x, a.y - sanctuary.y);
+                if (distToSanctuaryC < sanctuary.safeRadius) {
+                    shatterObject(a, ALIEN_COLOR);
+                    aliens.splice(i, 1);
+                    continue;
+                }
+
+                a.wanderTimer--;
+                if (a.wanderTimer <= 0) {
+                    const wanderAngle = Math.random() * Math.PI * 2;
+                    const wanderSpeed = Math.random() * 0.6 + 0.3;
+                    a.vx = Math.cos(wanderAngle) * wanderSpeed;
+                    a.vy = Math.sin(wanderAngle) * wanderSpeed;
+                    a.wanderTimer = 120 + Math.random() * 120;
+                }
+
+                const distToPlayer = Math.hypot(a.x - player.x, a.y - player.y);
+                if (distToPlayer < ALIEN_DETECT_RANGE) {
+                    const angleToPlayer = Math.atan2(player.y - a.y, player.x - a.x);
+                    if (distToPlayer < ALIEN_PREFERRED_DIST - 40) {
+                        a.vx -= Math.cos(angleToPlayer) * 0.05;
+                        a.vy -= Math.sin(angleToPlayer) * 0.05;
+                    } else if (distToPlayer > ALIEN_PREFERRED_DIST + 40) {
+                        a.vx += Math.cos(angleToPlayer) * 0.05;
+                        a.vy += Math.sin(angleToPlayer) * 0.05;
+                    }
+
+                    a.shootCooldown--;
+                    if (a.shootCooldown <= 0 && (cheatedAbilityMode !== 'freeze')) {
+                        alienBullets.push({
+                            x: a.x,
+                            y: a.y,
+                            vx: Math.cos(angleToPlayer) * ALIEN_BULLET_SPEED,
+                            vy: Math.sin(angleToPlayer) * ALIEN_BULLET_SPEED,
+                            life: 150
+                        });
+                        a.shootCooldown = ALIEN_SHOOT_INTERVAL + Math.random() * 40;
+                        playSound('alienShoot');
+                    }
+                }
+
+                const alienSpeed = Math.hypot(a.vx, a.vy);
+                const maxAlienSpeed = 1.7;
+                if (alienSpeed > maxAlienSpeed) {
+                    a.vx = (a.vx / alienSpeed) * maxAlienSpeed;
+                    a.vy = (a.vy / alienSpeed) * maxAlienSpeed;
+                }
+
+                const alienSpeedFactor = cheatedAbilityMode === 'freeze' ? 0.15 : 1.0;
+                a.x += a.vx * alienSpeedFactor;
+                a.y += a.vy * alienSpeedFactor;
+                if (a.x < 0 || a.x > WORLD_WIDTH) a.vx *= -1;
+                if (a.y < 0 || a.y > WORLD_HEIGHT) a.vy *= -1;
+                a.x = Math.max(0, Math.min(WORLD_WIDTH, a.x));
+                a.y = Math.max(0, Math.min(WORLD_HEIGHT, a.y));
+
+                const alienHitDist = Math.hypot(player.x - a.x, player.y - a.y);
+                if (alienHitDist < player.size + a.size / 2 && invulnTime <= 0) {
+                    let isCloaked = (player.equippedAbility === 'cloak' && activeEffectTimer > 0);
+                    if (cheatedAbilityMode === 'godmode' || player.hasShield || isCloaked) {
+                        playSound('hit');
+                        if (!cheatedAbilityMode && !isCloaked) player.hasShield = false;
+                        shatterObject(a, ALIEN_COLOR);
+                        aliens.splice(i, 1);
+                        player.cooldownTime = 480;
+                        continue;
+                    } else if (player.equippedAbility === 'rewind' && player.cooldownTime === 0) {
+                        playSound('special');
+                        if (positionHistory.length > 0) {
+                            const pastPos = positionHistory[0];
+                            player.x = pastPos.x;
+                            player.y = pastPos.y;
+                            player.vx = 0;
+                            player.vy = 0;
+                        }
+                        shatterObject(a, ALIEN_COLOR);
+                        aliens.splice(i, 1);
+                        player.cooldownTime = 1800;
+                        continue;
+                    } else {
+                        playSound('hit');
+                        health -= HIT_DAMAGE;
+                        invulnTime = INVULN_FRAMES;
+                        const knockAngle = Math.atan2(player.y - a.y, player.x - a.x);
+                        player.vx += Math.cos(knockAngle) * 3.2;
+                        player.vy += Math.sin(knockAngle) * 3.2;
+                        shatterObject(a, ALIEN_COLOR);
+                        aliens.splice(i, 1);
+                        if (health <= 0) {
+                            health = 0;
+                            gameOver();
+                            return;
+                        }
+                        continue;
+                    }
+                }
+            }
+
+            for (let i = alienBullets.length - 1; i >= 0; i--) {
+                const b = alienBullets[i];
+                b.x += b.vx;
+                b.y += b.vy;
+                b.life--;
+                if (b.life <= 0 || b.x < 0 || b.x > WORLD_WIDTH || b.y < 0 || b.y > WORLD_HEIGHT) {
+                    alienBullets.splice(i, 1);
+                    continue;
+                }
+                const distToSanctuaryB = Math.hypot(b.x - sanctuary.x, b.y - sanctuary.y);
+                if (distToSanctuaryB < sanctuary.safeRadius) {
+                    alienBullets.splice(i, 1);
+                    continue;
+                }
+                const bd = Math.hypot(player.x - b.x, player.y - b.y);
+                if (bd < player.size + 4 && invulnTime <= 0) {
+                    let isCloaked = (player.equippedAbility === 'cloak' && activeEffectTimer > 0);
+                    if (cheatedAbilityMode === 'godmode' || player.hasShield || isCloaked) {
+                        playSound('hit');
+                        if (!cheatedAbilityMode && !isCloaked) player.hasShield = false;
+                        player.cooldownTime = 480;
+                    } else {
+                        playSound('hit');
+                        health -= ALIEN_BULLET_DAMAGE;
+                        invulnTime = INVULN_FRAMES;
+                        if (health <= 0) {
+                            health = 0;
+                            alienBullets.splice(i, 1);
+                            gameOver();
+                            return;
+                        }
+                    }
+                    alienBullets.splice(i, 1);
+                }
+            }
+
+            for (let i = playerBullets.length - 1; i >= 0; i--) {
+                const pb = playerBullets[i];
+                pb.x += pb.vx;
+                pb.y += pb.vy;
+                pb.life--;
+                if (pb.life <= 0 || pb.x < 0 || pb.x > WORLD_WIDTH || pb.y < 0 || pb.y > WORLD_HEIGHT) {
+                    playerBullets.splice(i, 1);
+                    continue;
+                }
+
+                let hitSomething = false;
+                for (let j = obstacles.length - 1; j >= 0; j--) {
+                    const obs = obstacles[j];
+                    if (Math.hypot(pb.x - obs.x, pb.y - obs.y) < obs.size / 2 + 4) {
+                        obs.health -= PLAYER_BULLET_DAMAGE;
+                        playSound('hit');
+                        if (obs.health <= 0) {
+                            shatterObject(obs, DEBRIS_COLOR);
+                            obstacles.splice(j, 1);
+                        }
+                        playerBullets.splice(i, 1);
+                        hitSomething = true;
+                        break;
+                    }
+                }
+                if (hitSomething) continue;
+
+                for (let j = aliens.length - 1; j >= 0; j--) {
+                    const a = aliens[j];
+                    if (Math.hypot(pb.x - a.x, pb.y - a.y) < a.size / 2 + 4) {
+                        a.health -= PLAYER_BULLET_DAMAGE;
+                        playSound('hit');
+                        if (a.health <= 0) {
+                            shatterObject(a, ALIEN_COLOR);
+                            aliens.splice(j, 1);
+                        }
+                        playerBullets.splice(i, 1);
+                        hitSomething = true;
+                        break;
+                    }
+                }
+            }
+
             updateHudDisplay();
         }
 
@@ -1450,6 +1761,16 @@
             ctx.fillStyle = "#ffd166";
             ctx.textAlign = "center";
             ctx.fillText(`${Math.round(dist)}m`, px, py + (dy > 0 ? 24 : -18));
+            ctx.restore();
+        }
+
+        function drawMiniHealthBar(screenX, screenY, ratio, width, color) {
+            const height = 4;
+            ctx.save();
+            ctx.fillStyle = "rgba(39, 33, 59, 0.65)";
+            ctx.fillRect(screenX - width / 2, screenY, width, height);
+            ctx.fillStyle = color;
+            ctx.fillRect(screenX - width / 2, screenY, width * Math.max(0, ratio), height);
             ctx.restore();
         }
 
@@ -1593,8 +1914,8 @@
                 ctx.translate(d.x - camX, d.y - camY);
                 ctx.rotate(d.rotation);
                 ctx.shadowBlur = 4;
-                ctx.shadowColor = "#453a56";
-                ctx.fillStyle = "#453a56";
+                ctx.shadowColor = d.color || DEBRIS_COLOR;
+                ctx.fillStyle = d.color || DEBRIS_COLOR;
                 ctx.fillRect(-d.size / 2, -d.size / 2, d.size, d.size);
                 ctx.restore();
             }
@@ -1638,10 +1959,61 @@
             ctx.shadowBlur = 8;
             ctx.shadowColor = "#6c5b7b";
             for (let obs of obstacles) {
+                const ox = obs.x - camX;
+                const oy = obs.y - camY;
                 ctx.fillStyle = "#453a56";
                 ctx.beginPath();
-                ctx.arc(obs.x - camX, obs.y - camY, obs.size/2, 0, Math.PI * 2);
+                ctx.arc(ox, oy, obs.size/2, 0, Math.PI * 2);
                 ctx.fill();
+                drawMiniHealthBar(ox, oy - obs.size / 2 - 10, obs.health / obs.maxHealth, obs.size + 6, "#e2738a");
+            }
+
+            ctx.shadowBlur = 10;
+            ctx.shadowColor = ALIEN_COLOR;
+            for (let a of aliens) {
+                const ax = a.x - camX;
+                const ay = a.y - camY;
+                const angleToPlayer = Math.atan2(player.y - a.y, player.x - a.x);
+                ctx.save();
+                ctx.translate(ax, ay);
+                ctx.rotate(angleToPlayer + Math.PI / 2);
+                ctx.fillStyle = ALIEN_COLOR;
+                ctx.beginPath();
+                ctx.moveTo(0, -a.size / 2);
+                ctx.lineTo(-a.size / 2, a.size / 2);
+                ctx.lineTo(0, a.size / 4);
+                ctx.lineTo(a.size / 2, a.size / 2);
+                ctx.closePath();
+                ctx.fill();
+                ctx.fillStyle = "#f7ede2";
+                ctx.beginPath();
+                ctx.arc(0, -a.size / 8, 2.5, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+                drawMiniHealthBar(ax, ay - a.size / 2 - 12, a.health / a.maxHealth, a.size + 8, "#c77dff");
+            }
+            ctx.shadowBlur = 0;
+
+            for (let pb of playerBullets) {
+                ctx.save();
+                ctx.shadowBlur = 6;
+                ctx.shadowColor = "#ffd166";
+                ctx.fillStyle = "#ffd166";
+                ctx.beginPath();
+                ctx.arc(pb.x - camX, pb.y - camY, 3.5, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            }
+
+            for (let b of alienBullets) {
+                ctx.save();
+                ctx.shadowBlur = 6;
+                ctx.shadowColor = ALIEN_COLOR;
+                ctx.fillStyle = ALIEN_COLOR;
+                ctx.beginPath();
+                ctx.arc(b.x - camX, b.y - camY, 3.5, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
             }
             
             ctx.shadowBlur = 0;
