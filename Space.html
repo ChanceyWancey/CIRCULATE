@@ -359,6 +359,13 @@
                     </div>
                     <button class="btn" onclick="buyAbility('rewind', 120)">120 SD</button>
                 </div>
+                <div class="shop-item">
+                    <div class="shop-info">
+                        <h4>Mending (Passive)</h4>
+                        <span>Slowly repairs your hull over time, always on &mdash; no activation needed</span>
+                    </div>
+                    <button class="btn" id="buy-mending-btn" onclick="buyMending()">90 SD</button>
+                </div>
             </div>
 
             <div id="cheat-status"></div>
@@ -509,41 +516,17 @@
         let konamiInputIndex = 0;
 
         function loadGameData() {
-            try {
-                const savedHigh = localStorage.getItem('stellar_drift_high');
-                const savedCredits = localStorage.getItem('stellar_drift_credits');
-                const savedAbility = localStorage.getItem('stellar_drift_ability');
-                const savedFuelLevel = localStorage.getItem('stellar_drift_fuel_level');
-                const savedThrusterLevel = localStorage.getItem('stellar_drift_thruster_level');
-                const savedHullLevel = localStorage.getItem('stellar_drift_hull_level');
-
-                if (savedHigh !== null) highScore = parseInt(savedHigh, 10);
-                if (savedCredits !== null) totalCredits = parseInt(savedCredits, 10);
-                if (savedAbility) {
-                    player.equippedAbility = savedAbility;
-                    if (savedAbility === 'shield') player.hasShield = true;
-                }
-                if (savedFuelLevel !== null) fuelTankLevel = parseInt(savedFuelLevel, 10);
-                if (savedThrusterLevel !== null) thrusterLevel = parseInt(savedThrusterLevel, 10);
-                if (savedHullLevel !== null) hullLevel = parseInt(savedHullLevel, 10);
-                applyUpgradeStats();
-                fuel = maxFuel;
-                health = maxHealth;
-                highScoreDisplay.textContent = `HIGH: ${highScore}`;
-            } catch (e) {}
+            // Persistence is disabled: nothing is read from storage.
+            // All progress (Stardust, upgrades, blessings, high score) is
+            // in-memory only for this browser session and resets on refresh.
+            applyUpgradeStats();
+            fuel = maxFuel;
+            health = maxHealth;
+            highScoreDisplay.textContent = `HIGH: ${highScore}`;
         }
 
         function saveGameData() {
-            try {
-                localStorage.setItem('stellar_drift_high', highScore);
-                localStorage.setItem('stellar_drift_credits', totalCredits);
-                if (player.equippedAbility) {
-                    localStorage.setItem('stellar_drift_ability', player.equippedAbility);
-                }
-                localStorage.setItem('stellar_drift_fuel_level', fuelTankLevel);
-                localStorage.setItem('stellar_drift_thruster_level', thrusterLevel);
-                localStorage.setItem('stellar_drift_hull_level', hullLevel);
-            } catch (e) {}
+            // Persistence is disabled intentionally - no-op.
         }
 
         let currentDifficulty = 'normal'; 
@@ -654,7 +637,7 @@
             },
             {
                 title: "STEP 2: FUEL & HULL HEALTH",
-                text: "Watch your green fuel bar and pink health bar! Collect blue fuel canisters to stay powered. Getting hit by debris costs health, but you get a moment of invulnerability right after."
+                text: "Watch your green fuel bar and pink health bar! Collect blue fuel canisters and pink hull kits to stay topped up. Getting hit by debris costs health, but you get a moment of invulnerability right after."
             },
             {
                 title: "STEP 3: SECTOR CRYSTALS",
@@ -685,8 +668,10 @@
         let particles = [];
         let crystals = [];
         let fuelCanisters = [];
+        let healthPickups = [];
         let crystalSpawnTimer = 0;
         let fuelSpawnTimer = 0;
+        let healthSpawnTimer = 0;
 
         const player = {
             x: WORLD_WIDTH / 2,
@@ -700,7 +685,8 @@
             equippedAbility: null, 
             cooldownTime: 0,
             maxCooldown: 0,
-            hasShield: false
+            hasShield: false,
+            hasMending: false
         };
 
         let obstacles = [];
@@ -806,6 +792,7 @@
                 cheatStatus.textContent = isCheatedRun ? `✨ CHEATS: ${cheatedAbilityMode.toUpperCase()} ACTIVE ✨` : "";
             }
             updateUpgradeShopUI();
+            updateMendingButton();
             showScreen(shopScreen);
         }
 
@@ -847,10 +834,34 @@
                 totalCredits -= cost;
                 player.equippedAbility = type;
                 if (type === 'shield') player.hasShield = true;
-                saveGameData();
                 alert(`Unlocked blessing: ${type.toUpperCase()}`);
             } else {
                 alert("Not enough stardust yet! Gather more credits in the sector.");
+            }
+        }
+
+        function buyMending() {
+            if (player.hasMending) return;
+            const cost = 90;
+            if (totalCredits < cost) {
+                alert("Not enough stardust yet! Gather more credits in the sector.");
+                return;
+            }
+            totalCredits -= cost;
+            player.hasMending = true;
+            playSound('crystal');
+            updateMendingButton();
+        }
+
+        function updateMendingButton() {
+            const btn = document.getElementById('buy-mending-btn');
+            if (!btn) return;
+            if (player.hasMending) {
+                btn.textContent = "OWNED";
+                btn.disabled = true;
+            } else {
+                btn.textContent = "90 SD";
+                btn.disabled = false;
             }
         }
 
@@ -877,7 +888,6 @@
                 health = Math.min(maxHealth, health + HEALTH_PER_LEVEL);
             }
             playSound('fuel');
-            saveGameData();
             updateUpgradeShopUI();
             updateHudDisplay();
         }
@@ -962,11 +972,13 @@
             debrisPieces = [];
             crystals = [];
             fuelCanisters = [];
+            healthPickups = [];
             positionHistory = [];
             decoyEntity = null;
             spawnTimer = 0;
             crystalSpawnTimer = 0;
             fuelSpawnTimer = 0;
+            healthSpawnTimer = 0;
             activeEffectTimer = 0;
             
             if (currentDifficulty === 'easy') {
@@ -987,6 +999,12 @@
             player.cooldownTime = 0;
             if (player.equippedAbility === 'shield' || isCheatedRun) {
                 player.hasShield = true;
+            }
+
+            // Seed the sector with a scattered debris field so the whole map
+            // is already populated, not just the area around the player
+            for (let i = 0; i < 40; i++) {
+                spawnObstacle();
             }
 
             gameRunning = true;
@@ -1050,32 +1068,32 @@
             docked = false;
         }
 
-        function getObstacleSpawnRadius() {
-            return Math.max(canvas.width, canvas.height) / 2 + 150;
-        }
+        const MAX_OBSTACLES = 60;
 
         function spawnObstacle() {
+            if (obstacles.length >= MAX_OBSTACLES) return;
             const size = Math.random() * 22 + 16;
-            const angle = Math.random() * Math.PI * 2;
-            const spawnRadius = getObstacleSpawnRadius();
-            let x = player.x + Math.cos(angle) * spawnRadius;
-            let y = player.y + Math.sin(angle) * spawnRadius;
-            x = Math.max(0, Math.min(WORLD_WIDTH, x));
-            y = Math.max(0, Math.min(WORLD_HEIGHT, y));
 
-            const targetX = player.x + (Math.random() - 0.5) * 300;
-            const targetY = player.y + (Math.random() - 0.5) * 300;
-            const dx = targetX - x;
-            const dy = targetY - y;
-            const dist = Math.hypot(dx, dy) || 1;
-            
+            let x, y, attempts = 0;
+            do {
+                x = Math.random() * WORLD_WIDTH;
+                y = Math.random() * WORLD_HEIGHT;
+                attempts++;
+            } while (
+                attempts < 20 && (
+                    Math.hypot(x - sanctuary.x, y - sanctuary.y) < sanctuary.safeRadius + 150 ||
+                    Math.hypot(x - player.x, y - player.y) < 260
+                )
+            );
+
+            const angle = Math.random() * Math.PI * 2;
             let baseSpeed = (Math.random() * 1.2 + 1.8 + (score / 400)) * speedMultiplier;
 
             obstacles.push({
                 x: x,
                 y: y,
-                vx: (dx / dist) * baseSpeed,
-                vy: (dy / dist) * baseSpeed,
+                vx: Math.cos(angle) * baseSpeed,
+                vy: Math.sin(angle) * baseSpeed,
                 size: size
             });
         }
@@ -1104,6 +1122,20 @@
             x = Math.max(margin, Math.min(WORLD_WIDTH - margin, x));
             y = Math.max(margin, Math.min(WORLD_HEIGHT - margin, y));
             fuelCanisters.push({
+                x: x,
+                y: y,
+                size: 10
+            });
+        }
+
+        function spawnHealthPickup() {
+            const margin = 80;
+            const range = 700;
+            let x = player.x + (Math.random() - 0.5) * range * 2;
+            let y = player.y + (Math.random() - 0.5) * range * 2;
+            x = Math.max(margin, Math.min(WORLD_WIDTH - margin, x));
+            y = Math.max(margin, Math.min(WORLD_HEIGHT - margin, y));
+            healthPickups.push({
                 x: x,
                 y: y,
                 size: 10
@@ -1230,6 +1262,16 @@
                 fuelSpawnTimer = 0;
             }
 
+            healthSpawnTimer++;
+            if (healthSpawnTimer >= 650 && healthPickups.length < 3) {
+                spawnHealthPickup();
+                healthSpawnTimer = 0;
+            }
+
+            if (player.hasMending && health > 0 && health < maxHealth) {
+                health = Math.min(maxHealth, health + 0.035);
+            }
+
             for (let i = crystals.length - 1; i >= 0; i--) {
                 const c = crystals[i];
                 if (cheatedAbilityMode === 'vacuum' || (player.equippedAbility === 'magnet' && activeEffectTimer > 0)) {
@@ -1256,6 +1298,15 @@
                     fuel = Math.min(maxFuel, fuel + 40);
                     playSound('fuel');
                     fuelCanisters.splice(i, 1);
+                }
+            }
+
+            for (let i = healthPickups.length - 1; i >= 0; i--) {
+                const h = healthPickups[i];
+                if (Math.hypot(player.x - h.x, player.y - h.y) < 25) {
+                    health = Math.min(maxHealth, health + 30);
+                    playSound('fuel');
+                    healthPickups.splice(i, 1);
                 }
             }
 
@@ -1349,12 +1400,11 @@
                     }
                 }
 
-                // Remove obstacles that have drifted far from the player (no stardust reward)
-                const despawnRadius = getObstacleSpawnRadius() + 400;
-                const distFromPlayer = Math.hypot(obs.x - player.x, obs.y - player.y);
-                if (distFromPlayer > despawnRadius) {
-                    obstacles.splice(i, 1);
-                }
+                // Bounce debris off world edges so the field stays populated everywhere
+                if (obs.x < 0 || obs.x > WORLD_WIDTH) obs.vx *= -1;
+                if (obs.y < 0 || obs.y > WORLD_HEIGHT) obs.vy *= -1;
+                obs.x = Math.max(0, Math.min(WORLD_WIDTH, obs.x));
+                obs.y = Math.max(0, Math.min(WORLD_HEIGHT, obs.y));
             }
             updateHudDisplay();
         }
@@ -1472,6 +1522,23 @@
                 ctx.beginPath();
                 ctx.arc(f.x - camX, f.y - camY, f.size, 0, Math.PI * 2);
                 ctx.fill();
+                ctx.restore();
+            }
+
+            // Draw Health Pickups
+            for (let h of healthPickups) {
+                ctx.save();
+                const hx = h.x - camX;
+                const hy = h.y - camY;
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = "#e2738a";
+                ctx.fillStyle = "#e2738a";
+                ctx.beginPath();
+                ctx.arc(hx, hy, h.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.fillStyle = "#f7ede2";
+                ctx.fillRect(hx - 1.5, hy - 5, 3, 10);
+                ctx.fillRect(hx - 5, hy - 1.5, 10, 3);
                 ctx.restore();
             }
 
