@@ -99,7 +99,7 @@
             width: 100%;
             height: 100%;
             background: #06d6a0;
-            transition: width 0.1s linear;
+            transition: width 0.1s linear, background-color 0.2s linear;
         }
 
         #health-bar {
@@ -136,6 +136,48 @@
             display: block;
         }
 
+        #biome-banner {
+            position: absolute;
+            top: 55px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-8px);
+            padding: 8px 22px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+            z-index: 16;
+            text-align: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+
+        #biome-banner.visible {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        #biome-banner .biome-name {
+            display: block;
+            font-size: 1rem;
+            font-weight: bold;
+            margin-bottom: 2px;
+        }
+
+        #biome-banner .biome-desc {
+            display: block;
+            font-size: 0.65rem;
+            opacity: 0.85;
+            letter-spacing: 0.5px;
+        }
+
+        #region-label {
+            font-size: 0.65rem;
+            letter-spacing: 0.5px;
+            text-align: center;
+            opacity: 0.85;
+        }
+
         #ability-hud {
             background: rgba(39, 33, 59, 0.9);
             border: 1px solid #c7b198;
@@ -146,6 +188,18 @@
             text-align: center;
             letter-spacing: 0.5px;
             display: none;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+        }
+
+        #beacon-hud {
+            background: rgba(39, 33, 59, 0.9);
+            border: 1px solid #8899cc;
+            padding: 4px 14px;
+            font-size: 0.72rem;
+            color: #8899cc;
+            border-radius: 8px;
+            text-align: center;
+            letter-spacing: 0.5px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.4);
         }
 
@@ -251,6 +305,75 @@
             color: #9b8da9;
         }
 
+        .craft-cost {
+            display: block;
+            font-size: 0.68rem;
+            color: #06d6a0;
+            margin-top: 3px;
+            letter-spacing: 0.3px;
+        }
+
+        .craft-cost.insufficient {
+            color: #e2738a;
+        }
+
+        .shop-section-label {
+            width: 100%;
+            max-width: 420px;
+            text-align: left;
+            font-size: 0.72rem;
+            color: #c7b198;
+            letter-spacing: 1px;
+            margin: 4px 0 2px 2px;
+            opacity: 0.8;
+        }
+
+        #materials-pouch {
+            width: 100%;
+            max-width: 420px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            justify-content: center;
+            margin-bottom: 12px;
+        }
+
+        .material-chip {
+            display: flex;
+            align-items: flex-start;
+            gap: 6px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid #453a56;
+            border-radius: 10px;
+            padding: 4px 10px 5px 7px;
+            font-size: 0.68rem;
+            color: #c7b198;
+        }
+
+        .material-chip .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            margin-top: 3px;
+        }
+
+        .material-chip-text {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.25;
+        }
+
+        .material-name {
+            color: #e2d9f3;
+        }
+
+        .material-source {
+            font-size: 0.6rem;
+            color: #9b8da9;
+            letter-spacing: 0.3px;
+        }
+
         #cheat-status {
             font-size: 0.75rem;
             color: #e2738a;
@@ -264,6 +387,7 @@
 
     <h1>✨ Stellar Drift: Sector Radar ✨</h1>
     <div id="dock-prompt">DOCKING RANGE — PRESS E TO ENTER SANCTUARY</div>
+    <div id="biome-banner"><span class="biome-name"></span><span class="biome-desc"></span></div>
     
     <div id="game-container">
         <div id="menu-screen" class="screen">
@@ -287,8 +411,11 @@
 
         <div id="shop-screen" class="screen hidden">
             <h2>COZY SANCTUARY</h2>
-            <p>Docked at the Sanctuary station. This field auto-shatters debris on approach &mdash; you're safe here. Trade Stardust for permanent passive & active upgrades.</p>
-            
+            <p>Docked at the Sanctuary station. This field auto-shatters debris on approach &mdash; you're safe here. Basic upgrades cost Stardust; blessings are crafted from Stardust plus biome materials you salvage out in the sector.</p>
+            <p id="shop-wallet" style="margin-top:-14px; color:#ffd166; font-weight:bold;">STARDUST POUCH: 0 SD</p>
+            <div id="materials-pouch"></div>
+
+            <div class="shop-section-label">SHIP UPGRADES &middot; STARDUST</div>
             <div class="shop-items">
                 <div class="shop-item">
                     <div class="shop-info">
@@ -311,61 +438,81 @@
                     </div>
                     <button class="btn" id="buy-hull-upgrade-btn" onclick="buyUpgrade('hull')">45 SD</button>
                 </div>
+            </div>
+
+            <div class="shop-section-label">CRAFTED BLESSINGS &middot; STARDUST + MATERIALS</div>
+            <div class="shop-items">
                 <div class="shop-item">
                     <div class="shop-info">
                         <h4>Starlight Blink</h4>
                         <span>Instantly teleport forward / 6s cooldown</span>
+                        <span class="craft-cost" id="cost-blink"></span>
                     </div>
-                    <button class="btn" onclick="buyAbility('blink', 50)">50 SD</button>
+                    <button class="btn" id="buy-blink-btn" onclick="buyAbility('blink')">CRAFT</button>
                 </div>
                 <div class="shop-item">
                     <div class="shop-info">
                         <h4>Supernova Pulse</h4>
                         <span>Destroys nearby hazards / 10s cooldown</span>
+                        <span class="craft-cost" id="cost-pulse"></span>
                     </div>
-                    <button class="btn" onclick="buyAbility('pulse', 75)">75 SD</button>
+                    <button class="btn" id="buy-pulse-btn" onclick="buyAbility('pulse')">CRAFT</button>
                 </div>
                 <div class="shop-item">
                     <div class="shop-info">
                         <h4>Astral Shield</h4>
                         <span>Absorbs 1 hazard hit / 8s recharge</span>
+                        <span class="craft-cost" id="cost-shield"></span>
                     </div>
-                    <button class="btn" onclick="buyAbility('shield', 100)">100 SD</button>
+                    <button class="btn" id="buy-shield-btn" onclick="buyAbility('shield')">CRAFT</button>
                 </div>
                 <div class="shop-item">
                     <div class="shop-info">
                         <h4>Magnet Pulse</h4>
                         <span>Pulls nearby crystals / 3s duration</span>
+                        <span class="craft-cost" id="cost-magnet"></span>
                     </div>
-                    <button class="btn" onclick="buyAbility('magnet', 60)">60 SD</button>
+                    <button class="btn" id="buy-magnet-btn" onclick="buyAbility('magnet')">CRAFT</button>
                 </div>
                 <div class="shop-item">
                     <div class="shop-info">
                         <h4>Phase Cloak</h4>
                         <span>Pass through hazards / 2s duration</span>
+                        <span class="craft-cost" id="cost-cloak"></span>
                     </div>
-                    <button class="btn" onclick="buyAbility('cloak', 80)">80 SD</button>
+                    <button class="btn" id="buy-cloak-btn" onclick="buyAbility('cloak')">CRAFT</button>
                 </div>
                 <div class="shop-item">
                     <div class="shop-info">
                         <h4>Decoy Beacon</h4>
                         <span>Spawns fake decoy / draws hazards</span>
+                        <span class="craft-cost" id="cost-decoy"></span>
                     </div>
-                    <button class="btn" onclick="buyAbility('decoy', 70)">70 SD</button>
+                    <button class="btn" id="buy-decoy-btn" onclick="buyAbility('decoy')">CRAFT</button>
                 </div>
                 <div class="shop-item">
                     <div class="shop-info">
                         <h4>Chrono Rewind</h4>
                         <span>Auto-rewinds before a fatal hit / 30s cooldown</span>
+                        <span class="craft-cost" id="cost-rewind"></span>
                     </div>
-                    <button class="btn" onclick="buyAbility('rewind', 120)">120 SD</button>
+                    <button class="btn" id="buy-rewind-btn" onclick="buyAbility('rewind')">CRAFT</button>
                 </div>
                 <div class="shop-item">
                     <div class="shop-info">
                         <h4>Mending (Passive)</h4>
                         <span>Slowly repairs your hull over time, always on &mdash; no activation needed</span>
+                        <span class="craft-cost" id="cost-mending"></span>
                     </div>
-                    <button class="btn" id="buy-mending-btn" onclick="buyMending()">90 SD</button>
+                    <button class="btn" id="buy-mending-btn" onclick="buyMending()">CRAFT</button>
+                </div>
+                <div class="shop-item">
+                    <div class="shop-info">
+                        <h4>Sector Beacon (Passive)</h4>
+                        <span>Pick a biome and follow a compass to the nearest one &mdash; press B in-flight to cycle targets</span>
+                        <span class="craft-cost" id="cost-beacon"></span>
+                    </div>
+                    <button class="btn" id="buy-beacon-btn" onclick="buyBeacon()">CRAFT</button>
                 </div>
             </div>
 
@@ -395,6 +542,7 @@
     </div>
 
     <div class="ui-bottom-container">
+        <div id="region-label">SANCTUARY FIELDS</div>
         <div class="score-row">
             <span id="score-display">STARDUST: 0</span>
             <span id="high-score-display">HIGH: 0</span>
@@ -408,6 +556,7 @@
             </div>
         </div>
         <div id="ability-hud">BLESSING READY</div>
+        <div id="beacon-hud" style="display:none;"></div>
     </div>
 
     <script>
@@ -442,10 +591,305 @@
         const abilityHud = document.getElementById("ability-hud");
         const cheatStatus = document.getElementById("cheat-status");
         const dockPrompt = document.getElementById("dock-prompt");
+        const biomeBanner = document.getElementById("biome-banner");
+        const biomeBannerName = biomeBanner.querySelector(".biome-name");
+        const biomeBannerDesc = biomeBanner.querySelector(".biome-desc");
+        const regionLabel = document.getElementById("region-label");
+        const shopWallet = document.getElementById("shop-wallet");
+        const beaconHud = document.getElementById("beacon-hud");
 
-        const WORLD_WIDTH = 3200;
-        const WORLD_HEIGHT = 3200;
-        
+        function updateShopWallet() {
+            if (shopWallet) shopWallet.textContent = `STARDUST POUCH: ${totalCredits} SD`;
+            if (docked) updateCraftShopUI();
+        }
+
+        // The sector is infinite - there is no WORLD_WIDTH/HEIGHT boundary.
+        // Objects spawn and despawn relative to the player's position instead.
+        const DESPAWN_RADIUS = 1900; // obstacles/aliens beyond this are recycled
+
+        // ---- BIOMES ----
+        // The infinite sector is broken into large tiles; each tile is
+        // deterministically assigned a biome via a seeded hash, so flying in
+        // any direction eventually carries you into a new kind of region -
+        // and flying back gives you the exact same one again.
+        const BIOME_TILE_SIZE = 2600;
+        const HOME_SAFE_RADIUS = 1300; // biome-neutral zone around your spawn point
+
+        const BIOMES = {
+            home: {
+                id: 'home',
+                name: 'Sanctuary Fields',
+                desc: 'Calm space near your point of origin. Engines idle smoothly here.',
+                starColor: '#f7ede2',
+                tint: 'rgba(23, 21, 38, 0)',
+                fog: 0,
+                debrisMult: 1.0, alienMult: 1.0, crystalMult: 1.0, fuelPickupMult: 1.0, healthPickupMult: 1.0,
+                debrisReward: 5, alienReward: 10, crystalReward: 50, crystalFillMult: 1.0,
+                debrisColor: '#453a56', alienColor: '#c77dff',
+                fuelDrainMult: 1.0, passiveFuelDrain: 0, fuelRegenBonus: 0.015,
+                guardianChance: 0,
+                debrisSpeedMult: 1.0, debrisHealthMult: 1.0,
+                frictionBoost: 0,
+                alienShootMult: 1.0, alienBulletSpeedMult: 1.0,
+                hasSalvage: false, salvageReward: 0
+            },
+            debris: {
+                id: 'debris',
+                name: 'The Drift Graveyard',
+                desc: 'Dense wreckage drifting slow and heavy. Rich pickings, thin on aliens.',
+                starColor: '#e8c9a0',
+                tint: 'rgba(120, 70, 30, 0.10)',
+                fog: 0,
+                debrisMult: 2.0, alienMult: 0.15, crystalMult: 0.6, fuelPickupMult: 1.0, healthPickupMult: 1.0,
+                debrisReward: 8, alienReward: 10, crystalReward: 50, crystalFillMult: 1.0,
+                debrisColor: '#8a5a3c', alienColor: '#c77dff',
+                fuelDrainMult: 1.0, passiveFuelDrain: 0, fuelRegenBonus: 0,
+                guardianChance: 0,
+                debrisSpeedMult: 0.75, debrisHealthMult: 1.2,
+                frictionBoost: 0,
+                alienShootMult: 1.0, alienBulletSpeedMult: 1.0,
+                hasSalvage: false, salvageReward: 0,
+                material: { id: 'scrap', name: 'Scrap Alloy', color: '#c98f5e' }
+            },
+            hive: {
+                id: 'hive',
+                name: 'The Hive Expanse',
+                desc: 'Alien territory. Aggressive, well defended, and quick on the trigger.',
+                starColor: '#d9a8ff',
+                tint: 'rgba(100, 40, 140, 0.12)',
+                fog: 0,
+                debrisMult: 0.4, alienMult: 2.2, crystalMult: 0.7, fuelPickupMult: 0.8, healthPickupMult: 0.8,
+                debrisReward: 5, alienReward: 15, crystalReward: 50, crystalFillMult: 1.0,
+                debrisColor: '#453a56', alienColor: '#9d4edd',
+                fuelDrainMult: 1.0, passiveFuelDrain: 0, fuelRegenBonus: 0,
+                guardianChance: 0.18,
+                debrisSpeedMult: 1.0, debrisHealthMult: 1.0,
+                frictionBoost: 0,
+                alienShootMult: 0.7, alienBulletSpeedMult: 1.3,
+                hasSalvage: false, salvageReward: 0,
+                material: { id: 'chitin', name: 'Chitin Resin', color: '#d9a8ff' }
+            },
+            nebula: {
+                id: 'nebula',
+                name: 'Crystal Nebula',
+                desc: 'Stardust-rich haze. Beautiful, but hard to see far in the fog.',
+                starColor: '#ffb3d9',
+                tint: 'rgba(190, 60, 160, 0.14)',
+                fog: 0.35,
+                debrisMult: 0.8, alienMult: 0.5, crystalMult: 2.4, fuelPickupMult: 1.0, healthPickupMult: 1.0,
+                debrisReward: 5, alienReward: 10, crystalReward: 80, crystalFillMult: 0.7,
+                debrisColor: '#7a5a8a', alienColor: '#c77dff',
+                fuelDrainMult: 1.0, passiveFuelDrain: 0, fuelRegenBonus: 0,
+                guardianChance: 0,
+                debrisSpeedMult: 0.9, debrisHealthMult: 1.0,
+                frictionBoost: 0,
+                alienShootMult: 1.0, alienBulletSpeedMult: 1.0,
+                hasSalvage: false, salvageReward: 0,
+                material: { id: 'prism', name: 'Prism Dust', color: '#ffb3d9' }
+            },
+            void: {
+                id: 'void',
+                name: 'The Void Reach',
+                desc: 'Sparse and hostile. Engines strain here - but so do rewards.',
+                starColor: '#8899cc',
+                tint: 'rgba(5, 5, 20, 0.35)',
+                fog: 0,
+                debrisMult: 0.35, alienMult: 0.35, crystalMult: 0.5, fuelPickupMult: 0.6, healthPickupMult: 0.6,
+                debrisReward: 12, alienReward: 40, crystalReward: 90, crystalFillMult: 1.0,
+                debrisColor: '#2e2a4a', alienColor: '#5a4a9d',
+                fuelDrainMult: 1.5, passiveFuelDrain: 0, fuelRegenBonus: 0,
+                guardianChance: 0.08,
+                debrisSpeedMult: 1.15, debrisHealthMult: 1.0,
+                frictionBoost: 0,
+                alienShootMult: 0.85, alienBulletSpeedMult: 1.15,
+                hasSalvage: false, salvageReward: 0,
+                material: { id: 'nullfrag', name: 'Null Fragment', color: '#8899cc' }
+            },
+            storm: {
+                id: 'storm',
+                name: 'The Ion Storm',
+                desc: 'Charged wreckage whips around erratically. Interference drains your cells.',
+                starColor: '#a8e6ff',
+                tint: 'rgba(70, 160, 220, 0.14)',
+                fog: 0,
+                debrisMult: 1.3, alienMult: 0.8, crystalMult: 0.9, fuelPickupMult: 1.1, healthPickupMult: 0.9,
+                debrisReward: 7, alienReward: 12, crystalReward: 60, crystalFillMult: 1.0,
+                debrisColor: '#3a86ff', alienColor: '#7fdbff',
+                fuelDrainMult: 1.0, passiveFuelDrain: 0.012, fuelRegenBonus: 0,
+                guardianChance: 0.05,
+                debrisSpeedMult: 1.6, debrisHealthMult: 0.9,
+                frictionBoost: 0,
+                alienShootMult: 0.9, alienBulletSpeedMult: 1.2,
+                hasSalvage: false, salvageReward: 0,
+                material: { id: 'coil', name: 'Charged Coil', color: '#a8e6ff' }
+            },
+            ice: {
+                id: 'ice',
+                name: 'The Frozen Expanse',
+                desc: 'Icebergs drift lazily. Frictionless and hard to control.',
+                starColor: '#dff6ff',
+                tint: 'rgba(160, 220, 255, 0.10)',
+                fog: 0,
+                debrisMult: 1.3, alienMult: 0.5, crystalMult: 1.1, fuelPickupMult: 0.9, healthPickupMult: 1.0,
+                debrisReward: 6, alienReward: 10, crystalReward: 70, crystalFillMult: 1.0,
+                debrisColor: '#a8dfff', alienColor: '#c77dff',
+                fuelDrainMult: 1.2, passiveFuelDrain: 0, fuelRegenBonus: 0,
+                guardianChance: 0,
+                debrisSpeedMult: 0.5, debrisHealthMult: 1.3,
+                frictionBoost: 0.025,
+                alienShootMult: 1.0, alienBulletSpeedMult: 1.0,
+                hasSalvage: false, salvageReward: 0,
+                material: { id: 'shard', name: 'Glacial Shard', color: '#dff6ff' }
+            },
+            ember: {
+                id: 'ember',
+                name: 'The Ember Reach',
+                desc: 'Radiant heat off a dying star. Fuel is abundant, but engines never fully idle.',
+                starColor: '#ffb347',
+                tint: 'rgba(230, 90, 30, 0.14)',
+                fog: 0,
+                debrisMult: 1.0, alienMult: 0.8, crystalMult: 1.0, fuelPickupMult: 2.0, healthPickupMult: 0.8,
+                debrisReward: 6, alienReward: 10, crystalReward: 55, crystalFillMult: 1.0,
+                debrisColor: '#b5502f', alienColor: '#ff9770',
+                fuelDrainMult: 1.0, passiveFuelDrain: 0.02, fuelRegenBonus: 0,
+                guardianChance: 0,
+                debrisSpeedMult: 1.1, debrisHealthMult: 1.0,
+                frictionBoost: 0,
+                alienShootMult: 1.0, alienBulletSpeedMult: 1.0,
+                hasSalvage: false, salvageReward: 0,
+                material: { id: 'cinder', name: 'Cinder Core', color: '#ffb347' }
+            },
+            ghost: {
+                id: 'ghost',
+                name: 'The Ghost Sector',
+                desc: 'A derelict fleet drifts in silence. Salvage the wrecks if you dare linger.',
+                starColor: '#b8c9b0',
+                tint: 'rgba(60, 80, 60, 0.16)',
+                fog: 0.15,
+                debrisMult: 1.0, alienMult: 0.3, crystalMult: 0.6, fuelPickupMult: 0.7, healthPickupMult: 0.7,
+                debrisReward: 6, alienReward: 10, crystalReward: 55, crystalFillMult: 1.0,
+                debrisColor: '#6b7a6b', alienColor: '#9fb89f',
+                fuelDrainMult: 1.0, passiveFuelDrain: 0, fuelRegenBonus: 0,
+                guardianChance: 0,
+                debrisSpeedMult: 0.3, debrisHealthMult: 1.6,
+                frictionBoost: 0,
+                alienShootMult: 1.0, alienBulletSpeedMult: 1.0,
+                hasSalvage: true, salvageReward: 35,
+                material: { id: 'circuit', name: 'Derelict Circuit', color: '#b8c9b0' }
+            },
+            warzone: {
+                id: 'warzone',
+                name: 'The Crimson Rift',
+                desc: 'The remains of an old war. Everything here is dangerous - and everything pays.',
+                starColor: '#ff6b6b',
+                tint: 'rgba(160, 20, 30, 0.16)',
+                fog: 0,
+                debrisMult: 1.5, alienMult: 1.8, crystalMult: 0.8, fuelPickupMult: 0.8, healthPickupMult: 0.8,
+                debrisReward: 9, alienReward: 18, crystalReward: 70, crystalFillMult: 1.0,
+                debrisColor: '#7a2a2a', alienColor: '#ff4d6d',
+                fuelDrainMult: 1.1, passiveFuelDrain: 0, fuelRegenBonus: 0,
+                guardianChance: 0.22,
+                debrisSpeedMult: 1.2, debrisHealthMult: 1.1,
+                frictionBoost: 0,
+                alienShootMult: 0.75, alienBulletSpeedMult: 1.25,
+                hasSalvage: false, salvageReward: 0,
+                material: { id: 'waralloy', name: 'War Alloy', color: '#ff6b6b' }
+            }
+        };
+        const WILD_BIOME_IDS = ['debris', 'hive', 'nebula', 'void', 'storm', 'ice', 'ember', 'ghost', 'warzone'];
+
+        function biomeHash(tx, ty) {
+            let h = (tx * 198491317 + ty * 6542989 + 0x2545F491) | 0;
+            h = Math.imul(h ^ (h >>> 13), 2246822519);
+            h = Math.imul(h ^ (h >>> 15), 3266489917);
+            return (h ^ (h >>> 16)) >>> 0;
+        }
+
+        function getBiome(x, y) {
+            if (Math.hypot(x - spawnAnchor.x, y - spawnAnchor.y) < HOME_SAFE_RADIUS) {
+                return BIOMES.home;
+            }
+            const tx = Math.floor(x / BIOME_TILE_SIZE);
+            const ty = Math.floor(y / BIOME_TILE_SIZE);
+            const idx = biomeHash(tx, ty) % WILD_BIOME_IDS.length;
+            return BIOMES[WILD_BIOME_IDS[idx]];
+        }
+
+        // Spirals outward tile-ring by tile-ring from (x,y) until it finds a
+        // tile matching targetId, returning that tile's center. Used by the
+        // Sector Beacon upgrade to point the player toward a chosen biome.
+        function findNearestBiomeTile(targetId, x, y, maxRingRadius = 60) {
+            const tx0 = Math.floor(x / BIOME_TILE_SIZE);
+            const ty0 = Math.floor(y / BIOME_TILE_SIZE);
+            for (let r = 0; r <= maxRingRadius; r++) {
+                let best = null;
+                let bestDist = Infinity;
+                for (let dx = -r; dx <= r; dx++) {
+                    for (let dy = -r; dy <= r; dy++) {
+                        if (Math.max(Math.abs(dx), Math.abs(dy)) !== r) continue; // perimeter only
+                        const cx = (tx0 + dx) * BIOME_TILE_SIZE + BIOME_TILE_SIZE / 2;
+                        const cy = (ty0 + dy) * BIOME_TILE_SIZE + BIOME_TILE_SIZE / 2;
+                        if (getBiome(cx, cy).id === targetId) {
+                            const d = Math.hypot(cx - x, cy - y);
+                            if (d < bestDist) { bestDist = d; best = { x: cx, y: cy, dist: d }; }
+                        }
+                    }
+                }
+                if (best) return best;
+            }
+            return null;
+        }
+
+        let beaconTargetIndex = 0;
+        let beaconTarget = null; // { x, y, dist }
+        let beaconRecalcTimer = 0;
+
+        function cycleBeaconTarget() {
+            beaconTargetIndex = (beaconTargetIndex + 1) % WILD_BIOME_IDS.length;
+            beaconTarget = null;
+            beaconRecalcTimer = 999; // force immediate recalculation
+            updateBeaconHud();
+        }
+
+        function updateBeaconHud() {
+            if (!player.hasBeacon) {
+                beaconHud.style.display = "none";
+                return;
+            }
+            const targetBiome = BIOMES[WILD_BIOME_IDS[beaconTargetIndex]];
+            beaconHud.style.display = "block";
+            beaconHud.style.borderColor = targetBiome.starColor;
+            beaconHud.style.color = targetBiome.starColor;
+            if (beaconTarget) {
+                beaconHud.textContent = `BEACON [B]: ${targetBiome.name.toUpperCase()} — ${Math.round(beaconTarget.dist)}m`;
+            } else {
+                beaconHud.textContent = `BEACON [B]: ${targetBiome.name.toUpperCase()} — locating...`;
+            }
+        }
+
+        let spawnAnchor = { x: 0, y: 0 };
+        let currentBiomeId = 'home';
+        let activeBiome = BIOMES.home;
+        let biomeBannerTimeout = null;
+
+        function announceBiome(biome) {
+            if (biome.id === currentBiomeId) return;
+            currentBiomeId = biome.id;
+            regionLabel.textContent = biome.name.toUpperCase();
+
+            biomeBannerName.textContent = biome.name;
+            biomeBannerDesc.textContent = biome.desc;
+            biomeBanner.style.color = biome.starColor;
+            biomeBanner.style.background = 'rgba(23, 21, 38, 0.92)';
+            biomeBanner.style.border = `1px solid ${biome.starColor}`;
+            biomeBanner.classList.add('visible');
+
+            if (biomeBannerTimeout) clearTimeout(biomeBannerTimeout);
+            biomeBannerTimeout = setTimeout(() => {
+                biomeBanner.classList.remove('visible');
+            }, 3200);
+        }
+
         const menuScreen = document.getElementById("menu-screen");
         const shopScreen = document.getElementById("shop-screen");
         const tutorialScreen = document.getElementById("tutorial-screen");
@@ -459,7 +903,48 @@
         const difficultyToggleBtn = document.getElementById("difficulty-toggle-btn");
 
         let score = 0;
-        let totalCredits = 0; 
+        let totalCredits = 0;
+        // Materials pouch: id -> count. One material type per wild biome,
+        // dropped by that biome's crystals/debris/aliens. In-memory only,
+        // same as totalCredits (resets on refresh).
+        let materials = {};
+        const MATERIAL_LIST = WILD_BIOME_IDS.map(id => ({ ...BIOMES[id].material, biomeName: BIOMES[id].name }));
+        function addMaterial(id, amount) {
+            materials[id] = (materials[id] || 0) + amount;
+        }
+        function hasMaterials(cost) {
+            return Object.entries(cost).every(([id, amt]) => (materials[id] || 0) >= amt);
+        }
+        function spendMaterials(cost) {
+            for (const [id, amt] of Object.entries(cost)) {
+                materials[id] -= amt;
+            }
+        }
+        function materialName(id) {
+            const m = MATERIAL_LIST.find(m => m.id === id);
+            return m ? m.name : id;
+        }
+        // Craft recipes: each blessing/passive costs a Stardust fee plus a
+        // small set of biome materials. Cheap ones lean on a single biome;
+        // pricier ones deliberately mix materials from two different biomes
+        // so the strongest gear requires having explored further out.
+        const CRAFT_RECIPES = {
+            blink:  { sd: 25, mats: { prism: 2 } },
+            magnet: { sd: 30, mats: { scrap: 2 } },
+            decoy:  { sd: 35, mats: { chitin: 2 } },
+            pulse:  { sd: 35, mats: { cinder: 1, coil: 1 } },
+            cloak:  { sd: 40, mats: { prism: 1, coil: 1 } },
+            shield: { sd: 45, mats: { shard: 1, circuit: 1 } },
+            mending:{ sd: 40, mats: { chitin: 1, shard: 1 } },
+            beacon: { sd: 60, mats: { circuit: 1, nullfrag: 1 } },
+            rewind: { sd: 50, mats: { nullfrag: 1, waralloy: 1 } }
+        };
+        function craftCostLabel(recipe) {
+            const matPart = Object.entries(recipe.mats)
+                .map(([id, amt]) => `${amt}x ${materialName(id)}`)
+                .join(' + ');
+            return `${recipe.sd} SD + ${matPart}`;
+        }
         let highScore = 0;
         let gameRunning = false;
         let gamePaused = false;
@@ -534,8 +1019,8 @@
         let docked = false;
 
         const sanctuary = {
-            x: WORLD_WIDTH / 2 + 750,
-            y: WORLD_HEIGHT / 2 - 550,
+            x: 750,
+            y: -550,
             radius: 55,
             dockRange: 110,
             safeRadius: 130
@@ -556,9 +1041,15 @@
         let konamiInputIndex = 0;
 
         function loadGameData() {
-            // Persistence is disabled: nothing is read from storage.
-            // All progress (Stardust, upgrades, blessings, high score) is
-            // in-memory only for this browser session and resets on refresh.
+            // Only the high score is persisted (in localStorage). Upgrades,
+            // blessings, and Stardust pouch remain in-memory only and reset
+            // on refresh, since purchasing upgrades is disabled.
+            try {
+                const savedHigh = localStorage.getItem("stellarDrift_highScore");
+                if (savedHigh !== null) {
+                    highScore = parseInt(savedHigh, 10) || 0;
+                }
+            } catch (e) {}
             applyUpgradeStats();
             fuel = maxFuel;
             health = maxHealth;
@@ -566,7 +1057,9 @@
         }
 
         function saveGameData() {
-            // Persistence is disabled intentionally - no-op.
+            try {
+                localStorage.setItem("stellarDrift_highScore", String(highScore));
+            } catch (e) {}
         }
 
         let currentDifficulty = 'normal'; 
@@ -705,22 +1198,65 @@
             },
             {
                 title: "STEP 5: THE SANCTUARY",
-                text: "Fly to the golden Sanctuary station and press <strong>E</strong> to dock. Its field auto-shatters any debris or aliens that get close, so you're always safe there. Spend your Stardust on permanent blessings and upgrades."
+                text: "Fly to the golden Sanctuary station and press <strong>E</strong> to dock. Its field auto-shatters any debris or aliens that get close, so you're always safe there. Spend Stardust on ship upgrades, and craft blessings using Stardust plus the biome materials you salvage out in the sector."
             },
             {
                 title: "STEP 6: ABILITIES & PAUSING",
                 text: "Press <strong>SPACEBAR</strong> to activate your equipped blessing, and press <strong>ESC</strong> to pause."
+            },
+            {
+                title: "STEP 7: BIOMES",
+                text: "The sector is infinite and made of distinct biomes &mdash; each with its own hazards, rewards, and a unique crafting material dropped by its crystals, debris, and aliens. If you craft the Sector Beacon, press <strong>B</strong> in-flight to cycle which biome you're hunting for, and follow the compass arrow to find it."
             }
         ];
 
-        const ambientStars = [];
-        for(let i=0; i<450; i++) {
-            ambientStars.push({
-                x: Math.random() * WORLD_WIDTH,
-                y: Math.random() * WORLD_HEIGHT,
-                size: Math.random() * 2 + 1,
-                alpha: Math.random()
-            });
+        // Infinite starfield: instead of storing a finite array of stars,
+        // tile space into fixed-size cells and deterministically generate
+        // the same stars for a given cell every time (via a seeded hash),
+        // so the field looks identical and seamless no matter how far you fly.
+        const STAR_TILE_SIZE = 300;
+        const STARS_PER_TILE = 5;
+
+        function hashSeed(x, y) {
+            let h = (x * 374761393 + y * 668265263) | 0;
+            h = Math.imul(h ^ (h >>> 13), 1274126177);
+            return (h ^ (h >>> 16)) >>> 0;
+        }
+
+        function mulberry32(seed) {
+            return function() {
+                seed |= 0; seed = (seed + 0x6D2B79F5) | 0;
+                let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+                t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+                return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+            };
+        }
+
+        function drawInfiniteStars(camX, camY, viewW, viewH) {
+            const startTX = Math.floor(camX / STAR_TILE_SIZE) - 1;
+            const endTX = Math.floor((camX + viewW) / STAR_TILE_SIZE) + 1;
+            const startTY = Math.floor(camY / STAR_TILE_SIZE) - 1;
+            const endTY = Math.floor((camY + viewH) / STAR_TILE_SIZE) + 1;
+            const now = Date.now();
+
+            for (let tx = startTX; tx <= endTX; tx++) {
+                for (let ty = startTY; ty <= endTY; ty++) {
+                    const tileCenterX = tx * STAR_TILE_SIZE + STAR_TILE_SIZE / 2;
+                    const tileCenterY = ty * STAR_TILE_SIZE + STAR_TILE_SIZE / 2;
+                    ctx.fillStyle = getBiome(tileCenterX, tileCenterY).starColor;
+                    const rand = mulberry32(hashSeed(tx, ty));
+                    for (let i = 0; i < STARS_PER_TILE; i++) {
+                        const sx = tx * STAR_TILE_SIZE + rand() * STAR_TILE_SIZE;
+                        const sy = ty * STAR_TILE_SIZE + rand() * STAR_TILE_SIZE;
+                        const size = rand() * 2 + 1;
+                        const phase = rand() * Math.PI * 2;
+                        const alpha = (Math.sin(now / 600 + phase) + 1) / 2 * 0.4 + 0.1;
+                        ctx.globalAlpha = alpha;
+                        ctx.fillRect(sx - camX, sy - camY, size, size);
+                    }
+                }
+            }
+            ctx.globalAlpha = 1.0;
         }
 
         const camera = { x: 0, y: 0 };
@@ -729,13 +1265,15 @@
         let crystals = [];
         let fuelCanisters = [];
         let healthPickups = [];
+        let salvageCrates = []; // only spawn in the Ghost Sector biome
         let crystalSpawnTimer = 0;
         let fuelSpawnTimer = 0;
         let healthSpawnTimer = 0;
+        let salvageSpawnTimer = 0;
 
         const player = {
-            x: WORLD_WIDTH / 2,
-            y: WORLD_HEIGHT / 2,
+            x: 0,
+            y: 0,
             vx: 0,
             vy: 0,
             accel: 0.38,
@@ -746,7 +1284,8 @@
             cooldownTime: 0,
             maxCooldown: 0,
             hasShield: false,
-            hasMending: false
+            hasMending: false,
+            hasBeacon: false
         };
 
         let obstacles = [];
@@ -773,6 +1312,9 @@
                 if (distToSanctuary < sanctuary.dockRange) {
                     dock();
                 }
+            }
+            if (e.code === "KeyB" && gameRunning && !gamePaused && !docked && player.hasBeacon) {
+                cycleBeaconTarget();
             }
 
             if (!shopScreen.classList.contains("hidden")) {
@@ -852,7 +1394,8 @@
                 cheatStatus.textContent = isCheatedRun ? `✨ CHEATS: ${cheatedAbilityMode.toUpperCase()} ACTIVE ✨` : "";
             }
             updateUpgradeShopUI();
-            updateMendingButton();
+            updateCraftShopUI();
+            updateShopWallet();
             showScreen(shopScreen);
         }
 
@@ -889,28 +1432,43 @@
             }
         }
 
-        function buyAbility(type, cost) {
-            if (totalCredits >= cost) {
-                totalCredits -= cost;
-                player.equippedAbility = type;
-                if (type === 'shield') player.hasShield = true;
-                alert(`Unlocked blessing: ${type.toUpperCase()}`);
-            } else {
-                alert("Not enough stardust yet! Gather more credits in the sector.");
+        // Shared check: can we afford a recipe's Stardust fee + material cost?
+        function canAffordRecipe(recipe) {
+            return totalCredits >= recipe.sd && hasMaterials(recipe.mats);
+        }
+
+        function craftRecipe(recipe) {
+            totalCredits -= recipe.sd;
+            spendMaterials(recipe.mats);
+        }
+
+        function buyAbility(type) {
+            const recipe = CRAFT_RECIPES[type];
+            if (!canAffordRecipe(recipe)) {
+                alert(`Missing materials or Stardust! Need ${craftCostLabel(recipe)}.`);
+                return;
             }
+            craftRecipe(recipe);
+            player.equippedAbility = type;
+            if (type === 'shield') player.hasShield = true;
+            playSound('crystal');
+            alert(`Crafted blessing: ${type.toUpperCase()}`);
+            updateHudDisplay();
+            updateShopWallet();
         }
 
         function buyMending() {
             if (player.hasMending) return;
-            const cost = 90;
-            if (totalCredits < cost) {
-                alert("Not enough stardust yet! Gather more credits in the sector.");
+            const recipe = CRAFT_RECIPES.mending;
+            if (!canAffordRecipe(recipe)) {
+                alert(`Missing materials or Stardust! Need ${craftCostLabel(recipe)}.`);
                 return;
             }
-            totalCredits -= cost;
+            craftRecipe(recipe);
             player.hasMending = true;
             playSound('crystal');
             updateMendingButton();
+            updateShopWallet();
         }
 
         function updateMendingButton() {
@@ -920,9 +1478,72 @@
                 btn.textContent = "OWNED";
                 btn.disabled = true;
             } else {
-                btn.textContent = "90 SD";
-                btn.disabled = false;
+                btn.textContent = "CRAFT";
+                btn.disabled = !canAffordRecipe(CRAFT_RECIPES.mending);
             }
+        }
+
+        function buyBeacon() {
+            if (player.hasBeacon) return;
+            const recipe = CRAFT_RECIPES.beacon;
+            if (!canAffordRecipe(recipe)) {
+                alert(`Missing materials or Stardust! Need ${craftCostLabel(recipe)}.`);
+                return;
+            }
+            craftRecipe(recipe);
+            player.hasBeacon = true;
+            playSound('crystal');
+            updateBeaconButton();
+            updateShopWallet();
+            updateBeaconHud();
+        }
+
+        function updateBeaconButton() {
+            const btn = document.getElementById('buy-beacon-btn');
+            if (!btn) return;
+            if (player.hasBeacon) {
+                btn.textContent = "OWNED";
+                btn.disabled = true;
+            } else {
+                btn.textContent = "CRAFT";
+                btn.disabled = !canAffordRecipe(CRAFT_RECIPES.beacon);
+            }
+        }
+
+        // Renders the material pouch chips and refreshes every craft button's
+        // cost label / disabled state against current Stardust + materials.
+        function updateCraftShopUI() {
+            const pouch = document.getElementById('materials-pouch');
+            if (pouch) {
+                pouch.innerHTML = MATERIAL_LIST.map(m => {
+                    const count = materials[m.id] || 0;
+                    return `<div class="material-chip"><span class="dot" style="background:${m.color}; box-shadow:0 0 5px ${m.color};"></span><span class="material-chip-text"><span class="material-name">${m.name}: ${count}</span><span class="material-source">${m.biomeName}</span></span></div>`;
+                }).join('');
+            }
+            for (const type of Object.keys(CRAFT_RECIPES)) {
+                if (type === 'mending' || type === 'beacon') continue; // handled by their own buttons
+                const recipe = CRAFT_RECIPES[type];
+                const costEl = document.getElementById(`cost-${type}`);
+                const btn = document.getElementById(`buy-${type}-btn`);
+                const affordable = canAffordRecipe(recipe);
+                if (costEl) {
+                    costEl.textContent = `Craft: ${craftCostLabel(recipe)}`;
+                    costEl.classList.toggle('insufficient', !affordable);
+                }
+                if (btn) btn.disabled = false; // allow click so the alert explains what's missing
+            }
+            const mendCost = document.getElementById('cost-mending');
+            if (mendCost) {
+                mendCost.textContent = `Craft: ${craftCostLabel(CRAFT_RECIPES.mending)}`;
+                mendCost.classList.toggle('insufficient', !canAffordRecipe(CRAFT_RECIPES.mending));
+            }
+            const beaconCost = document.getElementById('cost-beacon');
+            if (beaconCost) {
+                beaconCost.textContent = `Craft: ${craftCostLabel(CRAFT_RECIPES.beacon)}`;
+                beaconCost.classList.toggle('insufficient', !canAffordRecipe(CRAFT_RECIPES.beacon));
+            }
+            updateMendingButton();
+            updateBeaconButton();
         }
 
         function buyUpgrade(type) {
@@ -950,6 +1571,7 @@
             playSound('fuel');
             updateUpgradeShopUI();
             updateHudDisplay();
+            updateShopWallet();
         }
 
         function updateUpgradeShopUI() {
@@ -1049,6 +1671,7 @@
             crystals = [];
             fuelCanisters = [];
             healthPickups = [];
+            salvageCrates = [];
             aliens = [];
             playerBullets = [];
             alienBullets = [];
@@ -1059,6 +1682,7 @@
             crystalSpawnTimer = 0;
             fuelSpawnTimer = 0;
             healthSpawnTimer = 0;
+            salvageSpawnTimer = 0;
             alienSpawnTimer = 0;
             activeEffectTimer = 0;
             
@@ -1073,8 +1697,29 @@
                 speedMultiplier = 1.0;
             }
 
-            player.x = WORLD_WIDTH / 2;
-            player.y = WORLD_HEIGHT / 2;
+            // Randomize where this run begins and where the Sanctuary sits
+            // relative to it, so every drift starts in a different patch of
+            // the infinite sector.
+            spawnAnchor = {
+                x: (Math.random() - 0.5) * 100000,
+                y: (Math.random() - 0.5) * 100000
+            };
+            const sanctuaryAngle = Math.random() * Math.PI * 2;
+            const sanctuaryDist = 700 + Math.random() * 500;
+            sanctuary.x = spawnAnchor.x + Math.cos(sanctuaryAngle) * sanctuaryDist;
+            sanctuary.y = spawnAnchor.y + Math.sin(sanctuaryAngle) * sanctuaryDist;
+
+            currentBiomeId = 'home';
+            regionLabel.textContent = 'SANCTUARY FIELDS';
+            biomeBanner.classList.remove('visible');
+            if (biomeBannerTimeout) clearTimeout(biomeBannerTimeout);
+
+            beaconTarget = null;
+            beaconRecalcTimer = 999;
+            updateBeaconHud();
+
+            player.x = spawnAnchor.x;
+            player.y = spawnAnchor.y;
             player.vx = 0;
             player.vy = 0;
             player.cooldownTime = 0;
@@ -1099,9 +1744,43 @@
             loop();
         }
 
+        function lerpHue(h1, h2, t) {
+            // Always takes the shortest path around the color wheel.
+            const diff = ((h2 - h1 + 540) % 360) - 180;
+            return (h1 + diff * t + 360) % 360;
+        }
+
+        function lerp(a, b, t) {
+            return a + (b - a) * t;
+        }
+
+        // HSL keypoints matching the game's palette:
+        // full tank = green (#06d6a0), half tank = orange, empty = red/rose (#e2738a)
+        const FUEL_HSL_FULL = { h: 164, s: 95, l: 43 };
+        const FUEL_HSL_MID  = { h: 39,  s: 100, l: 56 };
+        const FUEL_HSL_LOW  = { h: 348, s: 66, l: 67 };
+
+        function getFuelColor(ratio) {
+            ratio = Math.max(0, Math.min(1, ratio));
+            let a, b, t;
+            if (ratio > 0.5) {
+                a = FUEL_HSL_FULL;
+                b = FUEL_HSL_MID;
+                t = 1 - (ratio - 0.5) / 0.5; // 0 at full, 1 at half
+            } else {
+                a = FUEL_HSL_MID;
+                b = FUEL_HSL_LOW;
+                t = 1 - ratio / 0.5; // 0 at half, 1 at empty
+            }
+            const h = lerpHue(a.h, b.h, t);
+            const s = lerp(a.s, b.s, t);
+            const l = lerp(a.l, b.l, t);
+            return `hsl(${h.toFixed(1)}, ${s.toFixed(0)}%, ${l.toFixed(0)}%)`;
+        }
+
         function updateHudDisplay() {
             fuelBar.style.width = `${Math.max(0, fuel)}%`;
-            fuelBar.style.backgroundColor = fuel < 25 ? '#e2738a' : '#06d6a0';
+            fuelBar.style.backgroundColor = getFuelColor(fuel / maxFuel);
 
             healthBar.style.width = `${Math.max(0, (health / maxHealth) * 100)}%`;
             healthBar.style.opacity = (invulnTime > 0) ? 0.5 : 1.0;
@@ -1134,7 +1813,6 @@
             gameRunning = false;
             cancelAnimationFrame(animationFrameId);
             
-            totalCredits += score; 
             if (score > highScore) {
                 highScore = score;
                 highScoreDisplay.textContent = `HIGH: ${highScore}`;
@@ -1160,19 +1838,20 @@
 
             let x, y, attempts = 0;
             do {
-                x = Math.random() * WORLD_WIDTH;
-                y = Math.random() * WORLD_HEIGHT;
+                const angle = Math.random() * Math.PI * 2;
+                const dist = 400 + Math.random() * 700; // ring around the player, just out of view
+                x = player.x + Math.cos(angle) * dist;
+                y = player.y + Math.sin(angle) * dist;
                 attempts++;
             } while (
-                attempts < 20 && (
-                    Math.hypot(x - sanctuary.x, y - sanctuary.y) < sanctuary.safeRadius + 150 ||
-                    Math.hypot(x - player.x, y - player.y) < 260
-                )
+                attempts < 20 &&
+                Math.hypot(x - sanctuary.x, y - sanctuary.y) < sanctuary.safeRadius + 150
             );
 
             const angle = Math.random() * Math.PI * 2;
-            let baseSpeed = (Math.random() * 1.2 + 1.8 + (score / 400)) * speedMultiplier;
-            const debrisHealth = Math.round(size * 2);
+            const biome = getBiome(x, y);
+            let baseSpeed = (Math.random() * 1.2 + 1.8 + (score / 400)) * speedMultiplier * biome.debrisSpeedMult;
+            const debrisHealth = Math.round(size * 2 * biome.debrisHealthMult);
 
             obstacles.push({
                 x: x,
@@ -1181,7 +1860,10 @@
                 vy: Math.sin(angle) * baseSpeed,
                 size: size,
                 health: debrisHealth,
-                maxHealth: debrisHealth
+                maxHealth: debrisHealth,
+                reward: biome.debrisReward,
+                color: biome.debrisColor,
+                material: biome.material ? biome.material.id : null
             });
         }
 
@@ -1190,55 +1872,62 @@
 
             let x, y, attempts = 0;
             do {
-                x = Math.random() * WORLD_WIDTH;
-                y = Math.random() * WORLD_HEIGHT;
+                const angle = Math.random() * Math.PI * 2;
+                const dist = 500 + Math.random() * 800; // ring around the player, just out of view
+                x = player.x + Math.cos(angle) * dist;
+                y = player.y + Math.sin(angle) * dist;
                 attempts++;
             } while (
-                attempts < 20 && (
-                    Math.hypot(x - sanctuary.x, y - sanctuary.y) < sanctuary.safeRadius + 200 ||
-                    Math.hypot(x - player.x, y - player.y) < 400
-                )
+                attempts < 20 &&
+                Math.hypot(x - sanctuary.x, y - sanctuary.y) < sanctuary.safeRadius + 200
             );
 
             const wanderAngle = Math.random() * Math.PI * 2;
             const wanderSpeed = Math.random() * 0.6 + 0.3;
+            const biome = getBiome(x, y);
+            const isGuardian = Math.random() < biome.guardianChance;
+            const guardianMult = isGuardian ? 2.2 : 1;
 
             aliens.push({
                 x: x,
                 y: y,
-                vx: Math.cos(wanderAngle) * wanderSpeed,
-                vy: Math.sin(wanderAngle) * wanderSpeed,
-                size: 20,
-                health: ALIEN_MAX_HEALTH,
-                maxHealth: ALIEN_MAX_HEALTH,
+                vx: Math.cos(wanderAngle) * wanderSpeed * (isGuardian ? 0.6 : 1),
+                vy: Math.sin(wanderAngle) * wanderSpeed * (isGuardian ? 0.6 : 1),
+                size: 20 * (isGuardian ? 1.5 : 1),
+                health: Math.round(ALIEN_MAX_HEALTH * guardianMult),
+                maxHealth: Math.round(ALIEN_MAX_HEALTH * guardianMult),
                 shootCooldown: Math.random() * ALIEN_SHOOT_INTERVAL,
-                wanderTimer: 120 + Math.random() * 120
+                wanderTimer: 120 + Math.random() * 120,
+                reward: Math.round(biome.alienReward * guardianMult),
+                color: biome.alienColor,
+                shootMult: biome.alienShootMult,
+                bulletSpeedMult: biome.alienBulletSpeedMult,
+                isGuardian: isGuardian,
+                material: biome.material ? biome.material.id : null
             });
         }
 
         function spawnCrystal() {
-            const margin = 80;
             const range = 700;
             let x = player.x + (Math.random() - 0.5) * range * 2;
             let y = player.y + (Math.random() - 0.5) * range * 2;
-            x = Math.max(margin, Math.min(WORLD_WIDTH - margin, x));
-            y = Math.max(margin, Math.min(WORLD_HEIGHT - margin, y));
+            const biome = getBiome(x, y);
+            const baseMax = cheatedAbilityMode === 'vacuum' ? 60 : 600;
             crystals.push({
                 x: x,
                 y: y,
                 progress: 0,
-                maxProgress: cheatedAbilityMode === 'vacuum' ? 60 : 600,
-                size: 12
+                maxProgress: Math.round(baseMax * biome.crystalFillMult),
+                size: 12,
+                reward: biome.crystalReward,
+                material: biome.material ? biome.material.id : null
             });
         }
 
         function spawnFuel() {
-            const margin = 80;
             const range = 700;
             let x = player.x + (Math.random() - 0.5) * range * 2;
             let y = player.y + (Math.random() - 0.5) * range * 2;
-            x = Math.max(margin, Math.min(WORLD_WIDTH - margin, x));
-            y = Math.max(margin, Math.min(WORLD_HEIGHT - margin, y));
             fuelCanisters.push({
                 x: x,
                 y: y,
@@ -1247,16 +1936,26 @@
         }
 
         function spawnHealthPickup() {
-            const margin = 80;
             const range = 700;
             let x = player.x + (Math.random() - 0.5) * range * 2;
             let y = player.y + (Math.random() - 0.5) * range * 2;
-            x = Math.max(margin, Math.min(WORLD_WIDTH - margin, x));
-            y = Math.max(margin, Math.min(WORLD_HEIGHT - margin, y));
             healthPickups.push({
                 x: x,
                 y: y,
                 size: 10
+            });
+        }
+
+        function spawnSalvage() {
+            const range = 700;
+            let x = player.x + (Math.random() - 0.5) * range * 2;
+            let y = player.y + (Math.random() - 0.5) * range * 2;
+            const biome = getBiome(x, y);
+            salvageCrates.push({
+                x: x,
+                y: y,
+                size: 11,
+                reward: biome.salvageReward || 35
             });
         }
 
@@ -1288,6 +1987,20 @@
             if (invulnTime > 0) invulnTime--;
             if (shotCooldown > 0) shotCooldown--;
 
+            const currentBiome = getBiome(player.x, player.y);
+            activeBiome = currentBiome;
+            announceBiome(currentBiome);
+
+            if (player.hasBeacon) {
+                beaconRecalcTimer++;
+                if (beaconRecalcTimer >= 90) {
+                    beaconRecalcTimer = 0;
+                    const targetId = WILD_BIOME_IDS[beaconTargetIndex];
+                    beaconTarget = findNearestBiomeTile(targetId, player.x, player.y);
+                    updateBeaconHud();
+                }
+            }
+
             if (mouseDown && !docked) {
                 tryFireWeapon();
             }
@@ -1314,15 +2027,20 @@
             }
 
             if (accelerating) {
-                fuel -= 0.08;
+                fuel -= 0.08 * currentBiome.fuelDrainMult;
                 if (fuel <= 0) fuel = 0;
             } else {
-                fuel += 0.02;
+                fuel += 0.02 + currentBiome.fuelRegenBonus;
                 if (fuel > maxFuel) fuel = maxFuel;
             }
+            if (currentBiome.passiveFuelDrain > 0) {
+                fuel -= currentBiome.passiveFuelDrain;
+                if (fuel <= 0) fuel = 0;
+            }
 
-            player.vx *= player.friction;
-            player.vy *= player.friction;
+            const effectiveFriction = Math.min(0.995, player.friction + currentBiome.frictionBoost);
+            player.vx *= effectiveFriction;
+            player.vy *= effectiveFriction;
 
             const currentVel = Math.hypot(player.vx, player.vy);
             if (currentVel > activeMaxSpeed) {
@@ -1374,22 +2092,30 @@
                 if (d.life <= 0) debrisPieces.splice(i, 1);
             }
 
-            crystalSpawnTimer++;
+            crystalSpawnTimer += currentBiome.crystalMult;
             if (crystalSpawnTimer >= (cheatedAbilityMode === 'vacuum' ? 100 : 450) && crystals.length < 5) {
                 spawnCrystal();
                 crystalSpawnTimer = 0;
             }
 
-            fuelSpawnTimer++;
+            fuelSpawnTimer += currentBiome.fuelPickupMult;
             if (fuelSpawnTimer >= 500 && fuelCanisters.length < 4) {
                 spawnFuel();
                 fuelSpawnTimer = 0;
             }
 
-            healthSpawnTimer++;
+            healthSpawnTimer += currentBiome.healthPickupMult;
             if (healthSpawnTimer >= 650 && healthPickups.length < 3) {
                 spawnHealthPickup();
                 healthSpawnTimer = 0;
+            }
+
+            if (currentBiome.hasSalvage) {
+                salvageSpawnTimer++;
+                if (salvageSpawnTimer >= 400 && salvageCrates.length < 3) {
+                    spawnSalvage();
+                    salvageSpawnTimer = 0;
+                }
             }
 
             if (player.hasMending && health > 0 && health < maxHealth) {
@@ -1408,7 +2134,11 @@
                 if (distToPlayer <= 35) {
                     c.progress += (cheatedAbilityMode === 'vacuum' || (player.equippedAbility === 'magnet' && activeEffectTimer > 0)) ? 25 : 1;
                     if (c.progress >= c.maxProgress) {
-                        score += 50; 
+                        score += c.reward;
+                        totalCredits += c.reward;
+                        if (c.material) {
+                            addMaterial(c.material, Math.random() < 0.15 ? 2 : 1);
+                        }
                         playSound('crystal');
                         crystals.splice(i, 1);
                         scoreDisplay.textContent = `STARDUST: ${score}`;
@@ -1434,28 +2164,23 @@
                 }
             }
 
-            // World boundary bouncing
-            const padding = 20;
-            if (player.x < padding) {
-                player.x = padding;
-                player.vx *= -0.65;
-                playSound('bounce');
-            } else if (player.x > WORLD_WIDTH - padding) {
-                player.x = WORLD_WIDTH - padding;
-                player.vx *= -0.65;
-                playSound('bounce');
-            }
-            if (player.y < padding) {
-                player.y = padding;
-                player.vy *= -0.65;
-                playSound('bounce');
-            } else if (player.y > WORLD_HEIGHT - padding) {
-                player.y = WORLD_HEIGHT - padding;
-                player.vy *= -0.65;
-                playSound('bounce');
+            for (let i = salvageCrates.length - 1; i >= 0; i--) {
+                const s = salvageCrates[i];
+                if (Math.hypot(player.x - s.x, player.y - s.y) < 25) {
+                    score += s.reward;
+                    totalCredits += s.reward;
+                    playSound('crystal');
+                    salvageCrates.splice(i, 1);
+                    scoreDisplay.textContent = `STARDUST: ${score}`;
+                    continue;
+                }
+                // Salvage only exists in the Ghost Sector - if you drift out, the wreck fades from view.
+                if (Math.hypot(s.x - player.x, s.y - player.y) > DESPAWN_RADIUS) {
+                    salvageCrates.splice(i, 1);
+                }
             }
 
-            spawnTimer++;
+            spawnTimer += currentBiome.debrisMult;
             if (spawnTimer >= spawnInterval) {
                 spawnObstacle();
                 spawnTimer = 0;
@@ -1477,7 +2202,7 @@
 
                 const distToSanctuaryCenter = Math.hypot(obs.x - sanctuary.x, obs.y - sanctuary.y);
                 if (distToSanctuaryCenter < sanctuary.safeRadius) {
-                    shatterObject(obs, DEBRIS_COLOR);
+                    shatterObject(obs, obs.color || DEBRIS_COLOR);
                     obstacles.splice(i, 1);
                     continue;
                 }
@@ -1489,7 +2214,7 @@
                     if (cheatedAbilityMode === 'godmode' || player.hasShield || isCloaked) {
                         playSound('hit');
                         if (!cheatedAbilityMode && !isCloaked) player.hasShield = false;
-                        shatterObject(obs, DEBRIS_COLOR);
+                        shatterObject(obs, obs.color || DEBRIS_COLOR);
                         obstacles.splice(i, 1); 
                         player.cooldownTime = 480; 
                         continue;
@@ -1502,7 +2227,7 @@
                             player.vx = 0;
                             player.vy = 0;
                         }
-                        shatterObject(obs, DEBRIS_COLOR);
+                        shatterObject(obs, obs.color || DEBRIS_COLOR);
                         obstacles.splice(i, 1);
                         player.cooldownTime = 1800; // 30 seconds cooldown
                         continue;
@@ -1513,7 +2238,7 @@
                         const knockAngle = Math.atan2(player.y - obs.y, player.x - obs.x);
                         player.vx += Math.cos(knockAngle) * 3.2;
                         player.vy += Math.sin(knockAngle) * 3.2;
-                        shatterObject(obs, DEBRIS_COLOR);
+                        shatterObject(obs, obs.color || DEBRIS_COLOR);
                         obstacles.splice(i, 1);
                         if (health <= 0) {
                             health = 0;
@@ -1524,14 +2249,14 @@
                     }
                 }
 
-                // Bounce debris off world edges so the field stays populated everywhere
-                if (obs.x < 0 || obs.x > WORLD_WIDTH) obs.vx *= -1;
-                if (obs.y < 0 || obs.y > WORLD_HEIGHT) obs.vy *= -1;
-                obs.x = Math.max(0, Math.min(WORLD_WIDTH, obs.x));
-                obs.y = Math.max(0, Math.min(WORLD_HEIGHT, obs.y));
+                // Recycle debris that has drifted far out of range instead of
+                // bouncing it off a finite edge - the sector is infinite.
+                if (Math.hypot(obs.x - player.x, obs.y - player.y) > DESPAWN_RADIUS) {
+                    obstacles.splice(i, 1);
+                }
             }
 
-            alienSpawnTimer++;
+            alienSpawnTimer += currentBiome.alienMult;
             if (alienSpawnTimer >= 500 && aliens.length < MAX_ALIENS) {
                 spawnAlien();
                 alienSpawnTimer = 0;
@@ -1542,7 +2267,7 @@
 
                 const distToSanctuaryC = Math.hypot(a.x - sanctuary.x, a.y - sanctuary.y);
                 if (distToSanctuaryC < sanctuary.safeRadius) {
-                    shatterObject(a, ALIEN_COLOR);
+                    shatterObject(a, a.color || ALIEN_COLOR);
                     aliens.splice(i, 1);
                     continue;
                 }
@@ -1572,11 +2297,11 @@
                         alienBullets.push({
                             x: a.x,
                             y: a.y,
-                            vx: Math.cos(angleToPlayer) * ALIEN_BULLET_SPEED,
-                            vy: Math.sin(angleToPlayer) * ALIEN_BULLET_SPEED,
+                            vx: Math.cos(angleToPlayer) * ALIEN_BULLET_SPEED * (a.bulletSpeedMult || 1),
+                            vy: Math.sin(angleToPlayer) * ALIEN_BULLET_SPEED * (a.bulletSpeedMult || 1),
                             life: 150
                         });
-                        a.shootCooldown = ALIEN_SHOOT_INTERVAL + Math.random() * 40;
+                        a.shootCooldown = (ALIEN_SHOOT_INTERVAL + Math.random() * 40) * (a.shootMult || 1);
                         playSound('alienShoot');
                     }
                 }
@@ -1591,10 +2316,13 @@
                 const alienSpeedFactor = cheatedAbilityMode === 'freeze' ? 0.15 : 1.0;
                 a.x += a.vx * alienSpeedFactor;
                 a.y += a.vy * alienSpeedFactor;
-                if (a.x < 0 || a.x > WORLD_WIDTH) a.vx *= -1;
-                if (a.y < 0 || a.y > WORLD_HEIGHT) a.vy *= -1;
-                a.x = Math.max(0, Math.min(WORLD_WIDTH, a.x));
-                a.y = Math.max(0, Math.min(WORLD_HEIGHT, a.y));
+
+                // Recycle aliens that have wandered far out of range instead of
+                // bouncing them off a finite edge - the sector is infinite.
+                if (Math.hypot(a.x - player.x, a.y - player.y) > DESPAWN_RADIUS) {
+                    aliens.splice(i, 1);
+                    continue;
+                }
 
                 const alienHitDist = Math.hypot(player.x - a.x, player.y - a.y);
                 if (alienHitDist < player.size + a.size / 2 && invulnTime <= 0) {
@@ -1602,7 +2330,7 @@
                     if (cheatedAbilityMode === 'godmode' || player.hasShield || isCloaked) {
                         playSound('hit');
                         if (!cheatedAbilityMode && !isCloaked) player.hasShield = false;
-                        shatterObject(a, ALIEN_COLOR);
+                        shatterObject(a, a.color || ALIEN_COLOR);
                         aliens.splice(i, 1);
                         player.cooldownTime = 480;
                         continue;
@@ -1615,7 +2343,7 @@
                             player.vx = 0;
                             player.vy = 0;
                         }
-                        shatterObject(a, ALIEN_COLOR);
+                        shatterObject(a, a.color || ALIEN_COLOR);
                         aliens.splice(i, 1);
                         player.cooldownTime = 1800;
                         continue;
@@ -1626,7 +2354,7 @@
                         const knockAngle = Math.atan2(player.y - a.y, player.x - a.x);
                         player.vx += Math.cos(knockAngle) * 3.2;
                         player.vy += Math.sin(knockAngle) * 3.2;
-                        shatterObject(a, ALIEN_COLOR);
+                        shatterObject(a, a.color || ALIEN_COLOR);
                         aliens.splice(i, 1);
                         if (health <= 0) {
                             health = 0;
@@ -1643,7 +2371,7 @@
                 b.x += b.vx;
                 b.y += b.vy;
                 b.life--;
-                if (b.life <= 0 || b.x < 0 || b.x > WORLD_WIDTH || b.y < 0 || b.y > WORLD_HEIGHT) {
+                if (b.life <= 0) {
                     alienBullets.splice(i, 1);
                     continue;
                 }
@@ -1679,7 +2407,7 @@
                 pb.x += pb.vx;
                 pb.y += pb.vy;
                 pb.life--;
-                if (pb.life <= 0 || pb.x < 0 || pb.x > WORLD_WIDTH || pb.y < 0 || pb.y > WORLD_HEIGHT) {
+                if (pb.life <= 0) {
                     playerBullets.splice(i, 1);
                     continue;
                 }
@@ -1691,8 +2419,13 @@
                         obs.health -= PLAYER_BULLET_DAMAGE;
                         playSound('hit');
                         if (obs.health <= 0) {
-                            shatterObject(obs, DEBRIS_COLOR);
+                            shatterObject(obs, obs.color || DEBRIS_COLOR);
                             obstacles.splice(j, 1);
+                            score += obs.reward || 5;
+                            totalCredits += obs.reward || 5;
+                            if (obs.material && Math.random() < 0.12) addMaterial(obs.material, 1);
+                            playSound('score');
+                            scoreDisplay.textContent = `STARDUST: ${score}`;
                         }
                         playerBullets.splice(i, 1);
                         hitSomething = true;
@@ -1707,8 +2440,13 @@
                         a.health -= PLAYER_BULLET_DAMAGE;
                         playSound('hit');
                         if (a.health <= 0) {
-                            shatterObject(a, ALIEN_COLOR);
+                            shatterObject(a, a.color || ALIEN_COLOR);
                             aliens.splice(j, 1);
+                            score += a.reward || 10;
+                            totalCredits += a.reward || 10;
+                            if (a.material && Math.random() < (a.isGuardian ? 0.4 : 0.2)) addMaterial(a.material, 1);
+                            playSound('score');
+                            scoreDisplay.textContent = `STARDUST: ${score}`;
                         }
                         playerBullets.splice(i, 1);
                         hitSomething = true;
@@ -1764,6 +2502,50 @@
             ctx.restore();
         }
 
+        function drawBeaconPointer(tx, ty, color, label) {
+            const margin = 44;
+            const cx = canvas.width / 2;
+            const cy = canvas.height / 2;
+
+            const onScreen = tx > margin && tx < canvas.width - margin &&
+                              ty > margin && ty < canvas.height - margin;
+            if (onScreen) return;
+
+            const angle = Math.atan2(ty - cy, tx - cx);
+            const dx = Math.cos(angle) || 0.0001;
+            const dy = Math.sin(angle) || 0.0001;
+            const halfW = canvas.width / 2 - margin - 26; // sits just inside the sanctuary pointer's ring
+            const halfH = canvas.height / 2 - margin - 26;
+            const scale = Math.min(Math.abs(halfW / dx), Math.abs(halfH / dy));
+            const px = cx + dx * scale;
+            const py = cy + dy * scale;
+
+            const pulse = (Math.sin(Date.now() / 350) + 1) / 2;
+
+            ctx.save();
+            ctx.translate(px, py);
+            ctx.rotate(angle + Math.PI / 2);
+            ctx.shadowBlur = 6 + pulse * 5;
+            ctx.shadowColor = color;
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(0, -10);
+            ctx.lineTo(-7, 7);
+            ctx.lineTo(0, 3);
+            ctx.lineTo(7, 7);
+            ctx.closePath();
+            ctx.stroke();
+            ctx.restore();
+
+            ctx.save();
+            ctx.font = "bold 10px 'Segoe UI', sans-serif";
+            ctx.fillStyle = color;
+            ctx.textAlign = "center";
+            ctx.fillText(label, px, py + (dy > 0 ? 22 : -14));
+            ctx.restore();
+        }
+
         function drawMiniHealthBar(screenX, screenY, ratio, width, color) {
             const height = 4;
             ctx.save();
@@ -1779,27 +2561,10 @@
 
             camera.x = player.x - canvas.width / 2;
             camera.y = player.y - canvas.height / 2;
-            camera.x = Math.max(0, Math.min(WORLD_WIDTH - canvas.width, camera.x));
-            camera.y = Math.max(0, Math.min(WORLD_HEIGHT - canvas.height, camera.y));
             const camX = camera.x;
             const camY = camera.y;
 
-            ctx.fillStyle = "#f7ede2";
-            for(let star of ambientStars) {
-                star.alpha += 0.01;
-                let currentAlpha = (Math.sin(star.alpha) + 1) / 2 * 0.4 + 0.1;
-                ctx.globalAlpha = currentAlpha;
-                ctx.fillRect(star.x - camX, star.y - camY, star.size, star.size);
-            }
-            ctx.globalAlpha = 1.0;
-
-            // Draw world boundary
-            ctx.save();
-            ctx.strokeStyle = "rgba(108, 91, 123, 0.35)";
-            ctx.lineWidth = 3;
-            ctx.setLineDash([12, 10]);
-            ctx.strokeRect(0 - camX, 0 - camY, WORLD_WIDTH, WORLD_HEIGHT);
-            ctx.restore();
+            drawInfiniteStars(camX, camY, canvas.width, canvas.height);
 
             // Draw Sanctuary station
             ctx.save();
@@ -1834,6 +2599,11 @@
 
             drawSanctuaryPointer(sx, sy);
 
+            if (player.hasBeacon && beaconTarget) {
+                const targetBiome = BIOMES[WILD_BIOME_IDS[beaconTargetIndex]];
+                drawBeaconPointer(beaconTarget.x - camX, beaconTarget.y - camY, targetBiome.starColor, targetBiome.name);
+            }
+
             // Draw Fuel Canisters
             for (let f of fuelCanisters) {
                 ctx.save();
@@ -1860,6 +2630,29 @@
                 ctx.fillStyle = "#f7ede2";
                 ctx.fillRect(hx - 1.5, hy - 5, 3, 10);
                 ctx.fillRect(hx - 5, hy - 1.5, 10, 3);
+                ctx.restore();
+            }
+
+            // Draw Salvage Crates (Ghost Sector only)
+            for (let s of salvageCrates) {
+                ctx.save();
+                const sxp = s.x - camX;
+                const syp = s.y - camY;
+                const glow = (Math.sin(Date.now() / 300) + 1) / 2;
+                ctx.shadowBlur = 8 + glow * 6;
+                ctx.shadowColor = "#b8c9b0";
+                ctx.strokeStyle = "#b8c9b0";
+                ctx.lineWidth = 2;
+                ctx.strokeRect(sxp - s.size, syp - s.size, s.size * 2, s.size * 2);
+                ctx.fillStyle = "rgba(184, 201, 176, 0.25)";
+                ctx.fillRect(sxp - s.size, syp - s.size, s.size * 2, s.size * 2);
+                ctx.strokeStyle = "#ffd166";
+                ctx.beginPath();
+                ctx.moveTo(sxp - s.size, syp - s.size);
+                ctx.lineTo(sxp + s.size, syp + s.size);
+                ctx.moveTo(sxp + s.size, syp - s.size);
+                ctx.lineTo(sxp - s.size, syp + s.size);
+                ctx.stroke();
                 ctx.restore();
             }
 
@@ -1961,7 +2754,7 @@
             for (let obs of obstacles) {
                 const ox = obs.x - camX;
                 const oy = obs.y - camY;
-                ctx.fillStyle = "#453a56";
+                ctx.fillStyle = obs.color || "#453a56";
                 ctx.beginPath();
                 ctx.arc(ox, oy, obs.size/2, 0, Math.PI * 2);
                 ctx.fill();
@@ -1977,7 +2770,7 @@
                 ctx.save();
                 ctx.translate(ax, ay);
                 ctx.rotate(angleToPlayer + Math.PI / 2);
-                ctx.fillStyle = ALIEN_COLOR;
+                ctx.fillStyle = a.color || ALIEN_COLOR;
                 ctx.beginPath();
                 ctx.moveTo(0, -a.size / 2);
                 ctx.lineTo(-a.size / 2, a.size / 2);
@@ -1990,6 +2783,16 @@
                 ctx.arc(0, -a.size / 8, 2.5, 0, Math.PI * 2);
                 ctx.fill();
                 ctx.restore();
+                if (a.isGuardian) {
+                    ctx.save();
+                    ctx.strokeStyle = a.color || ALIEN_COLOR;
+                    ctx.lineWidth = 1.5;
+                    ctx.setLineDash([3, 4]);
+                    ctx.beginPath();
+                    ctx.arc(ax, ay, a.size / 2 + 8, 0, Math.PI * 2);
+                    ctx.stroke();
+                    ctx.restore();
+                }
                 drawMiniHealthBar(ax, ay - a.size / 2 - 12, a.health / a.maxHealth, a.size + 8, "#c77dff");
             }
             ctx.shadowBlur = 0;
@@ -2018,6 +2821,23 @@
             
             ctx.shadowBlur = 0;
             ctx.textAlign = "left";
+
+            // Biome atmosphere: a color wash for flavor, plus an edge fog
+            // vignette in biomes like the Nebula where visibility is reduced.
+            if (activeBiome.tint) {
+                ctx.fillStyle = activeBiome.tint;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            }
+            if (activeBiome.fog > 0) {
+                const grad = ctx.createRadialGradient(
+                    canvas.width / 2, canvas.height / 2, canvas.height * 0.15,
+                    canvas.width / 2, canvas.height / 2, canvas.height * 0.6
+                );
+                grad.addColorStop(0, 'rgba(0,0,0,0)');
+                grad.addColorStop(1, `rgba(10, 5, 20, ${activeBiome.fog})`);
+                ctx.fillStyle = grad;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            }
         }
 
         function loop() {
