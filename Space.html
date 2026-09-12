@@ -272,14 +272,37 @@
             background-color: #e2738a;
         }
 
+        .shop-columns {
+            display: flex;
+            flex-direction: row;
+            align-items: flex-start;
+            gap: 16px;
+            width: 100%;
+            max-width: 1040px;
+            margin-bottom: 4px;
+        }
+
+        .shop-column {
+            flex: 1 1 0;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        @media (max-width: 900px) {
+            .shop-columns {
+                flex-direction: column;
+            }
+        }
+
         .shop-items {
             display: flex;
             flex-direction: column;
             gap: 8px;
             width: 100%;
-            max-width: 420px;
+            max-width: 100%;
             margin-bottom: 20px;
-            max-height: 280px;
+            max-height: 460px;
             overflow-y: auto;
             padding-right: 4px;
         }
@@ -319,7 +342,7 @@
 
         .shop-section-label {
             width: 100%;
-            max-width: 420px;
+            max-width: 100%;
             text-align: left;
             font-size: 0.72rem;
             color: #c7b198;
@@ -330,7 +353,7 @@
 
         #materials-pouch {
             width: 100%;
-            max-width: 420px;
+            max-width: 1040px;
             display: flex;
             flex-wrap: wrap;
             gap: 6px;
@@ -415,6 +438,8 @@
             <p id="shop-wallet" style="margin-top:-14px; color:#ffd166; font-weight:bold;">STARDUST POUCH: 0 SD</p>
             <div id="materials-pouch"></div>
 
+            <div class="shop-columns">
+            <div class="shop-column">
             <div class="shop-section-label">SHIP UPGRADES &middot; STARDUST</div>
             <div class="shop-items">
                 <div class="shop-item">
@@ -439,7 +464,9 @@
                     <button class="btn" id="buy-hull-upgrade-btn" onclick="buyUpgrade('hull')">45 SD</button>
                 </div>
             </div>
+            </div>
 
+            <div class="shop-column">
             <div class="shop-section-label">CRAFTED BLESSINGS &middot; STARDUST + MATERIALS</div>
             <div class="shop-items">
                 <div class="shop-item">
@@ -515,6 +542,9 @@
                     <button class="btn" id="buy-overload-btn" onclick="buyAbility('overload')">CRAFT</button>
                 </div>
             </div>
+            </div>
+
+            <div class="shop-column">
             <div class="shop-section-label">PASSIVES &middot; ONLY ONE EQUIPPED AT A TIME</div>
             <div class="shop-items">
                 <div class="shop-item">
@@ -541,6 +571,8 @@
                     </div>
                     <button class="btn" id="buy-gravplate-btn" onclick="buyGravPlate()">CRAFT</button>
                 </div>
+            </div>
+            </div>
             </div>
 
             <div id="cheat-status"></div>
