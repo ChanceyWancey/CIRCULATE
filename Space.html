@@ -1955,7 +1955,8 @@
                 x: x,
                 y: y,
                 size: 11,
-                reward: biome.salvageReward || 35
+                reward: biome.salvageReward || 35,
+                material: biome.material ? biome.material.id : null
             });
         }
 
@@ -2169,6 +2170,7 @@
                 if (Math.hypot(player.x - s.x, player.y - s.y) < 25) {
                     score += s.reward;
                     totalCredits += s.reward;
+                    if (s.material) addMaterial(s.material, Math.random() < 0.3 ? 2 : 1);
                     playSound('crystal');
                     salvageCrates.splice(i, 1);
                     scoreDisplay.textContent = `STARDUST: ${score}`;
