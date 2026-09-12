@@ -178,6 +178,45 @@
             opacity: 0.85;
         }
 
+        #material-toast-container {
+            position: absolute;
+            top: 100px;
+            right: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            z-index: 17;
+            pointer-events: none;
+            align-items: flex-end;
+        }
+
+        .material-toast {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            border-radius: 6px;
+            background: rgba(23, 21, 38, 0.92);
+            font-size: 0.78rem;
+            font-weight: bold;
+            white-space: nowrap;
+            opacity: 0;
+            transform: translateX(16px);
+            transition: opacity 0.25s ease, transform 0.25s ease;
+        }
+
+        .material-toast.visible {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .material-toast .dot {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
         #ability-hud {
             background: rgba(39, 33, 59, 0.9);
             border: 1px solid #c7b198;
@@ -404,6 +443,259 @@
             min-height: 1em;
             letter-spacing: 0.5px;
         }
+
+        #emblem-workspace {
+            display: flex;
+            flex-direction: row;
+            gap: 14px;
+            align-items: flex-start;
+            justify-content: center;
+            margin-bottom: 6px;
+        }
+
+        #emblem-canvas {
+            background: #1a1730;
+            border: 2px solid #453a56;
+            border-radius: 10px;
+            touch-action: none;
+            cursor: grab;
+        }
+
+        #emblem-layer-panel {
+            width: 130px;
+            text-align: left;
+        }
+
+        .emblem-panel-label, .emblem-palette-label {
+            font-size: 0.7rem;
+            letter-spacing: 1px;
+            color: #c7b198;
+            opacity: 0.8;
+            margin-bottom: 4px;
+        }
+
+        #emblem-layer-list {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            max-height: 250px;
+            overflow-y: auto;
+        }
+
+        .emblem-layer-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 6px;
+            border-radius: 5px;
+            border: 1px solid #453a56;
+            background: rgba(255,255,255,0.03);
+            font-size: 0.68rem;
+            color: #c7b198;
+            cursor: pointer;
+        }
+
+        .emblem-layer-row.selected {
+            border-color: #ffd166;
+            background: rgba(255, 209, 102, 0.12);
+            color: #ffd166;
+        }
+
+        .emblem-layer-row .swatch {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .emblem-palette {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            justify-content: center;
+            max-width: 460px;
+            margin-bottom: 10px;
+        }
+
+        .emblem-shape-btn {
+            width: 38px;
+            height: 38px;
+            padding: 3px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid #453a56;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        .emblem-shape-btn:hover {
+            border-color: #ffd166;
+        }
+
+        .emblem-color-btn {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            border: 2px solid #453a56;
+            cursor: pointer;
+        }
+        .emblem-color-btn.selected {
+            border-color: #f7ede2;
+            box-shadow: 0 0 6px rgba(255,255,255,0.6);
+        }
+
+        .emblem-color-picker-wrap {
+            display: inline-flex;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 2px dashed #c7b198;
+            cursor: pointer;
+            background:
+                linear-gradient(45deg, #ff6b6b, #ffd166, #06d6a0, #3a86ff, #c9a7ff, #ff6b6b);
+        }
+
+        .emblem-color-picker {
+            width: 100%;
+            height: 100%;
+            border: none;
+            padding: 0;
+            cursor: pointer;
+            background: transparent;
+            opacity: 0;
+        }
+
+        .emblem-shape-btn.rarity-rare {
+            border-color: #3a86ff;
+        }
+        .emblem-shape-btn.rarity-legendary {
+            border-color: #ffd166;
+            box-shadow: 0 0 6px rgba(255, 209, 102, 0.5);
+        }
+        .emblem-color-btn.rarity-rare {
+            box-shadow: 0 0 0 2px #3a86ff;
+        }
+        .emblem-color-btn.rarity-legendary {
+            box-shadow: 0 0 0 2px #ffd166, 0 0 6px rgba(255, 209, 102, 0.7);
+        }
+        .rarity-mythic {
+            box-shadow: 0 0 0 2px #ff00e5, 0 0 12px rgba(255, 0, 229, 0.8) !important;
+            animation: mythicPulse 1.6s ease-in-out infinite;
+        }
+        @keyframes mythicPulse {
+            0%, 100% { box-shadow: 0 0 0 2px #ff00e5, 0 0 8px rgba(255, 0, 229, 0.6); }
+            50% { box-shadow: 0 0 0 2px #c9a7ff, 0 0 18px rgba(255, 0, 229, 0.95); }
+        }
+        .emblem-locked {
+            position: relative;
+            opacity: 0.55;
+            filter: grayscale(0.6);
+        }
+        .emblem-locked::after {
+            content: '🔒';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 0.7rem;
+            text-shadow: 0 0 3px #000;
+        }
+
+        .emblem-crate-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            margin: 4px 0 10px 0;
+            padding: 8px 14px;
+            border: 1px solid #6c5b7b;
+            border-radius: 8px;
+            background: rgba(108, 91, 123, 0.15);
+        }
+        #emblem-crate-wallet {
+            font-size: 0.7rem;
+            color: #c7b198;
+        }
+        #open-crate-btn {
+            background: linear-gradient(135deg, #6c5b7b, #382e4e);
+            border: 1px solid #ffd166;
+            color: #ffd166;
+        }
+        #open-crate-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            border-color: #453a56;
+            color: #9b8da9;
+        }
+        #open-crate-btn:not(:disabled):hover {
+            background: linear-gradient(135deg, #382e4e, #6c5b7b);
+        }
+
+        #crate-reveal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(10, 8, 18, 0.82);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
+        #crate-reveal-overlay.hidden { display: none; }
+        .crate-reveal-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            padding: 24px 30px;
+            border-radius: 14px;
+            background: #211c34;
+            border: 2px solid #6c5b7b;
+            animation: crateReveal 0.35s ease-out;
+        }
+        .crate-reveal-card.rarity-common { border-color: #9b8da9; box-shadow: 0 0 18px rgba(155,141,169,0.4); }
+        .crate-reveal-card.rarity-rare { border-color: #3a86ff; box-shadow: 0 0 22px rgba(58,134,255,0.55); }
+        .crate-reveal-card.rarity-legendary { border-color: #ffd166; box-shadow: 0 0 30px rgba(255,209,102,0.7); }
+        .crate-reveal-card.rarity-mythic { border-color: #ff00e5; box-shadow: 0 0 36px rgba(255,0,229,0.85); animation: crateReveal 0.35s ease-out, mythicPulse 1.6s ease-in-out infinite 0.35s; }
+        @keyframes crateReveal {
+            0% { transform: scale(0.4) rotate(-8deg); opacity: 0; }
+            60% { transform: scale(1.08) rotate(2deg); opacity: 1; }
+            100% { transform: scale(1) rotate(0deg); opacity: 1; }
+        }
+        .crate-reveal-rarity {
+            font-size: 0.75rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+        .crate-reveal-rarity.rarity-common { color: #9b8da9; }
+        .crate-reveal-rarity.rarity-rare { color: #3a86ff; }
+        .crate-reveal-rarity.rarity-legendary { color: #ffd166; }
+        .crate-reveal-rarity.rarity-mythic { color: #ff00e5; }
+        .crate-reveal-name {
+            font-size: 1rem;
+            color: #f7ede2;
+        }
+        .crate-shake {
+            animation: crateShake 0.5s ease-in-out;
+        }
+        @keyframes crateShake {
+            0%, 100% { transform: translateX(0); }
+            20% { transform: translateX(-4px) rotate(-2deg); }
+            40% { transform: translateX(4px) rotate(2deg); }
+            60% { transform: translateX(-4px) rotate(-2deg); }
+            80% { transform: translateX(4px) rotate(2deg); }
+        }
+
+        .emblem-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            justify-content: center;
+            max-width: 460px;
+        }
+
+        .emblem-ctrl-btn {
+            padding: 8px 12px;
+            font-size: 0.85rem;
+        }
     </style>
 </head>
 <body>
@@ -411,6 +703,15 @@
     <h1>✨ Stellar Drift: Sector Radar ✨</h1>
     <div id="dock-prompt">DOCKING RANGE — PRESS E TO ENTER SANCTUARY</div>
     <div id="biome-banner"><span class="biome-name"></span><span class="biome-desc"></span></div>
+    <div id="material-toast-container"></div>
+    <div id="crate-reveal-overlay" class="hidden">
+        <div class="crate-reveal-card" id="crate-reveal-card">
+            <canvas id="crate-reveal-canvas" width="90" height="90"></canvas>
+            <div class="crate-reveal-rarity" id="crate-reveal-rarity">RARE</div>
+            <div class="crate-reveal-name" id="crate-reveal-name">Item Name</div>
+            <button class="btn" id="crate-reveal-close-btn">NICE!</button>
+        </div>
+    </div>
     
     <div id="game-container">
         <div id="menu-screen" class="screen">
@@ -420,6 +721,7 @@
                 <button class="btn" id="to-game-btn">LAUNCH DRIFT</button>
                 <button class="btn" id="difficulty-toggle-btn">MODE: NORMAL</button>
                 <button class="btn" id="to-tutorial-btn">TUTORIAL</button>
+                <button class="btn" id="to-emblem-btn">CUSTOMIZE SHIP</button>
             </div>
         </div>
 
@@ -432,14 +734,52 @@
             </div>
         </div>
 
+        <div id="emblem-screen" class="screen hidden">
+            <h2>ROCKET EDITOR</h2>
+            <p>Tap a shape to add it, drag it around the ship, then use the controls to recolor, resize, and reorder layers.</p>
+            <div id="emblem-workspace">
+                <canvas id="emblem-canvas" width="280" height="280"></canvas>
+                <div id="emblem-layer-panel">
+                    <div class="emblem-panel-label">LAYERS</div>
+                    <div id="emblem-layer-list"></div>
+                </div>
+            </div>
+            <div class="emblem-crate-section">
+                <div id="emblem-crate-wallet">STARDUST POUCH: 0 SD</div>
+                <button class="btn" id="open-crate-btn">OPEN STARDUST CRATE — 30 SD</button>
+                <div style="font-size:0.62rem; color:#9b8da9; max-width:260px; text-align:center;">
+                    Every shape, color, and even the freeform color picker is locked until you gamble Stardust for it. Odds — Common 55% · Rare 30% · Legendary 12% · Mythic 3%. Duplicate pulls refund half the cost.
+                </div>
+            </div>
+            <div class="emblem-palette-label">SHAPES</div>
+            <div id="emblem-shape-palette" class="emblem-palette"></div>
+            <div class="emblem-palette-label">COLORS</div>
+            <div id="emblem-color-palette" class="emblem-palette"></div>
+            <div class="emblem-controls">
+                <button class="btn emblem-ctrl-btn" id="emblem-rotate-left" title="Rotate left">⟲</button>
+                <button class="btn emblem-ctrl-btn" id="emblem-rotate-right" title="Rotate right">⟳</button>
+                <button class="btn emblem-ctrl-btn" id="emblem-scale-down" title="Smaller">&minus;</button>
+                <button class="btn emblem-ctrl-btn" id="emblem-scale-up" title="Bigger">+</button>
+                <button class="btn emblem-ctrl-btn" id="emblem-layer-back" title="Send backward">Back</button>
+                <button class="btn emblem-ctrl-btn" id="emblem-layer-front" title="Bring forward">Front</button>
+                <button class="btn emblem-ctrl-btn" id="emblem-duplicate-btn" title="Duplicate layer">Duplicate</button>
+                <button class="btn btn-warm emblem-ctrl-btn" id="emblem-delete-btn" title="Delete layer">Delete</button>
+            </div>
+            <div class="btn-group" style="margin-top: 14px;">
+                <button class="btn" id="emblem-save-btn">SAVE &amp; RETURN</button>
+                <button class="btn" id="emblem-clear-btn">CLEAR ALL</button>
+                <button class="btn btn-warm" id="emblem-cancel-btn">CANCEL</button>
+            </div>
+        </div>
+
         <div id="shop-screen" class="screen hidden">
-            <h2>COZY SANCTUARY</h2>
-            <p>Docked at the Sanctuary station. This field auto-shatters debris on approach &mdash; you're safe here. Basic upgrades cost Stardust; blessings are crafted from Stardust plus biome materials you salvage out in the sector.</p>
+            <h2 id="shop-title">COZY SANCTUARY</h2>
+            <p id="shop-desc">Docked at the Sanctuary station. This field auto-shatters debris on approach &mdash; you're safe here. Basic upgrades cost Stardust; blessings are crafted from Stardust plus biome materials you salvage out in the sector.</p>
             <p id="shop-wallet" style="margin-top:-14px; color:#ffd166; font-weight:bold;">STARDUST POUCH: 0 SD</p>
             <div id="materials-pouch"></div>
 
             <div class="shop-columns">
-            <div class="shop-column">
+            <div class="shop-column" id="upgrades-column">
             <div class="shop-section-label">SHIP UPGRADES &middot; STARDUST</div>
             <div class="shop-items">
                 <div class="shop-item">
@@ -469,6 +809,14 @@
             <div class="shop-column">
             <div class="shop-section-label">CRAFTED BLESSINGS &middot; STARDUST + MATERIALS</div>
             <div class="shop-items">
+                <div class="shop-item">
+                    <div class="shop-info">
+                        <h4>Mini Sanctuary</h4>
+                        <span>Places an outpost with 3000 HP that shatters nearby hazards &mdash; only one can stand at a time, alien shots chip away its HP, and once it breaks you must wait 60s to place another</span>
+                        <span class="craft-cost" id="cost-outpost"></span>
+                    </div>
+                    <button class="btn" id="buy-outpost-btn" onclick="buyAbility('outpost')">CRAFT</button>
+                </div>
                 <div class="shop-item">
                     <div class="shop-info">
                         <h4>Starlight Blink</h4>
@@ -653,8 +1001,12 @@
         const biomeBanner = document.getElementById("biome-banner");
         const biomeBannerName = biomeBanner.querySelector(".biome-name");
         const biomeBannerDesc = biomeBanner.querySelector(".biome-desc");
+        const materialToastContainer = document.getElementById("material-toast-container");
         const regionLabel = document.getElementById("region-label");
         const shopWallet = document.getElementById("shop-wallet");
+        const shopTitle = document.getElementById("shop-title");
+        const shopDesc = document.getElementById("shop-desc");
+        const upgradesColumn = document.getElementById("upgrades-column");
         const beaconHud = document.getElementById("beacon-hud");
 
         function updateShopWallet() {
@@ -1004,6 +1356,7 @@
         }
 
         const menuScreen = document.getElementById("menu-screen");
+        const emblemScreen = document.getElementById("emblem-screen");
         const shopScreen = document.getElementById("shop-screen");
         const tutorialScreen = document.getElementById("tutorial-screen");
         const pauseScreen = document.getElementById("pause-screen");
@@ -1024,6 +1377,24 @@
         const MATERIAL_LIST = WILD_BIOME_IDS.map(id => ({ ...BIOMES[id].material, biomeName: BIOMES[id].name }));
         function addMaterial(id, amount) {
             materials[id] = (materials[id] || 0) + amount;
+            showMaterialToast(id, amount);
+        }
+        let materialToastTimeouts = [];
+        function showMaterialToast(id, amount) {
+            const info = MATERIAL_LIST.find(m => m.id === id);
+            const name = info ? info.name : id;
+            const color = info ? info.color : "#ffd166";
+            const toast = document.createElement('div');
+            toast.className = 'material-toast';
+            toast.innerHTML = `<span class="dot" style="background:${color}; box-shadow:0 0 5px ${color};"></span><span>+${amount} ${name}</span>`;
+            materialToastContainer.appendChild(toast);
+            // Force a reflow so the transition to 'visible' actually animates.
+            requestAnimationFrame(() => toast.classList.add('visible'));
+            const removeTimeout = setTimeout(() => {
+                toast.classList.remove('visible');
+                setTimeout(() => toast.remove(), 300);
+            }, 1900);
+            materialToastTimeouts.push(removeTimeout);
         }
         function hasMaterials(cost) {
             return Object.entries(cost).every(([id, amt]) => (materials[id] || 0) >= amt);
@@ -1042,6 +1413,7 @@
         // pricier ones deliberately mix materials from two different biomes
         // so the strongest gear requires having explored further out.
         const CRAFT_RECIPES = {
+            outpost:{ sd: 120, mats: {} },
             blink:  { sd: 25, mats: { prism: 2 } },
             magnet: { sd: 30, mats: { scrap: 2 } },
             decoy:  { sd: 35, mats: { chitin: 2 } },
@@ -1049,19 +1421,35 @@
             cloak:  { sd: 40, mats: { prism: 1, coil: 1 } },
             shield: { sd: 45, mats: { shard: 1, circuit: 1 } },
             mending:{ sd: 40, mats: { chitin: 1, shard: 1 } },
-            beacon: { sd: 60, mats: { circuit: 1, nullfrag: 1 } },
+            beacon: { sd: 60, mats: { circuit: 1 } },
             rewind: { sd: 50, mats: { nullfrag: 1, waralloy: 1 } },
             dash:     { sd: 40, mats: { cometice: 2 } },
             overload: { sd: 55, mats: { plasmacore: 1, waralloy: 1 } },
             gravplate:{ sd: 65, mats: { singularity: 1, nullfrag: 1 } }
         };
+        // Crafting at the placed Mini Sanctuary works exactly like the real
+        // station, but at a markup - both the Stardust fee and material
+        // costs are multiplied for the duration of that shop visit.
+        function getEffectiveRecipe(recipe) {
+            if (!dockedAtOutpost) return recipe;
+            const mats = {};
+            for (const [id, amt] of Object.entries(recipe.mats)) {
+                mats[id] = amt * OUTPOST_CRAFT_MULTIPLIER;
+            }
+            return { sd: recipe.sd * OUTPOST_CRAFT_MULTIPLIER, mats };
+        }
         function craftCostLabel(recipe) {
-            const matPart = Object.entries(recipe.mats)
+            const eff = getEffectiveRecipe(recipe);
+            const matPart = Object.entries(eff.mats)
                 .map(([id, amt]) => `${amt}x ${materialName(id)}`)
                 .join(' + ');
-            return `${recipe.sd} SD + ${matPart}`;
+            return matPart ? `${eff.sd} SD + ${matPart}` : `${eff.sd} SD`;
         }
         let highScore = 0;
+        // Custom ship emblem: an array of layer objects {type,x,y,size,rotation,color}
+        // built in the Rocket Editor. Persisted in localStorage since it's a
+        // cosmetic choice, unlike the run economy which resets on refresh.
+        let shipEmblem = [];
         let gameRunning = false;
         let gamePaused = false;
         let animationFrameId;
@@ -1146,6 +1534,22 @@
         let decoyEntity = null;
         let positionHistory = [];
         let debrisPieces = [];
+        // Player-placed Mini Sanctuary: a fragile outpost that shatters
+        // nearby hazards like the real Sanctuary, but has finite HP - unlike
+        // the real station, alien bullets damage and can destroy it.
+        let outpost = null;
+        let outpostBreakCooldown = 0;
+        const OUTPOST_MAX_HP = 3000;
+        const OUTPOST_RADIUS = 32;
+        const OUTPOST_SAFE_RADIUS = 90;
+        const OUTPOST_BREAK_COOLDOWN_FRAMES = 3600; // 60s at 60fps
+        const OUTPOST_DEBRIS_DAMAGE = 40;
+        const OUTPOST_DOCK_RANGE = 70;
+        const OUTPOST_CRAFT_MULTIPLIER = 3;
+        // True while the shop is open because the player docked at their
+        // placed Mini Sanctuary rather than the real station - crafting
+        // still works out here, it's just pricier (see getEffectiveRecipe).
+        let dockedAtOutpost = false;
 
         const konamiSequence = [
             "ArrowUp", "ArrowUp", 
@@ -1157,24 +1561,66 @@
         let konamiInputIndex = 0;
 
         function loadGameData() {
-            // Only the high score is persisted (in localStorage). Upgrades,
-            // blessings, and Stardust pouch remain in-memory only and reset
-            // on refresh, since purchasing upgrades is disabled.
+            // High score, ship emblem, unlocked crate cosmetics, and the
+            // Stardust pouch itself all persist in localStorage now, so
+            // crate purchases actually stick between sessions. Upgrades and
+            // blessings still reset on refresh.
             try {
                 const savedHigh = localStorage.getItem("stellarDrift_highScore");
                 if (savedHigh !== null) {
                     highScore = parseInt(savedHigh, 10) || 0;
                 }
             } catch (e) {}
+            try {
+                const savedCredits = localStorage.getItem("stellarDrift_totalCredits");
+                if (savedCredits !== null) {
+                    totalCredits = parseInt(savedCredits, 10) || 0;
+                }
+            } catch (e) {}
+            try {
+                const savedEmblem = localStorage.getItem("stellarDrift_shipEmblem");
+                if (savedEmblem) {
+                    const parsed = JSON.parse(savedEmblem);
+                    if (Array.isArray(parsed)) shipEmblem = parsed;
+                }
+            } catch (e) {}
+            try {
+                const savedCosmetics = localStorage.getItem("stellarDrift_unlockedCosmetics");
+                if (savedCosmetics) {
+                    const parsed = JSON.parse(savedCosmetics);
+                    if (parsed && Array.isArray(parsed.shapes) && Array.isArray(parsed.colors)) {
+                        unlockedCosmetics = {
+                            shapes: parsed.shapes,
+                            colors: parsed.colors,
+                            features: Array.isArray(parsed.features) ? parsed.features : []
+                        };
+                    }
+                }
+            } catch (e) {}
             applyUpgradeStats();
             fuel = maxFuel;
             health = maxHealth;
             highScoreDisplay.textContent = `HIGH: ${highScore}`;
+            updateShopWallet();
+            updateCrateUI();
         }
 
         function saveGameData() {
             try {
                 localStorage.setItem("stellarDrift_highScore", String(highScore));
+            } catch (e) {}
+            try {
+                localStorage.setItem("stellarDrift_totalCredits", String(totalCredits));
+            } catch (e) {}
+        }
+
+        // Persist the Stardust pouch any time the tab closes/refreshes, so
+        // stardust earned or spent (e.g. on crates) is never silently lost.
+        window.addEventListener("beforeunload", saveGameData);
+
+        function saveShipEmblem() {
+            try {
+                localStorage.setItem("stellarDrift_shipEmblem", JSON.stringify(shipEmblem));
             } catch (e) {}
         }
 
@@ -1427,7 +1873,9 @@
             if (e.code === "KeyE" && gameRunning && !gamePaused && !docked) {
                 const distToSanctuary = Math.hypot(player.x - sanctuary.x, player.y - sanctuary.y);
                 if (distToSanctuary < sanctuary.dockRange) {
-                    dock();
+                    dock(false);
+                } else if (outpost && Math.hypot(player.x - outpost.x, player.y - outpost.y) < OUTPOST_DOCK_RANGE) {
+                    dock(true);
                 }
             }
             if (e.code === "KeyB" && gameRunning && !gamePaused && !docked && player.hasBeacon) {
@@ -1476,6 +1924,7 @@
             gamePaused = false;
             gameRunning = false;
             docked = false;
+            dockedAtOutpost = false;
             dockPrompt.classList.remove("visible");
             showScreen(menuScreen);
         });
@@ -1488,8 +1937,742 @@
             tutorialScreen.classList.add("hidden");
             pauseScreen.classList.add("hidden");
             gameoverScreen.classList.add("hidden");
+            emblemScreen.classList.add("hidden");
             screenEl.classList.remove("hidden");
         }
+
+        // ================= ROCKET EDITOR (SHIP EMBLEM CUSTOMIZATION) =================
+
+
+        // ---- STARDUST CRATES ----
+        // Every cosmetic option — every shape, every preset color, and even
+        // the freeform color picker itself — is gated behind a crate pull.
+        // Nothing is free; everything is gambled for with Stardust.
+        const CRATE_COST = 30;
+        const CRATE_PITY_REFUND = 15; // refunded when a crate rolls something you already own
+        const RARITY_WEIGHTS = { common: 55, rare: 30, legendary: 12, mythic: 3 };
+        const RARITY_ORDER = ['common', 'rare', 'legendary', 'mythic'];
+
+        const CRATE_SHAPES = [
+            { type: 'triangle', rarity: 'common', name: 'Triangle' },
+            { type: 'circle', rarity: 'common', name: 'Circle' },
+            { type: 'square', rarity: 'common', name: 'Square' },
+            { type: 'ring', rarity: 'common', name: 'Ring' },
+            { type: 'diamond', rarity: 'common', name: 'Diamond' },
+            { type: 'hexagon', rarity: 'common', name: 'Hexagon' },
+            { type: 'star', rarity: 'rare', name: 'Star' },
+            { type: 'stripe', rarity: 'rare', name: 'Stripe' },
+            { type: 'chevron', rarity: 'rare', name: 'Chevron' },
+            { type: 'cross', rarity: 'rare', name: 'Cross' },
+            { type: 'bolt', rarity: 'rare', name: 'Bolt' },
+            { type: 'arrow', rarity: 'rare', name: 'Arrow' },
+            { type: 'crescent', rarity: 'rare', name: 'Crescent' },
+            { type: 'comet', rarity: 'rare', name: 'Comet Tail' },
+            { type: 'skull', rarity: 'legendary', name: 'Skull Sigil' },
+            { type: 'nova', rarity: 'legendary', name: 'Nova Burst' },
+            { type: 'infinity', rarity: 'legendary', name: 'Infinity Loop' }
+        ];
+        const CRATE_COLORS = [
+            { color: '#ffd166', rarity: 'common', name: 'Solar Gold' },
+            { color: '#06d6a0', rarity: 'common', name: 'Teal Drift' },
+            { color: '#e2738a', rarity: 'common', name: 'Rose Pink' },
+            { color: '#3a86ff', rarity: 'common', name: 'Ion Blue' },
+            { color: '#f7ede2', rarity: 'common', name: 'Bone White' },
+            { color: '#ff6b6b', rarity: 'common', name: 'Ember Red' },
+            { color: '#ff8c42', rarity: 'rare', name: 'Rust Orange' },
+            { color: '#a8e6ff', rarity: 'rare', name: 'Glacier Blue' },
+            { color: '#8bc34a', rarity: 'rare', name: 'Moss Green' },
+            { color: '#c9a7ff', rarity: 'rare', name: 'Violet Haze' },
+            { color: '#39ff14', rarity: 'rare', name: 'Toxic Green' },
+            { color: '#ff00ff', rarity: 'rare', name: 'Magenta Pulse' },
+            { color: '#00fff7', rarity: 'rare', name: 'Cyber Cyan' },
+            { color: '#ff003c', rarity: 'legendary', name: 'Blood Rose' },
+            { color: '#ffffff', rarity: 'legendary', name: 'Starlight Chrome' }
+        ];
+        // The lone mythic pull: unlocks the freeform color picker itself.
+        const MYTHIC_FEATURE = { id: 'custom_picker', rarity: 'mythic', name: 'Custom Color Picker' };
+
+        // Unlocked crate cosmetics persist across sessions (unlike the
+        // Stardust pouch itself, which intentionally resets on refresh).
+        let unlockedCosmetics = { shapes: [], colors: [], features: [] };
+
+        function saveUnlockedCosmetics() {
+            try {
+                localStorage.setItem("stellarDrift_unlockedCosmetics", JSON.stringify(unlockedCosmetics));
+            } catch (e) {}
+        }
+
+        function pickWeightedRarity() {
+            const total = RARITY_ORDER.reduce((sum, r) => sum + RARITY_WEIGHTS[r], 0);
+            let roll = Math.random() * total;
+            for (const r of RARITY_ORDER) {
+                if (roll < RARITY_WEIGHTS[r]) return r;
+                roll -= RARITY_WEIGHTS[r];
+            }
+            return RARITY_ORDER[RARITY_ORDER.length - 1];
+        }
+
+        function updateCrateUI() {
+            const wallet = document.getElementById('emblem-crate-wallet');
+            if (wallet) wallet.textContent = `STARDUST POUCH: ${totalCredits} SD`;
+            const btn = document.getElementById('open-crate-btn');
+            if (btn) btn.disabled = totalCredits < CRATE_COST;
+        }
+
+        function openLootCrate() {
+            const btn = document.getElementById('open-crate-btn');
+            if (totalCredits < CRATE_COST) {
+                if (btn) {
+                    btn.classList.remove('crate-shake');
+                    void btn.offsetWidth;
+                    btn.classList.add('crate-shake');
+                }
+                return;
+            }
+            totalCredits -= CRATE_COST;
+            updateCrateUI();
+            saveGameData();
+
+            const rarity = pickWeightedRarity();
+
+            if (rarity === 'mythic') {
+                const alreadyOwned = unlockedCosmetics.features.includes(MYTHIC_FEATURE.id);
+                if (alreadyOwned) {
+                    totalCredits += CRATE_PITY_REFUND;
+                    updateCrateUI();
+                    saveGameData();
+                } else {
+                    unlockedCosmetics.features.push(MYTHIC_FEATURE.id);
+                    saveUnlockedCosmetics();
+                    buildEmblemPalettes();
+                }
+                showCrateReveal(MYTHIC_FEATURE, 'mythic', 'feature', alreadyOwned);
+                return;
+            }
+
+            const wantShape = Math.random() < 0.5;
+            const pool = (wantShape ? CRATE_SHAPES : CRATE_COLORS).filter(i => i.rarity === rarity);
+            const item = pool[Math.floor(Math.random() * pool.length)];
+            const key = wantShape ? item.type : item.color;
+            const bucket = wantShape ? unlockedCosmetics.shapes : unlockedCosmetics.colors;
+            const alreadyOwned = bucket.includes(key);
+
+            if (alreadyOwned) {
+                totalCredits += CRATE_PITY_REFUND;
+                updateCrateUI();
+                saveGameData();
+            } else {
+                bucket.push(key);
+                saveUnlockedCosmetics();
+                buildEmblemPalettes();
+            }
+
+            showCrateReveal(item, rarity, wantShape ? 'shape' : 'color', alreadyOwned);
+        }
+
+        function showCrateReveal(item, rarity, kind, alreadyOwned) {
+            const overlay = document.getElementById('crate-reveal-overlay');
+            const card = document.getElementById('crate-reveal-card');
+            const rarityEl = document.getElementById('crate-reveal-rarity');
+            const nameEl = document.getElementById('crate-reveal-name');
+            const canvas = document.getElementById('crate-reveal-canvas');
+            if (!overlay || !card) return;
+
+            card.className = 'crate-reveal-card rarity-' + rarity;
+            rarityEl.className = 'crate-reveal-rarity rarity-' + rarity;
+            rarityEl.textContent = rarity.toUpperCase() + (alreadyOwned ? ' (DUPLICATE — +' + CRATE_PITY_REFUND + ' SD)' : ' — NEW!');
+            nameEl.textContent = item.name;
+
+            if (canvas) {
+                const rctx = canvas.getContext('2d');
+                rctx.clearRect(0, 0, canvas.width, canvas.height);
+                rctx.save();
+                rctx.translate(canvas.width / 2, canvas.height / 2);
+                if (kind === 'shape') {
+                    drawEmblemShape(rctx, item.type, 30, '#ffd166');
+                } else if (kind === 'color') {
+                    rctx.fillStyle = item.color;
+                    rctx.beginPath();
+                    rctx.arc(0, 0, 30, 0, Math.PI * 2);
+                    rctx.fill();
+                } else {
+                    // Mythic "feature" unlock — draw a little rainbow dial icon.
+                    const grad = rctx.createConicGradient ? rctx.createConicGradient(0, 0, 0) : null;
+                    if (grad) {
+                        ['#ff6b6b', '#ffd166', '#06d6a0', '#3a86ff', '#c9a7ff', '#ff6b6b'].forEach((c, i, arr) => grad.addColorStop(i / (arr.length - 1), c));
+                        rctx.fillStyle = grad;
+                    } else {
+                        rctx.fillStyle = '#c9a7ff';
+                    }
+                    rctx.beginPath();
+                    rctx.arc(0, 0, 30, 0, Math.PI * 2);
+                    rctx.fill();
+                }
+                rctx.restore();
+            }
+
+            overlay.classList.remove('hidden');
+        }
+        // The guide silhouette is the real ship path (moveTo(0,-12), (-8,10), (0,5), (8,10))
+        // scaled up by EMBLEM_EDIT_SCALE for comfortable editing. Dividing a
+        // layer's x/y/size by this same factor maps it back onto the tiny
+        // in-flight ship, so "what you draw is what you fly."
+        const EMBLEM_EDIT_SCALE = 8;
+        // Resize handles around a selected layer's bounding box: corners
+        // stretch both axes, edge midpoints stretch a single axis.
+        const EMBLEM_HANDLES = [
+            { sx: -1, sy: -1 }, { sx: 0, sy: -1 }, { sx: 1, sy: -1 },
+            { sx: -1, sy: 0 },                     { sx: 1, sy: 0 },
+            { sx: -1, sy: 1 },  { sx: 0, sy: 1 },   { sx: 1, sy: 1 }
+        ];
+        const EMBLEM_MIN_SCALE = 0.2;
+        const EMBLEM_MAX_SCALE = 6;
+
+        const emblemCanvas = document.getElementById('emblem-canvas');
+        const emblemCtx = emblemCanvas ? emblemCanvas.getContext('2d') : null;
+        const emblemShapePalette = document.getElementById('emblem-shape-palette');
+        const emblemColorPalette = document.getElementById('emblem-color-palette');
+        const emblemLayerList = document.getElementById('emblem-layer-list');
+
+        let editorLayers = [];
+        let editorSelectedIndex = -1;
+        // Fallback default color used internally before the player has
+        // unlocked any color via a crate (nothing is selectable until then).
+        let editorSelectedColor = '#ffd166';
+        let editorDragging = false;
+        let editorDragOffset = { x: 0, y: 0 };
+        let editorResizing = null; // { handle: {sx,sy} } for the currently selected layer
+
+        // Shared shape renderer: used by the editor canvas, the palette
+        // preview icons, AND the in-flight ship so they all look identical.
+        function drawEmblemShape(ctxRef, type, size, color) {
+            ctxRef.fillStyle = color;
+            ctxRef.strokeStyle = color;
+            ctxRef.lineWidth = Math.max(1, size * 0.18);
+            switch (type) {
+                case 'triangle':
+                    ctxRef.beginPath();
+                    ctxRef.moveTo(0, -size);
+                    ctxRef.lineTo(-size * 0.87, size * 0.5);
+                    ctxRef.lineTo(size * 0.87, size * 0.5);
+                    ctxRef.closePath();
+                    ctxRef.fill();
+                    break;
+                case 'circle':
+                    ctxRef.beginPath();
+                    ctxRef.arc(0, 0, size, 0, Math.PI * 2);
+                    ctxRef.fill();
+                    break;
+                case 'ring':
+                    ctxRef.beginPath();
+                    ctxRef.arc(0, 0, size * 0.7, 0, Math.PI * 2);
+                    ctxRef.stroke();
+                    break;
+                case 'square':
+                    ctxRef.fillRect(-size, -size, size * 2, size * 2);
+                    break;
+                case 'diamond':
+                    ctxRef.beginPath();
+                    ctxRef.moveTo(0, -size);
+                    ctxRef.lineTo(size, 0);
+                    ctxRef.lineTo(0, size);
+                    ctxRef.lineTo(-size, 0);
+                    ctxRef.closePath();
+                    ctxRef.fill();
+                    break;
+                case 'star': {
+                    ctxRef.beginPath();
+                    const spikes = 5, outer = size, inner = size * 0.45;
+                    for (let i = 0; i < spikes * 2; i++) {
+                        const r = (i % 2 === 0) ? outer : inner;
+                        const a = (Math.PI / spikes) * i - Math.PI / 2;
+                        const px = Math.cos(a) * r, py = Math.sin(a) * r;
+                        if (i === 0) ctxRef.moveTo(px, py); else ctxRef.lineTo(px, py);
+                    }
+                    ctxRef.closePath();
+                    ctxRef.fill();
+                    break;
+                }
+                case 'hexagon': {
+                    ctxRef.beginPath();
+                    for (let i = 0; i < 6; i++) {
+                        const a = (Math.PI / 3) * i - Math.PI / 2;
+                        const px = Math.cos(a) * size, py = Math.sin(a) * size;
+                        if (i === 0) ctxRef.moveTo(px, py); else ctxRef.lineTo(px, py);
+                    }
+                    ctxRef.closePath();
+                    ctxRef.fill();
+                    break;
+                }
+                case 'stripe':
+                    ctxRef.fillRect(-size, -size * 0.25, size * 2, size * 0.5);
+                    break;
+                case 'chevron':
+                    ctxRef.beginPath();
+                    ctxRef.moveTo(-size, -size * 0.6);
+                    ctxRef.lineTo(0, size * 0.6);
+                    ctxRef.lineTo(size, -size * 0.6);
+                    ctxRef.lineTo(size * 0.6, -size * 0.6);
+                    ctxRef.lineTo(0, size * 0.05);
+                    ctxRef.lineTo(-size * 0.6, -size * 0.6);
+                    ctxRef.closePath();
+                    ctxRef.fill();
+                    break;
+                case 'cross':
+                    ctxRef.fillRect(-size * 0.25, -size, size * 0.5, size * 2);
+                    ctxRef.fillRect(-size, -size * 0.25, size * 2, size * 0.5);
+                    break;
+                case 'bolt':
+                    ctxRef.beginPath();
+                    ctxRef.moveTo(size * 0.15, -size);
+                    ctxRef.lineTo(-size * 0.5, size * 0.1);
+                    ctxRef.lineTo(0, size * 0.1);
+                    ctxRef.lineTo(-size * 0.15, size);
+                    ctxRef.lineTo(size * 0.5, -size * 0.15);
+                    ctxRef.lineTo(0, -size * 0.15);
+                    ctxRef.closePath();
+                    ctxRef.fill();
+                    break;
+                case 'arrow':
+                    ctxRef.beginPath();
+                    ctxRef.moveTo(0, -size);
+                    ctxRef.lineTo(size * 0.6, size * 0.2);
+                    ctxRef.lineTo(size * 0.25, size * 0.2);
+                    ctxRef.lineTo(size * 0.25, size);
+                    ctxRef.lineTo(-size * 0.25, size);
+                    ctxRef.lineTo(-size * 0.25, size * 0.2);
+                    ctxRef.lineTo(-size * 0.6, size * 0.2);
+                    ctxRef.closePath();
+                    ctxRef.fill();
+                    break;
+                case 'crescent':
+                    ctxRef.beginPath();
+                    ctxRef.arc(0, 0, size, 0.35 * Math.PI, 1.65 * Math.PI, false);
+                    ctxRef.arc(size * 0.35, 0, size * 0.8, 1.65 * Math.PI, 0.35 * Math.PI, true);
+                    ctxRef.closePath();
+                    ctxRef.fill();
+                    break;
+                case 'comet':
+                    ctxRef.beginPath();
+                    ctxRef.arc(size * 0.35, -size * 0.35, size * 0.35, 0, Math.PI * 2);
+                    ctxRef.fill();
+                    ctxRef.beginPath();
+                    ctxRef.moveTo(size * 0.15, -size * 0.15);
+                    ctxRef.lineTo(-size, size);
+                    ctxRef.lineTo(-size * 0.4, size * 0.1);
+                    ctxRef.closePath();
+                    ctxRef.fill();
+                    break;
+                case 'skull': {
+                    ctxRef.beginPath();
+                    ctxRef.arc(0, -size * 0.15, size * 0.75, 0, Math.PI * 2);
+                    ctxRef.fill();
+                    ctxRef.fillRect(-size * 0.5, size * 0.15, size, size * 0.5);
+                    ctxRef.fillStyle = '#171526';
+                    ctxRef.beginPath();
+                    ctxRef.arc(-size * 0.32, -size * 0.15, size * 0.18, 0, Math.PI * 2);
+                    ctxRef.fill();
+                    ctxRef.beginPath();
+                    ctxRef.arc(size * 0.32, -size * 0.15, size * 0.18, 0, Math.PI * 2);
+                    ctxRef.fill();
+                    break;
+                }
+                case 'nova': {
+                    ctxRef.beginPath();
+                    const spikes = 8, outer = size, inner = size * 0.25;
+                    for (let i = 0; i < spikes * 2; i++) {
+                        const r = (i % 2 === 0) ? outer : inner;
+                        const a = (Math.PI / spikes) * i - Math.PI / 2;
+                        const px = Math.cos(a) * r, py = Math.sin(a) * r;
+                        if (i === 0) ctxRef.moveTo(px, py); else ctxRef.lineTo(px, py);
+                    }
+                    ctxRef.closePath();
+                    ctxRef.fill();
+                    break;
+                }
+                case 'infinity':
+                    ctxRef.lineWidth = Math.max(2, size * 0.32);
+                    ctxRef.beginPath();
+                    ctxRef.moveTo(0, 0);
+                    ctxRef.bezierCurveTo(-size * 0.5, -size * 0.9, -size, size * 0.9, 0, 0);
+                    ctxRef.bezierCurveTo(size * 0.5, -size * 0.9, size, size * 0.9, 0, 0);
+                    ctxRef.stroke();
+                    break;
+            }
+        }
+
+        // A layer's on-screen half-width/half-height, accounting for its
+        // independent x/y stretch (scaleX/scaleY default to 1 for layers
+        // saved before stretching existed).
+        function emblemHalfExtents(layer) {
+            return {
+                hw: layer.size * (layer.scaleX ?? 1),
+                hh: layer.size * (layer.scaleY ?? 1)
+            };
+        }
+
+        // Canvas-space pointer coordinates (already centered on the canvas,
+        // same frame as layer.x/layer.y) rotated into the layer's own local,
+        // unrotated space, centered on the layer.
+        function emblemToLocal(layer, pos) {
+            const dx = pos.x - layer.x, dy = pos.y - layer.y;
+            const cos = Math.cos(-layer.rotation), sin = Math.sin(-layer.rotation);
+            return { x: dx * cos - dy * sin, y: dx * sin + dy * cos };
+        }
+
+        // Where a given resize handle sits in canvas-space, for hit-testing.
+        function emblemHandlePos(layer, h) {
+            const { hw, hh } = emblemHalfExtents(layer);
+            const lx = h.sx * (hw + 6), ly = h.sy * (hh + 6);
+            const cos = Math.cos(layer.rotation), sin = Math.sin(layer.rotation);
+            return { x: layer.x + lx * cos - ly * sin, y: layer.y + lx * sin + ly * cos };
+        }
+
+        function renderEmblemEditor() {
+            if (!emblemCtx) return;
+            const w = emblemCanvas.width, h = emblemCanvas.height;
+            const cx = w / 2, cy = h / 2;
+            emblemCtx.clearRect(0, 0, w, h);
+
+            // Faint guide silhouette of the real ship shape, scaled up
+            emblemCtx.save();
+            emblemCtx.translate(cx, cy);
+            emblemCtx.fillStyle = 'rgba(255, 209, 102, 0.08)';
+            emblemCtx.strokeStyle = 'rgba(255, 209, 102, 0.35)';
+            emblemCtx.lineWidth = 1.5;
+            emblemCtx.beginPath();
+            emblemCtx.moveTo(0, -12 * EMBLEM_EDIT_SCALE);
+            emblemCtx.lineTo(-8 * EMBLEM_EDIT_SCALE, 10 * EMBLEM_EDIT_SCALE);
+            emblemCtx.lineTo(0, 5 * EMBLEM_EDIT_SCALE);
+            emblemCtx.lineTo(8 * EMBLEM_EDIT_SCALE, 10 * EMBLEM_EDIT_SCALE);
+            emblemCtx.closePath();
+            emblemCtx.fill();
+            emblemCtx.stroke();
+            emblemCtx.restore();
+
+            editorLayers.forEach((layer, i) => {
+                const scaleX = layer.scaleX ?? 1, scaleY = layer.scaleY ?? 1;
+                emblemCtx.save();
+                emblemCtx.translate(cx + layer.x, cy + layer.y);
+                emblemCtx.rotate(layer.rotation);
+                emblemCtx.shadowBlur = 6;
+                emblemCtx.shadowColor = layer.color;
+                emblemCtx.save();
+                emblemCtx.scale(scaleX, scaleY);
+                drawEmblemShape(emblemCtx, layer.type, layer.size, layer.color);
+                emblemCtx.restore();
+
+                if (i === editorSelectedIndex) {
+                    const { hw, hh } = emblemHalfExtents(layer);
+                    emblemCtx.shadowBlur = 0;
+                    emblemCtx.strokeStyle = '#f7ede2';
+                    emblemCtx.setLineDash([4, 4]);
+                    emblemCtx.lineWidth = 1.5;
+                    emblemCtx.strokeRect(-hw - 6, -hh - 6, (hw + 6) * 2, (hh + 6) * 2);
+                    emblemCtx.setLineDash([]);
+                    emblemCtx.fillStyle = '#ffd166';
+                    emblemCtx.strokeStyle = '#1a1730';
+                    emblemCtx.lineWidth = 1;
+                    EMBLEM_HANDLES.forEach(hd => {
+                        const hx = hd.sx * (hw + 6), hy = hd.sy * (hh + 6);
+                        emblemCtx.fillRect(hx - 4, hy - 4, 8, 8);
+                        emblemCtx.strokeRect(hx - 4, hy - 4, 8, 8);
+                    });
+                }
+                emblemCtx.restore();
+            });
+        }
+
+        function renderEmblemLayerList() {
+            if (!emblemLayerList) return;
+            emblemLayerList.innerHTML = '';
+            if (editorLayers.length === 0) {
+                emblemLayerList.innerHTML = '<div style="opacity:0.6; font-size:0.65rem;">No layers yet — tap a shape below.</div>';
+                return;
+            }
+            // Show front-most layer at the top of the list, like a typical layer stack.
+            for (let i = editorLayers.length - 1; i >= 0; i--) {
+                const layer = editorLayers[i];
+                const row = document.createElement('div');
+                row.className = 'emblem-layer-row' + (i === editorSelectedIndex ? ' selected' : '');
+                row.innerHTML = `<span class="swatch" style="background:${layer.color};"></span><span>${layer.type}</span>`;
+                row.addEventListener('click', () => {
+                    editorSelectedIndex = i;
+                    renderEmblemEditor();
+                    renderEmblemLayerList();
+                });
+                emblemLayerList.appendChild(row);
+            }
+        }
+
+        function buildEmblemPalettes() {
+            if (emblemShapePalette) {
+                emblemShapePalette.innerHTML = '';
+                const allShapes = CRATE_SHAPES.map(s => ({ type: s.type, locked: !unlockedCosmetics.shapes.includes(s.type), rarity: s.rarity, name: s.name }));
+                allShapes.forEach(entry => {
+                    const { type, locked, rarity } = entry;
+                    const btn = document.createElement('canvas');
+                    btn.width = 32; btn.height = 32;
+                    btn.className = 'emblem-shape-btn' + (rarity ? ' rarity-' + rarity : '') + (locked ? ' emblem-locked' : '');
+                    btn.title = locked ? `${entry.name} (locked — open a crate)` : type;
+                    const bctx = btn.getContext('2d');
+                    bctx.save();
+                    bctx.translate(16, 16);
+                    drawEmblemShape(bctx, type, 11, locked ? '#6c5b7b' : '#ffd166');
+                    bctx.restore();
+                    btn.addEventListener('click', () => {
+                        if (locked) {
+                            btn.classList.remove('crate-shake');
+                            void btn.offsetWidth;
+                            btn.classList.add('crate-shake');
+                            return;
+                        }
+                        editorLayers.push({ type, x: 0, y: 0, size: 22, rotation: 0, scaleX: 1, scaleY: 1, color: editorSelectedColor });
+                        editorSelectedIndex = editorLayers.length - 1;
+                        renderEmblemEditor();
+                        renderEmblemLayerList();
+                    });
+                    emblemShapePalette.appendChild(btn);
+                });
+            }
+            if (emblemColorPalette) {
+                emblemColorPalette.innerHTML = '';
+                const allColors = CRATE_COLORS.map(c => ({ color: c.color, locked: !unlockedCosmetics.colors.includes(c.color), rarity: c.rarity, name: c.name }));
+                allColors.forEach(entry => {
+                    const { color, locked, rarity } = entry;
+                    const btn = document.createElement('button');
+                    btn.className = 'emblem-color-btn' + (color === editorSelectedColor ? ' selected' : '') + (rarity ? ' rarity-' + rarity : '') + (locked ? ' emblem-locked' : '');
+                    btn.style.background = locked ? '#453a56' : color;
+                    btn.title = locked ? `${entry.name} (locked — open a crate)` : '';
+                    btn.addEventListener('click', () => {
+                        if (locked) {
+                            btn.classList.remove('crate-shake');
+                            void btn.offsetWidth;
+                            btn.classList.add('crate-shake');
+                            return;
+                        }
+                        editorSelectedColor = color;
+                        if (editorSelectedIndex >= 0) {
+                            editorLayers[editorSelectedIndex].color = color;
+                            renderEmblemEditor();
+                            renderEmblemLayerList();
+                        }
+                        emblemColorPalette.querySelectorAll('.emblem-color-btn').forEach(b => b.classList.remove('selected'));
+                        btn.classList.add('selected');
+                        const picker = document.getElementById('emblem-color-picker');
+                        if (picker) picker.value = color;
+                    });
+                    emblemColorPalette.appendChild(btn);
+                });
+                // Custom color picker - a Mythic-tier unlock. Locked until the
+                // rare crate pull that grants it.
+                const pickerUnlocked = unlockedCosmetics.features.includes(MYTHIC_FEATURE.id);
+                const pickerWrap = document.createElement('label');
+                pickerWrap.className = 'emblem-color-picker-wrap rarity-mythic' + (pickerUnlocked ? '' : ' emblem-locked');
+                pickerWrap.title = pickerUnlocked ? 'Custom color' : 'Custom Color Picker (Mythic — locked, open a crate)';
+                const picker = document.createElement('input');
+                picker.type = 'color';
+                picker.id = 'emblem-color-picker';
+                picker.className = 'emblem-color-picker';
+                picker.value = editorSelectedColor;
+                if (!pickerUnlocked) {
+                    picker.disabled = true;
+                    pickerWrap.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        pickerWrap.classList.remove('crate-shake');
+                        void pickerWrap.offsetWidth;
+                        pickerWrap.classList.add('crate-shake');
+                    });
+                }
+                picker.addEventListener('input', () => {
+                    editorSelectedColor = picker.value;
+                    if (editorSelectedIndex >= 0) {
+                        editorLayers[editorSelectedIndex].color = picker.value;
+                        renderEmblemEditor();
+                        renderEmblemLayerList();
+                    }
+                    emblemColorPalette.querySelectorAll('.emblem-color-btn').forEach(b => b.classList.remove('selected'));
+                });
+                pickerWrap.appendChild(picker);
+                emblemColorPalette.appendChild(pickerWrap);
+            }
+        }
+
+        function emblemPointerPos(evt) {
+            const rect = emblemCanvas.getBoundingClientRect();
+            const point = evt.touches ? evt.touches[0] : evt;
+            return {
+                x: (point.clientX - rect.left) * (emblemCanvas.width / rect.width) - emblemCanvas.width / 2,
+                y: (point.clientY - rect.top) * (emblemCanvas.height / rect.height) - emblemCanvas.height / 2
+            };
+        }
+
+        function emblemHitTest(x, y) {
+            for (let i = editorLayers.length - 1; i >= 0; i--) {
+                const layer = editorLayers[i];
+                const local = emblemToLocal(layer, { x, y });
+                const { hw, hh } = emblemHalfExtents(layer);
+                if (Math.abs(local.x) <= hw + 6 && Math.abs(local.y) <= hh + 6) return i;
+            }
+            return -1;
+        }
+
+        function emblemFindHandle(pos) {
+            if (editorSelectedIndex < 0) return null;
+            const layer = editorLayers[editorSelectedIndex];
+            for (const hd of EMBLEM_HANDLES) {
+                const hp = emblemHandlePos(layer, hd);
+                if (Math.hypot(pos.x - hp.x, pos.y - hp.y) <= 9) return hd;
+            }
+            return null;
+        }
+
+        function emblemPointerDown(evt) {
+            evt.preventDefault();
+            const pos = emblemPointerPos(evt);
+
+            // Dragging a resize handle takes priority over re-selecting/moving.
+            const handle = emblemFindHandle(pos);
+            if (handle) {
+                editorResizing = { handle };
+                return;
+            }
+
+            const hit = emblemHitTest(pos.x, pos.y);
+            editorSelectedIndex = hit;
+            if (hit >= 0) {
+                editorDragging = true;
+                editorDragOffset = { x: pos.x - editorLayers[hit].x, y: pos.y - editorLayers[hit].y };
+            }
+            renderEmblemEditor();
+            renderEmblemLayerList();
+        }
+
+        function emblemPointerMove(evt) {
+            if (editorSelectedIndex < 0 || (!editorDragging && !editorResizing)) return;
+            evt.preventDefault();
+            const pos = emblemPointerPos(evt);
+            const layer = editorLayers[editorSelectedIndex];
+
+            if (editorResizing) {
+                const { sx, sy } = editorResizing.handle;
+                const local = emblemToLocal(layer, pos);
+                if (sx !== 0) {
+                    const newHW = Math.max(4, sx * local.x);
+                    layer.scaleX = Math.max(EMBLEM_MIN_SCALE, Math.min(EMBLEM_MAX_SCALE, newHW / layer.size));
+                }
+                if (sy !== 0) {
+                    const newHH = Math.max(4, sy * local.y);
+                    layer.scaleY = Math.max(EMBLEM_MIN_SCALE, Math.min(EMBLEM_MAX_SCALE, newHH / layer.size));
+                }
+                renderEmblemEditor();
+                return;
+            }
+
+            const bound = emblemCanvas.width / 2 - 6;
+            layer.x = Math.max(-bound, Math.min(bound, pos.x - editorDragOffset.x));
+            layer.y = Math.max(-bound, Math.min(bound, pos.y - editorDragOffset.y));
+            renderEmblemEditor();
+        }
+
+        function emblemPointerUp() {
+            editorDragging = false;
+            editorResizing = null;
+        }
+
+        if (emblemCanvas) {
+            emblemCanvas.addEventListener('mousedown', emblemPointerDown);
+            emblemCanvas.addEventListener('mousemove', emblemPointerMove);
+            window.addEventListener('mouseup', emblemPointerUp);
+            emblemCanvas.addEventListener('touchstart', emblemPointerDown, { passive: false });
+            emblemCanvas.addEventListener('touchmove', emblemPointerMove, { passive: false });
+            emblemCanvas.addEventListener('touchend', emblemPointerUp);
+        }
+
+        function emblemSelectedLayer() {
+            return editorSelectedIndex >= 0 ? editorLayers[editorSelectedIndex] : null;
+        }
+
+        document.getElementById('emblem-rotate-left').addEventListener('click', () => {
+            const l = emblemSelectedLayer(); if (!l) return;
+            l.rotation -= Math.PI / 8;
+            renderEmblemEditor();
+        });
+        document.getElementById('emblem-rotate-right').addEventListener('click', () => {
+            const l = emblemSelectedLayer(); if (!l) return;
+            l.rotation += Math.PI / 8;
+            renderEmblemEditor();
+        });
+        document.getElementById('emblem-scale-down').addEventListener('click', () => {
+            const l = emblemSelectedLayer(); if (!l) return;
+            l.size = Math.max(8, l.size - 4);
+            renderEmblemEditor();
+        });
+        document.getElementById('emblem-scale-up').addEventListener('click', () => {
+            const l = emblemSelectedLayer(); if (!l) return;
+            l.size = Math.min(70, l.size + 4);
+            renderEmblemEditor();
+        });
+        document.getElementById('emblem-layer-back').addEventListener('click', () => {
+            const i = editorSelectedIndex; if (i <= 0) return;
+            [editorLayers[i - 1], editorLayers[i]] = [editorLayers[i], editorLayers[i - 1]];
+            editorSelectedIndex = i - 1;
+            renderEmblemEditor();
+            renderEmblemLayerList();
+        });
+        document.getElementById('emblem-layer-front').addEventListener('click', () => {
+            const i = editorSelectedIndex; if (i < 0 || i >= editorLayers.length - 1) return;
+            [editorLayers[i + 1], editorLayers[i]] = [editorLayers[i], editorLayers[i + 1]];
+            editorSelectedIndex = i + 1;
+            renderEmblemEditor();
+            renderEmblemLayerList();
+        });
+        document.getElementById('emblem-duplicate-btn').addEventListener('click', () => {
+            const l = emblemSelectedLayer(); if (!l) return;
+            const bound = emblemCanvas.width / 2 - 6;
+            const clone = { ...l, x: Math.min(bound, l.x + 14), y: Math.min(bound, l.y + 14) };
+            editorLayers.push(clone);
+            editorSelectedIndex = editorLayers.length - 1;
+            renderEmblemEditor();
+            renderEmblemLayerList();
+        });
+        document.getElementById('emblem-delete-btn').addEventListener('click', () => {
+            if (editorSelectedIndex < 0) return;
+            editorLayers.splice(editorSelectedIndex, 1);
+            editorSelectedIndex = -1;
+            renderEmblemEditor();
+            renderEmblemLayerList();
+        });
+        document.getElementById('emblem-clear-btn').addEventListener('click', () => {
+            editorLayers = [];
+            editorSelectedIndex = -1;
+            renderEmblemEditor();
+            renderEmblemLayerList();
+        });
+        document.getElementById('emblem-save-btn').addEventListener('click', () => {
+            shipEmblem = editorLayers.map(l => ({ ...l }));
+            saveShipEmblem();
+            showScreen(menuScreen);
+        });
+        document.getElementById('emblem-cancel-btn').addEventListener('click', () => {
+            showScreen(menuScreen);
+        });
+        document.getElementById('to-emblem-btn').addEventListener('click', () => {
+            editorLayers = shipEmblem.map(l => ({ ...l }));
+            editorSelectedIndex = -1;
+            showScreen(emblemScreen);
+            buildEmblemPalettes();
+            renderEmblemEditor();
+            renderEmblemLayerList();
+            updateCrateUI();
+        });
+        document.getElementById('open-crate-btn').addEventListener('click', openLootCrate);
+        document.getElementById('crate-reveal-close-btn').addEventListener('click', () => {
+            document.getElementById('crate-reveal-overlay').classList.add('hidden');
+            updateCrateUI();
+        });
+        buildEmblemPalettes();
+        // ================= END ROCKET EDITOR =================
 
         function togglePause() {
             if (!gameRunning) return;
@@ -1502,13 +2685,23 @@
             }
         }
 
-        function dock() {
+        function dock(atOutpost) {
             docked = true;
+            dockedAtOutpost = !!atOutpost;
             gamePaused = true;
             konamiInputIndex = 0;
             dockPrompt.classList.remove("visible");
             if (!cheatStatus.textContent) {
                 cheatStatus.textContent = isCheatedRun ? `✨ CHEATS: ${cheatedAbilityMode.toUpperCase()} ACTIVE ✨` : "";
+            }
+            if (dockedAtOutpost) {
+                shopTitle.textContent = "MINI SANCTUARY";
+                shopDesc.textContent = `Docked at your field outpost. It shatters nearby hazards just like the real station. No ship upgrades out here, but blessings can still be crafted at ${OUTPOST_CRAFT_MULTIPLIER}x the Stardust + material cost.`;
+                upgradesColumn.style.display = "none";
+            } else {
+                shopTitle.textContent = "COZY SANCTUARY";
+                shopDesc.textContent = "Docked at the Sanctuary station. This field auto-shatters debris on approach — you're safe here. Basic upgrades cost Stardust; blessings are crafted from Stardust plus biome materials you salvage out in the sector.";
+                upgradesColumn.style.display = "";
             }
             updateUpgradeShopUI();
             updateCraftShopUI();
@@ -1518,6 +2711,7 @@
 
         function undock() {
             docked = false;
+            dockedAtOutpost = false;
             gamePaused = false;
             shopScreen.classList.add("hidden");
             loop();
@@ -1551,12 +2745,14 @@
 
         // Shared check: can we afford a recipe's Stardust fee + material cost?
         function canAffordRecipe(recipe) {
-            return totalCredits >= recipe.sd && hasMaterials(recipe.mats);
+            const eff = getEffectiveRecipe(recipe);
+            return totalCredits >= eff.sd && hasMaterials(eff.mats);
         }
 
         function craftRecipe(recipe) {
-            totalCredits -= recipe.sd;
-            spendMaterials(recipe.mats);
+            const eff = getEffectiveRecipe(recipe);
+            totalCredits -= eff.sd;
+            spendMaterials(eff.mats);
         }
 
         function buyAbility(type) {
@@ -1819,6 +3015,14 @@
                 decoyEntity = { x: player.x, y: player.y, life: 300 };
                 player.cooldownTime = 720;
             }
+            else if (ab === 'outpost') {
+                if (outpost) return; // already standing - can't place another until it breaks
+                if (outpostBreakCooldown > 0) return; // still rebuilding after last one broke
+                playSound('special');
+                outpost = { x: player.x, y: player.y, hp: OUTPOST_MAX_HP, maxHp: OUTPOST_MAX_HP };
+                // No standard cooldown here - the outpost itself blocks re-placement
+                // while it's alive, then the break-cooldown takes over once it falls.
+            }
             else if (ab === 'dash') {
                 playSound('blink');
                 const angle = Math.atan2(player.vy, player.vx) || 0;
@@ -1857,12 +3061,17 @@
             pauseScreen.classList.add("hidden");
             gameoverScreen.classList.add("hidden");
 
+            materialToastTimeouts.forEach(t => clearTimeout(t));
+            materialToastTimeouts = [];
+            materialToastContainer.innerHTML = '';
+
             score = 0;
             applyUpgradeStats();
             fuel = maxFuel;
             health = maxHealth;
             invulnTime = 0;
             docked = false;
+            dockedAtOutpost = false;
             obstacles = [];
             particles = [];
             debrisPieces = [];
@@ -1876,6 +3085,8 @@
             shotCooldown = 0;
             positionHistory = [];
             decoyEntity = null;
+            outpost = null;
+            outpostBreakCooldown = 0;
             spawnTimer = 0;
             crystalSpawnTimer = 0;
             fuelSpawnTimer = 0;
@@ -1995,7 +3206,11 @@
             }
 
             abilityHud.style.display = "block";
-            if (player.cooldownTime > 0) {
+            if (player.equippedAbility === 'outpost' && outpost) {
+                abilityHud.textContent = `OUTPOST STANDING: ${Math.ceil(outpost.hp)} HP`;
+            } else if (player.equippedAbility === 'outpost' && outpostBreakCooldown > 0) {
+                abilityHud.textContent = `OUTPOST REBUILDING: ${Math.ceil(outpostBreakCooldown / 60)}s`;
+            } else if (player.cooldownTime > 0) {
                 abilityHud.textContent = `COOLDOWN: ${Math.ceil(player.cooldownTime / 60)}s`;
             } else if (activeEffectTimer > 0) {
                 abilityHud.textContent = `ACTIVE: ${player.equippedAbility.toUpperCase()} (${Math.ceil(activeEffectTimer/60)}s)`;
@@ -2026,6 +3241,7 @@
             showScreen(gameoverScreen);
             player.hasShield = false;
             docked = false;
+            dockedAtOutpost = false;
         }
 
         const MAX_OBSTACLES = 60;
@@ -2185,6 +3401,7 @@
             if (activeEffectTimer > 0) activeEffectTimer--;
             if (invulnTime > 0) invulnTime--;
             if (shotCooldown > 0) shotCooldown--;
+            if (outpostBreakCooldown > 0) outpostBreakCooldown--;
 
             const currentBiome = getBiome(player.x, player.y);
             activeBiome = currentBiome;
@@ -2205,7 +3422,12 @@
             }
 
             const distToSanctuary = Math.hypot(player.x - sanctuary.x, player.y - sanctuary.y);
+            const distToOutpostDock = outpost ? Math.hypot(player.x - outpost.x, player.y - outpost.y) : Infinity;
             if (distToSanctuary < sanctuary.dockRange) {
+                dockPrompt.textContent = "DOCKING RANGE — PRESS E TO ENTER SANCTUARY";
+                dockPrompt.classList.add("visible");
+            } else if (distToOutpostDock < OUTPOST_DOCK_RANGE) {
+                dockPrompt.textContent = `DOCKING RANGE — PRESS E TO CRAFT AT MINI SANCTUARY (${OUTPOST_CRAFT_MULTIPLIER}x COST)`;
                 dockPrompt.classList.add("visible");
             } else {
                 dockPrompt.classList.remove("visible");
@@ -2229,7 +3451,12 @@
                 fuel -= 0.08 * currentBiome.fuelDrainMult * (player.hasGravPlate ? 0.7 : 1);
                 if (fuel <= 0) fuel = 0;
             } else {
-                fuel += 0.02 + currentBiome.fuelRegenBonus;
+                // Idle regen must always outpace the worst-case passive biome
+                // drain (currently 0.02 in The Ember Reach), or fuel can get
+                // pinned at exactly 0 forever once it empties there - since
+                // fuel > 0 gates all movement input, that would permanently
+                // strand the player with no way to ever thrust again.
+                fuel += 0.035 + currentBiome.fuelRegenBonus;
                 if (fuel > maxFuel) fuel = maxFuel;
             }
             if (currentBiome.passiveFuelDrain > 0) {
@@ -2407,6 +3634,22 @@
                     continue;
                 }
 
+                if (outpost) {
+                    const distToOutpost = Math.hypot(obs.x - outpost.x, obs.y - outpost.y);
+                    if (distToOutpost < OUTPOST_SAFE_RADIUS) {
+                        shatterObject(obs, obs.color || DEBRIS_COLOR);
+                        obstacles.splice(i, 1);
+                        outpost.hp -= OUTPOST_DEBRIS_DAMAGE;
+                        playSound('hit');
+                        if (outpost.hp <= 0) {
+                            shatterObject({ x: outpost.x, y: outpost.y, size: OUTPOST_RADIUS * 2 }, "#ffd166");
+                            outpost = null;
+                            outpostBreakCooldown = OUTPOST_BREAK_COOLDOWN_FRAMES;
+                        }
+                        continue;
+                    }
+                }
+
                 const hitDist = Math.hypot(player.x - obs.x, player.y - obs.y);
 
                 if (hitDist < player.size + obs.size / 2 && invulnTime <= 0) {
@@ -2470,6 +3713,15 @@
                     shatterObject(a, a.color || ALIEN_COLOR);
                     aliens.splice(i, 1);
                     continue;
+                }
+
+                if (outpost) {
+                    const distToOutpostA = Math.hypot(a.x - outpost.x, a.y - outpost.y);
+                    if (distToOutpostA < OUTPOST_SAFE_RADIUS) {
+                        shatterObject(a, a.color || ALIEN_COLOR);
+                        aliens.splice(i, 1);
+                        continue;
+                    }
                 }
 
                 a.wanderTimer--;
@@ -2580,6 +3832,22 @@
                     alienBullets.splice(i, 1);
                     continue;
                 }
+
+                if (outpost) {
+                    const distToOutpostB = Math.hypot(b.x - outpost.x, b.y - outpost.y);
+                    if (distToOutpostB < OUTPOST_SAFE_RADIUS) {
+                        outpost.hp -= ALIEN_BULLET_DAMAGE;
+                        playSound('hit');
+                        alienBullets.splice(i, 1);
+                        if (outpost.hp <= 0) {
+                            shatterObject({ x: outpost.x, y: outpost.y, size: OUTPOST_RADIUS * 2 }, "#ffd166");
+                            outpost = null;
+                            outpostBreakCooldown = OUTPOST_BREAK_COOLDOWN_FRAMES;
+                        }
+                        continue;
+                    }
+                }
+
                 const bd = Math.hypot(player.x - b.x, player.y - b.y);
                 if (bd < player.size + 4 && invulnTime <= 0) {
                     let isCloaked = (player.equippedAbility === 'cloak' && activeEffectTimer > 0);
@@ -2797,6 +4065,53 @@
             ctx.fillText("SANCTUARY", sx, sy - sanctuary.radius - 14);
             ctx.restore();
 
+            // Draw player-placed Mini Sanctuary outpost, if one is standing
+            if (outpost) {
+                ctx.save();
+                const ox = outpost.x - camX;
+                const oy = outpost.y - camY;
+                const opulse = (Math.sin(Date.now() / 300) + 1) / 2;
+                ctx.shadowBlur = 14 + opulse * 8;
+                ctx.shadowColor = "#8ee3ff";
+                ctx.strokeStyle = "#8ee3ff";
+                ctx.lineWidth = 2.5;
+                ctx.beginPath();
+                ctx.arc(ox, oy, OUTPOST_RADIUS, 0, Math.PI * 2);
+                ctx.stroke();
+                ctx.fillStyle = "rgba(142, 227, 255, 0.15)";
+                ctx.fill();
+                ctx.beginPath();
+                ctx.arc(ox, oy, OUTPOST_RADIUS * 0.45, 0, Math.PI * 2);
+                ctx.fillStyle = "#8ee3ff";
+                ctx.fill();
+                ctx.strokeStyle = "rgba(142, 227, 255, 0.35)";
+                ctx.setLineDash([5, 5]);
+                ctx.lineWidth = 1.2;
+                ctx.beginPath();
+                ctx.arc(ox, oy, OUTPOST_SAFE_RADIUS, 0, Math.PI * 2);
+                ctx.stroke();
+                ctx.setLineDash([]);
+
+                // HP bar
+                const barW = 60, barH = 6;
+                const hpFrac = Math.max(0, outpost.hp / outpost.maxHp);
+                const barX = ox - barW / 2;
+                const barY = oy - OUTPOST_RADIUS - 20;
+                ctx.fillStyle = "rgba(0,0,0,0.5)";
+                ctx.fillRect(barX, barY, barW, barH);
+                ctx.fillStyle = hpFrac > 0.3 ? "#8ee3ff" : "#ff6b6b";
+                ctx.fillRect(barX, barY, barW * hpFrac, barH);
+                ctx.strokeStyle = "rgba(255,255,255,0.4)";
+                ctx.lineWidth = 1;
+                ctx.strokeRect(barX, barY, barW, barH);
+
+                ctx.font = "bold 11px 'Segoe UI', sans-serif";
+                ctx.fillStyle = "#8ee3ff";
+                ctx.textAlign = "center";
+                ctx.fillText("MINI SANCTUARY", ox, barY - 6);
+                ctx.restore();
+            }
+
             drawSanctuaryPointer(sx, sy);
 
             if (player.hasBeacon && beaconTarget) {
@@ -2938,6 +4253,20 @@
                 ctx.lineTo(8, 10);
                 ctx.closePath();
                 ctx.fill();
+
+                if (shipEmblem && shipEmblem.length) {
+                    for (const layer of shipEmblem) {
+                        ctx.save();
+                        ctx.translate(layer.x / EMBLEM_EDIT_SCALE, layer.y / EMBLEM_EDIT_SCALE);
+                        ctx.rotate(layer.rotation);
+                        ctx.scale(layer.scaleX ?? 1, layer.scaleY ?? 1);
+                        ctx.shadowBlur = 3;
+                        ctx.shadowColor = layer.color;
+                        drawEmblemShape(ctx, layer.type, layer.size / EMBLEM_EDIT_SCALE, layer.color);
+                        ctx.restore();
+                    }
+                }
+
                 ctx.restore();
             }
 
