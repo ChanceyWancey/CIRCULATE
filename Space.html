@@ -171,6 +171,59 @@
             letter-spacing: 0.5px;
         }
 
+        #event-banner {
+            position: absolute;
+            top: 108px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-8px);
+            padding: 8px 22px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+            z-index: 16;
+            text-align: center;
+            opacity: 0;
+            pointer-events: none;
+            background: rgba(23, 21, 38, 0.92);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+
+        #event-banner.visible {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        #event-banner .event-name {
+            display: block;
+            font-size: 0.95rem;
+            font-weight: bold;
+            margin-bottom: 2px;
+        }
+
+        #event-banner .event-desc {
+            display: block;
+            font-size: 0.62rem;
+            opacity: 0.85;
+            letter-spacing: 0.5px;
+        }
+
+        #event-hud {
+            background: rgba(39, 33, 59, 0.9);
+            border: 1px solid #ffd166;
+            padding: 4px 14px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+            display: none;
+        }
+
+        .event-hud-line {
+            font-size: 0.68rem;
+            letter-spacing: 0.5px;
+            color: #ffd166;
+            white-space: nowrap;
+        }
+
         #region-label {
             font-size: 0.65rem;
             letter-spacing: 0.5px;
@@ -703,6 +756,7 @@
     <h1>✨ Stellar Drift: Sector Radar ✨</h1>
     <div id="dock-prompt">DOCKING RANGE — PRESS E TO ENTER SANCTUARY</div>
     <div id="biome-banner"><span class="biome-name"></span><span class="biome-desc"></span></div>
+    <div id="event-banner"><span class="event-name"></span><span class="event-desc"></span></div>
     <div id="material-toast-container"></div>
     <div id="crate-reveal-overlay" class="hidden">
         <div class="crate-reveal-card" id="crate-reveal-card">
@@ -927,6 +981,14 @@
                     </div>
                     <button class="btn" id="buy-gravplate-btn" onclick="buyGravPlate()">CRAFT</button>
                 </div>
+                <div class="shop-item">
+                    <div class="shop-info">
+                        <h4>Homing Rounds (Passive)</h4>
+                        <span>Your bullets gently curve toward nearby aliens, always on</span>
+                        <span class="craft-cost" id="cost-homing"></span>
+                    </div>
+                    <button class="btn" id="buy-homing-btn" onclick="buyHoming()">CRAFT</button>
+                </div>
             </div>
             </div>
             </div>
@@ -972,6 +1034,7 @@
         </div>
         <div id="ability-hud">BLESSING READY</div>
         <div id="beacon-hud" style="display:none;"></div>
+        <div id="event-hud" style="display:none;"></div>
     </div>
 
     <script>
@@ -1016,6 +1079,10 @@
         const shopDesc = document.getElementById("shop-desc");
         const upgradesColumn = document.getElementById("upgrades-column");
         const beaconHud = document.getElementById("beacon-hud");
+        const eventHud = document.getElementById("event-hud");
+        const eventBanner = document.getElementById("event-banner");
+        const eventBannerName = eventBanner.querySelector(".event-name");
+        const eventBannerDesc = eventBanner.querySelector(".event-desc");
 
         function updateShopWallet() {
             if (shopWallet) shopWallet.textContent = `STARDUST POUCH: ${totalCredits} SD`;
@@ -1294,6 +1361,139 @@
         };
         const WILD_BIOME_IDS = ['debris', 'hive', 'nebula', 'void', 'storm', 'ice', 'ember', 'ghost', 'warzone', 'comet', 'flare', 'gravity'];
 
+        // ---- SECTOR EVENTS ----
+        // Two independent event layers sit on top of the biome grid:
+        //  - GLOBAL events apply their modifiers to every wild biome tile at
+        //    once for a limited time, and get a full banner announcement.
+        //  - LOCAL events pin themselves to a single random biome tile out
+        //    in the sector (never Home, never the hidden Cheater's tile),
+        //    and only affect that one tile until they expire. A radar-style
+        //    pointer helps you find them.
+        // Both just reuse the *Mult / *Reward fields biomes already expose,
+        // so getBiome() returns a modified copy of the base biome while an
+        // event is active - every spawn/reward/hazard system downstream
+        // (which already reads its numbers off the biome object) reacts
+        // automatically without needing its own event-handling code.
+        const GLOBAL_EVENTS = {
+            ionStorm: {
+                id: 'ionStorm', scope: 'GLOBAL EVENT', name: 'Ion Storm Surge',
+                desc: 'Interference sweeps the whole sector - fuel burns faster everywhere, and aliens fire quicker.',
+                color: '#a8e6ff', duration: 3300,
+                mods: { fuelDrainMult: 1.3, alienBulletSpeedMult: 1.15 }
+            },
+            stardustBloom: {
+                id: 'stardustBloom', scope: 'GLOBAL EVENT', name: 'Stardust Bloom',
+                desc: 'Every sector crystal is running rich. A great time to mine, wherever you are.',
+                color: '#06d6a0', duration: 3300,
+                mods: { crystalMult: 1.6, crystalReward: 1.35 }
+            },
+            hostileConvergence: {
+                id: 'hostileConvergence', scope: 'GLOBAL EVENT', name: 'Hostile Convergence',
+                desc: 'Alien activity spikes across every biome. Dangerous - but they pay well.',
+                color: '#ff4d6d', duration: 3000,
+                mods: { alienMult: 1.7, alienReward: 1.4, guardianChanceAdd: 0.12 }
+            },
+            calmTide: {
+                id: 'calmTide', scope: 'GLOBAL EVENT', name: 'Calm Tide',
+                desc: 'A rare lull in the sector. Engines sip fuel everywhere while it lasts.',
+                color: '#f7ede2', duration: 3000,
+                mods: { fuelDrainMult: 0.65, passiveFuelDrainAdd: -0.01 }
+            },
+            salvageFleet: {
+                id: 'salvageFleet', scope: 'GLOBAL EVENT', name: 'Salvage Fleet Passing',
+                desc: 'A convoy scattered wreckage on its way through. Debris is thicker and pays more everywhere.',
+                color: '#c98f5e', duration: 3000,
+                mods: { debrisMult: 1.6, debrisReward: 1.3 }
+            },
+            meteorShower: {
+                id: 'meteorShower', scope: 'GLOBAL EVENT', name: 'Meteor Shower',
+                desc: 'Rock streaks in from every direction. Debris is thicker and moving fast - stay sharp everywhere.',
+                color: '#ff9770', duration: 3000,
+                mods: { debrisMult: 1.4, debrisSpeedMult: 1.5 }
+            },
+            staticFog: {
+                id: 'staticFog', scope: 'GLOBAL EVENT', name: 'Sensor Static',
+                desc: 'Interference blankets the sector in fog. Hard to see far, but wrecks are running rich to compensate.',
+                color: '#9b8da9', duration: 2700,
+                mods: { fogAdd: 0.22, debrisReward: 1.2 }
+            },
+            guardianUprising: {
+                id: 'guardianUprising', scope: 'GLOBAL EVENT', name: 'Guardian Uprising',
+                desc: 'Elite guardians are turning up everywhere in force. Costly to fight - but they pay handsomely.',
+                color: '#9d4edd', duration: 2700,
+                mods: { guardianChanceAdd: 0.2, alienReward: 1.5 }
+            },
+            frozenDrift: {
+                id: 'frozenDrift', scope: 'GLOBAL EVENT', name: 'Frozen Drift',
+                desc: 'A cold snap grips the sector. Steering gets sluggish and wrecks are tougher to break apart.',
+                color: '#dff6ff', duration: 3000,
+                mods: { frictionBoost: 0.02, debrisHealthMult: 1.3 }
+            },
+            quickHarvest: {
+                id: 'quickHarvest', scope: 'GLOBAL EVENT', name: 'Quick Harvest',
+                desc: 'Sector crystals are unstable and fill fast - grab them quick, everywhere, before the window closes.',
+                color: '#ffb3d9', duration: 2700,
+                mods: { crystalFillMult: 0.6, crystalReward: 1.15 }
+            }
+        };
+
+        const LOCAL_EVENTS = {
+            richVein: {
+                id: 'richVein', scope: 'SECTOR EVENT', name: 'Rich Vein',
+                desc: 'A concentrated mineral deposit. Crystals here are unusually generous.',
+                color: '#06d6a0', duration: 5400,
+                mods: { crystalMult: 2.5, crystalReward: 1.8 }
+            },
+            swarmNest: {
+                id: 'swarmNest', scope: 'SECTOR EVENT', name: 'Swarm Nest',
+                desc: 'Aliens have massed here in force. High risk - high reward, if you can clear it.',
+                color: '#c77dff', duration: 5400,
+                mods: { alienMult: 2.2, alienReward: 1.6, guardianChanceAdd: 0.15 }
+            },
+            derelictCache: {
+                id: 'derelictCache', scope: 'SECTOR EVENT', name: 'Derelict Cache',
+                desc: 'A wrecked convoy litters this tile with extra debris and guaranteed salvage crates.',
+                color: '#b8c9b0', duration: 5400,
+                mods: { debrisMult: 2.0, debrisReward: 1.3, forceSalvage: true }
+            },
+            supplyDrop: {
+                id: 'supplyDrop', scope: 'SECTOR EVENT', name: 'Supply Drop',
+                desc: 'Fuel and hull kits are scattered across this tile. A safe stop to top off.',
+                color: '#ffd166', duration: 4800,
+                mods: { fuelPickupMult: 2.5, healthPickupMult: 2.5 }
+            },
+            ambushPoint: {
+                id: 'ambushPoint', scope: 'SECTOR EVENT', name: 'Ambush Point',
+                desc: 'Guardians are massing here specifically. Rare to find, dangerous to clear, very well paid.',
+                color: '#ff4d6d', duration: 4800,
+                mods: { guardianChanceAdd: 0.25, alienReward: 1.8 }
+            },
+            crystalFracture: {
+                id: 'crystalFracture', scope: 'SECTOR EVENT', name: 'Crystal Fracture',
+                desc: 'The crystals on this tile are unstable and fill almost instantly - and pay extra for the risk.',
+                color: '#ffb3d9', duration: 4200,
+                mods: { crystalFillMult: 0.5, crystalReward: 1.5 }
+            },
+            debrisStorm: {
+                id: 'debrisStorm', scope: 'SECTOR EVENT', name: 'Debris Storm',
+                desc: 'Wreckage here is thick and moving fast. Hard to navigate, but there is a lot of it to break apart.',
+                color: '#8a5a3c', duration: 4800,
+                mods: { debrisMult: 1.5, debrisSpeedMult: 1.8 }
+            },
+            signalDeadZone: {
+                id: 'signalDeadZone', scope: 'SECTOR EVENT', name: 'Signal Dead Zone',
+                desc: 'Thick interference blankets this tile - visibility is poor, but crystals here pay extra.',
+                color: '#6c5b7b', duration: 4200,
+                mods: { fogAdd: 0.3, crystalReward: 1.3 }
+            },
+            icePocket: {
+                id: 'icePocket', scope: 'SECTOR EVENT', name: 'Ice Pocket',
+                desc: 'A frozen patch of the sector. Steering is slippery here, but stranded medkits are easy to find.',
+                color: '#a8dfff', duration: 4200,
+                mods: { frictionBoost: 0.03, healthPickupMult: 2.2 }
+            }
+        };
+
         function biomeHash(tx, ty) {
             let h = (tx * 198491317 + ty * 6542989 + 0x2545F491) | 0;
             h = Math.imul(h ^ (h >>> 13), 2246822519);
@@ -1303,7 +1503,7 @@
 
         function getBiome(x, y) {
             if (Math.hypot(x - spawnAnchor.x, y - spawnAnchor.y) < HOME_SAFE_RADIUS) {
-                return BIOMES.home;
+                return BIOMES.home; // Sanctuary is always event-free
             }
             const tx = Math.floor(x / BIOME_TILE_SIZE);
             const ty = Math.floor(y / BIOME_TILE_SIZE);
@@ -1315,11 +1515,52 @@
             if (isCheatedRun) {
                 const cheatIdx = biomeHash(tx, ty) % (WILD_BIOME_IDS.length + 1);
                 if (cheatIdx === WILD_BIOME_IDS.length) {
-                    return BIOMES.cheaters;
+                    return BIOMES.cheaters; // exempt from events too
                 }
             }
             const idx = biomeHash(tx, ty) % WILD_BIOME_IDS.length;
-            return BIOMES[WILD_BIOME_IDS[idx]];
+            const base = BIOMES[WILD_BIOME_IDS[idx]];
+            return withActiveEvents(base, tx, ty);
+        }
+
+        // Applies an event's modifiers onto a (already-copied) biome object.
+        // Most fields are plain multipliers; a few need additive/special
+        // handling because their base value is often 0 (e.g. guardianChance
+        // in biomes that normally have none).
+        function applyEventMods(biomeCopy, mods) {
+            for (const [key, val] of Object.entries(mods)) {
+                if (key === 'guardianChanceAdd') {
+                    biomeCopy.guardianChance = Math.min(0.9, (biomeCopy.guardianChance || 0) + val);
+                } else if (key === 'passiveFuelDrainAdd') {
+                    biomeCopy.passiveFuelDrain = Math.max(0, (biomeCopy.passiveFuelDrain || 0) + val);
+                } else if (key === 'frictionBoost') {
+                    biomeCopy.frictionBoost = (biomeCopy.frictionBoost || 0) + val;
+                } else if (key === 'fogAdd') {
+                    biomeCopy.fog = Math.min(0.6, (biomeCopy.fog || 0) + val);
+                } else if (key === 'forceSalvage') {
+                    biomeCopy.hasSalvage = true;
+                    if (!biomeCopy.salvageReward) biomeCopy.salvageReward = 35;
+                } else if (typeof biomeCopy[key] === 'number') {
+                    biomeCopy[key] *= val;
+                }
+            }
+        }
+
+        // Only allocates a copy when the one active event actually touches
+        // this tile - keeps the (very hot) getBiome path cheap otherwise.
+        function withActiveEvents(biome, tx, ty) {
+            if (!activeEvent) return biome;
+            if (activeEvent.kind === 'local') {
+                if (activeEvent.tx !== tx || activeEvent.ty !== ty) return biome;
+                const merged = Object.assign({}, biome);
+                applyEventMods(merged, activeEvent.def.mods);
+                merged.localEvent = activeEvent.def;
+                return merged;
+            }
+            const merged = Object.assign({}, biome);
+            applyEventMods(merged, activeEvent.def.mods);
+            merged.globalEvent = activeEvent.def;
+            return merged;
         }
 
         // Spirals outward tile-ring by tile-ring from (x,y) until it finds a
@@ -1395,6 +1636,139 @@
             biomeBannerTimeout = setTimeout(() => {
                 biomeBanner.classList.remove('visible');
             }, 3200);
+        }
+
+        // Event state - all in-memory only, same lifetime as a run. Only
+        // ONE event (global or local) is ever active at once, and a fixed
+        // cooldown separates them.
+        const MAX_EVENT_SPAWN_DIST = 200000; // local events never pin further than this from home
+        const EVENT_COOLDOWN = 5 * 60 * 60;  // 5 minutes at 60fps
+        let activeEvent = null; // { kind: 'global'|'local', def, timeLeft, totalTime, [tx, ty, x, y, biomeId] }
+        let eventCooldownTimer = EVENT_COOLDOWN;
+        let eventHudTick = 0;
+        let eventBannerTimeout = null;
+
+        // 8-point compass label for a world-space offset. World y grows
+        // downward, so "north" is -y.
+        function compassDirection(dx, dy) {
+            const angle = (Math.atan2(dx, -dy) * 180 / Math.PI + 360) % 360;
+            const dirs = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
+            return dirs[Math.round(angle / 45) % 8];
+        }
+
+        // Rolls global vs. local, and falls back to global if no valid
+        // local tile turns up within range (keeps a cooldown from ever
+        // "wasting" on nothing happening).
+        function startEvent() {
+            if (Math.random() < 0.5 && trySpawnLocalEvent()) return;
+            startGlobalEvent();
+        }
+
+        function startGlobalEvent() {
+            const ids = Object.keys(GLOBAL_EVENTS);
+            const def = GLOBAL_EVENTS[ids[Math.floor(Math.random() * ids.length)]];
+            activeEvent = { kind: 'global', def, timeLeft: def.duration, totalTime: def.duration };
+            announceEvent(def);
+            playSound('event');
+            updateEventHud();
+        }
+
+        // Pins a local event to a random wild-biome tile within a rough
+        // ring around the player - but never further than
+        // MAX_EVENT_SPAWN_DIST from home - so it's always reachable but not
+        // just handed to you. The event pointer (see drawEventPointer) then
+        // guides you there. Returns true if one was placed.
+        function trySpawnLocalEvent() {
+            const tx0 = Math.floor(player.x / BIOME_TILE_SIZE);
+            const ty0 = Math.floor(player.y / BIOME_TILE_SIZE);
+            for (let attempt = 0; attempt < 20; attempt++) {
+                const dx = Math.floor((Math.random() - 0.5) * 16);
+                const dy = Math.floor((Math.random() - 0.5) * 16);
+                if (dx === 0 && dy === 0) continue;
+                const tx = tx0 + dx, ty = ty0 + dy;
+                const cx = tx * BIOME_TILE_SIZE + BIOME_TILE_SIZE / 2;
+                const cy = ty * BIOME_TILE_SIZE + BIOME_TILE_SIZE / 2;
+                const homeDist = Math.hypot(cx - spawnAnchor.x, cy - spawnAnchor.y);
+                if (homeDist < HOME_SAFE_RADIUS + BIOME_TILE_SIZE / 2) continue;
+                if (homeDist > MAX_EVENT_SPAWN_DIST) continue;
+                const idx = biomeHash(tx, ty) % WILD_BIOME_IDS.length;
+                const biomeId = WILD_BIOME_IDS[idx];
+                const ids = Object.keys(LOCAL_EVENTS);
+                const def = LOCAL_EVENTS[ids[Math.floor(Math.random() * ids.length)]];
+                activeEvent = {
+                    kind: 'local', def, timeLeft: def.duration, totalTime: def.duration,
+                    tx, ty, x: cx, y: cy, biomeId
+                };
+                const dist = Math.round(Math.hypot(cx - player.x, cy - player.y));
+                const dir = compassDirection(cx - player.x, cy - player.y);
+                const biomeName = BIOMES[biomeId].name;
+                announceEvent(def, `${biomeName} · ${dir} · ${dist}m out`);
+                playSound('event');
+                updateEventHud();
+                return true;
+            }
+            return false;
+        }
+
+        function announceEvent(def, locationText) {
+            eventBannerName.textContent = `${def.scope}: ${def.name}`;
+            eventBannerDesc.innerHTML = locationText
+                ? `${def.desc}<br><strong>${locationText}</strong>`
+                : def.desc;
+            eventBanner.style.color = def.color;
+            eventBanner.style.border = `1px solid ${def.color}`;
+            eventBanner.classList.add('visible');
+            if (eventBannerTimeout) clearTimeout(eventBannerTimeout);
+            eventBannerTimeout = setTimeout(() => {
+                eventBanner.classList.remove('visible');
+            }, 5200); // a bit longer than the biome banner - there's a location to read too
+        }
+
+        function updateEventHud() {
+            if (!activeEvent) {
+                eventHud.style.display = "none";
+                return;
+            }
+            let line;
+            if (activeEvent.kind === 'global') {
+                line = `⚡ ${activeEvent.def.name.toUpperCase()} — ${Math.ceil(activeEvent.timeLeft / 60)}s`;
+            } else {
+                const dist = Math.round(Math.hypot(player.x - activeEvent.x, player.y - activeEvent.y));
+                const dir = compassDirection(activeEvent.x - player.x, activeEvent.y - player.y);
+                const biomeName = BIOMES[activeEvent.biomeId].name;
+                line = `◈ ${activeEvent.def.name.toUpperCase()} — ${biomeName} (${dir}) — ${dist}m`;
+            }
+            eventHud.style.display = "block";
+            eventHud.innerHTML = `<div class="event-hud-line">${line}</div>`;
+        }
+
+        function endEvent() {
+            activeEvent = null;
+            eventCooldownTimer = EVENT_COOLDOWN;
+            updateEventHud();
+        }
+
+        function updateEvents() {
+            if (activeEvent) {
+                activeEvent.timeLeft--;
+                if (activeEvent.timeLeft <= 0) endEvent();
+            } else {
+                eventCooldownTimer--;
+                if (eventCooldownTimer <= 0) startEvent();
+            }
+
+            eventHudTick++;
+            if (eventHudTick % 30 === 0 && activeEvent) {
+                updateEventHud();
+            }
+        }
+
+        function resetEvents() {
+            activeEvent = null;
+            eventCooldownTimer = EVENT_COOLDOWN;
+            if (eventBannerTimeout) clearTimeout(eventBannerTimeout);
+            eventBanner.classList.remove('visible');
+            updateEventHud();
         }
 
         const menuScreen = document.getElementById("menu-screen");
@@ -1474,6 +1848,7 @@
             dash:     { sd: 40, mats: { cometice: 2 } },
             overload: { sd: 55, mats: { plasmacore: 1, waralloy: 1 } },
             gravplate:{ sd: 65, mats: { singularity: 1, nullfrag: 1 } },
+            homing: { sd: 60, mats: { circuit: 1, coil: 1 } },
             // Not an equippable blessing - crafting this consumes the
             // materials and immediately purges the Konami cheat instead
             // (see buyCheatersCure). No Stardust fee, just the grind of
@@ -1529,6 +1904,8 @@
         const PLAYER_BULLET_SPEED = 10;
         const PLAYER_BULLET_DAMAGE = 30;
         const PLAYER_BULLET_LIFE = 75;
+        const HOMING_BULLET_RANGE = 260;
+        const HOMING_BULLET_TURN = 0.09; // how strongly homing bullets curve toward a target each frame
 
         let aliens = [];
         let alienSpawnTimer = 0;
@@ -1782,6 +2159,15 @@
                     gain.gain.linearRampToValueAtTime(0.01, now + 0.1);
                     osc.start(now);
                     osc.stop(now + 0.1);
+                } else if (type === 'event') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(392, now);
+                    osc.frequency.setValueAtTime(523.25, now + 0.12);
+                    osc.frequency.setValueAtTime(659.25, now + 0.24);
+                    gain.gain.setValueAtTime(0.16, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.45);
+                    osc.start(now);
+                    osc.stop(now + 0.45);
                 } else if (type === 'alienShoot') {
                     osc.type = 'sawtooth';
                     osc.frequency.setValueAtTime(180, now);
@@ -1902,7 +2288,8 @@
             hasShield: false,
             hasMending: false,
             hasBeacon: false,
-            hasGravPlate: false
+            hasGravPlate: false,
+            hasHoming: false
         };
 
         let obstacles = [];
@@ -2746,7 +3133,11 @@
         function dock(atOutpost) {
             docked = true;
             dockedAtOutpost = !!atOutpost;
-            gamePaused = true;
+            // Only the real Sanctuary freezes the sector while you shop -
+            // the Mini Sanctuary is just a forward supply cache, so the
+            // world (aliens, hazards, fuel, events) keeps running live
+            // while its crafting menu is open.
+            if (!dockedAtOutpost) gamePaused = true;
             konamiInputIndex = 0;
             dockPrompt.classList.remove("visible");
             if (!cheatStatus.textContent) {
@@ -2770,9 +3161,15 @@
         function undock() {
             docked = false;
             dockedAtOutpost = false;
-            gamePaused = false;
             shopScreen.classList.add("hidden");
-            loop();
+            // Only resume the loop if we'd actually paused it (docking at
+            // the real Sanctuary) - the Mini Sanctuary never paused, so the
+            // loop has been running this whole time and calling loop()
+            // again here would start a second, duplicate update chain.
+            if (gamePaused) {
+                gamePaused = false;
+                loop();
+            }
         }
 
         function startTutorial() {
@@ -2841,10 +3238,12 @@
             player.hasMending = true;
             player.hasBeacon = false;
             player.hasGravPlate = false;
+            player.hasHoming = false;
             playSound('crystal');
             updateMendingButton();
             updateBeaconButton();
             updateGravPlateButton();
+            updateHomingButton();
             updateBeaconHud();
             updateShopWallet();
         }
@@ -2874,10 +3273,12 @@
             player.hasBeacon = true;
             player.hasMending = false;
             player.hasGravPlate = false;
+            player.hasHoming = false;
             playSound('crystal');
             updateMendingButton();
             updateBeaconButton();
             updateGravPlateButton();
+            updateHomingButton();
             updateShopWallet();
             updateBeaconHud();
         }
@@ -2907,12 +3308,49 @@
             player.hasGravPlate = true;
             player.hasMending = false;
             player.hasBeacon = false;
+            player.hasHoming = false;
             playSound('crystal');
             updateMendingButton();
             updateBeaconButton();
             updateGravPlateButton();
+            updateHomingButton();
             updateBeaconHud();
             updateShopWallet();
+        }
+
+        function buyHoming() {
+            if (player.hasHoming) return; // already your equipped passive
+            const recipe = CRAFT_RECIPES.homing;
+            if (!canAffordRecipe(recipe)) {
+                alert(`Missing materials or Stardust! Need ${craftCostLabel(recipe)}.`);
+                return;
+            }
+            craftRecipe(recipe);
+            // Only one passive can be equipped at a time - crafting a new
+            // one swaps out whichever passive you had before.
+            player.hasHoming = true;
+            player.hasMending = false;
+            player.hasBeacon = false;
+            player.hasGravPlate = false;
+            playSound('crystal');
+            updateMendingButton();
+            updateBeaconButton();
+            updateGravPlateButton();
+            updateHomingButton();
+            updateBeaconHud();
+            updateShopWallet();
+        }
+
+        function updateHomingButton() {
+            const btn = document.getElementById('buy-homing-btn');
+            if (!btn) return;
+            if (player.hasHoming) {
+                btn.textContent = "OWNED";
+                btn.disabled = true;
+            } else {
+                btn.textContent = "CRAFT";
+                btn.disabled = !canAffordRecipe(CRAFT_RECIPES.homing);
+            }
         }
 
         // Crafting The Cheater's Cure doesn't equip anything - it just
@@ -2967,7 +3405,7 @@
                 }).join('');
             }
             for (const type of Object.keys(CRAFT_RECIPES)) {
-                if (type === 'mending' || type === 'beacon' || type === 'gravplate' || type === 'cheaterscure') continue; // handled by their own buttons
+                if (type === 'mending' || type === 'beacon' || type === 'gravplate' || type === 'homing' || type === 'cheaterscure') continue; // handled by their own buttons
                 const recipe = CRAFT_RECIPES[type];
                 const costEl = document.getElementById(`cost-${type}`);
                 const btn = document.getElementById(`buy-${type}-btn`);
@@ -3002,9 +3440,15 @@
                 gravplateCost.textContent = `Craft: ${craftCostLabel(CRAFT_RECIPES.gravplate)}`;
                 gravplateCost.classList.toggle('insufficient', !canAffordRecipe(CRAFT_RECIPES.gravplate));
             }
+            const homingCost = document.getElementById('cost-homing');
+            if (homingCost) {
+                homingCost.textContent = `Craft: ${craftCostLabel(CRAFT_RECIPES.homing)}`;
+                homingCost.classList.toggle('insufficient', !canAffordRecipe(CRAFT_RECIPES.homing));
+            }
             updateMendingButton();
             updateBeaconButton();
             updateGravPlateButton();
+            updateHomingButton();
         }
 
         function buyUpgrade(type) {
@@ -3190,6 +3634,7 @@
             salvageSpawnTimer = 0;
             alienSpawnTimer = 0;
             activeEffectTimer = 0;
+            resetEvents();
             
             if (currentDifficulty === 'easy') {
                 spawnInterval = 75;
@@ -3253,6 +3698,14 @@
             // Always takes the shortest path around the color wheel.
             const diff = ((h2 - h1 + 540) % 360) - 180;
             return (h1 + diff * t + 360) % 360;
+        }
+
+        function hexToRgba(hex, alpha) {
+            const h = hex.replace('#', '');
+            const r = parseInt(h.substring(0, 2), 16);
+            const g = parseInt(h.substring(2, 4), 16);
+            const b = parseInt(h.substring(4, 6), 16);
+            return `rgba(${r}, ${g}, ${b}, ${alpha})`;
         }
 
         function lerp(a, b, t) {
@@ -3499,6 +3952,8 @@
             if (shotCooldown > 0) shotCooldown--;
             if (outpostBreakCooldown > 0) outpostBreakCooldown--;
 
+            updateEvents();
+
             const currentBiome = getBiome(player.x, player.y);
             activeBiome = currentBiome;
             announceBiome(currentBiome);
@@ -3536,7 +3991,7 @@
             let currentAccel = player.accel;
 
             let accelerating = false;
-            if (fuel > 0) {
+            if (fuel > 0 && !docked) {
                 if (keys["KeyW"] || keys["ArrowUp"]) { player.vy -= currentAccel; accelerating = true; }
                 if (keys["KeyS"] || keys["ArrowDown"]) { player.vy += currentAccel; accelerating = true; }
                 if (keys["KeyA"] || keys["ArrowLeft"]) { player.vx -= currentAccel; accelerating = true; }
@@ -3805,6 +4260,12 @@
                 alienSpawnTimer = 0;
             }
 
+            // Aliens should leave the player alone entirely while they're
+            // sheltering at the real Sanctuary station - no shooting, no
+            // evasive/approach steering. This only applies to the main
+            // Sanctuary, not the player-placed Mini Sanctuary outpost.
+            const playerInSanctuary = Math.hypot(player.x - sanctuary.x, player.y - sanctuary.y) < sanctuary.safeRadius;
+
             for (let i = aliens.length - 1; i >= 0; i--) {
                 const a = aliens[i];
 
@@ -3834,7 +4295,16 @@
                 }
 
                 const distToPlayer = Math.hypot(a.x - player.x, a.y - player.y);
-                if (distToPlayer < ALIEN_DETECT_RANGE) {
+                if (playerInSanctuary) {
+                    // Player is safe inside the Sanctuary - rather than just
+                    // ignoring the player, nearby aliens actively drift away
+                    // so they don't linger loitering right outside the field.
+                    if (distToPlayer < ALIEN_DETECT_RANGE) {
+                        const angleAwayFromPlayer = Math.atan2(a.y - player.y, a.x - player.x);
+                        a.vx += Math.cos(angleAwayFromPlayer) * 0.08;
+                        a.vy += Math.sin(angleAwayFromPlayer) * 0.08;
+                    }
+                } else if (distToPlayer < ALIEN_DETECT_RANGE) {
                     const angleToPlayer = Math.atan2(player.y - a.y, player.x - a.x);
                     if (distToPlayer < ALIEN_PREFERRED_DIST - 40) {
                         a.vx -= Math.cos(angleToPlayer) * 0.05;
@@ -3972,6 +4442,31 @@
 
             for (let i = playerBullets.length - 1; i >= 0; i--) {
                 const pb = playerBullets[i];
+
+                if (player.hasHoming && aliens.length > 0) {
+                    let nearestAlien = null;
+                    let nearestDist = HOMING_BULLET_RANGE;
+                    for (const a of aliens) {
+                        const d = Math.hypot(pb.x - a.x, pb.y - a.y);
+                        if (d < nearestDist) {
+                            nearestDist = d;
+                            nearestAlien = a;
+                        }
+                    }
+                    if (nearestAlien) {
+                        const speed = Math.hypot(pb.vx, pb.vy) || PLAYER_BULLET_SPEED;
+                        const currentAngle = Math.atan2(pb.vy, pb.vx);
+                        const targetAngle = Math.atan2(nearestAlien.y - pb.y, nearestAlien.x - pb.x);
+                        let angleDiff = targetAngle - currentAngle;
+                        // Normalize to [-PI, PI] so the bullet always turns the short way
+                        while (angleDiff > Math.PI) angleDiff -= Math.PI * 2;
+                        while (angleDiff < -Math.PI) angleDiff += Math.PI * 2;
+                        const newAngle = currentAngle + angleDiff * HOMING_BULLET_TURN;
+                        pb.vx = Math.cos(newAngle) * speed;
+                        pb.vy = Math.sin(newAngle) * speed;
+                    }
+                }
+
                 pb.x += pb.vx;
                 pb.y += pb.vy;
                 pb.life--;
@@ -4120,6 +4615,51 @@
             ctx.restore();
         }
 
+        // Diamond marker (vs. the beacon's triangle) so an active Sector
+        // Event reads as distinct from a beacon target at a glance.
+        function drawEventPointer(tx, ty, color, label) {
+            const margin = 44;
+            const cx = canvas.width / 2;
+            const cy = canvas.height / 2;
+
+            const onScreen = tx > margin && tx < canvas.width - margin &&
+                              ty > margin && ty < canvas.height - margin;
+            if (onScreen) return;
+
+            const angle = Math.atan2(ty - cy, tx - cx);
+            const dx = Math.cos(angle) || 0.0001;
+            const dy = Math.sin(angle) || 0.0001;
+            const halfW = canvas.width / 2 - margin - 52; // inside the sanctuary/beacon rings
+            const halfH = canvas.height / 2 - margin - 52;
+            const scale = Math.min(Math.abs(halfW / dx), Math.abs(halfH / dy));
+            const px = cx + dx * scale;
+            const py = cy + dy * scale;
+
+            const pulse = (Math.sin(Date.now() / 250) + 1) / 2;
+
+            ctx.save();
+            ctx.translate(px, py);
+            ctx.shadowBlur = 7 + pulse * 6;
+            ctx.shadowColor = color;
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(0, -9);
+            ctx.lineTo(9, 0);
+            ctx.lineTo(0, 9);
+            ctx.lineTo(-9, 0);
+            ctx.closePath();
+            ctx.stroke();
+            ctx.restore();
+
+            ctx.save();
+            ctx.font = "bold 10px 'Segoe UI', sans-serif";
+            ctx.fillStyle = color;
+            ctx.textAlign = "center";
+            ctx.fillText(label, px, py + (dy > 0 ? 24 : -16));
+            ctx.restore();
+        }
+
         function drawMiniHealthBar(screenX, screenY, ratio, width, color) {
             const height = 4;
             ctx.save();
@@ -4223,6 +4763,10 @@
             if (player.hasBeacon && beaconTarget) {
                 const targetBiome = BIOMES[WILD_BIOME_IDS[beaconTargetIndex]];
                 drawBeaconPointer(beaconTarget.x - camX, beaconTarget.y - camY, targetBiome.starColor, targetBiome.name);
+            }
+
+            if (activeEvent && activeEvent.kind === 'local') {
+                drawEventPointer(activeEvent.x - camX, activeEvent.y - camY, activeEvent.def.color, activeEvent.def.name);
             }
 
             // Draw Fuel Canisters
@@ -4471,6 +5015,16 @@
                 grad.addColorStop(0, 'rgba(0,0,0,0)');
                 grad.addColorStop(1, `rgba(10, 5, 20, ${activeBiome.fog})`);
                 ctx.fillStyle = grad;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            }
+
+            // Event atmosphere: a soft pulsing wash so standing inside an
+            // active Sector Event (or a Global Event anywhere) is felt
+            // immediately, not just read off the HUD.
+            if (activeBiome.localEvent || activeBiome.globalEvent) {
+                const evColor = (activeBiome.localEvent || activeBiome.globalEvent).color;
+                const evPulse = 0.05 + 0.05 * ((Math.sin(Date.now() / 500) + 1) / 2);
+                ctx.fillStyle = hexToRgba(evColor, evPulse);
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
             }
         }
