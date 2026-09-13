@@ -364,6 +364,51 @@
             background-color: #e2738a;
         }
 
+        #slots-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            width: 340px;
+            max-width: 90vw;
+            margin-bottom: 20px;
+        }
+
+        .slot-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            background: rgba(56, 46, 78, 0.6);
+            border: 1px solid #6c5b7b;
+            border-radius: 8px;
+            padding: 10px 14px;
+            text-align: left;
+        }
+
+        .slot-title {
+            color: #ffd166;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+        }
+
+        .slot-desc {
+            color: #c7b198;
+            font-size: 0.68rem;
+            margin-top: 2px;
+            letter-spacing: 0.3px;
+        }
+
+        .slot-actions {
+            display: flex;
+            gap: 6px;
+            flex-shrink: 0;
+        }
+
+        .btn-small {
+            padding: 6px 10px;
+            font-size: 0.68rem;
+        }
+
         .shop-columns {
             display: flex;
             flex-direction: row;
@@ -851,10 +896,19 @@
             <h2>COZY SECTOR</h2>
             <p>Pilot your zero-g cursor using <strong>W A S D</strong> through the open sector. Harvest crystals for Stardust, manage fuel and health, dock at the Sanctuary station to shop, and press <strong>ESC</strong> to pause!</p>
             <div class="btn-group">
-                <button class="btn" id="to-game-btn">LAUNCH DRIFT</button>
+                <button class="btn" id="to-slots-btn">SELECT DRIFT</button>
                 <button class="btn" id="difficulty-toggle-btn">MODE: NORMAL</button>
                 <button class="btn" id="to-tutorial-btn">TUTORIAL</button>
                 <button class="btn" id="to-emblem-btn">CUSTOMIZE SHIP</button>
+            </div>
+        </div>
+
+        <div id="slots-screen" class="screen hidden">
+            <h2>SAVE SLOTS</h2>
+            <p>Pick a slot to launch a new drift, or continue one already in progress. Each slot keeps its own ship, sector, and score.</p>
+            <div id="slots-list"></div>
+            <div class="btn-group">
+                <button class="btn btn-warm" id="slots-back-btn">RETURN</button>
             </div>
         </div>
 
@@ -1891,6 +1945,7 @@
         }
 
         const menuScreen = document.getElementById("menu-screen");
+        const slotsScreen = document.getElementById("slots-screen");
         const emblemScreen = document.getElementById("emblem-screen");
         const shopScreen = document.getElementById("shop-screen");
         const tutorialScreen = document.getElementById("tutorial-screen");
@@ -2195,14 +2250,273 @@
             } catch (e) {}
         }
 
-        // Persist the Stardust pouch any time the tab closes/refreshes, so
-        // stardust earned or spent (e.g. on crates) is never silently lost.
-        window.addEventListener("beforeunload", saveGameData);
+        // Persist the Stardust pouch (and, if a drift is underway, the run
+        // itself) any time the tab closes/refreshes.
+        window.addEventListener("beforeunload", () => {
+            saveGameData();
+            saveRunState();
+        });
 
         function saveShipEmblem() {
             try {
                 localStorage.setItem("stellarDrift_shipEmblem", JSON.stringify(shipEmblem));
             } catch (e) {}
+        }
+
+        // ================= MID-RUN SAVE / CONTINUE =================
+        // Snapshots a drift in progress - ship, fuel/health, obstacles,
+        // aliens, every bullet and pickup, the active event, everything
+        // needed to resume exactly where you left off. Written on pause, on
+        // quitting to the menu, on tab close, and on a short autosave timer
+        // while flying. Deleted the instant a run actually ends (gameOver) -
+        // "continue" only ever resumes a drift still underway, never undoes
+        // a death. Three independent numbered slots let you keep more than
+        // one drift going at once.
+        const RUN_SAVE_VERSION = 1;
+        const SAVE_SLOT_COUNT = 3;
+        function runSaveKey(slot) { return `stellarDrift_runSave_${slot}`; }
+
+        // Which slot the currently active drift is bound to, so autosave /
+        // pause-save / quit-save / beforeunload all know where to write.
+        // Null whenever nothing is running (menus, tutorial, etc).
+        let activeSaveSlot = null;
+
+        function buildRunSaveData() {
+            return {
+                v: RUN_SAVE_VERSION,
+                savedAt: Date.now(),
+                score, materials,
+                fuel, maxFuel, health, maxHealth, invulnTime,
+                player: {
+                    x: player.x, y: player.y, vx: player.vx, vy: player.vy,
+                    accel: player.accel, friction: player.friction, maxSpeed: player.maxSpeed,
+                    size: player.size, equippedAbility: player.equippedAbility,
+                    cooldownTime: player.cooldownTime, maxCooldown: player.maxCooldown,
+                    hasShield: player.hasShield, hasMending: player.hasMending,
+                    hasBeacon: player.hasBeacon, hasGravPlate: player.hasGravPlate,
+                    hasHoming: player.hasHoming
+                },
+                camera: { x: camera.x, y: camera.y },
+                spawnAnchor: { x: spawnAnchor.x, y: spawnAnchor.y },
+                sanctuary: { x: sanctuary.x, y: sanctuary.y },
+                obstacles, aliens, playerBullets, alienBullets,
+                crystals, fuelCanisters, healthPickups, salvageCrates,
+                outpost, outpostBreakCooldown,
+                decoyEntity, positionHistory,
+                spawnTimer, spawnInterval, speedMultiplier,
+                crystalSpawnTimer, fuelSpawnTimer, healthSpawnTimer, salvageSpawnTimer, alienSpawnTimer,
+                activeEffectTimer, shotCooldown,
+                currentDifficulty, isCheatedRun, cheatedAbilityMode,
+                fuelTankLevel, thrusterLevel, hullLevel,
+                beaconTargetIndex, beaconTarget, beaconRecalcTimer,
+                activeEvent, eventCooldownTimer, eventHudTick
+            };
+        }
+
+        function saveRunState() {
+            if (!gameRunning || !activeSaveSlot) return;
+            try {
+                localStorage.setItem(runSaveKey(activeSaveSlot), JSON.stringify(buildRunSaveData()));
+            } catch (e) {}
+        }
+
+        function hasRunSave(slot) {
+            try { return localStorage.getItem(runSaveKey(slot)) !== null; } catch (e) { return false; }
+        }
+
+        function deleteRunSave(slot) {
+            try { localStorage.removeItem(runSaveKey(slot)); } catch (e) {}
+        }
+
+        function loadRunSave(slot) {
+            try {
+                const raw = localStorage.getItem(runSaveKey(slot));
+                if (!raw) return null;
+                const data = JSON.parse(raw);
+                if (!data || data.v !== RUN_SAVE_VERSION) return null;
+                return data;
+            } catch (e) { return null; }
+        }
+
+        // Safety-net autosave while a drift is actively underway, so a
+        // crash or an accidental tab close loses at most a few seconds.
+        setInterval(() => {
+            if (gameRunning && !gamePaused) saveRunState();
+        }, 5000);
+
+        function formatSavedAt(ts) {
+            if (!ts) return '';
+            const mins = Math.floor((Date.now() - ts) / 60000);
+            if (mins < 1) return 'just now';
+            if (mins < 60) return `${mins}m ago`;
+            const hrs = Math.floor(mins / 60);
+            if (hrs < 24) return `${hrs}h ago`;
+            return `${Math.floor(hrs / 24)}d ago`;
+        }
+
+        function renderSlotsScreen() {
+            const list = document.getElementById('slots-list');
+            if (!list) return;
+            list.innerHTML = '';
+            for (let slot = 1; slot <= SAVE_SLOT_COUNT; slot++) {
+                const data = loadRunSave(slot);
+                const row = document.createElement('div');
+                row.className = 'slot-row';
+                if (data) {
+                    const diffLabel = (data.currentDifficulty || 'normal').toUpperCase();
+                    row.innerHTML = `
+                        <div class="slot-info">
+                            <div class="slot-title">SLOT ${slot}</div>
+                            <div class="slot-desc">${data.score || 0} SD &middot; ${diffLabel} &middot; saved ${formatSavedAt(data.savedAt)}</div>
+                        </div>
+                        <div class="slot-actions">
+                            <button class="btn btn-small" data-slot="${slot}" data-action="continue">CONTINUE</button>
+                            <button class="btn btn-small btn-warm" data-slot="${slot}" data-action="delete">DELETE</button>
+                        </div>`;
+                } else {
+                    row.innerHTML = `
+                        <div class="slot-info">
+                            <div class="slot-title">SLOT ${slot}</div>
+                            <div class="slot-desc">EMPTY</div>
+                        </div>
+                        <div class="slot-actions">
+                            <button class="btn btn-small" data-slot="${slot}" data-action="new">NEW DRIFT</button>
+                        </div>`;
+                }
+                list.appendChild(row);
+            }
+        }
+
+        document.getElementById('slots-list').addEventListener('click', (e) => {
+            const btn = e.target.closest('button[data-action]');
+            if (!btn) return;
+            const slot = parseInt(btn.dataset.slot, 10);
+            const action = btn.dataset.action;
+            if (action === 'new') {
+                startGame(slot);
+            } else if (action === 'continue') {
+                continueGame(slot);
+            } else if (action === 'delete') {
+                if (confirm(`Delete the save in Slot ${slot}? This can't be undone.`)) {
+                    deleteRunSave(slot);
+                    renderSlotsScreen();
+                }
+            }
+        });
+
+        document.getElementById('to-slots-btn').addEventListener('click', () => {
+            renderSlotsScreen();
+            showScreen(slotsScreen);
+        });
+        document.getElementById('slots-back-btn').addEventListener('click', () => showScreen(menuScreen));
+
+        function continueGame(slot) {
+            const data = loadRunSave(slot);
+            if (!data) { renderSlotsScreen(); return; }
+            activeSaveSlot = slot;
+
+            menuScreen.classList.add("hidden");
+            slotsScreen.classList.add("hidden");
+            shopScreen.classList.add("hidden");
+            tutorialScreen.classList.add("hidden");
+            pauseScreen.classList.add("hidden");
+            gameoverScreen.classList.add("hidden");
+
+            materialToastTimeouts.forEach(t => clearTimeout(t));
+            materialToastTimeouts = [];
+            materialToastContainer.innerHTML = '';
+
+            score = data.score || 0;
+            materials = data.materials || {};
+            docked = false;
+            dockedAtOutpost = false;
+            invulnTime = data.invulnTime || 0;
+
+            const p = data.player || {};
+            Object.assign(player, {
+                x: p.x || 0, y: p.y || 0, vx: p.vx || 0, vy: p.vy || 0,
+                accel: p.accel ?? player.accel, friction: p.friction ?? player.friction,
+                maxSpeed: p.maxSpeed ?? player.maxSpeed, size: p.size ?? player.size,
+                equippedAbility: p.equippedAbility ?? null,
+                cooldownTime: p.cooldownTime || 0, maxCooldown: p.maxCooldown || 0,
+                hasShield: !!p.hasShield, hasMending: !!p.hasMending,
+                hasBeacon: !!p.hasBeacon, hasGravPlate: !!p.hasGravPlate,
+                hasHoming: !!p.hasHoming
+            });
+
+            camera.x = data.camera ? data.camera.x : player.x;
+            camera.y = data.camera ? data.camera.y : player.y;
+            spawnAnchor = data.spawnAnchor || { x: player.x, y: player.y };
+            if (data.sanctuary) { sanctuary.x = data.sanctuary.x; sanctuary.y = data.sanctuary.y; }
+
+            obstacles = data.obstacles || [];
+            aliens = data.aliens || [];
+            playerBullets = data.playerBullets || [];
+            alienBullets = data.alienBullets || [];
+            crystals = data.crystals || [];
+            fuelCanisters = data.fuelCanisters || [];
+            healthPickups = data.healthPickups || [];
+            salvageCrates = data.salvageCrates || [];
+            // Pure visual effects (thruster sparkle, shatter fragments)
+            // aren't saved - they're mid-fade transients, not game state.
+            particles = [];
+            debrisPieces = [];
+
+            outpost = data.outpost || null;
+            outpostBreakCooldown = data.outpostBreakCooldown || 0;
+            decoyEntity = data.decoyEntity || null;
+            positionHistory = data.positionHistory || [];
+
+            spawnTimer = data.spawnTimer || 0;
+            spawnInterval = data.spawnInterval || 55;
+            speedMultiplier = data.speedMultiplier || 1.0;
+            crystalSpawnTimer = data.crystalSpawnTimer || 0;
+            fuelSpawnTimer = data.fuelSpawnTimer || 0;
+            healthSpawnTimer = data.healthSpawnTimer || 0;
+            salvageSpawnTimer = data.salvageSpawnTimer || 0;
+            alienSpawnTimer = data.alienSpawnTimer || 0;
+            activeEffectTimer = data.activeEffectTimer || 0;
+            shotCooldown = data.shotCooldown || 0;
+
+            currentDifficulty = data.currentDifficulty || 'normal';
+            isCheatedRun = !!data.isCheatedRun;
+            cheatedAbilityMode = data.cheatedAbilityMode || null;
+
+            fuelTankLevel = data.fuelTankLevel || 0;
+            thrusterLevel = data.thrusterLevel || 0;
+            hullLevel = data.hullLevel || 0;
+            applyUpgradeStats(); // recomputes maxFuel/maxHealth/speed from the levels above
+            fuel = data.fuel ?? maxFuel;
+            health = data.health ?? maxHealth;
+
+            beaconTargetIndex = data.beaconTargetIndex || 0;
+            beaconTarget = data.beaconTarget || null;
+            beaconRecalcTimer = data.beaconRecalcTimer || 0;
+
+            activeEvent = data.activeEvent || null;
+            eventCooldownTimer = data.eventCooldownTimer ?? EVENT_COOLDOWN;
+            eventHudTick = data.eventHudTick || 0;
+
+            // Force 'home' so the very next update() re-announces whatever
+            // biome the player actually resumes in, same as a fresh launch.
+            currentBiomeId = 'home';
+            regionLabel.textContent = 'SANCTUARY FIELDS';
+            biomeBanner.classList.remove('visible');
+            if (biomeBannerTimeout) clearTimeout(biomeBannerTimeout);
+            eventBanner.classList.remove('visible');
+            if (eventBannerTimeout) clearTimeout(eventBannerTimeout);
+
+            gameRunning = true;
+            gamePaused = false;
+            lastFrameTime = 0;
+            simAccumulator = 0;
+            renderAccumulator = 0;
+            scoreDisplay.textContent = `STARDUST: ${score}`;
+            updateBeaconHud();
+            updateEventHud();
+            updateHudDisplay();
+
+            loop();
         }
 
         let currentDifficulty = 'normal'; 
@@ -2509,13 +2823,13 @@
             keys[e.code] = false;
         });
 
-        document.getElementById("to-game-btn").addEventListener("click", startGame);
         document.getElementById("to-tutorial-btn").addEventListener("click", startTutorial);
         document.getElementById("tutorial-next-btn").addEventListener("click", nextTutorialStep);
         document.getElementById("tutorial-back-btn").addEventListener("click", () => showScreen(menuScreen));
         document.getElementById("back-to-menu-shop").addEventListener("click", undock);
         document.getElementById("resume-btn").addEventListener("click", togglePause);
         document.getElementById("menu-from-pause-btn").addEventListener("click", () => {
+            saveRunState(); // quitting to menu mid-drift keeps the run resumable
             gamePaused = false;
             gameRunning = false;
             docked = false;
@@ -2523,11 +2837,12 @@
             dockPrompt.classList.remove("visible");
             showScreen(menuScreen);
         });
-        document.getElementById("restart-btn").addEventListener("click", startGame);
+        document.getElementById("restart-btn").addEventListener("click", () => startGame(activeSaveSlot));
         document.getElementById("menu-from-gameover-btn").addEventListener("click", () => showScreen(menuScreen));
 
         function showScreen(screenEl) {
             menuScreen.classList.add("hidden");
+            slotsScreen.classList.add("hidden");
             shopScreen.classList.add("hidden");
             tutorialScreen.classList.add("hidden");
             pauseScreen.classList.add("hidden");
@@ -3594,6 +3909,7 @@
             if (!gameRunning) return;
             gamePaused = !gamePaused;
             if (gamePaused) {
+                saveRunState();
                 showScreen(pauseScreen);
             } else {
                 pauseScreen.classList.add("hidden");
@@ -3669,7 +3985,7 @@
         function nextTutorialStep() {
             tutorialStep++;
             if (tutorialStep >= tutorialSteps.length) {
-                startGame();
+                startGame(activeSaveSlot || 1);
             } else {
                 updateTutorialContent();
             }
@@ -4071,8 +4387,11 @@
             }
         }
 
-        function startGame() {
+        function startGame(slot) {
+            if (slot) activeSaveSlot = slot;
+            deleteRunSave(activeSaveSlot);
             menuScreen.classList.add("hidden");
+            slotsScreen.classList.add("hidden");
             shopScreen.classList.add("hidden");
             tutorialScreen.classList.add("hidden");
             pauseScreen.classList.add("hidden");
@@ -4254,6 +4573,7 @@
             playSound('hit');
             gameRunning = false;
             cancelAnimationFrame(animationFrameId);
+            deleteRunSave(activeSaveSlot);
             
             if (score > highScore) {
                 highScore = score;
