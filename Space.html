@@ -364,7 +364,7 @@
             background-color: #e2738a;
         }
 
-        #slots-list {
+        #slots-list, #presets-list {
             display: flex;
             flex-direction: column;
             gap: 10px;
@@ -936,6 +936,12 @@
             </div>
 
             <div class="emblem-section">
+                <div class="emblem-section-title">Design Presets</div>
+                <p style="font-size:0.68rem; margin-bottom:10px;">Save your current layers, colors, and thruster trail as a named look, then swap between them any time.</p>
+                <div id="presets-list"></div>
+            </div>
+
+            <div class="emblem-section">
                 <div class="emblem-section-title">Stardust Crate</div>
                 <div class="emblem-crate-section">
                     <div id="emblem-crate-wallet">STARDUST POUCH: 0 SD</div>
@@ -1016,6 +1022,13 @@
                         <span id="hull-upgrade-desc">+20 max hull HP per tier</span>
                     </div>
                     <button class="btn" id="buy-hull-upgrade-btn" onclick="buyUpgrade('hull')">45 SD</button>
+                </div>
+                <div class="shop-item">
+                    <div class="shop-info">
+                        <h4>Overcharged Damage Coils</h4>
+                        <span id="damage-upgrade-desc">+8 bullet damage per tier</span>
+                    </div>
+                    <button class="btn" id="buy-damage-upgrade-btn" onclick="buyUpgrade('damage')">55 SD</button>
                 </div>
             </div>
             </div>
@@ -2098,7 +2111,6 @@
         let shotCooldown = 0;
         const SHOT_COOLDOWN_FRAMES = 60; // 1 second at 60fps
         const PLAYER_BULLET_SPEED = 10;
-        const PLAYER_BULLET_DAMAGE = 30;
         const PLAYER_BULLET_LIFE = 75;
         const HOMING_BULLET_RANGE = 260;
         const HOMING_BULLET_TURN = 0.09; // how strongly homing bullets curve toward a target each frame
@@ -2120,31 +2132,39 @@
         let fuelTankLevel = 0;
         let thrusterLevel = 0;
         let hullLevel = 0;
+        let damageLevel = 0;
         const MAX_UPGRADE_LEVEL = 5;
         const BASE_MAX_FUEL = 100;
         const BASE_MAX_HEALTH = 100;
         const BASE_MAX_SPEED = 5.8;
         const BASE_ACCEL = 0.38;
+        const BASE_BULLET_DAMAGE = 30;
         const FUEL_PER_LEVEL = 20;
         const HEALTH_PER_LEVEL = 20;
         const SPEED_PER_LEVEL = 0.5;
         const ACCEL_PER_LEVEL = 0.045;
+        const DAMAGE_PER_LEVEL = 8;
         const upgradeCosts = {
             fuel: [40, 70, 110, 160, 220],
             thruster: [50, 90, 140, 200, 270],
-            hull: [45, 80, 125, 180, 245]
+            hull: [45, 80, 125, 180, 245],
+            damage: [55, 95, 150, 215, 290]
         };
         const upgradeLabels = {
             fuel: "Fuel Cell Expansion",
             thruster: "Ion Thruster Upgrade",
-            hull: "Reinforced Hull Plating"
+            hull: "Reinforced Hull Plating",
+            damage: "Overcharged Damage Coils"
         };
+
+        let playerBulletDamage = BASE_BULLET_DAMAGE;
 
         function applyUpgradeStats() {
             maxFuel = BASE_MAX_FUEL + fuelTankLevel * FUEL_PER_LEVEL;
             maxHealth = BASE_MAX_HEALTH + hullLevel * HEALTH_PER_LEVEL;
             player.maxSpeed = BASE_MAX_SPEED + thrusterLevel * SPEED_PER_LEVEL;
             player.accel = BASE_ACCEL + thrusterLevel * ACCEL_PER_LEVEL;
+            playerBulletDamage = BASE_BULLET_DAMAGE + damageLevel * DAMAGE_PER_LEVEL;
         }
 
         let docked = false;
@@ -2239,6 +2259,7 @@
             highScoreDisplay.textContent = `HIGH: ${highScore}`;
             updateShopWallet();
             updateCrateUI();
+            loadDesignPresets();
         }
 
         function saveGameData() {
@@ -2307,7 +2328,7 @@
                 crystalSpawnTimer, fuelSpawnTimer, healthSpawnTimer, salvageSpawnTimer, alienSpawnTimer,
                 activeEffectTimer, shotCooldown,
                 currentDifficulty, isCheatedRun, cheatedAbilityMode,
-                fuelTankLevel, thrusterLevel, hullLevel,
+                fuelTankLevel, thrusterLevel, hullLevel, damageLevel,
                 beaconTargetIndex, beaconTarget, beaconRecalcTimer,
                 activeEvent, eventCooldownTimer, eventHudTick
             };
@@ -2485,6 +2506,7 @@
             fuelTankLevel = data.fuelTankLevel || 0;
             thrusterLevel = data.thrusterLevel || 0;
             hullLevel = data.hullLevel || 0;
+            damageLevel = data.damageLevel || 0;
             applyUpgradeStats(); // recomputes maxFuel/maxHealth/speed from the levels above
             fuel = data.fuel ?? maxFuel;
             health = data.health ?? maxHealth;
@@ -2963,6 +2985,109 @@
         function saveEquippedEmoji() {
             try { localStorage.setItem("stellarDrift_emoji", equippedEmoji); } catch (e) {}
         }
+
+        // ================= SHIP DESIGN PRESETS =================
+        // Named snapshots of a full look - emblem layers, thruster trail,
+        // and thruster emoji - so a player can build several designs and
+        // swap between them without redoing the Rocket Editor each time.
+        // Persisted in localStorage; independent of which one is currently
+        // equipped (shipEmblem/equippedTrail/equippedEmoji).
+        const MAX_DESIGN_PRESETS = 5;
+        let designPresets = [];
+
+        function loadDesignPresets() {
+            try {
+                const raw = localStorage.getItem("stellarDrift_presets");
+                if (raw) {
+                    const parsed = JSON.parse(raw);
+                    if (Array.isArray(parsed)) designPresets = parsed;
+                }
+            } catch (e) {}
+        }
+
+        function saveDesignPresets() {
+            try { localStorage.setItem("stellarDrift_presets", JSON.stringify(designPresets)); } catch (e) {}
+        }
+
+        function escapeHtml(str) {
+            return String(str).replace(/[&<>"']/g, c => ({
+                '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+            }[c]));
+        }
+
+        function renderPresetsList() {
+            const list = document.getElementById('presets-list');
+            if (!list) return;
+            list.innerHTML = '';
+            for (let i = 0; i < MAX_DESIGN_PRESETS; i++) {
+                const preset = designPresets[i];
+                const row = document.createElement('div');
+                row.className = 'slot-row';
+                if (preset) {
+                    const layerCount = (preset.emblem || []).length;
+                    const trailLabel = preset.trail ? `${preset.trail} trail` : 'classic trail';
+                    row.innerHTML = `
+                        <div class="slot-info">
+                            <div class="slot-title">${escapeHtml(preset.name)}</div>
+                            <div class="slot-desc">${layerCount} layer${layerCount === 1 ? '' : 's'} &middot; ${escapeHtml(trailLabel)}</div>
+                        </div>
+                        <div class="slot-actions">
+                            <button class="btn btn-small" data-preset="${i}" data-action="load">LOAD</button>
+                            <button class="btn btn-small" data-preset="${i}" data-action="save">OVERWRITE</button>
+                            <button class="btn btn-small btn-warm" data-preset="${i}" data-action="delete">DELETE</button>
+                        </div>`;
+                } else {
+                    row.innerHTML = `
+                        <div class="slot-info">
+                            <div class="slot-title">PRESET ${i + 1}</div>
+                            <div class="slot-desc">EMPTY</div>
+                        </div>
+                        <div class="slot-actions">
+                            <button class="btn btn-small" data-preset="${i}" data-action="save">SAVE HERE</button>
+                        </div>`;
+                }
+                list.appendChild(row);
+            }
+        }
+
+        document.getElementById('presets-list').addEventListener('click', (e) => {
+            const btn = e.target.closest('button[data-action]');
+            if (!btn) return;
+            const idx = parseInt(btn.dataset.preset, 10);
+            const action = btn.dataset.action;
+            if (action === 'save') {
+                const existing = designPresets[idx];
+                const name = window.prompt('Name this design:', existing ? existing.name : `Design ${idx + 1}`);
+                if (name === null) return; // cancelled
+                const trimmed = name.trim().slice(0, 24) || `Design ${idx + 1}`;
+                designPresets[idx] = {
+                    name: trimmed,
+                    emblem: editorLayers.map(l => ({ ...l })),
+                    trail: equippedTrail,
+                    emoji: equippedEmoji
+                };
+                saveDesignPresets();
+                renderPresetsList();
+            } else if (action === 'load') {
+                const preset = designPresets[idx];
+                if (!preset) return;
+                editorLayers = (preset.emblem || []).map(l => ({ ...l }));
+                editorSelectedIndex = -1;
+                equippedTrail = preset.trail || null;
+                equippedEmoji = preset.emoji || '✨';
+                saveEquippedTrail();
+                saveEquippedEmoji();
+                renderEmblemEditor();
+                renderEmblemLayerList();
+                buildEmblemPalettes();
+            } else if (action === 'delete') {
+                const label = designPresets[idx] ? designPresets[idx].name : `Preset ${idx + 1}`;
+                if (!confirm(`Delete "${label}"? This can't be undone.`)) return;
+                designPresets[idx] = null;
+                saveDesignPresets();
+                renderPresetsList();
+            }
+        });
 
         // Rendering an emoji particle with fillText() every frame is far
         // pricier than a path fill - the browser has to shape/color-render
@@ -3874,6 +3999,7 @@
             buildEmblemPalettes();
             renderEmblemEditor();
             renderEmblemLayerList();
+            renderPresetsList();
             updateCrateUI();
         });
         // Rocket Editor "Appearance" tab strip - toggles which of the
@@ -4247,7 +4373,7 @@
         }
 
         function buyUpgrade(type) {
-            const levelMap = { fuel: fuelTankLevel, thruster: thrusterLevel, hull: hullLevel };
+            const levelMap = { fuel: fuelTankLevel, thruster: thrusterLevel, hull: hullLevel, damage: damageLevel };
             const level = levelMap[type];
             if (level >= MAX_UPGRADE_LEVEL) return;
             const cost = upgradeCosts[type][level];
@@ -4267,6 +4393,9 @@
                 hullLevel++;
                 applyUpgradeStats();
                 health = Math.min(maxHealth, health + HEALTH_PER_LEVEL);
+            } else if (type === 'damage') {
+                damageLevel++;
+                applyUpgradeStats();
             }
             playSound('fuel');
             updateUpgradeShopUI();
@@ -4275,13 +4404,14 @@
         }
 
         function updateUpgradeShopUI() {
-            const levelMap = { fuel: fuelTankLevel, thruster: thrusterLevel, hull: hullLevel };
+            const levelMap = { fuel: fuelTankLevel, thruster: thrusterLevel, hull: hullLevel, damage: damageLevel };
             const descMap = {
                 fuel: (lvl) => `+${FUEL_PER_LEVEL} max fuel per tier &middot; Lv ${lvl}/${MAX_UPGRADE_LEVEL}`,
                 thruster: (lvl) => `+${SPEED_PER_LEVEL} top speed & faster accel per tier &middot; Lv ${lvl}/${MAX_UPGRADE_LEVEL}`,
-                hull: (lvl) => `+${HEALTH_PER_LEVEL} max hull HP per tier &middot; Lv ${lvl}/${MAX_UPGRADE_LEVEL}`
+                hull: (lvl) => `+${HEALTH_PER_LEVEL} max hull HP per tier &middot; Lv ${lvl}/${MAX_UPGRADE_LEVEL}`,
+                damage: (lvl) => `+${DAMAGE_PER_LEVEL} bullet damage per tier &middot; Lv ${lvl}/${MAX_UPGRADE_LEVEL}`
             };
-            for (const type of ['fuel', 'thruster', 'hull']) {
+            for (const type of ['fuel', 'thruster', 'hull', 'damage']) {
                 const level = levelMap[type];
                 const btn = document.getElementById(`buy-${type}-upgrade-btn`);
                 const desc = document.getElementById(`${type}-upgrade-desc`);
@@ -5303,7 +5433,7 @@
                 for (let j = obstacles.length - 1; j >= 0; j--) {
                     const obs = obstacles[j];
                     if (Math.hypot(pb.x - obs.x, pb.y - obs.y) < obs.size / 2 + 4) {
-                        obs.health -= PLAYER_BULLET_DAMAGE;
+                        obs.health -= playerBulletDamage;
                         playSound('hit');
                         if (obs.health <= 0) {
                             shatterObject(obs, obs.color || DEBRIS_COLOR);
@@ -5327,7 +5457,7 @@
                 for (let j = aliens.length - 1; j >= 0; j--) {
                     const a = aliens[j];
                     if (Math.hypot(pb.x - a.x, pb.y - a.y) < a.size / 2 + 4) {
-                        a.health -= PLAYER_BULLET_DAMAGE;
+                        a.health -= playerBulletDamage;
                         playSound('hit');
                         if (a.health <= 0) {
                             shatterObject(a, a.color || ALIEN_COLOR);
