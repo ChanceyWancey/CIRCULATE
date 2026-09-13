@@ -2639,15 +2639,22 @@
         });
 
         let audioCtx = null;
+        let sfxMasterGain = null;
+        const SFX_MASTER_VOLUME = 0.6; // keep game SFX a bit quieter than the background music
         function playSound(type) {
             try {
                 if (!audioCtx) {
                     audioCtx = new (window.AudioContext || window.webkitAudioContext)();
                 }
+                if (!sfxMasterGain) {
+                    sfxMasterGain = audioCtx.createGain();
+                    sfxMasterGain.gain.value = SFX_MASTER_VOLUME;
+                    sfxMasterGain.connect(audioCtx.destination);
+                }
                 const osc = audioCtx.createOscillator();
                 const gain = audioCtx.createGain();
                 osc.connect(gain);
-                gain.connect(audioCtx.destination);
+                gain.connect(sfxMasterGain);
 
                 const now = audioCtx.currentTime;
 
