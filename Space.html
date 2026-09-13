@@ -1749,6 +1749,11 @@
         // cooldown separates them.
         const MAX_EVENT_SPAWN_DIST = 200000; // local events never pin further than this from home
         const EVENT_COOLDOWN = 5 * 60 * 60;  // 5 minutes at 60fps
+        // Once you've closed to within this range of a local event, its
+        // countdown freezes - so it can no longer expire on you mid-approach
+        // or the moment you arrive, and the HUD swaps the distance readout
+        // for an "arrived" state instead of ticking numbers.
+        const EVENT_ARRIVAL_RADIUS = 2000;
         let activeEvent = null; // { kind: 'global'|'local', def, timeLeft, totalTime, [tx, ty, x, y, biomeId] }
         let eventCooldownTimer = EVENT_COOLDOWN;
         let eventHudTick = 0;
@@ -1840,9 +1845,13 @@
                 line = `⚡ ${activeEvent.def.name.toUpperCase()} — ${Math.ceil(activeEvent.timeLeft / 60)}s`;
             } else {
                 const dist = Math.round(Math.hypot(player.x - activeEvent.x, player.y - activeEvent.y));
-                const dir = compassDirection(activeEvent.x - player.x, activeEvent.y - player.y);
                 const biomeName = BIOMES[activeEvent.biomeId].name;
-                line = `◈ ${activeEvent.def.name.toUpperCase()} — ${biomeName} (${dir}) — ${dist}m`;
+                if (dist <= EVENT_ARRIVAL_RADIUS) {
+                    line = `◈ ${activeEvent.def.name.toUpperCase()} — ${biomeName} — ARRIVED`;
+                } else {
+                    const dir = compassDirection(activeEvent.x - player.x, activeEvent.y - player.y);
+                    line = `◈ ${activeEvent.def.name.toUpperCase()} — ${biomeName} (${dir}) — ${dist}m`;
+                }
             }
             eventHud.style.display = "block";
             eventHud.innerHTML = `<div class="event-hud-line">${line}</div>`;
@@ -1856,8 +1865,12 @@
 
         function updateEvents() {
             if (activeEvent) {
-                activeEvent.timeLeft--;
-                if (activeEvent.timeLeft <= 0) endEvent();
+                const inRange = activeEvent.kind === 'local' &&
+                    Math.hypot(player.x - activeEvent.x, player.y - activeEvent.y) <= EVENT_ARRIVAL_RADIUS;
+                if (!inRange) {
+                    activeEvent.timeLeft--;
+                    if (activeEvent.timeLeft <= 0) endEvent();
+                }
             } else {
                 eventCooldownTimer--;
                 if (eventCooldownTimer <= 0) startEvent();
@@ -2002,6 +2015,16 @@
         const MAX_STEPS_PER_FRAME = 12; // avoids a "spiral of death" after tab-switches/lag spikes, while still letting a 60Hz display catch up to the 144Hz sim rate
         let simAccumulator = 0;
         let lastFrameTime = 0;
+
+        // Rendering is paced to the display's actual refresh rate rather than
+        // assumed to be 60Hz. displayRefreshMs starts at a 60Hz guess and gets
+        // refined once we've measured a run of clean rAF deltas, so a 144Hz
+        // monitor renders at 144fps and a 60Hz one at 60fps - the simulation
+        // above stays fixed-step and decoupled either way.
+        let displayRefreshMs = 1000 / 60;
+        let refreshRateSamples = [];
+        let refreshRateLocked = false;
+        let renderAccumulator = 0;
 
         let fuel = 100;
         let maxFuel = 100;
@@ -3576,6 +3599,7 @@
                 pauseScreen.classList.add("hidden");
                 lastFrameTime = 0;
                 simAccumulator = 0;
+                renderAccumulator = 0;
                 loop();
             }
         }
@@ -3620,6 +3644,7 @@
                 gamePaused = false;
                 lastFrameTime = 0;
                 simAccumulator = 0;
+                renderAccumulator = 0;
                 loop();
             }
         }
@@ -4142,6 +4167,7 @@
             gamePaused = false;
             lastFrameTime = 0;
             simAccumulator = 0;
+            renderAccumulator = 0;
             scoreDisplay.textContent = `STARDUST: ${score}`;
             updateHudDisplay();
 
@@ -5593,8 +5619,26 @@
 
             let delta = timestamp - lastFrameTime;
             lastFrameTime = timestamp;
+
+            // Estimate the monitor's real refresh interval from a run of
+            // "clean" rAF deltas (skip anything long enough to be a lag
+            // spike or tab-switch). Locks in after 20 samples so a 144Hz
+            // display settles into rendering at ~144fps, a 60Hz one at
+            // ~60fps, etc.
+            if (!refreshRateLocked) {
+                if (delta > 0 && delta < 40) {
+                    refreshRateSamples.push(delta);
+                    if (refreshRateSamples.length >= 20) {
+                        const sorted = [...refreshRateSamples].sort((a, b) => a - b);
+                        displayRefreshMs = sorted[Math.floor(sorted.length / 2)];
+                        refreshRateLocked = true;
+                    }
+                }
+            }
+
             if (delta > 250) delta = 250; // clamp huge gaps (backgrounded tab, debugger pause, etc.)
             simAccumulator += delta;
+            renderAccumulator += delta;
 
             let steps = 0;
             while (simAccumulator >= FIXED_DT_MS && steps < MAX_STEPS_PER_FRAME) {
@@ -5604,7 +5648,16 @@
                 if (gamePaused || !gameRunning) break; // update() itself can pause/end the run
             }
 
-            draw();
+            // Only actually paint once roughly one display refresh's worth
+            // of time has passed. On a normal vsync'd browser rAF already
+            // fires once per refresh so this is a no-op most of the time;
+            // it just stops wasted/duplicate paints if rAF is ever driven
+            // faster than the screen can show (e.g. vsync-off setups).
+            if (renderAccumulator >= displayRefreshMs - 1) {
+                renderAccumulator = renderAccumulator % displayRefreshMs;
+                draw();
+            }
+
             if (gameRunning && !gamePaused) {
                 animationFrameId = requestAnimationFrame(loop);
             }
