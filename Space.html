@@ -35,6 +35,68 @@
             pointer-events: none;
         }
 
+        #volume-control {
+            position: absolute;
+            top: 14px;
+            left: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            background: rgba(39, 33, 59, 0.85);
+            border: 1px solid #6c5b7b;
+            border-radius: 20px;
+            z-index: 25;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+        }
+
+        #volume-icon {
+            font-size: 0.95rem;
+            line-height: 1;
+            cursor: pointer;
+            user-select: none;
+            width: 16px;
+            text-align: center;
+        }
+
+        #volume-slider {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 90px;
+            height: 4px;
+            border-radius: 2px;
+            background: #453a56;
+            outline: none;
+            cursor: pointer;
+        }
+
+        #volume-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 13px;
+            height: 13px;
+            border-radius: 50%;
+            background: #ffd166;
+            box-shadow: 0 0 4px rgba(255, 209, 102, 0.6);
+            cursor: pointer;
+        }
+
+        #volume-slider::-moz-range-thumb {
+            width: 13px;
+            height: 13px;
+            border: none;
+            border-radius: 50%;
+            background: #ffd166;
+            box-shadow: 0 0 4px rgba(255, 209, 102, 0.6);
+            cursor: pointer;
+        }
+
+        #volume-slider::-moz-range-track {
+            height: 4px;
+            border-radius: 2px;
+            background: #453a56;
+        }
+
         #game-container {
             position: absolute;
             top: 0;
@@ -887,6 +949,12 @@
     </style>
 </head>
 <body>
+
+    <div id="volume-control">
+        <span id="volume-icon">🔊</span>
+        <input type="range" id="volume-slider" min="0" max="100" value="35">
+    </div>
+    <audio id="bg-music" src="https://res.cloudinary.com/dz1dungk5/video/upload/v1789338150/Nebula_Drift_qcn4op.mp3" loop preload="auto"></audio>
 
     <h1>✨ Stellar Drift: Sector Radar ✨</h1>
     <div id="dock-prompt">DOCKING RANGE — PRESS E TO ENTER SANCTUARY</div>
@@ -6145,6 +6213,64 @@
                 animationFrameId = requestAnimationFrame(loop);
             }
         }
+
+        // ================= BACKGROUND MUSIC / VOLUME CONTROL =================
+        (function setupBackgroundMusic() {
+            const bgMusic = document.getElementById('bg-music');
+            const volumeSlider = document.getElementById('volume-slider');
+            const volumeIcon = document.getElementById('volume-icon');
+            if (!bgMusic || !volumeSlider) return;
+
+            let lastVolume = 35;
+
+            const savedVolume = localStorage.getItem('stellarDrift_musicVolume');
+            let initialVolume = savedVolume !== null ? parseInt(savedVolume, 10) : 35;
+            if (isNaN(initialVolume)) initialVolume = 35;
+            volumeSlider.value = initialVolume;
+            bgMusic.volume = initialVolume / 100;
+
+            function updateIcon(vol) {
+                volumeIcon.textContent = vol == 0 ? '🔇' : (vol < 50 ? '🔉' : '🔊');
+            }
+            updateIcon(initialVolume);
+
+            volumeSlider.addEventListener('input', () => {
+                const vol = parseInt(volumeSlider.value, 10);
+                bgMusic.volume = vol / 100;
+                updateIcon(vol);
+                localStorage.setItem('stellarDrift_musicVolume', String(vol));
+                if (vol > 0) lastVolume = vol;
+            });
+
+            volumeIcon.addEventListener('click', () => {
+                if (parseInt(volumeSlider.value, 10) > 0) {
+                    lastVolume = parseInt(volumeSlider.value, 10);
+                    volumeSlider.value = 0;
+                    bgMusic.volume = 0;
+                    updateIcon(0);
+                    localStorage.setItem('stellarDrift_musicVolume', '0');
+                } else {
+                    volumeSlider.value = lastVolume;
+                    bgMusic.volume = lastVolume / 100;
+                    updateIcon(lastVolume);
+                    localStorage.setItem('stellarDrift_musicVolume', String(lastVolume));
+                }
+            });
+
+            // Browsers block autoplaying audio with sound until the user has
+            // interacted with the page - try immediately, and if that's
+            // blocked, start on the first click/keypress/touch.
+            function tryPlay() {
+                bgMusic.play().catch(() => {});
+            }
+            tryPlay();
+            const resumeEvents = ['click', 'keydown', 'touchstart'];
+            function resumeOnInteract() {
+                tryPlay();
+                resumeEvents.forEach(evt => document.removeEventListener(evt, resumeOnInteract));
+            }
+            resumeEvents.forEach(evt => document.addEventListener(evt, resumeOnInteract));
+        })();
 
         loadGameData();
     </script>
