@@ -545,10 +545,10 @@
         #emblem-workspace {
             display: flex;
             flex-direction: row;
-            gap: 14px;
+            gap: 10px;
             align-items: flex-start;
             justify-content: center;
-            margin-bottom: 6px;
+            margin-bottom: 4px;
         }
 
         #emblem-canvas {
@@ -557,38 +557,40 @@
             border-radius: 10px;
             touch-action: none;
             cursor: grab;
+            width: 270px;
+            height: 270px;
         }
 
         #emblem-layer-panel {
-            width: 130px;
+            width: 120px;
             text-align: left;
         }
 
         .emblem-panel-label, .emblem-palette-label {
-            font-size: 0.7rem;
+            font-size: 0.65rem;
             letter-spacing: 1px;
             color: #c7b198;
             opacity: 0.8;
-            margin-bottom: 4px;
+            margin-bottom: 3px;
         }
 
         #emblem-layer-list {
             display: flex;
             flex-direction: column;
-            gap: 4px;
-            max-height: 250px;
+            gap: 3px;
+            max-height: 200px;
             overflow-y: auto;
         }
 
         .emblem-layer-row {
             display: flex;
             align-items: center;
-            gap: 6px;
-            padding: 4px 6px;
+            gap: 5px;
+            padding: 3px 5px;
             border-radius: 5px;
             border: 1px solid #453a56;
             background: rgba(255,255,255,0.03);
-            font-size: 0.68rem;
+            font-size: 0.64rem;
             color: #c7b198;
             cursor: pointer;
         }
@@ -609,16 +611,16 @@
         .emblem-palette {
             display: flex;
             flex-wrap: wrap;
-            gap: 6px;
+            gap: 5px;
             justify-content: center;
             max-width: 460px;
-            margin-bottom: 10px;
+            margin-bottom: 6px;
         }
 
         .emblem-shape-btn {
-            width: 38px;
-            height: 38px;
-            padding: 3px;
+            width: 32px;
+            height: 32px;
+            padding: 2px;
             background: rgba(255,255,255,0.04);
             border: 1px solid #453a56;
             border-radius: 6px;
@@ -633,8 +635,8 @@
         }
 
         .emblem-color-btn {
-            width: 24px;
-            height: 24px;
+            width: 20px;
+            height: 20px;
             border-radius: 50%;
             border: 2px solid #453a56;
             cursor: pointer;
@@ -646,8 +648,8 @@
 
         .emblem-color-picker-wrap {
             display: inline-flex;
-            width: 24px;
-            height: 24px;
+            width: 20px;
+            height: 20px;
             border-radius: 50%;
             overflow: hidden;
             border: 2px dashed #c7b198;
@@ -706,15 +708,15 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 4px;
-            margin: 4px 0 10px 0;
-            padding: 8px 14px;
+            gap: 3px;
+            margin: 2px 0 4px 0;
+            padding: 6px 12px;
             border: 1px solid #6c5b7b;
             border-radius: 8px;
             background: rgba(108, 91, 123, 0.15);
         }
         #emblem-crate-wallet {
-            font-size: 0.7rem;
+            font-size: 0.68rem;
             color: #c7b198;
         }
         #open-crate-btn {
@@ -789,14 +791,14 @@
         .emblem-controls {
             display: flex;
             flex-wrap: wrap;
-            gap: 6px;
+            gap: 4px;
             justify-content: center;
             max-width: 460px;
         }
 
         .emblem-ctrl-btn {
-            padding: 8px 12px;
-            font-size: 0.85rem;
+            padding: 6px 10px;
+            font-size: 0.76rem;
         }
 
         /* Rocket Editor: grouped into labeled, bordered sections stacked in
@@ -805,19 +807,28 @@
         #emblem-screen {
             overflow-y: auto;
             justify-content: flex-start;
-            padding-top: 24px;
-            padding-bottom: 24px;
+            padding: 14px 20px;
+        }
+
+        #emblem-screen h2 {
+            margin-bottom: 4px;
+            font-size: 1.3rem;
+        }
+
+        #emblem-screen > p {
+            margin-bottom: 8px;
+            font-size: 0.72rem;
         }
 
         .emblem-section {
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 6px;
+            gap: 4px;
             width: 100%;
-            max-width: 480px;
-            margin: 0 0 12px 0;
-            padding: 10px 16px 14px;
+            max-width: 440px;
+            margin: 0 0 8px 0;
+            padding: 7px 12px 9px;
             border: 1px solid #453a56;
             border-radius: 10px;
             background: rgba(255, 255, 255, 0.02);
@@ -825,18 +836,18 @@
 
         .emblem-section-title {
             align-self: center;
-            font-size: 0.68rem;
+            font-size: 0.64rem;
             letter-spacing: 1.5px;
             color: #ffd166;
             opacity: 0.9;
             text-transform: uppercase;
-            margin-bottom: 2px;
+            margin-bottom: 1px;
         }
 
         .emblem-tabs {
             display: flex;
-            gap: 6px;
-            margin-bottom: 8px;
+            gap: 5px;
+            margin-bottom: 5px;
             flex-wrap: wrap;
             justify-content: center;
         }
@@ -845,8 +856,8 @@
             background: rgba(255, 255, 255, 0.04);
             border: 1px solid #453a56;
             color: #c7b198;
-            padding: 6px 14px;
-            font-size: 0.68rem;
+            padding: 5px 12px;
+            font-size: 0.65rem;
             letter-spacing: 0.8px;
             border-radius: 6px;
             cursor: pointer;
@@ -936,17 +947,11 @@
             </div>
 
             <div class="emblem-section">
-                <div class="emblem-section-title">Design Presets</div>
-                <p style="font-size:0.68rem; margin-bottom:10px;">Save your current layers, colors, and thruster trail as a named look, then swap between them any time.</p>
-                <div id="presets-list"></div>
-            </div>
-
-            <div class="emblem-section">
                 <div class="emblem-section-title">Stardust Crate</div>
                 <div class="emblem-crate-section">
                     <div id="emblem-crate-wallet">STARDUST POUCH: 0 SD</div>
                     <button class="btn" id="open-crate-btn">OPEN STARDUST CRATE — 30 SD</button>
-                    <div style="font-size:0.62rem; color:#9b8da9; max-width:260px; text-align:center;">
+                    <div style="font-size:0.58rem; color:#9b8da9; max-width:260px; text-align:center;">
                         Every shape, color, thruster trail, and even the freeform color picker is locked until you gamble Stardust for it. Odds — Common 55% · Rare 30% · Legendary 12% · Mythic 3%. Duplicate pulls refund half the cost.
                     </div>
                 </div>
@@ -985,7 +990,13 @@
                 </div>
             </div>
 
-            <div class="btn-group" style="margin-top: 2px;">
+            <div class="emblem-section">
+                <div class="emblem-section-title">Design Presets</div>
+                <p style="font-size:0.62rem; margin-bottom:5px;">Save your current layers, colors, and thruster trail as a named look, then swap between them any time.</p>
+                <div id="presets-list"></div>
+            </div>
+
+            <div class="btn-group" style="margin-top: 0; gap: 6px;">
                 <button class="btn" id="emblem-save-btn">SAVE &amp; RETURN</button>
                 <button class="btn" id="emblem-clear-btn">CLEAR ALL</button>
                 <button class="btn btn-warm" id="emblem-cancel-btn">CANCEL</button>
@@ -1265,6 +1276,7 @@
         // The sector is infinite - there is no WORLD_WIDTH/HEIGHT boundary.
         // Objects spawn and despawn relative to the player's position instead.
         const DESPAWN_RADIUS = 1900; // obstacles/aliens beyond this are recycled
+        const PICKUP_DESPAWN_RADIUS = 10000; // crystals/fuel/health beyond this are recycled near the player
 
         // ---- BIOMES ----
         // The infinite sector is broken into large tiles; each tile is
@@ -5055,13 +5067,20 @@
 
             for (let i = crystals.length - 1; i >= 0; i--) {
                 const c = crystals[i];
+
+                const distToPlayer = Math.hypot(player.x - c.x, player.y - c.y);
+                if (distToPlayer > PICKUP_DESPAWN_RADIUS) {
+                    crystals.splice(i, 1);
+                    spawnCrystal();
+                    continue;
+                }
+
                 if (cheatedAbilityMode === 'vacuum' || (player.equippedAbility === 'magnet' && activeEffectTimer > 0)) {
                     const angleToPlayer = Math.atan2(player.y - c.y, player.x - c.x);
                     c.x += Math.cos(angleToPlayer) * 3;
                     c.y += Math.sin(angleToPlayer) * 3;
                 }
 
-                const distToPlayer = Math.hypot(player.x - c.x, player.y - c.y);
                 if (distToPlayer <= 35) {
                     c.progress += (cheatedAbilityMode === 'vacuum' || (player.equippedAbility === 'magnet' && activeEffectTimer > 0)) ? 25 : 1;
                     if (c.progress >= c.maxProgress) {
@@ -5083,7 +5102,13 @@
 
             for (let i = fuelCanisters.length - 1; i >= 0; i--) {
                 const f = fuelCanisters[i];
-                if (Math.hypot(player.x - f.x, player.y - f.y) < 25) {
+                const distToPlayer = Math.hypot(player.x - f.x, player.y - f.y);
+                if (distToPlayer > PICKUP_DESPAWN_RADIUS) {
+                    fuelCanisters.splice(i, 1);
+                    spawnFuel();
+                    continue;
+                }
+                if (distToPlayer < 25) {
                     fuel = Math.min(maxFuel, fuel + 40);
                     playSound('fuel');
                     fuelCanisters.splice(i, 1);
@@ -5092,7 +5117,13 @@
 
             for (let i = healthPickups.length - 1; i >= 0; i--) {
                 const h = healthPickups[i];
-                if (Math.hypot(player.x - h.x, player.y - h.y) < 25) {
+                const distToPlayer = Math.hypot(player.x - h.x, player.y - h.y);
+                if (distToPlayer > PICKUP_DESPAWN_RADIUS) {
+                    healthPickups.splice(i, 1);
+                    spawnHealthPickup();
+                    continue;
+                }
+                if (distToPlayer < 25) {
                     health = Math.min(maxHealth, health + 30);
                     playSound('fuel');
                     healthPickups.splice(i, 1);
