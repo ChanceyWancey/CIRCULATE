@@ -3852,6 +3852,8 @@
             renderEmblemLayerList();
         });
         document.getElementById('emblem-clear-btn').addEventListener('click', () => {
+            if (editorLayers.length === 0) return;
+            if (!confirm('Clear all layers from this ship design? This can\'t be undone.')) return;
             editorLayers = [];
             editorSelectedIndex = -1;
             renderEmblemEditor();
