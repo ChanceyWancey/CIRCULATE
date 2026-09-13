@@ -97,6 +97,73 @@
             background: #453a56;
         }
 
+        /* Update Log: a sidebar panel next to the main menu. Plain HTML
+           list below in the #menu-screen markup - add a new .update-log-entry
+           at the TOP of #update-log-entries for each new patch. */
+        #update-log {
+            position: absolute;
+            top: 50%;
+            right: 24px;
+            transform: translateY(-50%);
+            width: 210px;
+            max-width: 26vw;
+            max-height: 66vh;
+            overflow-y: auto;
+            text-align: left;
+            background: rgba(39, 33, 59, 0.85);
+            border: 1px solid #6c5b7b;
+            border-radius: 10px;
+            padding: 10px 12px;
+            z-index: 5;
+        }
+
+        .update-log-title {
+            text-align: center;
+            font-size: 0.72rem;
+            letter-spacing: 1.5px;
+            color: #ffd166;
+            opacity: 0.9;
+            margin-bottom: 8px;
+        }
+
+        .update-log-entry {
+            margin-bottom: 9px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(108, 91, 123, 0.4);
+        }
+        .update-log-entry:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+
+        .update-log-version {
+            display: block;
+            font-size: 0.68rem;
+            font-weight: bold;
+            color: #ffd166;
+            margin-bottom: 2px;
+        }
+
+        .update-log-text {
+            display: block;
+            font-size: 0.64rem;
+            line-height: 1.4;
+            color: #c7b198;
+        }
+
+        @media (max-width: 820px) {
+            #update-log {
+                position: static;
+                transform: none;
+                width: 260px;
+                max-width: 85vw;
+                max-height: 30vh;
+                margin-top: 14px;
+                order: 5;
+            }
+        }
+
         #game-container {
             position: absolute;
             top: 0;
@@ -972,6 +1039,32 @@
     
     <div id="game-container">
         <div id="menu-screen" class="screen">
+            <div id="update-log">
+                <div class="update-log-title">UPDATE LOG</div>
+                <div id="update-log-entries">
+                    <!-- Add new patches at the TOP of this list. -->
+                    <div class="update-log-entry">
+                        <span class="update-log-version">Latest</span>
+                        <span class="update-log-text">Hi guys</span>
+                    </div>
+                    <div class="update-log-entry">
+                        <span class="update-log-version">Patch</span>
+                        <span class="update-log-text">Debris no longer speeds up forever with score - it now caps out at a set top speed.</span>
+                    </div>
+                    <div class="update-log-entry">
+                        <span class="update-log-version">Patch</span>
+                        <span class="update-log-text">Derelict Cache event now drops guaranteed crates on arrival, stocked with stardust, fuel, hull kits, and biome material.</span>
+                    </div>
+                    <div class="update-log-entry">
+                        <span class="update-log-version">Patch</span>
+                        <span class="update-log-text">Sector events fire more often, hit harder, and local events are always reachable before they expire.</span>
+                    </div>
+                    <div class="update-log-entry">
+                        <span class="update-log-version">Patch</span>
+                        <span class="update-log-text">Added background music and a volume slider (top left).</span>
+                    </div>
+                </div>
+            </div>
             <h2>COZY SECTOR</h2>
             <p>Pilot your zero-g cursor using <strong>W A S D</strong> through the open sector. Harvest crystals for Stardust, manage fuel and health, dock at the Sanctuary station to shop, and press <strong>ESC</strong> to pause!</p>
             <div class="btn-group">
@@ -1345,6 +1438,8 @@
         // Objects spawn and despawn relative to the player's position instead.
         const DESPAWN_RADIUS = 1900; // obstacles/aliens beyond this are recycled
         const PICKUP_DESPAWN_RADIUS = 10000; // crystals/fuel/health beyond this are recycled near the player
+        const EVENT_ARROW_SIGNAL_RANGE = 300000; // beyond this from home, event pointer arrows lose signal and stop showing
+        const DEEP_SPACE_UNCAPPED_DIST = 1000000; // this far from home, debris speed goes back to scaling uncapped with score
 
         // ---- BIOMES ----
         // The infinite sector is broken into large tiles; each tile is
@@ -4867,7 +4962,13 @@
 
             const angle = Math.random() * Math.PI * 2;
             const biome = getBiome(x, y);
-            const scoreSpeedBonus = Math.min(score / 400, 2.5); // ramps up with progress, but caps out instead of scaling forever
+            // Past a million meters from home, the speed cap we patched in
+            // stops applying - deep space debris ramps up unbounded with
+            // score again, same as before the fix.
+            const homeDistForSpeed = Math.hypot(x - spawnAnchor.x, y - spawnAnchor.y);
+            const scoreSpeedBonus = homeDistForSpeed >= DEEP_SPACE_UNCAPPED_DIST
+                ? (score / 400)
+                : Math.min(score / 400, 2.5);
             let baseSpeed = (Math.random() * 1.2 + 1.8 + scoreSpeedBonus) * speedMultiplier * biome.debrisSpeedMult;
             const debrisHealth = Math.round(size * 2 * biome.debrisHealthMult);
 
@@ -5045,6 +5146,14 @@
             let activeMaxSpeed = player.maxSpeed;
             let currentAccel = player.accel;
 
+            // Holding Shift trades speed for efficiency: a slower, more
+            // controlled drift that burns less fuel per second of thrust.
+            const isPrecisionMode = !!(keys["ShiftLeft"] || keys["ShiftRight"]);
+            if (isPrecisionMode) {
+                activeMaxSpeed *= 0.55;
+                currentAccel *= 0.55;
+            }
+
             let accelerating = false;
             if (fuel > 0 && !docked) {
                 if (keys["KeyW"] || keys["ArrowUp"]) { player.vy -= currentAccel; accelerating = true; }
@@ -5054,7 +5163,8 @@
             }
 
             if (accelerating) {
-                fuel -= 0.08 * currentBiome.fuelDrainMult * (player.hasGravPlate ? 0.7 : 1);
+                const precisionFuelMult = isPrecisionMode ? 0.5 : 1;
+                fuel -= 0.08 * currentBiome.fuelDrainMult * (player.hasGravPlate ? 0.7 : 1) * precisionFuelMult;
                 if (fuel <= 0) fuel = 0;
             } else {
                 // Idle regen must always outpace the worst-case passive biome
@@ -5914,7 +6024,10 @@
             }
 
             if (activeEvent && activeEvent.kind === 'local') {
-                drawEventPointer(activeEvent.x - camX, activeEvent.y - camY, activeEvent.def.color, activeEvent.def.name);
+                const homeDistForSignal = Math.hypot(player.x - spawnAnchor.x, player.y - spawnAnchor.y);
+                if (homeDistForSignal <= EVENT_ARROW_SIGNAL_RANGE) {
+                    drawEventPointer(activeEvent.x - camX, activeEvent.y - camY, activeEvent.def.color, activeEvent.def.name);
+                }
             }
 
             // Draw Fuel Canisters
