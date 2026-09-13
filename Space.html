@@ -889,6 +889,14 @@
                     </div>
                     <button class="btn" id="buy-overload-btn" onclick="buyAbility('overload')">CRAFT</button>
                 </div>
+                <div class="shop-item" id="cheaterscure-item" style="display:none;">
+                    <div class="shop-info">
+                        <h4 style="color:#ff2e63;">The Cheater's Cure</h4>
+                        <span>One-time cure for your Konami cheat &mdash; purges it completely and resets you to a normal run. Find The Cheater's Desolate biome and salvage 10x Cheater's Alloy (10% drop chance) to craft it.</span>
+                        <span class="craft-cost" id="cost-cheaterscure"></span>
+                    </div>
+                    <button class="btn" id="buy-cheaterscure-btn" onclick="buyCheatersCure()">CRAFT</button>
+                </div>
             </div>
             </div>
 
@@ -1259,6 +1267,29 @@
                 alienShootMult: 1.0, alienBulletSpeedMult: 1.0,
                 hasSalvage: false, salvageReward: 0,
                 material: { id: 'singularity', name: 'Singularity Shard', color: '#c9a7ff' }
+            },
+            // Hidden penalty biome: only enters the tile rotation while a
+            // Konami cheat is active (see getBiome). Not part of
+            // WILD_BIOME_IDS, so it never appears on a clean run, is never
+            // targeted by the Sector Beacon, and its material stays out of
+            // the normal materials pouch listing until it's actually needed.
+            cheaters: {
+                id: 'cheaters',
+                name: "The Cheater's Desolate",
+                desc: "A punishing wasteland that only exists while your Konami cheat is active. Salvage 10x Cheater's Alloy here to craft The Cheater's Cure and purge it for good.",
+                starColor: '#ff2e63',
+                tint: 'rgba(255, 20, 60, 0.22)',
+                fog: 0.1,
+                debrisMult: 1.4, alienMult: 1.4, crystalMult: 0.4, fuelPickupMult: 0.5, healthPickupMult: 0.5,
+                debrisReward: 6, alienReward: 12, crystalReward: 40, crystalFillMult: 0.8,
+                debrisColor: '#8a0e2c', alienColor: '#ff2e63',
+                fuelDrainMult: 1.6, passiveFuelDrain: 0.02, fuelRegenBonus: 0,
+                guardianChance: 0.2,
+                debrisSpeedMult: 1.3, debrisHealthMult: 1.2,
+                frictionBoost: 0.01,
+                alienShootMult: 1.1, alienBulletSpeedMult: 1.2,
+                hasSalvage: false, salvageReward: 0,
+                material: { id: 'cheateralloy', name: "Cheater's Alloy", color: '#ff2e63' }
             }
         };
         const WILD_BIOME_IDS = ['debris', 'hive', 'nebula', 'void', 'storm', 'ice', 'ember', 'ghost', 'warzone', 'comet', 'flare', 'gravity'];
@@ -1276,6 +1307,17 @@
             }
             const tx = Math.floor(x / BIOME_TILE_SIZE);
             const ty = Math.floor(y / BIOME_TILE_SIZE);
+            // While a Konami cheat is active, one extra hidden slot opens up
+            // in the tile rotation: The Cheater's Desolate. It's the only
+            // place that drops Cheater's Alloy, needed to craft The
+            // Cheater's Cure and remove the cheat. It's unreachable on a
+            // clean run since this branch is skipped entirely.
+            if (isCheatedRun) {
+                const cheatIdx = biomeHash(tx, ty) % (WILD_BIOME_IDS.length + 1);
+                if (cheatIdx === WILD_BIOME_IDS.length) {
+                    return BIOMES.cheaters;
+                }
+            }
             const idx = biomeHash(tx, ty) % WILD_BIOME_IDS.length;
             return BIOMES[WILD_BIOME_IDS[idx]];
         }
@@ -1375,6 +1417,12 @@
         // same as totalCredits (resets on refresh).
         let materials = {};
         const MATERIAL_LIST = WILD_BIOME_IDS.map(id => ({ ...BIOMES[id].material, biomeName: BIOMES[id].name }));
+        // Cheater's Alloy is looked up here (materialName, craftCostLabel,
+        // hasMaterials, etc.) but kept OUT of MATERIAL_LIST itself, so the
+        // pouch UI - which renders straight from MATERIAL_LIST - never shows
+        // it to a player who hasn't triggered the Konami cheat.
+        const CHEATER_MATERIAL = { id: 'cheateralloy', name: "Cheater's Alloy", color: '#ff2e63', biomeName: "The Cheater's Desolate" };
+        const ALL_MATERIALS_LOOKUP = MATERIAL_LIST.concat([CHEATER_MATERIAL]);
         function addMaterial(id, amount) {
             materials[id] = (materials[id] || 0) + amount;
             showMaterialToast(id, amount);
@@ -1405,7 +1453,7 @@
             }
         }
         function materialName(id) {
-            const m = MATERIAL_LIST.find(m => m.id === id);
+            const m = ALL_MATERIALS_LOOKUP.find(m => m.id === id);
             return m ? m.name : id;
         }
         // Craft recipes: each blessing/passive costs a Stardust fee plus a
@@ -1425,7 +1473,12 @@
             rewind: { sd: 50, mats: { nullfrag: 1, waralloy: 1 } },
             dash:     { sd: 40, mats: { cometice: 2 } },
             overload: { sd: 55, mats: { plasmacore: 1, waralloy: 1 } },
-            gravplate:{ sd: 65, mats: { singularity: 1, nullfrag: 1 } }
+            gravplate:{ sd: 65, mats: { singularity: 1, nullfrag: 1 } },
+            // Not an equippable blessing - crafting this consumes the
+            // materials and immediately purges the Konami cheat instead
+            // (see buyCheatersCure). No Stardust fee, just the grind of
+            // finding 10x Cheater's Alloy out in The Cheater's Desolate.
+            cheaterscure: { sd: 0, mats: { cheateralloy: 10 } }
         };
         // Crafting at the placed Mini Sanctuary works exactly like the real
         // station, but at a markup - both the Stardust fee and material
@@ -1443,6 +1496,7 @@
             const matPart = Object.entries(eff.mats)
                 .map(([id, amt]) => `${amt}x ${materialName(id)}`)
                 .join(' + ');
+            if (eff.sd === 0) return matPart || "Free";
             return matPart ? `${eff.sd} SD + ${matPart}` : `${eff.sd} SD`;
         }
         let highScore = 0;
@@ -1903,6 +1957,10 @@
                         isCheatedRun = true;
                         playSound('cheat');
                         konamiInputIndex = 0;
+                        // The shop is already open here, so surface The
+                        // Cheater's Cure right away instead of waiting for
+                        // the next dock.
+                        updateCraftShopUI();
                     }
                 } else {
                     konamiInputIndex = (e.code === konamiSequence[0]) ? 1 : 0;
@@ -2857,6 +2915,28 @@
             updateShopWallet();
         }
 
+        // Crafting The Cheater's Cure doesn't equip anything - it just
+        // consumes the 10 Cheater's Alloy and wipes the Konami cheat clean,
+        // handing the player back a completely normal run.
+        function buyCheatersCure() {
+            const recipe = CRAFT_RECIPES.cheaterscure;
+            if (!canAffordRecipe(recipe)) {
+                alert(`Missing materials! Need ${craftCostLabel(recipe)}.`);
+                return;
+            }
+            craftRecipe(recipe);
+            isCheatedRun = false;
+            cheatedAbilityMode = null;
+            cheatStatus.textContent = "";
+            const cheatItem = document.getElementById('cheaterscure-item');
+            if (cheatItem) cheatItem.style.display = "none";
+            playSound('crystal');
+            alert("The Cheater's Cure is complete. Your Konami cheat has been purged - you're back to a normal run.");
+            updateCraftShopUI();
+            updateHudDisplay();
+            updateShopWallet();
+        }
+
         function updateGravPlateButton() {
             const btn = document.getElementById('buy-gravplate-btn');
             if (!btn) return;
@@ -2874,13 +2954,20 @@
         function updateCraftShopUI() {
             const pouch = document.getElementById('materials-pouch');
             if (pouch) {
-                pouch.innerHTML = MATERIAL_LIST.map(m => {
+                // Cheater's Alloy only joins the visible pouch once a
+                // Konami cheat is active (or a stray count is somehow still
+                // sitting in the pouch) - it stays invisible to anyone who
+                // never triggered the cheat.
+                const visibleMaterials = (isCheatedRun || (materials.cheateralloy || 0) > 0)
+                    ? MATERIAL_LIST.concat([CHEATER_MATERIAL])
+                    : MATERIAL_LIST;
+                pouch.innerHTML = visibleMaterials.map(m => {
                     const count = materials[m.id] || 0;
                     return `<div class="material-chip"><span class="dot" style="background:${m.color}; box-shadow:0 0 5px ${m.color};"></span><span class="material-chip-text"><span class="material-name">${m.name}: ${count}</span><span class="material-source">${m.biomeName}</span></span></div>`;
                 }).join('');
             }
             for (const type of Object.keys(CRAFT_RECIPES)) {
-                if (type === 'mending' || type === 'beacon' || type === 'gravplate') continue; // handled by their own buttons
+                if (type === 'mending' || type === 'beacon' || type === 'gravplate' || type === 'cheaterscure') continue; // handled by their own buttons
                 const recipe = CRAFT_RECIPES[type];
                 const costEl = document.getElementById(`cost-${type}`);
                 const btn = document.getElementById(`buy-${type}-btn`);
@@ -2890,6 +2977,15 @@
                     costEl.classList.toggle('insufficient', !affordable);
                 }
                 if (btn) btn.disabled = false; // allow click so the alert explains what's missing
+            }
+            // The Cheater's Cure item only ever shows up once a Konami cheat
+            // is actually active - a clean run never sees it.
+            const cheatItem = document.getElementById('cheaterscure-item');
+            if (cheatItem) cheatItem.style.display = isCheatedRun ? "" : "none";
+            const cheatCureCost = document.getElementById('cost-cheaterscure');
+            if (cheatCureCost) {
+                cheatCureCost.textContent = `Craft: ${craftCostLabel(CRAFT_RECIPES.cheaterscure)}`;
+                cheatCureCost.classList.toggle('insufficient', !canAffordRecipe(CRAFT_RECIPES.cheaterscure));
             }
             const mendCost = document.getElementById('cost-mending');
             if (mendCost) {
@@ -3563,7 +3659,11 @@
                         score += c.reward;
                         totalCredits += c.reward;
                         if (c.material) {
-                            addMaterial(c.material, Math.random() < 0.15 ? 2 : 1);
+                            if (c.material === 'cheateralloy') {
+                                if (Math.random() < 0.1) addMaterial(c.material, 1);
+                            } else {
+                                addMaterial(c.material, Math.random() < 0.15 ? 2 : 1);
+                            }
                         }
                         playSound('crystal');
                         crystals.splice(i, 1);
@@ -3891,7 +3991,10 @@
                             obstacles.splice(j, 1);
                             score += obs.reward || 5;
                             totalCredits += obs.reward || 5;
-                            if (obs.material && Math.random() < 0.12) addMaterial(obs.material, 1);
+                            if (obs.material) {
+                                const dropChance = obs.material === 'cheateralloy' ? 0.1 : 0.12;
+                                if (Math.random() < dropChance) addMaterial(obs.material, 1);
+                            }
                             playSound('score');
                             scoreDisplay.textContent = `STARDUST: ${score}`;
                         }
@@ -3912,7 +4015,10 @@
                             aliens.splice(j, 1);
                             score += a.reward || 10;
                             totalCredits += a.reward || 10;
-                            if (a.material && Math.random() < (a.isGuardian ? 0.4 : 0.2)) addMaterial(a.material, 1);
+                            if (a.material) {
+                                const dropChance = a.material === 'cheateralloy' ? 0.1 : (a.isGuardian ? 0.4 : 0.2);
+                                if (Math.random() < dropChance) addMaterial(a.material, 1);
+                            }
                             playSound('score');
                             scoreDisplay.textContent = `STARDUST: ${score}`;
                         }
