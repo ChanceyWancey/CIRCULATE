@@ -582,6 +582,10 @@
         .emblem-shape-btn:hover {
             border-color: #ffd166;
         }
+        .emblem-shape-btn.selected {
+            border-color: #f7ede2;
+            box-shadow: 0 0 8px rgba(255,255,255,0.7);
+        }
 
         .emblem-color-btn {
             width: 24px;
@@ -749,6 +753,81 @@
             padding: 8px 12px;
             font-size: 0.85rem;
         }
+
+        /* Rocket Editor: grouped into labeled, bordered sections stacked in
+           a scrollable column, with a tab strip for the three cosmetic
+           palettes so only one is on screen at a time. */
+        #emblem-screen {
+            overflow-y: auto;
+            justify-content: flex-start;
+            padding-top: 24px;
+            padding-bottom: 24px;
+        }
+
+        .emblem-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            width: 100%;
+            max-width: 480px;
+            margin: 0 0 12px 0;
+            padding: 10px 16px 14px;
+            border: 1px solid #453a56;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .emblem-section-title {
+            align-self: center;
+            font-size: 0.68rem;
+            letter-spacing: 1.5px;
+            color: #ffd166;
+            opacity: 0.9;
+            text-transform: uppercase;
+            margin-bottom: 2px;
+        }
+
+        .emblem-tabs {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 8px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .emblem-tab-btn {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid #453a56;
+            color: #c7b198;
+            padding: 6px 14px;
+            font-size: 0.68rem;
+            letter-spacing: 0.8px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: 'Georgia', serif;
+            transition: all 0.2s ease;
+        }
+        .emblem-tab-btn:hover {
+            border-color: #ffd166;
+            color: #f7ede2;
+        }
+        .emblem-tab-btn.active {
+            background: #382e4e;
+            border-color: #ffd166;
+            color: #ffd166;
+        }
+
+        .emblem-tab-panel.hidden {
+            display: none;
+        }
+
+        #emoji-input-btn.hidden {
+            display: none;
+        }
+        #emoji-input-btn {
+            margin-top: 8px;
+        }
     </style>
 </head>
 <body>
@@ -791,35 +870,62 @@
         <div id="emblem-screen" class="screen hidden">
             <h2>ROCKET EDITOR</h2>
             <p>Tap a shape to add it, drag it around the ship, then use the controls to recolor, resize, and reorder layers.</p>
-            <div id="emblem-workspace">
-                <canvas id="emblem-canvas" width="280" height="280"></canvas>
-                <div id="emblem-layer-panel">
-                    <div class="emblem-panel-label">LAYERS</div>
-                    <div id="emblem-layer-list"></div>
+            <div class="emblem-section">
+                <div class="emblem-section-title">Ship Canvas</div>
+                <div id="emblem-workspace">
+                    <canvas id="emblem-canvas" width="280" height="280"></canvas>
+                    <div id="emblem-layer-panel">
+                        <div class="emblem-panel-label">LAYERS</div>
+                        <div id="emblem-layer-list"></div>
+                    </div>
                 </div>
             </div>
-            <div class="emblem-crate-section">
-                <div id="emblem-crate-wallet">STARDUST POUCH: 0 SD</div>
-                <button class="btn" id="open-crate-btn">OPEN STARDUST CRATE — 30 SD</button>
-                <div style="font-size:0.62rem; color:#9b8da9; max-width:260px; text-align:center;">
-                    Every shape, color, and even the freeform color picker is locked until you gamble Stardust for it. Odds — Common 55% · Rare 30% · Legendary 12% · Mythic 3%. Duplicate pulls refund half the cost.
+
+            <div class="emblem-section">
+                <div class="emblem-section-title">Stardust Crate</div>
+                <div class="emblem-crate-section">
+                    <div id="emblem-crate-wallet">STARDUST POUCH: 0 SD</div>
+                    <button class="btn" id="open-crate-btn">OPEN STARDUST CRATE — 30 SD</button>
+                    <div style="font-size:0.62rem; color:#9b8da9; max-width:260px; text-align:center;">
+                        Every shape, color, thruster trail, and even the freeform color picker is locked until you gamble Stardust for it. Odds — Common 55% · Rare 30% · Legendary 12% · Mythic 3%. Duplicate pulls refund half the cost.
+                    </div>
                 </div>
             </div>
-            <div class="emblem-palette-label">SHAPES</div>
-            <div id="emblem-shape-palette" class="emblem-palette"></div>
-            <div class="emblem-palette-label">COLORS</div>
-            <div id="emblem-color-palette" class="emblem-palette"></div>
-            <div class="emblem-controls">
-                <button class="btn emblem-ctrl-btn" id="emblem-rotate-left" title="Rotate left">⟲</button>
-                <button class="btn emblem-ctrl-btn" id="emblem-rotate-right" title="Rotate right">⟳</button>
-                <button class="btn emblem-ctrl-btn" id="emblem-scale-down" title="Smaller">&minus;</button>
-                <button class="btn emblem-ctrl-btn" id="emblem-scale-up" title="Bigger">+</button>
-                <button class="btn emblem-ctrl-btn" id="emblem-layer-back" title="Send backward">Back</button>
-                <button class="btn emblem-ctrl-btn" id="emblem-layer-front" title="Bring forward">Front</button>
-                <button class="btn emblem-ctrl-btn" id="emblem-duplicate-btn" title="Duplicate layer">Duplicate</button>
-                <button class="btn btn-warm emblem-ctrl-btn" id="emblem-delete-btn" title="Delete layer">Delete</button>
+
+            <div class="emblem-section">
+                <div class="emblem-section-title">Appearance</div>
+                <div class="emblem-tabs">
+                    <button class="emblem-tab-btn active" data-emblem-tab="shape">SHAPES</button>
+                    <button class="emblem-tab-btn" data-emblem-tab="color">COLORS</button>
+                    <button class="emblem-tab-btn" data-emblem-tab="trail">THRUSTER TRAIL</button>
+                </div>
+                <div class="emblem-tab-panel" id="emblem-tab-shape">
+                    <div id="emblem-shape-palette" class="emblem-palette"></div>
+                </div>
+                <div class="emblem-tab-panel hidden" id="emblem-tab-color">
+                    <div id="emblem-color-palette" class="emblem-palette"></div>
+                </div>
+                <div class="emblem-tab-panel hidden" id="emblem-tab-trail">
+                    <div id="emblem-trail-palette" class="emblem-palette"></div>
+                    <button class="btn emblem-ctrl-btn hidden" id="emoji-input-btn" title="Set your thruster emoji">SET EMOJI</button>
+                </div>
             </div>
-            <div class="btn-group" style="margin-top: 14px;">
+
+            <div class="emblem-section">
+                <div class="emblem-section-title">Transform Selected Layer</div>
+                <div class="emblem-controls">
+                    <button class="btn emblem-ctrl-btn" id="emblem-rotate-left" title="Rotate left">⟲</button>
+                    <button class="btn emblem-ctrl-btn" id="emblem-rotate-right" title="Rotate right">⟳</button>
+                    <button class="btn emblem-ctrl-btn" id="emblem-scale-down" title="Smaller">&minus;</button>
+                    <button class="btn emblem-ctrl-btn" id="emblem-scale-up" title="Bigger">+</button>
+                    <button class="btn emblem-ctrl-btn" id="emblem-layer-back" title="Send backward">Back</button>
+                    <button class="btn emblem-ctrl-btn" id="emblem-layer-front" title="Bring forward">Front</button>
+                    <button class="btn emblem-ctrl-btn" id="emblem-duplicate-btn" title="Duplicate layer">Duplicate</button>
+                    <button class="btn btn-warm emblem-ctrl-btn" id="emblem-delete-btn" title="Delete layer">Delete</button>
+                </div>
+            </div>
+
+            <div class="btn-group" style="margin-top: 2px;">
                 <button class="btn" id="emblem-save-btn">SAVE &amp; RETURN</button>
                 <button class="btn" id="emblem-clear-btn">CLEAR ALL</button>
                 <button class="btn btn-warm" id="emblem-cancel-btn">CANCEL</button>
@@ -1885,6 +1991,18 @@
         let isCheatedRun = false;
         let cheatedAbilityMode = null;
 
+        // All game logic (movement, spawns, fuel drain, cooldown timers)
+        // is written assuming one update per frame at a target pace. This
+        // fixed timestep accumulator locks the SIMULATION to a steady
+        // 144Hz on every display, while draw() still runs once per real
+        // frame - so on a 60Hz display the loop below just runs update()
+        // more than once per rendered frame to keep the same real-time
+        // pace, rather than the game slowing down to match the monitor.
+        const FIXED_DT_MS = 1000 / 144;
+        const MAX_STEPS_PER_FRAME = 12; // avoids a "spiral of death" after tab-switches/lag spikes, while still letting a 60Hz display catch up to the 144Hz sim rate
+        let simAccumulator = 0;
+        let lastFrameTime = 0;
+
         let fuel = 100;
         let maxFuel = 100;
 
@@ -2023,10 +2141,19 @@
                         unlockedCosmetics = {
                             shapes: parsed.shapes,
                             colors: parsed.colors,
-                            features: Array.isArray(parsed.features) ? parsed.features : []
+                            features: Array.isArray(parsed.features) ? parsed.features : [],
+                            trails: Array.isArray(parsed.trails) ? parsed.trails : []
                         };
                     }
                 }
+            } catch (e) {}
+            try {
+                const savedTrail = localStorage.getItem("stellarDrift_trail");
+                if (savedTrail) equippedTrail = savedTrail;
+            } catch (e) {}
+            try {
+                const savedEmoji = localStorage.getItem("stellarDrift_emoji");
+                if (savedEmoji) equippedEmoji = savedEmoji;
             } catch (e) {}
             applyUpgradeStats();
             fuel = maxFuel;
@@ -2437,9 +2564,96 @@
         // The lone mythic pull: unlocks the freeform color picker itself.
         const MYTHIC_FEATURE = { id: 'custom_picker', rarity: 'mythic', name: 'Custom Color Picker' };
 
+        // Thruster trail cosmetics - alternate engine exhaust looks, gated
+        // behind the same crate pulls as ship shapes/colors. Each entry's
+        // actual look (shape/color/behavior) lives in TRAIL_STYLE_PARAMS,
+        // keyed by the same type id, and (aside from the emoji trail, which
+        // renders a chosen character instead) reuses the shared
+        // drawEmblemShape renderer so no separate icon-drawing code is
+        // needed for the rest.
+        const CRATE_TRAILS = [
+            { type: 'frost', rarity: 'common', name: 'Frost Trail' },
+            { type: 'ember', rarity: 'common', name: 'Ember Trail' },
+            { type: 'bubble', rarity: 'common', name: 'Bubble Trail' },
+            { type: 'comettail', rarity: 'rare', name: 'Comet Tail' },
+            { type: 'plasmaarc', rarity: 'rare', name: 'Plasma Arc' },
+            { type: 'starburst', rarity: 'rare', name: 'Starburst' },
+            { type: 'toxicooze', rarity: 'rare', name: 'Toxic Ooze' },
+            { type: 'novaflare', rarity: 'legendary', name: 'Nova Flare' },
+            { type: 'quantumrift', rarity: 'legendary', name: 'Quantum Rift' },
+            // Mythic trail: exhaust particles become a player-chosen emoji
+            // instead of a drawn shape. Rolled from the same mythic slot as
+            // the Custom Color Picker (see MYTHIC_FEATURE / openLootCrate).
+            { type: 'emoji', rarity: 'mythic', name: 'Emoji Trail' }
+        ];
+        const TRAIL_STYLE_PARAMS = {
+            frost:       { shape: 'snowflake',     color: '#a8e6ff', size: [2.6, 4.4], count: 1, decay: 0.045, glow: 5 },
+            ember:       { shape: 'flame',         color: '#ff6b35', size: [2.4, 4.2],   count: 1, decay: 0.08,  glow: 5 },
+            bubble:      { shape: 'bubblecluster', color: '#00fff7', size: [2.8, 4.8],     count: 1, decay: 0.05,  glow: 4 },
+            comettail:   { shape: 'streak',        color: '#3a86ff', size: [4, 6.5],     count: 1, decay: 0.045, glow: 6 },
+            plasmaarc:   { shape: 'arcbolt',       color: '#c9a7ff', size: [3.5, 5.5],   count: 2, decay: 0.07,  glow: 6 },
+            starburst:   { shape: 'burst',         color: '#ffd166', size: [3, 4.8],   count: 1, decay: 0.06,  glow: 5 },
+            toxicooze:   { shape: 'drip',          color: '#39ff14', size: [4, 6.5],   count: 1, decay: 0.035, glow: 5 },
+            novaflare:   { shape: 'nova',     cycle: ['#ff003c', '#ff8800', '#ffd166'], size: [4, 6.2],   count: 2, decay: 0.05, glow: 8 },
+            quantumrift: { shape: 'infinity', rainbow: true, size: [3.5, 5.8], count: 2, decay: 0.05, glow: 8 },
+            emoji:       { shape: 'emoji', color: '#ffd166', size: [11, 15], count: 1, decay: 0.045, glow: 0 }
+        };
+        // null = the always-available default "Classic Spark" look, same
+        // as the game's original hardcoded thrust particles.
+        let equippedTrail = null;
+        function saveEquippedTrail() {
+            try { localStorage.setItem("stellarDrift_trail", equippedTrail || ""); } catch (e) {}
+        }
+
+        // The Emoji trail (mythic) replaces exhaust particles with a single
+        // player-chosen character instead of a drawn shape. Grabbing the
+        // first grapheme (not just the first UTF-16 code unit) matters here
+        // because many emoji - flags, skin-tone variants, family/ZWJ
+        // sequences - are made of several code points that must stay
+        // together or you get a broken half-glyph.
+        let equippedEmoji = '✨';
+        function firstGrapheme(str) {
+            if (window.Intl && Intl.Segmenter) {
+                try {
+                    const seg = new Intl.Segmenter(undefined, { granularity: 'grapheme' });
+                    const first = seg.segment(str)[Symbol.iterator]().next();
+                    if (!first.done) return first.value.segment;
+                } catch (e) {}
+            }
+            return Array.from(str)[0] || '';
+        }
+        function saveEquippedEmoji() {
+            try { localStorage.setItem("stellarDrift_emoji", equippedEmoji); } catch (e) {}
+        }
+
+        // Rendering an emoji particle with fillText() every frame is far
+        // pricier than a path fill - the browser has to shape/color-render
+        // the glyph from scratch each call, and doing that for every live
+        // thrust particle every frame is what caused the frame drops.
+        // Instead, render each distinct emoji once onto a small offscreen
+        // canvas and blit that bitmap with drawImage from then on, which is
+        // just a cheap image copy.
+        const EMOJI_SPRITE_SIZE = 48;
+        const emojiSpriteCache = new Map();
+        function getEmojiSprite(emoji) {
+            let sprite = emojiSpriteCache.get(emoji);
+            if (!sprite) {
+                sprite = document.createElement('canvas');
+                sprite.width = EMOJI_SPRITE_SIZE;
+                sprite.height = EMOJI_SPRITE_SIZE;
+                const sctx = sprite.getContext('2d');
+                sctx.font = `${EMOJI_SPRITE_SIZE * 0.82}px sans-serif`;
+                sctx.textAlign = 'center';
+                sctx.textBaseline = 'middle';
+                sctx.fillText(emoji, EMOJI_SPRITE_SIZE / 2, EMOJI_SPRITE_SIZE / 2 + 1);
+                emojiSpriteCache.set(emoji, sprite);
+            }
+            return sprite;
+        }
+
         // Unlocked crate cosmetics persist across sessions (unlike the
         // Stardust pouch itself, which intentionally resets on refresh).
-        let unlockedCosmetics = { shapes: [], colors: [], features: [] };
+        let unlockedCosmetics = { shapes: [], colors: [], features: [], trails: [] };
 
         function saveUnlockedCosmetics() {
             try {
@@ -2481,25 +2695,47 @@
             const rarity = pickWeightedRarity();
 
             if (rarity === 'mythic') {
-                const alreadyOwned = unlockedCosmetics.features.includes(MYTHIC_FEATURE.id);
-                if (alreadyOwned) {
-                    totalCredits += CRATE_PITY_REFUND;
-                    updateCrateUI();
-                    saveGameData();
+                // Mythic slot now has two possible pulls: the freeform color
+                // picker feature, or the Emoji thruster trail. Picked
+                // uniformly each time this slot is rolled.
+                const mythicTrails = CRATE_TRAILS.filter(t => t.rarity === 'mythic');
+                const mythicPool = [{ kind: 'feature', item: MYTHIC_FEATURE }, ...mythicTrails.map(t => ({ kind: 'trail', item: t }))];
+                const picked = mythicPool[Math.floor(Math.random() * mythicPool.length)];
+
+                if (picked.kind === 'feature') {
+                    const alreadyOwned = unlockedCosmetics.features.includes(picked.item.id);
+                    if (alreadyOwned) {
+                        totalCredits += CRATE_PITY_REFUND;
+                        updateCrateUI();
+                        saveGameData();
+                    } else {
+                        unlockedCosmetics.features.push(picked.item.id);
+                        saveUnlockedCosmetics();
+                        buildEmblemPalettes();
+                    }
+                    showCrateReveal(picked.item, 'mythic', 'feature', alreadyOwned);
                 } else {
-                    unlockedCosmetics.features.push(MYTHIC_FEATURE.id);
-                    saveUnlockedCosmetics();
-                    buildEmblemPalettes();
+                    const alreadyOwned = unlockedCosmetics.trails.includes(picked.item.type);
+                    if (alreadyOwned) {
+                        totalCredits += CRATE_PITY_REFUND;
+                        updateCrateUI();
+                        saveGameData();
+                    } else {
+                        unlockedCosmetics.trails.push(picked.item.type);
+                        saveUnlockedCosmetics();
+                        buildEmblemPalettes();
+                    }
+                    showCrateReveal(picked.item, 'mythic', 'trail', alreadyOwned);
                 }
-                showCrateReveal(MYTHIC_FEATURE, 'mythic', 'feature', alreadyOwned);
                 return;
             }
 
-            const wantShape = Math.random() < 0.5;
-            const pool = (wantShape ? CRATE_SHAPES : CRATE_COLORS).filter(i => i.rarity === rarity);
+            const kindRoll = Math.random();
+            const kind = kindRoll < (1 / 3) ? 'shape' : (kindRoll < (2 / 3) ? 'color' : 'trail');
+            const pool = (kind === 'shape' ? CRATE_SHAPES : kind === 'color' ? CRATE_COLORS : CRATE_TRAILS).filter(i => i.rarity === rarity);
             const item = pool[Math.floor(Math.random() * pool.length)];
-            const key = wantShape ? item.type : item.color;
-            const bucket = wantShape ? unlockedCosmetics.shapes : unlockedCosmetics.colors;
+            const key = kind === 'color' ? item.color : item.type;
+            const bucket = kind === 'shape' ? unlockedCosmetics.shapes : kind === 'color' ? unlockedCosmetics.colors : unlockedCosmetics.trails;
             const alreadyOwned = bucket.includes(key);
 
             if (alreadyOwned) {
@@ -2512,7 +2748,7 @@
                 buildEmblemPalettes();
             }
 
-            showCrateReveal(item, rarity, wantShape ? 'shape' : 'color', alreadyOwned);
+            showCrateReveal(item, rarity, kind, alreadyOwned);
         }
 
         function showCrateReveal(item, rarity, kind, alreadyOwned) {
@@ -2540,6 +2776,19 @@
                     rctx.beginPath();
                     rctx.arc(0, 0, 30, 0, Math.PI * 2);
                     rctx.fill();
+                } else if (kind === 'trail') {
+                    const params = TRAIL_STYLE_PARAMS[item.type];
+                    if (params.shape === 'emoji') {
+                        rctx.font = '40px sans-serif';
+                        rctx.textAlign = 'center';
+                        rctx.textBaseline = 'middle';
+                        rctx.fillText(equippedEmoji || '✨', 0, 2);
+                    } else {
+                        const previewColor = params.rainbow ? '#c9a7ff' : (params.cycle ? params.cycle[0] : params.color);
+                        rctx.shadowBlur = params.glow || 6;
+                        rctx.shadowColor = previewColor;
+                        drawEmblemShape(rctx, params.shape, 26, previewColor);
+                    }
                 } else {
                     // Mythic "feature" unlock — draw a little rainbow dial icon.
                     const grad = rctx.createConicGradient ? rctx.createConicGradient(0, 0, 0) : null;
@@ -2577,6 +2826,7 @@
         const emblemCtx = emblemCanvas ? emblemCanvas.getContext('2d') : null;
         const emblemShapePalette = document.getElementById('emblem-shape-palette');
         const emblemColorPalette = document.getElementById('emblem-color-palette');
+        const emblemTrailPalette = document.getElementById('emblem-trail-palette');
         const emblemLayerList = document.getElementById('emblem-layer-list');
 
         let editorLayers = [];
@@ -2742,6 +2992,97 @@
                     ctxRef.bezierCurveTo(-size * 0.5, -size * 0.9, -size, size * 0.9, 0, 0);
                     ctxRef.bezierCurveTo(size * 0.5, -size * 0.9, size, size * 0.9, 0, 0);
                     ctxRef.stroke();
+                    break;
+                // The following shapes are exclusive to thruster trail
+                // cosmetics (see TRAIL_STYLE_PARAMS) so trail icons never
+                // reuse a ship-emblem shape's silhouette.
+                case 'flame':
+                    ctxRef.beginPath();
+                    ctxRef.moveTo(0, -size);
+                    ctxRef.quadraticCurveTo(size * 0.75, -size * 0.2, size * 0.4, size * 0.35);
+                    ctxRef.quadraticCurveTo(size * 0.55, size * 0.05, size * 0.2, size * 0.55);
+                    ctxRef.quadraticCurveTo(size * 0.3, size * 0.85, 0, size);
+                    ctxRef.quadraticCurveTo(-size * 0.3, size * 0.85, -size * 0.2, size * 0.55);
+                    ctxRef.quadraticCurveTo(-size * 0.55, size * 0.05, -size * 0.4, size * 0.35);
+                    ctxRef.quadraticCurveTo(-size * 0.75, -size * 0.2, 0, -size);
+                    ctxRef.closePath();
+                    ctxRef.fill();
+                    break;
+                case 'snowflake': {
+                    ctxRef.lineWidth = Math.max(1, size * 0.16);
+                    for (let i = 0; i < 3; i++) {
+                        const a = (Math.PI / 3) * i;
+                        const dx = Math.cos(a) * size, dy = Math.sin(a) * size;
+                        ctxRef.beginPath();
+                        ctxRef.moveTo(-dx, -dy);
+                        ctxRef.lineTo(dx, dy);
+                        ctxRef.stroke();
+                        // little ticks near each arm's tip, both directions
+                        [0.55, -0.55].forEach(sign => {
+                            [1, -1].forEach(end => {
+                                const bx = dx * end, by = dy * end;
+                                const tx = bx * 0.7, ty = by * 0.7;
+                                const perpX = -dy * sign * 0.35, perpY = dx * sign * 0.35;
+                                ctxRef.beginPath();
+                                ctxRef.moveTo(tx, ty);
+                                ctxRef.lineTo(tx + perpX, ty + perpY);
+                                ctxRef.stroke();
+                            });
+                        });
+                    }
+                    break;
+                }
+                case 'bubblecluster':
+                    ctxRef.beginPath();
+                    ctxRef.arc(-size * 0.32, size * 0.28, size * 0.4, 0, Math.PI * 2);
+                    ctxRef.fill();
+                    ctxRef.beginPath();
+                    ctxRef.arc(size * 0.35, size * 0.15, size * 0.3, 0, Math.PI * 2);
+                    ctxRef.fill();
+                    ctxRef.beginPath();
+                    ctxRef.arc(size * 0.02, -size * 0.4, size * 0.45, 0, Math.PI * 2);
+                    ctxRef.fill();
+                    break;
+                case 'streak':
+                    ctxRef.beginPath();
+                    ctxRef.moveTo(0, -size);
+                    ctxRef.quadraticCurveTo(size * 0.22, -size * 0.1, size * 0.06, size * 0.6);
+                    ctxRef.quadraticCurveTo(0, size, -size * 0.06, size * 0.6);
+                    ctxRef.quadraticCurveTo(-size * 0.22, -size * 0.1, 0, -size);
+                    ctxRef.closePath();
+                    ctxRef.fill();
+                    break;
+                case 'arcbolt':
+                    ctxRef.lineWidth = Math.max(1.5, size * 0.28);
+                    ctxRef.lineCap = 'round';
+                    ctxRef.beginPath();
+                    ctxRef.moveTo(-size * 0.8, size * 0.6);
+                    ctxRef.quadraticCurveTo(-size * 0.5, -size * 0.9, 0, -size * 0.1);
+                    ctxRef.quadraticCurveTo(size * 0.5, size * 0.7, size * 0.8, -size * 0.6);
+                    ctxRef.stroke();
+                    ctxRef.lineCap = 'butt';
+                    break;
+                case 'burst': {
+                    const rays = 6;
+                    ctxRef.lineWidth = Math.max(1.5, size * 0.25);
+                    for (let i = 0; i < rays; i++) {
+                        const a = (Math.PI / rays) * i;
+                        ctxRef.beginPath();
+                        ctxRef.moveTo(Math.cos(a) * size * 0.3, Math.sin(a) * size * 0.3);
+                        ctxRef.lineTo(Math.cos(a) * size, Math.sin(a) * size);
+                        ctxRef.moveTo(-Math.cos(a) * size * 0.3, -Math.sin(a) * size * 0.3);
+                        ctxRef.lineTo(-Math.cos(a) * size, -Math.sin(a) * size);
+                        ctxRef.stroke();
+                    }
+                    break;
+                }
+                case 'drip':
+                    ctxRef.beginPath();
+                    ctxRef.moveTo(0, -size);
+                    ctxRef.quadraticCurveTo(size * 0.85, size * 0.35, 0, size);
+                    ctxRef.quadraticCurveTo(-size * 0.85, size * 0.35, 0, -size);
+                    ctxRef.closePath();
+                    ctxRef.fill();
                     break;
             }
         }
@@ -2941,6 +3282,90 @@
                 pickerWrap.appendChild(picker);
                 emblemColorPalette.appendChild(pickerWrap);
             }
+            if (emblemTrailPalette) {
+                emblemTrailPalette.innerHTML = '';
+
+                // "Classic Spark" - the original always-available default
+                // look, sitting first so there's always a way back to it.
+                const classicBtn = document.createElement('canvas');
+                classicBtn.width = 32; classicBtn.height = 32;
+                classicBtn.className = 'emblem-shape-btn' + (!equippedTrail ? ' selected' : '');
+                classicBtn.title = 'Classic Spark (default)';
+                const cctx = classicBtn.getContext('2d');
+                cctx.save();
+                cctx.translate(16, 16);
+                cctx.shadowBlur = 6;
+                cctx.shadowColor = '#ff8800';
+                drawEmblemShape(cctx, 'circle', 11, '#ff8800');
+                cctx.restore();
+                classicBtn.addEventListener('click', () => {
+                    equippedTrail = null;
+                    saveEquippedTrail();
+                    buildEmblemPalettes();
+                });
+                emblemTrailPalette.appendChild(classicBtn);
+
+                CRATE_TRAILS.forEach(entry => {
+                    const { type, rarity, name } = entry;
+                    const locked = !unlockedCosmetics.trails.includes(type);
+                    const params = TRAIL_STYLE_PARAMS[type];
+                    const previewColor = params.rainbow ? '#c9a7ff' : (params.cycle ? params.cycle[0] : params.color);
+                    const btn = document.createElement('canvas');
+                    btn.width = 32; btn.height = 32;
+                    btn.className = 'emblem-shape-btn' + (rarity ? ' rarity-' + rarity : '') + (locked ? ' emblem-locked' : '') + (equippedTrail === type ? ' selected' : '');
+                    btn.title = locked ? `${name} (locked — open a crate)` : name;
+                    const bctx = btn.getContext('2d');
+                    bctx.save();
+                    bctx.translate(16, 16);
+                    if (params.shape === 'emoji') {
+                        if (locked) {
+                            bctx.font = '16px sans-serif';
+                            bctx.fillStyle = '#6c5b7b';
+                            bctx.textAlign = 'center';
+                            bctx.textBaseline = 'middle';
+                            bctx.fillText('?', 0, 1);
+                        } else {
+                            bctx.font = '18px sans-serif';
+                            bctx.textAlign = 'center';
+                            bctx.textBaseline = 'middle';
+                            bctx.fillText(equippedEmoji || '✨', 0, 1);
+                        }
+                    } else {
+                        if (!locked) {
+                            bctx.shadowBlur = params.glow || 6;
+                            bctx.shadowColor = previewColor;
+                        }
+                        drawEmblemShape(bctx, params.shape, 11, locked ? '#6c5b7b' : previewColor);
+                    }
+                    bctx.restore();
+                    btn.addEventListener('click', () => {
+                        if (locked) {
+                            btn.classList.remove('crate-shake');
+                            void btn.offsetWidth;
+                            btn.classList.add('crate-shake');
+                            return;
+                        }
+                        equippedTrail = type;
+                        saveEquippedTrail();
+                        buildEmblemPalettes();
+                    });
+                    emblemTrailPalette.appendChild(btn);
+                });
+
+                // The Emoji trail needs a way to type/paste a character in,
+                // so its "SET EMOJI" button only shows up once it's both
+                // unlocked and actually equipped.
+                const emojiBtn = document.getElementById('emoji-input-btn');
+                if (emojiBtn) {
+                    const emojiUnlocked = unlockedCosmetics.trails.includes('emoji');
+                    if (equippedTrail === 'emoji' && emojiUnlocked) {
+                        emojiBtn.classList.remove('hidden');
+                        emojiBtn.textContent = `THRUSTER EMOJI: ${equippedEmoji}  (tap to change)`;
+                    } else {
+                        emojiBtn.classList.add('hidden');
+                    }
+                }
+            }
         }
 
         function emblemPointerPos(evt) {
@@ -3111,7 +3536,30 @@
             renderEmblemLayerList();
             updateCrateUI();
         });
+        // Rocket Editor "Appearance" tab strip - toggles which of the
+        // shape/color/thruster-trail palettes is visible so the section
+        // shows one cosmetic category at a time instead of a long stack.
+        document.querySelectorAll('.emblem-tab-btn').forEach(tabBtn => {
+            tabBtn.addEventListener('click', () => {
+                const target = tabBtn.dataset.emblemTab;
+                document.querySelectorAll('.emblem-tab-btn').forEach(b => b.classList.toggle('active', b === tabBtn));
+                ['shape', 'color', 'trail'].forEach(name => {
+                    document.getElementById('emblem-tab-' + name).classList.toggle('hidden', name !== target);
+                });
+            });
+        });
         document.getElementById('open-crate-btn').addEventListener('click', openLootCrate);
+        document.getElementById('emoji-input-btn').addEventListener('click', () => {
+            const input = window.prompt('Enter an emoji for your thruster trail:', equippedEmoji);
+            if (input === null) return; // cancelled
+            const trimmed = input.trim();
+            if (!trimmed) return;
+            const chosen = firstGrapheme(trimmed);
+            if (!chosen) return;
+            equippedEmoji = chosen;
+            saveEquippedEmoji();
+            buildEmblemPalettes();
+        });
         document.getElementById('crate-reveal-close-btn').addEventListener('click', () => {
             document.getElementById('crate-reveal-overlay').classList.add('hidden');
             updateCrateUI();
@@ -3126,6 +3574,8 @@
                 showScreen(pauseScreen);
             } else {
                 pauseScreen.classList.add("hidden");
+                lastFrameTime = 0;
+                simAccumulator = 0;
                 loop();
             }
         }
@@ -3168,6 +3618,8 @@
             // again here would start a second, duplicate update chain.
             if (gamePaused) {
                 gamePaused = false;
+                lastFrameTime = 0;
+                simAccumulator = 0;
                 loop();
             }
         }
@@ -3688,6 +4140,8 @@
 
             gameRunning = true;
             gamePaused = false;
+            lastFrameTime = 0;
+            simAccumulator = 0;
             scoreDisplay.textContent = `STARDUST: ${score}`;
             updateHudDisplay();
 
@@ -4030,16 +4484,38 @@
                 const backX = player.x - Math.cos(moveAngle) * 10;
                 const backY = player.y - Math.sin(moveAngle) * 10;
 
-                particles.push({
-                    x: backX + (Math.random() - 0.5) * 4,
-                    y: backY + (Math.random() - 0.5) * 4,
-                    vx: -player.vx * 0.3 + (Math.random() - 0.5) * 0.8,
-                    vy: -player.vy * 0.3 + (Math.random() - 0.5) * 0.8,
-                    color: isCheatedRun ? "#ffd166" : "#ff8800",
-                    size: Math.random() * 3.5 + 1.5,
-                    life: 1.0,
-                    decay: 0.06
-                });
+                const trail = equippedTrail ? TRAIL_STYLE_PARAMS[equippedTrail] : null;
+                const spawnCount = trail ? trail.count : 1;
+                for (let n = 0; n < spawnCount; n++) {
+                    let pColor;
+                    if (isCheatedRun) {
+                        pColor = "#ffd166";
+                    } else if (trail && trail.rainbow) {
+                        pColor = `hsl(${Math.floor((Date.now() / 4 + n * 50) % 360)}, 100%, 65%)`;
+                    } else if (trail && trail.cycle) {
+                        pColor = trail.cycle[Math.floor(Math.random() * trail.cycle.length)];
+                    } else if (trail) {
+                        pColor = trail.color;
+                    } else {
+                        pColor = "#ff8800";
+                    }
+                    const pSize = trail ? (trail.size[0] + Math.random() * (trail.size[1] - trail.size[0])) : (Math.random() * 3.5 + 1.5);
+
+                    particles.push({
+                        x: backX + (Math.random() - 0.5) * 4,
+                        y: backY + (Math.random() - 0.5) * 4,
+                        vx: -player.vx * 0.3 + (Math.random() - 0.5) * 0.8,
+                        vy: -player.vy * 0.3 + (Math.random() - 0.5) * 0.8,
+                        color: pColor,
+                        size: pSize,
+                        life: 1.0,
+                        decay: trail ? trail.decay : 0.06,
+                        shape: trail ? trail.shape : 'circle',
+                        glow: trail ? trail.glow : 6,
+                        angle: moveAngle,
+                        emoji: (trail && trail.shape === 'emoji') ? equippedEmoji : null
+                    });
+                }
             }
 
             player.x += player.vx;
@@ -4571,6 +5047,50 @@
             ctx.restore();
         }
 
+        function drawOutpostPointer(ox, oy) {
+            const margin = 44;
+            const cx = canvas.width / 2;
+            const cy = canvas.height / 2;
+
+            const onScreen = ox > margin && ox < canvas.width - margin &&
+                              oy > margin && oy < canvas.height - margin;
+            if (onScreen) return;
+
+            const angle = Math.atan2(oy - cy, ox - cx);
+            const dx = Math.cos(angle) || 0.0001;
+            const dy = Math.sin(angle) || 0.0001;
+            const halfW = canvas.width / 2 - margin - 26; // sits just inside the sanctuary pointer's ring
+            const halfH = canvas.height / 2 - margin - 26;
+            const scale = Math.min(Math.abs(halfW / dx), Math.abs(halfH / dy));
+            const px = cx + dx * scale;
+            const py = cy + dy * scale;
+
+            const dist = Math.hypot(player.x - outpost.x, player.y - outpost.y);
+            const pulse = (Math.sin(Date.now() / 300) + 1) / 2;
+
+            ctx.save();
+            ctx.translate(px, py);
+            ctx.rotate(angle + Math.PI / 2);
+            ctx.shadowBlur = 8 + pulse * 6;
+            ctx.shadowColor = "#8ee3ff";
+            ctx.fillStyle = "#8ee3ff";
+            ctx.beginPath();
+            ctx.moveTo(0, -11);
+            ctx.lineTo(-8, 8);
+            ctx.lineTo(0, 3);
+            ctx.lineTo(8, 8);
+            ctx.closePath();
+            ctx.fill();
+            ctx.restore();
+
+            ctx.save();
+            ctx.font = "bold 10px 'Segoe UI', sans-serif";
+            ctx.fillStyle = "#8ee3ff";
+            ctx.textAlign = "center";
+            ctx.fillText(`MINI SANCTUARY — ${Math.round(dist)}m`, px, py + (dy > 0 ? 22 : -14));
+            ctx.restore();
+        }
+
         function drawBeaconPointer(tx, ty, color, label) {
             const margin = 44;
             const cx = canvas.width / 2;
@@ -4760,6 +5280,10 @@
 
             drawSanctuaryPointer(sx, sy);
 
+            if (outpost) {
+                drawOutpostPointer(outpost.x - camX, outpost.y - camY);
+            }
+
             if (player.hasBeacon && beaconTarget) {
                 const targetBiome = BIOMES[WILD_BIOME_IDS[beaconTargetIndex]];
                 drawBeaconPointer(beaconTarget.x - camX, beaconTarget.y - camY, targetBiome.starColor, targetBiome.name);
@@ -4858,11 +5382,36 @@
                 ctx.save();
                 ctx.globalAlpha = p.life;
                 ctx.fillStyle = p.color;
-                ctx.shadowBlur = 6;
+                ctx.strokeStyle = p.color;
+                if (p.shape === 'emoji') {
+                    // Emoji glyphs carry their own color/shading, so skip
+                    // the colored glow used for drawn shapes - it would
+                    // just tint a translucent box behind the character.
+                    // Blit the cached sprite instead of calling fillText
+                    // here directly - see getEmojiSprite for why.
+                    const sprite = getEmojiSprite(p.emoji || '✨');
+                    const d = p.size * 2.4;
+                    ctx.drawImage(sprite, p.x - camX - d / 2, p.y - camY - d / 2, d, d);
+                    ctx.restore();
+                    continue;
+                }
+                // Cap the glow blur relative to the particle's own size for
+                // shaped trails - a big soft bloom on a 2-3px shape drowns
+                // its silhouette into a generic fuzzy dot, which is why
+                // switching trails didn't look different in-flight even
+                // though a different shape was being drawn underneath.
+                const isShaped = p.shape && p.shape !== 'circle';
+                ctx.shadowBlur = isShaped ? Math.min(p.glow || 6, p.size * 1.3 + 1) : (p.glow || 6);
                 ctx.shadowColor = p.color;
-                ctx.beginPath();
-                ctx.arc(p.x - camX, p.y - camY, p.size, 0, Math.PI * 2);
-                ctx.fill();
+                if (isShaped) {
+                    ctx.translate(p.x - camX, p.y - camY);
+                    if (p.angle) ctx.rotate(p.angle + Math.PI / 2);
+                    drawEmblemShape(ctx, p.shape, p.size, p.color);
+                } else {
+                    ctx.beginPath();
+                    ctx.arc(p.x - camX, p.y - camY, p.size, 0, Math.PI * 2);
+                    ctx.fill();
+                }
                 ctx.restore();
             }
 
@@ -5029,11 +5578,36 @@
             }
         }
 
-        function loop() {
+        function loop(timestamp) {
             if (!gameRunning || gamePaused) return;
-            update();
+
+            // First call after a (re)start/resume won't have a real rAF
+            // timestamp yet (it's invoked directly, not as a callback) -
+            // grab one now and wait for the next real frame to measure a
+            // proper delta from, so we don't get a bogus huge first step.
+            if (typeof timestamp !== "number") {
+                animationFrameId = requestAnimationFrame(loop);
+                return;
+            }
+            if (!lastFrameTime) lastFrameTime = timestamp;
+
+            let delta = timestamp - lastFrameTime;
+            lastFrameTime = timestamp;
+            if (delta > 250) delta = 250; // clamp huge gaps (backgrounded tab, debugger pause, etc.)
+            simAccumulator += delta;
+
+            let steps = 0;
+            while (simAccumulator >= FIXED_DT_MS && steps < MAX_STEPS_PER_FRAME) {
+                update();
+                simAccumulator -= FIXED_DT_MS;
+                steps++;
+                if (gamePaused || !gameRunning) break; // update() itself can pause/end the run
+            }
+
             draw();
-            animationFrameId = requestAnimationFrame(loop);
+            if (gameRunning && !gamePaused) {
+                animationFrameId = requestAnimationFrame(loop);
+            }
         }
 
         loadGameData();
