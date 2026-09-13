@@ -1705,7 +1705,7 @@
             },
             derelictCache: {
                 id: 'derelictCache', scope: 'SECTOR EVENT', name: 'Derelict Cache',
-                desc: 'A wrecked convoy litters this tile with extra debris and guaranteed salvage crates.',
+                desc: 'A wrecked convoy litters this tile with extra debris and guaranteed salvage crates - each stocked with stardust, fuel, hull kits, and a sample of this biome\'s material.',
                 color: '#b8c9b0', duration: 5400,
                 mods: { debrisMult: 2.0, debrisReward: 1.3, forceSalvage: true }
             },
@@ -1783,18 +1783,20 @@
         function applyEventMods(biomeCopy, mods) {
             for (const [key, val] of Object.entries(mods)) {
                 if (key === 'guardianChanceAdd') {
-                    biomeCopy.guardianChance = Math.min(0.9, (biomeCopy.guardianChance || 0) + val);
+                    biomeCopy.guardianChance = Math.min(0.9, (biomeCopy.guardianChance || 0) + val * EVENT_POTENCY);
                 } else if (key === 'passiveFuelDrainAdd') {
-                    biomeCopy.passiveFuelDrain = Math.max(0, (biomeCopy.passiveFuelDrain || 0) + val);
+                    biomeCopy.passiveFuelDrain = Math.max(0, (biomeCopy.passiveFuelDrain || 0) + val * EVENT_POTENCY);
                 } else if (key === 'frictionBoost') {
-                    biomeCopy.frictionBoost = (biomeCopy.frictionBoost || 0) + val;
+                    biomeCopy.frictionBoost = (biomeCopy.frictionBoost || 0) + val * EVENT_POTENCY;
                 } else if (key === 'fogAdd') {
-                    biomeCopy.fog = Math.min(0.6, (biomeCopy.fog || 0) + val);
+                    biomeCopy.fog = Math.min(0.6, (biomeCopy.fog || 0) + val * EVENT_POTENCY);
                 } else if (key === 'forceSalvage') {
                     biomeCopy.hasSalvage = true;
                     if (!biomeCopy.salvageReward) biomeCopy.salvageReward = 35;
                 } else if (typeof biomeCopy[key] === 'number') {
-                    biomeCopy[key] *= val;
+                    // Scale the *swing* away from 1.0, not the raw multiplier,
+                    // so a 1.3x mod becomes stronger without flipping direction.
+                    biomeCopy[key] *= 1 + (val - 1) * EVENT_POTENCY;
                 }
             }
         }
@@ -1895,7 +1897,11 @@
         // ONE event (global or local) is ever active at once, and a fixed
         // cooldown separates them.
         const MAX_EVENT_SPAWN_DIST = 200000; // local events never pin further than this from home
-        const EVENT_COOLDOWN = 5 * 60 * 60;  // 5 minutes at 60fps
+        const EVENT_COOLDOWN = 2 * 60 * 60;  // 2 minutes at 60fps - events used to be too rare to notice
+        // Multiplies how far each event's *Mult/*Reward mods swing away
+        // from 1.0 (and how much its additive mods add) so an active event
+        // is actually felt, not just a barely-visible number tweak.
+        const EVENT_POTENCY = 1.8;
         // Once you've closed to within this range of a local event, its
         // countdown freezes - so it can no longer expire on you mid-approach
         // or the moment you arrive, and the HUD swaps the distance readout
@@ -1940,8 +1946,8 @@
             const tx0 = Math.floor(player.x / BIOME_TILE_SIZE);
             const ty0 = Math.floor(player.y / BIOME_TILE_SIZE);
             for (let attempt = 0; attempt < 20; attempt++) {
-                const dx = Math.floor((Math.random() - 0.5) * 16);
-                const dy = Math.floor((Math.random() - 0.5) * 16);
+                const dx = Math.floor((Math.random() - 0.5) * 10);
+                const dy = Math.floor((Math.random() - 0.5) * 10);
                 if (dx === 0 && dy === 0) continue;
                 const tx = tx0 + dx, ty = ty0 + dy;
                 const cx = tx * BIOME_TILE_SIZE + BIOME_TILE_SIZE / 2;
@@ -1953,9 +1959,11 @@
                 const biomeId = WILD_BIOME_IDS[idx];
                 const ids = Object.keys(LOCAL_EVENTS);
                 const def = LOCAL_EVENTS[ids[Math.floor(Math.random() * ids.length)]];
+                const localDuration = Math.round(def.duration * 1.4); // extra buffer so travel time doesn't eat the whole event
                 activeEvent = {
-                    kind: 'local', def, timeLeft: def.duration, totalTime: def.duration,
-                    tx, ty, x: cx, y: cy, biomeId
+                    kind: 'local', def, timeLeft: localDuration, totalTime: localDuration,
+                    tx, ty, x: cx, y: cy, biomeId,
+                    salvageGuaranteed: !!(def.mods && def.mods.forceSalvage) // pending: drop crates the moment you arrive
                 };
                 const dist = Math.round(Math.hypot(cx - player.x, cy - player.y));
                 const dir = compassDirection(cx - player.x, cy - player.y);
@@ -2014,6 +2022,33 @@
             if (activeEvent) {
                 const inRange = activeEvent.kind === 'local' &&
                     Math.hypot(player.x - activeEvent.x, player.y - activeEvent.y) <= EVENT_ARRIVAL_RADIUS;
+
+                // "Guaranteed salvage crates" shouldn't depend on the slow
+                // passive spawn timer catching up before you leave again -
+                // drop them right at your position the moment you arrive.
+                // These are richer than a normal salvage wreck: each one
+                // also tops off some fuel/hull, on top of stardust and a
+                // sample of whatever material this biome drops.
+                if (inRange && activeEvent.salvageGuaranteed) {
+                    const eventBiome = BIOMES[activeEvent.biomeId];
+                    const crateCount = 2 + Math.floor(Math.random() * 2); // 2-3
+                    for (let i = 0; i < crateCount; i++) {
+                        const angle = Math.random() * Math.PI * 2;
+                        const dist = 60 + Math.random() * 140;
+                        salvageCrates.push({
+                            x: player.x + Math.cos(angle) * dist,
+                            y: player.y + Math.sin(angle) * dist,
+                            size: 11,
+                            reward: (eventBiome && eventBiome.salvageReward) || 35,
+                            material: eventBiome && eventBiome.material ? eventBiome.material.id : null,
+                            isCacheDrop: true,
+                            fuelAmount: 20,
+                            healthAmount: 15
+                        });
+                    }
+                    activeEvent.salvageGuaranteed = false;
+                }
+
                 if (!inRange) {
                     activeEvent.timeLeft--;
                     if (activeEvent.timeLeft <= 0) endEvent();
@@ -4832,7 +4867,8 @@
 
             const angle = Math.random() * Math.PI * 2;
             const biome = getBiome(x, y);
-            let baseSpeed = (Math.random() * 1.2 + 1.8 + (score / 400)) * speedMultiplier * biome.debrisSpeedMult;
+            const scoreSpeedBonus = Math.min(score / 400, 2.5); // ramps up with progress, but caps out instead of scaling forever
+            let baseSpeed = (Math.random() * 1.2 + 1.8 + scoreSpeedBonus) * speedMultiplier * biome.debrisSpeedMult;
             const debrisHealth = Math.round(size * 2 * biome.debrisHealthMult);
 
             obstacles.push({
@@ -5211,6 +5247,10 @@
                     score += s.reward;
                     totalCredits += s.reward;
                     if (s.material) addMaterial(s.material, Math.random() < 0.3 ? 2 : 1);
+                    if (s.isCacheDrop) {
+                        if (s.fuelAmount) fuel = Math.min(maxFuel, fuel + s.fuelAmount);
+                        if (s.healthAmount) health = Math.min(maxHealth, health + s.healthAmount);
+                    }
                     playSound('crystal');
                     salvageCrates.splice(i, 1);
                     scoreDisplay.textContent = `STARDUST: ${score}`;
