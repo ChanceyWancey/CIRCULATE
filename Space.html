@@ -1844,7 +1844,7 @@
                 id: 'supplyDrop', scope: 'SECTOR EVENT', name: 'Supply Drop',
                 desc: 'Fuel and hull kits are scattered across this tile. A safe stop to top off.',
                 color: '#ffd166', duration: 4800,
-                mods: { fuelPickupMult: 2.5, healthPickupMult: 2.5 }
+                mods: { fuelPickupMult: 2.5, healthPickupMult: 2.5, forceSupply: true }
             },
             ambushPoint: {
                 id: 'ambushPoint', scope: 'SECTOR EVENT', name: 'Ambush Point',
@@ -1937,6 +1937,9 @@
                 } else if (key === 'forceSalvage') {
                     biomeCopy.hasSalvage = true;
                     if (!biomeCopy.salvageReward) biomeCopy.salvageReward = 35;
+                } else if (key === 'forceSupply') {
+                    // no biome flag needed - handled entirely via
+                    // supplyGuaranteed on the active event itself
                 } else if (typeof biomeCopy[key] === 'number') {
                     // Scale the *swing* away from 1.0, not the raw multiplier,
                     // so a 1.3x mod becomes stronger without flipping direction.
@@ -2107,7 +2110,8 @@
                 activeEvent = {
                     kind: 'local', def, timeLeft: localDuration, totalTime: localDuration,
                     tx, ty, x: cx, y: cy, biomeId,
-                    salvageGuaranteed: !!(def.mods && def.mods.forceSalvage) // pending: drop crates the moment you arrive
+                    salvageGuaranteed: !!(def.mods && def.mods.forceSalvage), // pending: drop crates the moment you arrive
+                    supplyGuaranteed: !!(def.mods && def.mods.forceSupply) // pending: drop fuel/health the moment you arrive
                 };
                 const dist = Math.round(Math.hypot(cx - player.x, cy - player.y));
                 const dir = compassDirection(cx - player.x, cy - player.y);
@@ -2191,6 +2195,32 @@
                         });
                     }
                     activeEvent.salvageGuaranteed = false;
+                }
+
+                // Same idea as the salvage guarantee above: don't make the
+                // player wait on the slow passive fuel/health spawn timers
+                // (even boosted, they're a random trickle) - scatter a real
+                // batch of canisters and health kits right where you land.
+                if (inRange && activeEvent.supplyGuaranteed) {
+                    for (let i = 0; i < 3; i++) {
+                        const angle = Math.random() * Math.PI * 2;
+                        const dist = 60 + Math.random() * 180;
+                        fuelCanisters.push({
+                            x: player.x + Math.cos(angle) * dist,
+                            y: player.y + Math.sin(angle) * dist,
+                            size: 10
+                        });
+                    }
+                    for (let i = 0; i < 3; i++) {
+                        const angle = Math.random() * Math.PI * 2;
+                        const dist = 60 + Math.random() * 180;
+                        healthPickups.push({
+                            x: player.x + Math.cos(angle) * dist,
+                            y: player.y + Math.sin(angle) * dist,
+                            size: 10
+                        });
+                    }
+                    activeEvent.supplyGuaranteed = false;
                 }
 
                 if (!inRange) {
