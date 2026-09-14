@@ -1045,6 +1045,10 @@
                     <!-- Add new patches at the TOP of this list. -->
                     <div class="update-log-entry">
                         <span class="update-log-version">Latest</span>
+                        <span class="update-log-text">New ring biome "The Frozen Gilberts" circles home at the million-meter mark - slow-drifting named debris that drops Gil Stone, craftable into cosmetic Gilbert Bullets. Mini Sanctuaries placed that far out now take root as real, indestructible Sanctuaries, and can be broken on demand with a double press of SPACE. Also fixed ship upgrades and passives leaking into new drifts instead of resetting.</span>
+                    </div>
+                    <div class="update-log-entry">
+                        <span class="update-log-version">Patch</span>
                         <span class="update-log-text">Hi guys</span>
                     </div>
                     <div class="update-log-entry">
@@ -1211,7 +1215,7 @@
                 <div class="shop-item">
                     <div class="shop-info">
                         <h4>Mini Sanctuary</h4>
-                        <span>Places an outpost with 3000 HP that shatters nearby hazards &mdash; only one can stand at a time, alien shots chip away its HP, and once it breaks you must wait 60s to place another</span>
+                        <span>Places an outpost with 3000 HP that shatters nearby hazards &mdash; only one can stand at a time. Alien shots and debris chip away its HP, and once it breaks you must wait 60s to place another. Press SPACE again (twice) to break it yourself on demand. Placed a million meters or further from home, it takes root as an actual, indestructible Sanctuary instead &mdash; full ship upgrades, no crafting markup.</span>
                         <span class="craft-cost" id="cost-outpost"></span>
                     </div>
                     <button class="btn" id="buy-outpost-btn" onclick="buyAbility('outpost')">CRAFT</button>
@@ -1287,6 +1291,14 @@
                         <span class="craft-cost" id="cost-overload"></span>
                     </div>
                     <button class="btn" id="buy-overload-btn" onclick="buyAbility('overload')">CRAFT</button>
+                </div>
+                <div class="shop-item">
+                    <div class="shop-info">
+                        <h4>Gilbert Bullets</h4>
+                        <span>Permanent, purely cosmetic &mdash; replaces your bullets with mini "Gilberts", the size of debris. Stacks with whichever passive you have equipped. Requires 10x Gil Stone, salvaged from the Frozen Gilberts ring a million meters from home.</span>
+                        <span class="craft-cost" id="cost-gilbertbullets"></span>
+                    </div>
+                    <button class="btn" id="buy-gilbertbullets-btn" onclick="buyGilbertBullets()">CRAFT</button>
                 </div>
                 <div class="shop-item" id="cheaterscure-item" style="display:none;">
                     <div class="shop-info">
@@ -1575,6 +1587,30 @@
                 hasSalvage: false, salvageReward: 0,
                 material: { id: 'shard', name: 'Glacial Shard', color: '#dff6ff' }
             },
+            // Not a normal tile-rotation biome - this is a thin ring pinned
+            // to a fixed distance from home (see getBiome), forming a literal
+            // circle around the Sanctuary out at the million-meter mark.
+            // A copy of The Frozen Expanse, but debris drifts even slower
+            // and is individually named "Gilbert" (see spawnObstacle /
+            // rendering), dropping Gil Stone instead of Glacial Shard.
+            frozenGilberts: {
+                id: 'frozenGilberts',
+                name: 'The Frozen Gilberts',
+                desc: 'A thin ring of ice a million meters out. Every wreck out here drifts slow and answers to the name "Gilbert".',
+                starColor: '#dff6ff',
+                tint: 'rgba(160, 220, 255, 0.10)',
+                fog: 0,
+                debrisMult: 1.3, alienMult: 0.5, crystalMult: 1.1, fuelPickupMult: 0.9, healthPickupMult: 1.0,
+                debrisReward: 6, alienReward: 10, crystalReward: 70, crystalFillMult: 1.0,
+                debrisColor: '#a8dfff', alienColor: '#c77dff',
+                fuelDrainMult: 1.2, passiveFuelDrain: 0, fuelRegenBonus: 0,
+                guardianChance: 0,
+                debrisSpeedMult: 0.22, debrisHealthMult: 1.3,
+                frictionBoost: 0.025,
+                alienShootMult: 1.0, alienBulletSpeedMult: 1.0,
+                hasSalvage: false, salvageReward: 0,
+                material: { id: 'gilstone', name: 'Gil Stone', color: '#dff6ff' }
+            },
             ember: {
                 id: 'ember',
                 name: 'The Ember Reach',
@@ -1849,9 +1885,22 @@
             return (h ^ (h >>> 16)) >>> 0;
         }
 
+        // Thin ring pinned to a fixed distance from home, forming The Frozen
+        // Gilberts - a literal circle around the Sanctuary at the
+        // million-meter mark. Reuses the same distance already used to
+        // uncap debris speed out there, since a ring this size is
+        // indistinguishable from being centered on the Sanctuary itself
+        // (the Sanctuary sits only ~700-1200m from home).
+        const FROZEN_GILBERTS_RING_DIST = DEEP_SPACE_UNCAPPED_DIST;
+        const FROZEN_GILBERTS_RING_WIDTH = 260; // half-width - keeps the ring thin
+
         function getBiome(x, y) {
             if (Math.hypot(x - spawnAnchor.x, y - spawnAnchor.y) < HOME_SAFE_RADIUS) {
                 return BIOMES.home; // Sanctuary is always event-free
+            }
+            const homeDist = Math.hypot(x - spawnAnchor.x, y - spawnAnchor.y);
+            if (Math.abs(homeDist - FROZEN_GILBERTS_RING_DIST) < FROZEN_GILBERTS_RING_WIDTH) {
+                return BIOMES.frozenGilberts; // ring is always event-free too
             }
             const tx = Math.floor(x / BIOME_TILE_SIZE);
             const ty = Math.floor(y / BIOME_TILE_SIZE);
@@ -2193,7 +2242,12 @@
         // pouch UI - which renders straight from MATERIAL_LIST - never shows
         // it to a player who hasn't triggered the Konami cheat.
         const CHEATER_MATERIAL = { id: 'cheateralloy', name: "Cheater's Alloy", color: '#ff2e63', biomeName: "The Cheater's Desolate" };
-        const ALL_MATERIALS_LOOKUP = MATERIAL_LIST.concat([CHEATER_MATERIAL]);
+        // Gil Stone: dropped only by "Gilbert" debris out in the Frozen
+        // Gilberts ring. Kept out of MATERIAL_LIST (which is derived from
+        // WILD_BIOME_IDS) since that ring isn't a normal wild tile biome,
+        // but always shown in the pouch UI unlike Cheater's Alloy.
+        const GILBERT_MATERIAL = { id: 'gilstone', name: 'Gil Stone', color: '#dff6ff', biomeName: 'The Frozen Gilberts' };
+        const ALL_MATERIALS_LOOKUP = MATERIAL_LIST.concat([CHEATER_MATERIAL, GILBERT_MATERIAL]);
         function addMaterial(id, amount) {
             materials[id] = (materials[id] || 0) + amount;
             showMaterialToast(id, amount);
@@ -2246,6 +2300,10 @@
             overload: { sd: 55, mats: { plasmacore: 1, waralloy: 1 } },
             gravplate:{ sd: 65, mats: { singularity: 1, nullfrag: 1 } },
             homing: { sd: 60, mats: { circuit: 1, coil: 1 } },
+            // Not tied to the single-passive-slot rotation like the four
+            // above - this is a permanent unlock once crafted, purely
+            // cosmetic (see buyGilbertBullets / playerBullets rendering).
+            gilbertbullets: { sd: 0, mats: { gilstone: 10 } },
             // Not an equippable blessing - crafting this consumes the
             // materials and immediately purges the Konami cheat instead
             // (see buyCheatersCure). No Stardust fee, just the grind of
@@ -2396,6 +2454,11 @@
         // the real station, alien bullets damage and can destroy it.
         let outpost = null;
         let outpostBreakCooldown = 0;
+        // Pressing SPACE once while an outpost is standing arms it to break;
+        // a second SPACE press within the window breaks it on the spot.
+        let outpostBreakArmed = false;
+        let outpostBreakArmTimer = 0;
+        const OUTPOST_BREAK_ARM_FRAMES = 216; // ~1.5s window at the 144Hz sim rate
         const OUTPOST_MAX_HP = 3000;
         const OUTPOST_RADIUS = 32;
         const OUTPOST_SAFE_RADIUS = 90;
@@ -2403,6 +2466,11 @@
         const OUTPOST_DEBRIS_DAMAGE = 40;
         const OUTPOST_DOCK_RANGE = 70;
         const OUTPOST_CRAFT_MULTIPLIER = 3;
+        // Past this far from home, a newly placed Mini Sanctuary takes root
+        // as an actual Sanctuary instead of the usual fragile outpost: full
+        // ship upgrades, no crafting markup, and hazards can't damage it at
+        // all. Reuses the same million-meter mark as the Frozen Gilberts ring.
+        const REAL_SANCTUARY_DIST = DEEP_SPACE_UNCAPPED_DIST;
         // True while the shop is open because the player docked at their
         // placed Mini Sanctuary rather than the real station - crafting
         // still works out here, it's just pricier (see getEffectiveRecipe).
@@ -2525,14 +2593,14 @@
                     cooldownTime: player.cooldownTime, maxCooldown: player.maxCooldown,
                     hasShield: player.hasShield, hasMending: player.hasMending,
                     hasBeacon: player.hasBeacon, hasGravPlate: player.hasGravPlate,
-                    hasHoming: player.hasHoming
+                    hasHoming: player.hasHoming, hasGilbertBullets: player.hasGilbertBullets
                 },
                 camera: { x: camera.x, y: camera.y },
                 spawnAnchor: { x: spawnAnchor.x, y: spawnAnchor.y },
                 sanctuary: { x: sanctuary.x, y: sanctuary.y },
                 obstacles, aliens, playerBullets, alienBullets,
                 crystals, fuelCanisters, healthPickups, salvageCrates,
-                outpost, outpostBreakCooldown,
+                outpost, outpostBreakCooldown, outpostBreakArmed, outpostBreakArmTimer,
                 decoyEntity, positionHistory,
                 spawnTimer, spawnInterval, speedMultiplier,
                 crystalSpawnTimer, fuelSpawnTimer, healthSpawnTimer, salvageSpawnTimer, alienSpawnTimer,
@@ -2672,7 +2740,7 @@
                 cooldownTime: p.cooldownTime || 0, maxCooldown: p.maxCooldown || 0,
                 hasShield: !!p.hasShield, hasMending: !!p.hasMending,
                 hasBeacon: !!p.hasBeacon, hasGravPlate: !!p.hasGravPlate,
-                hasHoming: !!p.hasHoming
+                hasHoming: !!p.hasHoming, hasGilbertBullets: !!p.hasGilbertBullets
             });
 
             camera.x = data.camera ? data.camera.x : player.x;
@@ -2695,6 +2763,8 @@
 
             outpost = data.outpost || null;
             outpostBreakCooldown = data.outpostBreakCooldown || 0;
+            outpostBreakArmed = !!data.outpostBreakArmed;
+            outpostBreakArmTimer = data.outpostBreakArmTimer || 0;
             decoyEntity = data.decoyEntity || null;
             positionHistory = data.positionHistory || [];
 
@@ -2992,7 +3062,8 @@
             hasMending: false,
             hasBeacon: false,
             hasGravPlate: false,
-            hasHoming: false
+            hasHoming: false,
+            hasGilbertBullets: false
         };
 
         let obstacles = [];
@@ -4267,7 +4338,11 @@
 
         function dock(atOutpost) {
             docked = true;
-            dockedAtOutpost = !!atOutpost;
+            // A "real" field Sanctuary (placed 1M+ from home) behaves exactly
+            // like the home Sanctuary once docked - full upgrades, no markup
+            // - so it's deliberately NOT treated as dockedAtOutpost here.
+            const isRealFieldSanctuary = !!(atOutpost && outpost && outpost.isReal);
+            dockedAtOutpost = !!atOutpost && !isRealFieldSanctuary;
             // Only the real Sanctuary freezes the sector while you shop -
             // the Mini Sanctuary is just a forward supply cache, so the
             // world (aliens, hazards, fuel, events) keeps running live
@@ -4282,6 +4357,10 @@
                 shopTitle.textContent = "MINI SANCTUARY";
                 shopDesc.textContent = `Docked at your field outpost. It shatters nearby hazards just like the real station. No ship upgrades out here, but blessings can still be crafted at ${OUTPOST_CRAFT_MULTIPLIER}x the Stardust + material cost.`;
                 upgradesColumn.style.display = "none";
+            } else if (isRealFieldSanctuary) {
+                shopTitle.textContent = "FIELD SANCTUARY";
+                shopDesc.textContent = "Docked at your deep-space Sanctuary. This far out past the million-meter line, your outpost took root as the real thing: full ship upgrades, no crafting markup, and its field is immune to every hazard out here.";
+                upgradesColumn.style.display = "";
             } else {
                 shopTitle.textContent = "COZY SANCTUARY";
                 shopDesc.textContent = "Docked at the Sanctuary station. This field auto-shatters debris on approach — you're safe here. Basic upgrades cost Stardust; blessings are crafted from Stardust plus biome materials you salvage out in the sector.";
@@ -4491,6 +4570,35 @@
             }
         }
 
+        // Gilbert Bullets isn't part of the single-passive-slot rotation
+        // above - it's a permanent, purely cosmetic unlock that stacks
+        // alongside whichever passive (or none) is equipped.
+        function buyGilbertBullets() {
+            if (player.hasGilbertBullets) return; // already owned
+            const recipe = CRAFT_RECIPES.gilbertbullets;
+            if (!canAffordRecipe(recipe)) {
+                alert(`Missing materials! Need ${craftCostLabel(recipe)}.`);
+                return;
+            }
+            craftRecipe(recipe);
+            player.hasGilbertBullets = true;
+            playSound('crystal');
+            updateGilbertBulletsButton();
+            updateShopWallet();
+        }
+
+        function updateGilbertBulletsButton() {
+            const btn = document.getElementById('buy-gilbertbullets-btn');
+            if (!btn) return;
+            if (player.hasGilbertBullets) {
+                btn.textContent = "OWNED";
+                btn.disabled = true;
+            } else {
+                btn.textContent = "CRAFT";
+                btn.disabled = !canAffordRecipe(CRAFT_RECIPES.gilbertbullets);
+            }
+        }
+
         // Crafting The Cheater's Cure doesn't equip anything - it just
         // consumes the 10 Cheater's Alloy and wipes the Konami cheat clean,
         // handing the player back a completely normal run.
@@ -4535,15 +4643,15 @@
                 // sitting in the pouch) - it stays invisible to anyone who
                 // never triggered the cheat.
                 const visibleMaterials = (isCheatedRun || (materials.cheateralloy || 0) > 0)
-                    ? MATERIAL_LIST.concat([CHEATER_MATERIAL])
-                    : MATERIAL_LIST;
+                    ? MATERIAL_LIST.concat([CHEATER_MATERIAL, GILBERT_MATERIAL])
+                    : MATERIAL_LIST.concat([GILBERT_MATERIAL]);
                 pouch.innerHTML = visibleMaterials.map(m => {
                     const count = materials[m.id] || 0;
                     return `<div class="material-chip"><span class="dot" style="background:${m.color}; box-shadow:0 0 5px ${m.color};"></span><span class="material-chip-text"><span class="material-name">${m.name}: ${count}</span><span class="material-source">${m.biomeName}</span></span></div>`;
                 }).join('');
             }
             for (const type of Object.keys(CRAFT_RECIPES)) {
-                if (type === 'mending' || type === 'beacon' || type === 'gravplate' || type === 'homing' || type === 'cheaterscure') continue; // handled by their own buttons
+                if (type === 'mending' || type === 'beacon' || type === 'gravplate' || type === 'homing' || type === 'gilbertbullets' || type === 'cheaterscure') continue; // handled by their own buttons
                 const recipe = CRAFT_RECIPES[type];
                 const costEl = document.getElementById(`cost-${type}`);
                 const btn = document.getElementById(`buy-${type}-btn`);
@@ -4583,10 +4691,16 @@
                 homingCost.textContent = `Craft: ${craftCostLabel(CRAFT_RECIPES.homing)}`;
                 homingCost.classList.toggle('insufficient', !canAffordRecipe(CRAFT_RECIPES.homing));
             }
+            const gilbertBulletsCost = document.getElementById('cost-gilbertbullets');
+            if (gilbertBulletsCost) {
+                gilbertBulletsCost.textContent = `Craft: ${craftCostLabel(CRAFT_RECIPES.gilbertbullets)}`;
+                gilbertBulletsCost.classList.toggle('insufficient', !canAffordRecipe(CRAFT_RECIPES.gilbertbullets));
+            }
             updateMendingButton();
             updateBeaconButton();
             updateGravPlateButton();
             updateHomingButton();
+            updateGilbertBulletsButton();
         }
 
         function buyUpgrade(type) {
@@ -4698,10 +4812,31 @@
                 player.cooldownTime = 720;
             }
             else if (ab === 'outpost') {
-                if (outpost) return; // already standing - can't place another until it breaks
+                if (outpost) {
+                    // Press SPACE again while one is standing to arm a
+                    // deliberate break; a second press within the window
+                    // actually breaks it, so a single stray press can't
+                    // destroy it by accident.
+                    if (outpostBreakArmed) {
+                        playSound('hit');
+                        shatterObject({ x: outpost.x, y: outpost.y, size: OUTPOST_RADIUS * 2 }, "#ffd166");
+                        outpost = null;
+                        outpostBreakCooldown = OUTPOST_BREAK_COOLDOWN_FRAMES;
+                        outpostBreakArmed = false;
+                        outpostBreakArmTimer = 0;
+                    } else {
+                        outpostBreakArmed = true;
+                        outpostBreakArmTimer = OUTPOST_BREAK_ARM_FRAMES;
+                    }
+                    return;
+                }
                 if (outpostBreakCooldown > 0) return; // still rebuilding after last one broke
                 playSound('special');
-                outpost = { x: player.x, y: player.y, hp: OUTPOST_MAX_HP, maxHp: OUTPOST_MAX_HP };
+                // Past the million-meter mark, this takes root as an actual
+                // Sanctuary instead of the usual fragile outpost.
+                const homeDistForOutpost = Math.hypot(player.x - spawnAnchor.x, player.y - spawnAnchor.y);
+                const isRealSanctuary = homeDistForOutpost >= REAL_SANCTUARY_DIST;
+                outpost = { x: player.x, y: player.y, hp: OUTPOST_MAX_HP, maxHp: OUTPOST_MAX_HP, isReal: isRealSanctuary };
                 // No standard cooldown here - the outpost itself blocks re-placement
                 // while it's alive, then the break-cooldown takes over once it falls.
             }
@@ -4751,6 +4886,19 @@
             materialToastContainer.innerHTML = '';
 
             score = 0;
+            // Ship upgrades and crafted passives are per-drift progress, not
+            // meta-progression like the Stardust pouch or materials - a
+            // fresh drift (new game / redrift) should never inherit levels
+            // or blessings left over from whatever was in memory before.
+            fuelTankLevel = 0;
+            thrusterLevel = 0;
+            hullLevel = 0;
+            damageLevel = 0;
+            player.hasMending = false;
+            player.hasBeacon = false;
+            player.hasGravPlate = false;
+            player.hasHoming = false;
+            player.hasGilbertBullets = false;
             applyUpgradeStats();
             fuel = maxFuel;
             health = maxHealth;
@@ -4772,6 +4920,8 @@
             decoyEntity = null;
             outpost = null;
             outpostBreakCooldown = 0;
+            outpostBreakArmed = false;
+            outpostBreakArmTimer = 0;
             spawnTimer = 0;
             crystalSpawnTimer = 0;
             fuelSpawnTimer = 0;
@@ -4904,7 +5054,15 @@
 
             abilityHud.style.display = "block";
             if (player.equippedAbility === 'outpost' && outpost) {
-                abilityHud.textContent = `OUTPOST STANDING: ${Math.ceil(outpost.hp)} HP`;
+                if (outpost.isReal) {
+                    abilityHud.textContent = outpostBreakArmed
+                        ? `FIELD SANCTUARY STANDING — PRESS SPACE AGAIN TO BREAK`
+                        : `FIELD SANCTUARY STANDING [SPACE x2 TO BREAK]`;
+                } else {
+                    abilityHud.textContent = outpostBreakArmed
+                        ? `OUTPOST STANDING: ${Math.ceil(outpost.hp)} HP — PRESS SPACE AGAIN TO BREAK`
+                        : `OUTPOST STANDING: ${Math.ceil(outpost.hp)} HP`;
+                }
             } else if (player.equippedAbility === 'outpost' && outpostBreakCooldown > 0) {
                 abilityHud.textContent = `OUTPOST REBUILDING: ${Math.ceil(outpostBreakCooldown / 60)}s`;
             } else if (player.cooldownTime > 0) {
@@ -4982,7 +5140,8 @@
                 maxHealth: debrisHealth,
                 reward: biome.debrisReward,
                 color: biome.debrisColor,
-                material: biome.material ? biome.material.id : null
+                material: biome.material ? biome.material.id : null,
+                isGilbert: biome.id === 'frozenGilberts'
             });
         }
 
@@ -5107,6 +5266,11 @@
             if (invulnTime > 0) invulnTime--;
             if (shotCooldown > 0) shotCooldown--;
             if (outpostBreakCooldown > 0) outpostBreakCooldown--;
+            if (outpostBreakArmTimer > 0) {
+                outpostBreakArmTimer--;
+                if (outpostBreakArmTimer <= 0) outpostBreakArmed = false;
+            }
+            if (!outpost) outpostBreakArmed = false; // nothing to break if it's already gone
 
             updateEvents();
 
@@ -5134,7 +5298,9 @@
                 dockPrompt.textContent = "DOCKING RANGE — PRESS E TO ENTER SANCTUARY";
                 dockPrompt.classList.add("visible");
             } else if (distToOutpostDock < OUTPOST_DOCK_RANGE) {
-                dockPrompt.textContent = `DOCKING RANGE — PRESS E TO CRAFT AT MINI SANCTUARY (${OUTPOST_CRAFT_MULTIPLIER}x COST)`;
+                dockPrompt.textContent = (outpost && outpost.isReal)
+                    ? "DOCKING RANGE — PRESS E TO ENTER SANCTUARY"
+                    : `DOCKING RANGE — PRESS E TO CRAFT AT MINI SANCTUARY (${OUTPOST_CRAFT_MULTIPLIER}x COST)`;
                 dockPrompt.classList.add("visible");
             } else {
                 dockPrompt.classList.remove("visible");
@@ -5404,12 +5570,14 @@
                     if (distToOutpost < OUTPOST_SAFE_RADIUS) {
                         shatterObject(obs, obs.color || DEBRIS_COLOR);
                         obstacles.splice(i, 1);
-                        outpost.hp -= OUTPOST_DEBRIS_DAMAGE;
-                        playSound('hit');
-                        if (outpost.hp <= 0) {
-                            shatterObject({ x: outpost.x, y: outpost.y, size: OUTPOST_RADIUS * 2 }, "#ffd166");
-                            outpost = null;
-                            outpostBreakCooldown = OUTPOST_BREAK_COOLDOWN_FRAMES;
+                        if (!outpost.isReal) {
+                            outpost.hp -= OUTPOST_DEBRIS_DAMAGE;
+                            playSound('hit');
+                            if (outpost.hp <= 0) {
+                                shatterObject({ x: outpost.x, y: outpost.y, size: OUTPOST_RADIUS * 2 }, "#ffd166");
+                                outpost = null;
+                                outpostBreakCooldown = OUTPOST_BREAK_COOLDOWN_FRAMES;
+                            }
                         }
                         continue;
                     }
@@ -5616,13 +5784,15 @@
                 if (outpost) {
                     const distToOutpostB = Math.hypot(b.x - outpost.x, b.y - outpost.y);
                     if (distToOutpostB < OUTPOST_SAFE_RADIUS) {
-                        outpost.hp -= ALIEN_BULLET_DAMAGE;
-                        playSound('hit');
                         alienBullets.splice(i, 1);
-                        if (outpost.hp <= 0) {
-                            shatterObject({ x: outpost.x, y: outpost.y, size: OUTPOST_RADIUS * 2 }, "#ffd166");
-                            outpost = null;
-                            outpostBreakCooldown = OUTPOST_BREAK_COOLDOWN_FRAMES;
+                        if (!outpost.isReal) {
+                            outpost.hp -= ALIEN_BULLET_DAMAGE;
+                            playSound('hit');
+                            if (outpost.hp <= 0) {
+                                shatterObject({ x: outpost.x, y: outpost.y, size: OUTPOST_RADIUS * 2 }, "#ffd166");
+                                outpost = null;
+                                outpostBreakCooldown = OUTPOST_BREAK_COOLDOWN_FRAMES;
+                            }
                         }
                         continue;
                     }
@@ -5801,13 +5971,14 @@
 
             const dist = Math.hypot(player.x - outpost.x, player.y - outpost.y);
             const pulse = (Math.sin(Date.now() / 300) + 1) / 2;
+            const pointerColor = outpost.isReal ? "#ffd166" : "#8ee3ff";
 
             ctx.save();
             ctx.translate(px, py);
             ctx.rotate(angle + Math.PI / 2);
             ctx.shadowBlur = 8 + pulse * 6;
-            ctx.shadowColor = "#8ee3ff";
-            ctx.fillStyle = "#8ee3ff";
+            ctx.shadowColor = pointerColor;
+            ctx.fillStyle = pointerColor;
             ctx.beginPath();
             ctx.moveTo(0, -11);
             ctx.lineTo(-8, 8);
@@ -5819,9 +5990,9 @@
 
             ctx.save();
             ctx.font = "bold 10px 'Segoe UI', sans-serif";
-            ctx.fillStyle = "#8ee3ff";
+            ctx.fillStyle = pointerColor;
             ctx.textAlign = "center";
-            ctx.fillText(`MINI SANCTUARY — ${Math.round(dist)}m`, px, py + (dy > 0 ? 22 : -14));
+            ctx.fillText(`${outpost.isReal ? "FIELD SANCTUARY" : "MINI SANCTUARY"} — ${Math.round(dist)}m`, px, py + (dy > 0 ? 22 : -14));
             ctx.restore();
         }
 
@@ -5971,20 +6142,22 @@
                 const ox = outpost.x - camX;
                 const oy = outpost.y - camY;
                 const opulse = (Math.sin(Date.now() / 300) + 1) / 2;
+                const outpostColor = outpost.isReal ? "#ffd166" : "#8ee3ff";
+                const outpostFillRgb = outpost.isReal ? "255, 209, 102" : "142, 227, 255";
                 ctx.shadowBlur = 14 + opulse * 8;
-                ctx.shadowColor = "#8ee3ff";
-                ctx.strokeStyle = "#8ee3ff";
+                ctx.shadowColor = outpostColor;
+                ctx.strokeStyle = outpostColor;
                 ctx.lineWidth = 2.5;
                 ctx.beginPath();
                 ctx.arc(ox, oy, OUTPOST_RADIUS, 0, Math.PI * 2);
                 ctx.stroke();
-                ctx.fillStyle = "rgba(142, 227, 255, 0.15)";
+                ctx.fillStyle = `rgba(${outpostFillRgb}, 0.15)`;
                 ctx.fill();
                 ctx.beginPath();
                 ctx.arc(ox, oy, OUTPOST_RADIUS * 0.45, 0, Math.PI * 2);
-                ctx.fillStyle = "#8ee3ff";
+                ctx.fillStyle = outpostColor;
                 ctx.fill();
-                ctx.strokeStyle = "rgba(142, 227, 255, 0.35)";
+                ctx.strokeStyle = `rgba(${outpostFillRgb}, 0.35)`;
                 ctx.setLineDash([5, 5]);
                 ctx.lineWidth = 1.2;
                 ctx.beginPath();
@@ -5992,23 +6165,30 @@
                 ctx.stroke();
                 ctx.setLineDash([]);
 
-                // HP bar
-                const barW = 60, barH = 6;
-                const hpFrac = Math.max(0, outpost.hp / outpost.maxHp);
-                const barX = ox - barW / 2;
-                const barY = oy - OUTPOST_RADIUS - 20;
-                ctx.fillStyle = "rgba(0,0,0,0.5)";
-                ctx.fillRect(barX, barY, barW, barH);
-                ctx.fillStyle = hpFrac > 0.3 ? "#8ee3ff" : "#ff6b6b";
-                ctx.fillRect(barX, barY, barW * hpFrac, barH);
-                ctx.strokeStyle = "rgba(255,255,255,0.4)";
-                ctx.lineWidth = 1;
-                ctx.strokeRect(barX, barY, barW, barH);
+                let labelY;
+                if (outpost.isReal) {
+                    // Indestructible out here - no HP bar needed.
+                    labelY = oy - OUTPOST_RADIUS - 14;
+                } else {
+                    // HP bar
+                    const barW = 60, barH = 6;
+                    const hpFrac = Math.max(0, outpost.hp / outpost.maxHp);
+                    const barX = ox - barW / 2;
+                    const barY = oy - OUTPOST_RADIUS - 20;
+                    ctx.fillStyle = "rgba(0,0,0,0.5)";
+                    ctx.fillRect(barX, barY, barW, barH);
+                    ctx.fillStyle = hpFrac > 0.3 ? "#8ee3ff" : "#ff6b6b";
+                    ctx.fillRect(barX, barY, barW * hpFrac, barH);
+                    ctx.strokeStyle = "rgba(255,255,255,0.4)";
+                    ctx.lineWidth = 1;
+                    ctx.strokeRect(barX, barY, barW, barH);
+                    labelY = barY - 6;
+                }
 
                 ctx.font = "bold 11px 'Segoe UI', sans-serif";
-                ctx.fillStyle = "#8ee3ff";
+                ctx.fillStyle = outpostColor;
                 ctx.textAlign = "center";
-                ctx.fillText("MINI SANCTUARY", ox, barY - 6);
+                ctx.fillText(outpost.isReal ? "FIELD SANCTUARY" : "MINI SANCTUARY", ox, labelY);
                 ctx.restore();
             }
 
@@ -6223,7 +6403,18 @@
                 ctx.beginPath();
                 ctx.arc(ox, oy, obs.size/2, 0, Math.PI * 2);
                 ctx.fill();
-                drawMiniHealthBar(ox, oy - obs.size / 2 - 10, obs.health / obs.maxHealth, obs.size + 6, "#e2738a");
+                const obsBarY = oy - obs.size / 2 - 10;
+                drawMiniHealthBar(ox, obsBarY, obs.health / obs.maxHealth, obs.size + 6, "#e2738a");
+                if (obs.isGilbert) {
+                    ctx.save();
+                    ctx.font = "bold 10px 'Segoe UI', sans-serif";
+                    ctx.fillStyle = "#dff6ff";
+                    ctx.textAlign = "center";
+                    ctx.shadowBlur = 4;
+                    ctx.shadowColor = "#dff6ff";
+                    ctx.fillText("Gilbert", ox, obsBarY - 5);
+                    ctx.restore();
+                }
             }
 
             ctx.shadowBlur = 10;
@@ -6264,12 +6455,23 @@
 
             for (let pb of playerBullets) {
                 ctx.save();
-                ctx.shadowBlur = 6;
-                ctx.shadowColor = "#ffd166";
-                ctx.fillStyle = "#ffd166";
-                ctx.beginPath();
-                ctx.arc(pb.x - camX, pb.y - camY, 3.5, 0, Math.PI * 2);
-                ctx.fill();
+                if (player.hasGilbertBullets) {
+                    // Bullets replaced with mini "gilberts" - same look as
+                    // Frozen Gilberts debris, sized to match average debris.
+                    ctx.shadowBlur = 6;
+                    ctx.shadowColor = "#a8dfff";
+                    ctx.fillStyle = "#a8dfff";
+                    ctx.beginPath();
+                    ctx.arc(pb.x - camX, pb.y - camY, 12, 0, Math.PI * 2);
+                    ctx.fill();
+                } else {
+                    ctx.shadowBlur = 6;
+                    ctx.shadowColor = "#ffd166";
+                    ctx.fillStyle = "#ffd166";
+                    ctx.beginPath();
+                    ctx.arc(pb.x - camX, pb.y - camY, 3.5, 0, Math.PI * 2);
+                    ctx.fill();
+                }
                 ctx.restore();
             }
 
