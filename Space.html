@@ -459,6 +459,27 @@
             max-width: 420px;
         }
 
+        /* Sanctuary menu reveal: direct children fade + drift in one after
+           another, top to bottom, each time the screen goes from
+           display:none back to visible (that display toggle is what lets
+           the animation replay on every dock, with no JS reflow hack). */
+        @keyframes sanctuaryFadeDown {
+            from { opacity: 0; transform: translateY(-18px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        #shop-screen.sanctuary-reveal > * {
+            opacity: 0;
+            animation: sanctuaryFadeDown 0.7s ease forwards;
+        }
+        #shop-screen.sanctuary-reveal > *:nth-child(1) { animation-delay: 0s; }
+        #shop-screen.sanctuary-reveal > *:nth-child(2) { animation-delay: 0.1s; }
+        #shop-screen.sanctuary-reveal > *:nth-child(3) { animation-delay: 0.2s; }
+        #shop-screen.sanctuary-reveal > *:nth-child(4) { animation-delay: 0.3s; }
+        #shop-screen.sanctuary-reveal > *:nth-child(5) { animation-delay: 0.4s; }
+        #shop-screen.sanctuary-reveal > *:nth-child(6) { animation-delay: 0.55s; }
+        #shop-screen.sanctuary-reveal > *:nth-child(7) { animation-delay: 0.65s; }
+
         .btn-group {
             display: flex;
             flex-direction: column;
@@ -1022,6 +1043,7 @@
         <input type="range" id="volume-slider" min="0" max="100" value="35">
     </div>
     <audio id="bg-music" src="https://res.cloudinary.com/dz1dungk5/video/upload/v1789338150/Nebula_Drift_qcn4op.mp3" loop preload="auto"></audio>
+    <audio id="sanctuary-music" src="https://res.cloudinary.com/dz1dungk5/video/upload/v1789404780/Weightless_Space_wiyyta.mp4" loop preload="auto"></audio>
 
     <h1>✨ Stellar Drift: Sector Radar ✨</h1>
     <div id="dock-prompt">DOCKING RANGE — PRESS E TO ENTER SANCTUARY</div>
@@ -1045,27 +1067,7 @@
                     <!-- Add new patches at the TOP of this list. -->
                     <div class="update-log-entry">
                         <span class="update-log-version">Latest</span>
-                        <span class="update-log-text">New ring biome "The Frozen Gilberts" circles home at the million-meter mark - slow-drifting named debris that drops Gil Stone, craftable into cosmetic Gilbert Bullets. Mini Sanctuaries placed that far out now take root as real, indestructible Sanctuaries, and can be broken on demand with a double press of SPACE. Also fixed ship upgrades and passives leaking into new drifts instead of resetting.</span>
-                    </div>
-                    <div class="update-log-entry">
-                        <span class="update-log-version">Patch</span>
-                        <span class="update-log-text">Hi guys</span>
-                    </div>
-                    <div class="update-log-entry">
-                        <span class="update-log-version">Patch</span>
-                        <span class="update-log-text">Debris no longer speeds up forever with score - it now caps out at a set top speed.</span>
-                    </div>
-                    <div class="update-log-entry">
-                        <span class="update-log-version">Patch</span>
-                        <span class="update-log-text">Derelict Cache event now drops guaranteed crates on arrival, stocked with stardust, fuel, hull kits, and biome material.</span>
-                    </div>
-                    <div class="update-log-entry">
-                        <span class="update-log-version">Patch</span>
-                        <span class="update-log-text">Sector events fire more often, hit harder, and local events are always reachable before they expire.</span>
-                    </div>
-                    <div class="update-log-entry">
-                        <span class="update-log-version">Patch</span>
-                        <span class="update-log-text">Added background music and a volume slider (top left).</span>
+                        <span class="update-log-text">Uh hi guys, its me Update log! and today i uhhhh.. come to tell you ive added (yes me the update log) has added sanctuary ui animations! and uhhh.. oh yeah and uh..... sanctuary music yeah that.</span>
                     </div>
                 </div>
             </div>
@@ -1168,7 +1170,7 @@
             </div>
         </div>
 
-        <div id="shop-screen" class="screen hidden">
+        <div id="shop-screen" class="screen hidden sanctuary-reveal">
             <h2 id="shop-title">COZY SANCTUARY</h2>
             <p id="shop-desc">Docked at the Sanctuary station. This field auto-shatters debris on approach &mdash; you're safe here. Basic upgrades cost Stardust; blessings are crafted from Stardust plus biome materials you salvage out in the sector.</p>
             <p id="shop-wallet" style="margin-top:-14px; color:#ffd166; font-weight:bold;">STARDUST POUCH: 0 SD</p>
@@ -2246,6 +2248,8 @@
             updateEventHud();
         }
 
+        const bgMusic = document.getElementById("bg-music");
+        const sanctuaryMusic = document.getElementById("sanctuary-music");
         const menuScreen = document.getElementById("menu-screen");
         const slotsScreen = document.getElementById("slots-screen");
         const emblemScreen = document.getElementById("emblem-screen");
@@ -4400,12 +4404,24 @@
             updateCraftShopUI();
             updateShopWallet();
             showScreen(shopScreen);
+
+            // Swap to the Sanctuary's own track while the menu is open,
+            // matching whatever volume the player already has dialed in.
+            if (bgMusic && sanctuaryMusic) {
+                bgMusic.pause();
+                sanctuaryMusic.volume = bgMusic.volume;
+                sanctuaryMusic.play().catch(() => {});
+            }
         }
 
         function undock() {
             docked = false;
             dockedAtOutpost = false;
             shopScreen.classList.add("hidden");
+
+            // Hand playback back to the regular sector music.
+            if (sanctuaryMusic) sanctuaryMusic.pause();
+            if (bgMusic) bgMusic.play().catch(() => {});
             // Only resume the loop if we'd actually paused it (docking at
             // the real Sanctuary) - the Mini Sanctuary never paused, so the
             // loop has been running this whole time and calling loop()
@@ -4916,10 +4932,12 @@
             materialToastContainer.innerHTML = '';
 
             score = 0;
-            // Ship upgrades and crafted passives are per-drift progress, not
-            // meta-progression like the Stardust pouch or materials - a
-            // fresh drift (new game / redrift) should never inherit levels
-            // or blessings left over from whatever was in memory before.
+            // Ship upgrades, crafted passives, and salvaged crafting
+            // materials are all per-drift progress, not meta-progression
+            // like the Stardust pouch - a fresh drift (new game / redrift)
+            // should never inherit materials, levels, or blessings left
+            // over from whatever was in memory before.
+            materials = {};
             fuelTankLevel = 0;
             thrusterLevel = 0;
             hullLevel = 0;
@@ -5111,6 +5129,14 @@
             gameRunning = false;
             cancelAnimationFrame(animationFrameId);
             deleteRunSave(activeSaveSlot);
+
+            // Safety net: if the run ends while still docked (e.g. killed
+            // at an exposed Mini Sanctuary), make sure the Sanctuary track
+            // hands back to the regular theme rather than playing on.
+            if (sanctuaryMusic && !sanctuaryMusic.paused) {
+                sanctuaryMusic.pause();
+                if (bgMusic) bgMusic.play().catch(() => {});
+            }
             
             if (score > highScore) {
                 highScore = score;
@@ -6608,7 +6634,9 @@
 
         // ================= BACKGROUND MUSIC / VOLUME CONTROL =================
         (function setupBackgroundMusic() {
-            const bgMusic = document.getElementById('bg-music');
+            // bgMusic / sanctuaryMusic are declared once, up near the other
+            // top-level DOM refs, so dock()/undock() can reach them too -
+            // this closure just wires up the volume UI for both tracks.
             const volumeSlider = document.getElementById('volume-slider');
             const volumeIcon = document.getElementById('volume-icon');
             if (!bgMusic || !volumeSlider) return;
@@ -6620,6 +6648,7 @@
             if (isNaN(initialVolume)) initialVolume = 35;
             volumeSlider.value = initialVolume;
             bgMusic.volume = initialVolume / 100;
+            if (sanctuaryMusic) sanctuaryMusic.volume = initialVolume / 100;
 
             function updateIcon(vol) {
                 volumeIcon.textContent = vol == 0 ? '🔇' : (vol < 50 ? '🔉' : '🔊');
@@ -6629,6 +6658,7 @@
             volumeSlider.addEventListener('input', () => {
                 const vol = parseInt(volumeSlider.value, 10);
                 bgMusic.volume = vol / 100;
+                if (sanctuaryMusic) sanctuaryMusic.volume = vol / 100;
                 updateIcon(vol);
                 localStorage.setItem('stellarDrift_musicVolume', String(vol));
                 if (vol > 0) lastVolume = vol;
@@ -6639,11 +6669,13 @@
                     lastVolume = parseInt(volumeSlider.value, 10);
                     volumeSlider.value = 0;
                     bgMusic.volume = 0;
+                    if (sanctuaryMusic) sanctuaryMusic.volume = 0;
                     updateIcon(0);
                     localStorage.setItem('stellarDrift_musicVolume', '0');
                 } else {
                     volumeSlider.value = lastVolume;
                     bgMusic.volume = lastVolume / 100;
+                    if (sanctuaryMusic) sanctuaryMusic.volume = lastVolume / 100;
                     updateIcon(lastVolume);
                     localStorage.setItem('stellarDrift_musicVolume', String(lastVolume));
                 }
