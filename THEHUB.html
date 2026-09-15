@@ -52,6 +52,11 @@ footer::before,footer::after{content:'';display:block;width:32px;height:1px;back
 .status-dot{width:6px;height:6px;border-radius:50%;background:#22c55e;animation:pulse 2s ease-in-out infinite;}
 @keyframes pulse{0%,100%{opacity:.5}50%{opacity:1}}
 
+.download-btn{position:fixed;bottom:24px;left:24px;z-index:2;display:flex;align-items:center;gap:8px;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--ink2);text-decoration:none;border:1px solid var(--border);border-radius:8px;padding:10px 16px;background:var(--surface);transition:transform .2s ease,border-color .2s ease,color .2s ease,box-shadow .2s ease;animation:cardIn .6s cubic-bezier(.22,1,.36,1) .5s both;}
+.download-btn:hover{color:var(--ink);border-color:#4f8ef755;box-shadow:0 8px 32px rgba(0,0,0,.5);transform:translateY(-2px);}
+.download-btn:active{transform:translateY(0);}
+.download-btn svg{width:12px;height:12px;flex-shrink:0;}
+
 /* ── disabled card state ── */
 .game-card.is-disabled{cursor:not-allowed;opacity:.5;filter:grayscale(.6);}
 .game-card.is-disabled:hover{transform:none;box-shadow:none;border-color:var(--border);}
@@ -73,6 +78,10 @@ footer::before,footer::after{content:'';display:block;width:32px;height:1px;back
 <div class="corner corner-bl"></div>
 <div class="corner corner-br"></div>
 <div class="status"><div class="status-dot"></div>remorse's games</div>
+<a class="download-btn" href="https://raw.githubusercontent.com/ChanceyWancey/CIRCULATE/main/Circut-Mac.zip" download="Circut-Mac.zip">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+  Download My Browser
+</a>
 
 <div class="wrap">
   <header>
