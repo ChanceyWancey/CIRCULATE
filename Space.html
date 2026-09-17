@@ -406,6 +406,59 @@
             flex-shrink: 0;
         }
 
+        /* Radio traffic with Sanctuary HQ - mirrors the material toasts on
+           the opposite side of the screen so the two never collide. */
+        #comms-log {
+            position: absolute;
+            top: 100px;
+            left: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            z-index: 17;
+            pointer-events: none;
+            align-items: flex-start;
+            max-width: min(330px, 46vw);
+        }
+
+        .comms-line {
+            display: flex;
+            gap: 7px;
+            padding: 6px 11px;
+            border-radius: 6px;
+            background: rgba(23, 21, 38, 0.93);
+            border-left: 3px solid #8ee3ff;
+            font-size: 0.72rem;
+            line-height: 1.4;
+            letter-spacing: 0.3px;
+            color: #d6dbe8;
+            opacity: 0;
+            transform: translateX(-12px);
+            transition: opacity 0.35s ease, transform 0.35s ease;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.45);
+        }
+
+        .comms-line.visible {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .comms-line .comms-who {
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        .comms-line.you { border-left-color: #8ee3ff; }
+        .comms-line.you .comms-who { color: #8ee3ff; }
+        .comms-line.hq { border-left-color: #ffd166; }
+        .comms-line.hq .comms-who { color: #ffd166; }
+        .comms-line.static {
+            border-left-color: #9b8da9;
+            color: #b3a9bd;
+            font-style: italic;
+        }
+        .comms-line.static .comms-who { color: #9b8da9; }
+
         #ability-hud {
             background: rgba(39, 33, 59, 0.9);
             border: 1px solid #c7b198;
@@ -1124,6 +1177,7 @@
     <div id="biome-banner"><span class="biome-name"></span><span class="biome-desc"></span></div>
     <div id="event-banner"><span class="event-name"></span><span class="event-desc"></span></div>
     <div id="material-toast-container"></div>
+    <div id="comms-log"></div>
     <div id="crate-reveal-overlay" class="hidden">
         <div class="crate-reveal-card" id="crate-reveal-card">
             <canvas id="crate-reveal-canvas" width="90" height="90"></canvas>
@@ -1140,12 +1194,24 @@
                 <div id="update-log-entries">
                     <!-- Add new patches at the TOP of this list. -->
                     <div class="update-log-entry">
+                        <span class="update-log-version">Derelict Sanctuaries</span>
+                        <span class="update-log-text">Burnt-out stations now drift out in the wild &mdash; fly alongside one and press <strong>E</strong> to cut its salvage caches free for Stardust and local materials. Three caches each, the last one being the crew's own vault. Strip a wreck and it stays stripped, and HQ has something to say about every hull you find.</span>
+                    </div>
+                    <div class="update-log-entry">
+                        <span class="update-log-version">Supply Drop</span>
+                        <span class="update-log-text">New craftable blessing: call Sanctuary HQ on the long channel and requisition fuel and hull to your position. The crate holds station on its own beacon until you collect it &mdash; it never fades like ordinary pickups. 500s cooldown.</span>
+                    </div>
+                    <div class="update-log-entry">
                         <span class="update-log-version">Live Tutorial</span>
                         <span class="update-log-text">Training now runs for real, inside the actual sector &mdash; a real fuel canister, a real crystal, a real target drone, the real Sanctuary, and borrowed abilities to try out. Skip anytime with the banner up top.</span>
                     </div>
                     <div class="update-log-entry">
                         <span class="update-log-version">Stress Meter</span>
                         <span class="update-log-text">New Stress bar builds up while you sit still, faster still near debris or aliens. High Stress fills crystals faster but shrinks their Stardust payout. Craft Stress Vent to dump it all into an escape burst, or Steel Nerves to slow the buildup.</span>
+                    </div>
+                    <div class="update-log-entry">
+                        <span class="update-log-version">First</span>
+                        <span class="update-log-text">update log was shot dead, and we hired Patch List</span>
                     </div>
                 </div>
             </div>
@@ -1389,6 +1455,14 @@
                         <span class="craft-cost" id="cost-ventstress"></span>
                     </div>
                     <button class="btn" id="buy-ventstress-btn" onclick="buyAbility('ventstress')">CRAFT</button>
+                </div>
+                <div class="shop-item">
+                    <div class="shop-info">
+                        <h4>Supply Drop</h4>
+                        <span>Opens the long channel to Sanctuary HQ and requisitions a crate of fuel canisters and hull kits to your position. Unlike normal pickups, a called-in drop never fades &mdash; it holds station on its own beacon until you collect it, and an arrow points you back to it. / 500s cooldown</span>
+                        <span class="craft-cost" id="cost-supplydrop"></span>
+                    </div>
+                    <button class="btn" id="buy-supplydrop-btn" onclick="buyAbility('supplydrop')">CRAFT</button>
                 </div>
                 <div class="shop-item">
                     <div class="shop-info">
@@ -2417,6 +2491,83 @@
             }, 1900);
             materialToastTimeouts.push(removeTimeout);
         }
+        // ================= COMMS / SANCTUARY HQ =================
+        // Flavour radio traffic. Lines stack up on the left of the HUD and
+        // fade out on their own. Purely cosmetic - nothing reads this state
+        // back, so it's safe to skip in the save file.
+        const commsLog = document.getElementById("comms-log");
+        let commsTimeouts = [];
+        const COMMS_LINE_LIFETIME = 7600;
+        const COMMS_MAX_LINES = 4;
+
+        function clearComms() {
+            commsTimeouts.forEach(t => clearTimeout(t));
+            commsTimeouts = [];
+            if (commsLog) commsLog.innerHTML = '';
+        }
+
+        function pushCommsLine(who, text, cls) {
+            if (!commsLog) return;
+            const line = document.createElement('div');
+            line.className = `comms-line ${cls || 'hq'}`;
+            line.innerHTML = `<span class="comms-who">${who}</span><span>${text}</span>`;
+            commsLog.appendChild(line);
+            // Keep the stack short so long exchanges don't crawl down the
+            // screen over the bars.
+            while (commsLog.children.length > COMMS_MAX_LINES) {
+                commsLog.removeChild(commsLog.firstChild);
+            }
+            requestAnimationFrame(() => line.classList.add('visible'));
+            const t = setTimeout(() => {
+                line.classList.remove('visible');
+                setTimeout(() => line.remove(), 400);
+            }, COMMS_LINE_LIFETIME);
+            commsTimeouts.push(t);
+        }
+
+        // Each entry is { who, text, cls } - played out in order with a
+        // pause between lines so it reads like an actual radio call.
+        function playCommsExchange(lines, startDelay) {
+            let t = startDelay || 0;
+            lines.forEach(l => {
+                const delay = t;
+                const handle = setTimeout(() => pushCommsLine(l.who, l.text, l.cls), delay);
+                commsTimeouts.push(handle);
+                // Longer lines hold the channel a little longer.
+                t += 1350 + Math.min(1800, l.text.length * 22);
+            });
+        }
+
+        const COMMS_YOU = "DRIFTER";
+        const COMMS_HQ = "SANCTUARY HQ";
+
+        // Supply Drop call-ins. One of these plays each time the blessing
+        // fires, so the ability reads as actually requisitioning a crate
+        // from home rather than conjuring one out of nothing.
+        const SUPPLY_DROP_EXCHANGES = [
+            [
+                { who: COMMS_YOU, text: "Sanctuary HQ, Drifter on the long channel. Running light out here &mdash; requesting a materials drop on my mark.", cls: 'you' },
+                { who: COMMS_HQ, text: "Copy, Drifter. Mark received. Loading a cache now &mdash; stay off the throttle.", cls: 'hq' },
+                { who: COMMS_HQ, text: "Crate's away on its own beacon. It'll hold position until you collect it. HQ out.", cls: 'hq' }
+            ],
+            [
+                { who: COMMS_YOU, text: "HQ, this is Drifter. Tanks are thin and the hull's worse. Requesting resupply, my coordinates.", cls: 'you' },
+                { who: COMMS_HQ, text: "We see you out there, Drifter. That's a long way from the lamps. Kicking a crate out the airlock.", cls: 'hq' },
+                { who: COMMS_HQ, text: "Fuel and hull patches, beacon-tagged. Nothing out there will touch it &mdash; take your time.", cls: 'hq' }
+            ],
+            [
+                { who: COMMS_YOU, text: "Sanctuary HQ &mdash; Drifter. Calling in the favour. Materials drop, if you've got one spare.", cls: 'you' },
+                { who: COMMS_HQ, text: "Always got one spare for you. Requisition logged, no questions asked.", cls: 'hq' },
+                { who: COMMS_HQ, text: "Cache is drifting on your mark and it isn't going anywhere. Come home when you can.", cls: 'hq' }
+            ],
+            [
+                { who: COMMS_YOU, text: "HQ, Drifter. Requesting backup materials at my position. Repeat, backup materials.", cls: 'you' },
+                { who: COMMS_HQ, text: "...say again, Drifter, you're breaking up out there.", cls: 'hq' },
+                { who: COMMS_YOU, text: "Fuel. Hull. Anything. Please.", cls: 'you' },
+                { who: COMMS_HQ, text: "Copy all. Crate's on the way and it'll wait for you. Hold on, Drifter.", cls: 'hq' }
+            ]
+        ];
+
         function hasMaterials(cost) {
             return Object.entries(cost).every(([id, amt]) => (materials[id] || 0) >= amt);
         }
@@ -2433,6 +2584,11 @@
         // small set of biome materials. Cheap ones lean on a single biome;
         // pricier ones deliberately mix materials from two different biomes
         // so the strongest gear requires having explored further out.
+        // Supply Drop blessing: a very long cooldown (500s at 60fps) in
+        // exchange for a permanent, hand-placed cache of fuel and hull.
+        const SUPPLY_DROP_COOLDOWN_FRAMES = 500 * 60;
+        const SUPPLY_DROP_FUEL_COUNT = 3;
+        const SUPPLY_DROP_HEALTH_COUNT = 3;
         const CRAFT_RECIPES = {
             outpost:{ sd: 120, mats: {} },
             blink:  { sd: 25, mats: { prism: 2 } },
@@ -2449,6 +2605,7 @@
             gravplate:{ sd: 65, mats: { singularity: 1, nullfrag: 1 } },
             homing: { sd: 60, mats: { circuit: 1, coil: 1 } },
             ventstress: { sd: 45, mats: { cinder: 1, shard: 1 } },
+            supplydrop: { sd: 70, mats: { scrap: 2, circuit: 1 } },
             steelnerves: { sd: 50, mats: { chitin: 1, scrap: 1 } },
             // Not tied to the single-passive-slot rotation like the four
             // above - this is a permanent unlock once crafted, purely
@@ -2654,6 +2811,137 @@
         // still works out here, it's just pricier (see getEffectiveRecipe).
         let dockedAtOutpost = false;
 
+        // ================= DERELICT SANCTUARIES =================
+        // Burnt-out stations from whatever came before you. They sit on a
+        // deterministic grid - the same wreck is always in the same place
+        // for a given drift - and each one holds a few salvage caches you
+        // strip by holding station and pressing E. Once a wreck is picked
+        // clean it stays clean for the rest of the run (derelictSalvaged is
+        // part of the save), so they're a finite reason to explore rather
+        // than a farm you can camp.
+        const DERELICT_CELL_SIZE = 3400;
+        const DERELICT_SPAWN_CHANCE = 0.17; // per grid cell
+        const DERELICT_RADIUS = 44;
+        const DERELICT_SAFE_MARGIN = 900; // keep them clear of home/Sanctuary
+        const DERELICT_INTERACT_RANGE = 95;
+        const DERELICT_CHARGES = 3;
+        const DERELICT_PULL_COOLDOWN_FRAMES = 45;
+        const DERELICT_PREFIXES = [
+            'THETA', 'VESPER', 'MARROW', 'CANDLE', 'LULLABY', 'HOLLOW',
+            'EMBER', 'SOLACE', 'WIDOW', 'KETTLE', 'ORCHARD', 'NOCTURNE'
+        ];
+        // key "tx,ty" -> how many of its caches have been pulled
+        let derelictSalvaged = {};
+        let derelictPullCooldown = 0;
+
+        function derelictHash(tx, ty) {
+            let h = (tx * 374761393 + ty * 668265263 + 0x9E3779B9) | 0;
+            h = Math.imul(h ^ (h >>> 13), 1274126177);
+            h = Math.imul(h ^ (h >>> 16), 2654435761);
+            return (h ^ (h >>> 15)) >>> 0;
+        }
+
+        function getDerelictInCell(tx, ty) {
+            const h = derelictHash(tx, ty);
+            if ((h % 1000) / 1000 >= DERELICT_SPAWN_CHANCE) return null;
+            // Offset inside the cell, kept away from the edges so two
+            // neighbouring wrecks can never end up on top of each other.
+            const ox = ((h >>> 10) % 1000) / 1000;
+            const oy = ((h >>> 20) % 1000) / 1000;
+            const x = (tx + 0.18 + ox * 0.64) * DERELICT_CELL_SIZE;
+            const y = (ty + 0.18 + oy * 0.64) * DERELICT_CELL_SIZE;
+            // Never right on top of home or the live Sanctuary.
+            if (Math.hypot(x - spawnAnchor.x, y - spawnAnchor.y) < HOME_SAFE_RADIUS + DERELICT_SAFE_MARGIN) return null;
+            if (Math.hypot(x - sanctuary.x, y - sanctuary.y) < DERELICT_SAFE_MARGIN) return null;
+            const key = `${tx},${ty}`;
+            const pulled = derelictSalvaged[key] || 0;
+            return {
+                key, x, y,
+                name: `${DERELICT_PREFIXES[h % DERELICT_PREFIXES.length]}-${(h >>> 5) % 90 + 10}`,
+                tilt: ((h >>> 3) % 628) / 100,
+                seed: h,
+                pulled,
+                charges: DERELICT_CHARGES - pulled
+            };
+        }
+
+        // Only the 3x3 block of cells around the player can ever be on
+        // screen, so there's no world-wide list to keep or spawn timer to
+        // run - the wrecks are recomputed from the hash every frame.
+        function getNearbyDerelicts() {
+            const tx0 = Math.floor(player.x / DERELICT_CELL_SIZE);
+            const ty0 = Math.floor(player.y / DERELICT_CELL_SIZE);
+            const found = [];
+            for (let dx = -1; dx <= 1; dx++) {
+                for (let dy = -1; dy <= 1; dy++) {
+                    const d = getDerelictInCell(tx0 + dx, ty0 + dy);
+                    if (d) found.push(d);
+                }
+            }
+            return found;
+        }
+
+        function getDerelictInRange() {
+            let best = null;
+            let bestDist = DERELICT_INTERACT_RANGE;
+            for (const d of getNearbyDerelicts()) {
+                const dist = Math.hypot(player.x - d.x, player.y - d.y);
+                if (dist < bestDist) { bestDist = dist; best = d; }
+            }
+            return best;
+        }
+
+        // HQ has records on these places, and reading them out is half the
+        // point of stripping a wreck.
+        const DERELICT_LOGS = [
+            "that's an old forward station. Logged lost with all hands. Take what you can carry.",
+            "records say that one went dark mid-resupply. Whatever they were waiting on never came.",
+            "we stopped listing that hull years ago. Strip it. It won't mind.",
+            "careful in there. Those old fields fail loud when they fail.",
+            "that's one of ours. Was. Say something nice for them and get moving.",
+            "reading a dead beacon on your position. It's been calling since before your first drift."
+        ];
+
+        function salvageDerelict(d) {
+            if (!d || d.charges <= 0) return;
+            const pulled = derelictSalvaged[d.key] || 0;
+            derelictSalvaged[d.key] = pulled + 1;
+            derelictPullCooldown = DERELICT_PULL_COOLDOWN_FRAMES;
+
+            const isLastCache = (pulled + 1) >= DERELICT_CHARGES;
+            const biome = getBiome(d.x, d.y);
+            // The final cache is the station's own vault: a bigger Stardust
+            // payout plus the reserves its crew never got to use.
+            const sd = (isLastCache ? 110 : 45) + Math.floor(Math.random() * 60);
+            score += sd;
+            totalCredits += sd;
+            scoreDisplay.textContent = `STARDUST: ${score}`;
+            if (biome && biome.material) {
+                addMaterial(biome.material.id, 1 + (Math.random() < 0.4 ? 1 : 0));
+            }
+            if (isLastCache) {
+                fuel = Math.min(maxFuel, fuel + 45);
+                health = Math.min(maxHealth, health + 30);
+            }
+            playSound('crystal');
+            shatterObject({ x: d.x, y: d.y, size: DERELICT_RADIUS * 0.7 }, "#c08457");
+
+            // Radio flavour: HQ identifies the wreck on the first pull and
+            // signs off on the last one.
+            if (pulled === 0) {
+                const log = DERELICT_LOGS[d.seed % DERELICT_LOGS.length];
+                playCommsExchange([
+                    { who: COMMS_YOU, text: `HQ, Drifter. I'm alongside a dead station, transponder reads ${d.name}. Beginning salvage.`, cls: 'you' },
+                    { who: COMMS_HQ, text: `Copy, Drifter &mdash; ${log}`, cls: 'hq' }
+                ]);
+            } else if (isLastCache) {
+                playCommsExchange([
+                    { who: COMMS_HQ, text: `That's ${d.name} stripped to the frame, Drifter. Found their reserves in the vault &mdash; they'd have wanted you to have them.`, cls: 'hq' },
+                    { who: COMMS_YOU, text: "Understood, HQ. Moving on.", cls: 'you' }
+                ]);
+            }
+        }
+
         const konamiSequence = [
             "ArrowUp", "ArrowUp", 
             "ArrowDown", "ArrowDown", 
@@ -2787,7 +3075,10 @@
                 currentDifficulty, isCheatedRun, cheatedAbilityMode,
                 fuelTankLevel, thrusterLevel, hullLevel, damageLevel,
                 beaconTargetIndex, beaconTarget, beaconRecalcTimer,
-                activeEvent, eventCooldownTimer, eventHudTick
+                activeEvent, eventCooldownTimer, eventHudTick,
+                // Which derelict caches have already been stripped - a
+                // wreck must stay picked clean across a save/reload.
+                derelictSalvaged
             };
         }
 
@@ -2929,6 +3220,7 @@
             camera.y = data.camera ? data.camera.y : player.y;
             spawnAnchor = data.spawnAnchor || { x: player.x, y: player.y };
             if (data.sanctuary) { sanctuary.x = data.sanctuary.x; sanctuary.y = data.sanctuary.y; }
+            derelictSalvaged = data.derelictSalvaged || {};
 
             obstacles = data.obstacles || [];
             aliens = data.aliens || [];
@@ -3452,6 +3744,11 @@
                     dock(false);
                 } else if (outpost && Math.hypot(player.x - outpost.x, player.y - outpost.y) < OUTPOST_DOCK_RANGE) {
                     dock(true);
+                } else if (derelictPullCooldown <= 0) {
+                    // No dock here - a derelict has no working airlock, you
+                    // just cut a cache free from outside.
+                    const wreck = getDerelictInRange();
+                    if (wreck && wreck.charges > 0) salvageDerelict(wreck);
                 }
             }
             if (e.code === "KeyB" && gameRunning && !gamePaused && !docked && player.hasBeacon) {
@@ -5296,6 +5593,37 @@
                 stress = 0; // venting empties the meter
                 player.cooldownTime = 480;
             }
+            else if (ab === 'supplydrop') {
+                playSound('special');
+                // The crate is HQ's answer to a radio call, so run the
+                // exchange alongside the spawn.
+                playCommsExchange(SUPPLY_DROP_EXCHANGES[Math.floor(Math.random() * SUPPLY_DROP_EXCHANGES.length)]);
+                // Same payload the Supply Drop sector event scatters when you
+                // arrive (3 canisters + 3 hull kits), except these are flagged
+                // persistent: the usual "drifted too far, recycle it elsewhere"
+                // cleanup skips them, so the drop waits for you indefinitely.
+                for (let i = 0; i < SUPPLY_DROP_FUEL_COUNT; i++) {
+                    const angle = Math.random() * Math.PI * 2;
+                    const dist = 60 + Math.random() * 180;
+                    fuelCanisters.push({
+                        x: player.x + Math.cos(angle) * dist,
+                        y: player.y + Math.sin(angle) * dist,
+                        size: 10,
+                        persistent: true
+                    });
+                }
+                for (let i = 0; i < SUPPLY_DROP_HEALTH_COUNT; i++) {
+                    const angle = Math.random() * Math.PI * 2;
+                    const dist = 60 + Math.random() * 180;
+                    healthPickups.push({
+                        x: player.x + Math.cos(angle) * dist,
+                        y: player.y + Math.sin(angle) * dist,
+                        size: 10,
+                        persistent: true
+                    });
+                }
+                player.cooldownTime = SUPPLY_DROP_COOLDOWN_FRAMES;
+            }
         }
 
         function startGame(slot, isTutorial) {
@@ -5354,6 +5682,10 @@
             outpostBreakCooldown = 0;
             outpostBreakArmed = false;
             outpostBreakArmTimer = 0;
+            // Fresh drift: every wreck is intact again, and the radio is quiet.
+            derelictSalvaged = {};
+            derelictPullCooldown = 0;
+            clearComms();
             spawnTimer = 0;
             crystalSpawnTimer = 0;
             fuelSpawnTimer = 0;
@@ -5529,11 +5861,18 @@
             } else if (player.equippedAbility === 'outpost' && outpostBreakCooldown > 0) {
                 abilityHud.textContent = `OUTPOST REBUILDING: ${Math.ceil(outpostBreakCooldown / 60)}s`;
             } else if (player.cooldownTime > 0) {
-                abilityHud.textContent = `COOLDOWN: ${Math.ceil(player.cooldownTime / 60)}s`;
+                // 500s of Supply Drop cooldown reads better as m:ss than as
+                // a four-digit second count.
+                const cdSecs = Math.ceil(player.cooldownTime / 60);
+                abilityHud.textContent = cdSecs >= 100
+                    ? `COOLDOWN: ${Math.floor(cdSecs / 60)}:${String(cdSecs % 60).padStart(2, '0')}`
+                    : `COOLDOWN: ${cdSecs}s`;
             } else if (activeEffectTimer > 0) {
                 abilityHud.textContent = `ACTIVE: ${player.equippedAbility.toUpperCase()} (${Math.ceil(activeEffectTimer/60)}s)`;
             } else if (player.equippedAbility === 'rewind') {
                 abilityHud.textContent = `CHRONO REWIND: READY [AUTO]`;
+            } else if (player.equippedAbility === 'supplydrop') {
+                abilityHud.textContent = `READY [SPACE]: SUPPLY DROP`;
             } else {
                 abilityHud.textContent = `READY [SPACE]: ${player.equippedAbility.toUpperCase()}`;
             }
@@ -5544,6 +5883,7 @@
             gameRunning = false;
             cancelAnimationFrame(animationFrameId);
             deleteRunSave(activeSaveSlot);
+            clearComms(); // no pending HQ chatter over the game over screen
 
             if (tutorialMode) {
                 const currentStep = tutorialLiveSteps[tutorialLiveStep];
@@ -5584,10 +5924,19 @@
             if (obstacles.length >= MAX_OBSTACLES) return;
             const size = Math.random() * 22 + 16;
 
+            // Ring radius is derived from the actual screen size so debris
+            // always spawns beyond the visible edge (off screen), then
+            // drifts into view, instead of popping in at a fixed distance
+            // that could already be on-screen on larger monitors.
+            const offScreenDistDebris = Math.min(
+                Math.hypot(canvas.width / 2, canvas.height / 2) + 60,
+                DESPAWN_RADIUS - 500 // stay well clear of the despawn ring on huge screens
+            );
+
             let x, y, attempts = 0;
             do {
                 const angle = Math.random() * Math.PI * 2;
-                const dist = 400 + Math.random() * 700; // ring around the player, just out of view
+                const dist = offScreenDistDebris + Math.random() * 400; // ring around the player, just out of view
                 x = player.x + Math.cos(angle) * dist;
                 y = player.y + Math.sin(angle) * dist;
                 attempts++;
@@ -5626,10 +5975,18 @@
         function spawnAlien() {
             if (aliens.length >= MAX_ALIENS) return;
 
+            // Same idea as debris: base the spawn ring on the actual screen
+            // size so aliens always spawn off screen and drift/steer into
+            // view rather than appearing already inside the viewport.
+            const offScreenDistAlien = Math.min(
+                Math.hypot(canvas.width / 2, canvas.height / 2) + 60,
+                DESPAWN_RADIUS - 500 // stay well clear of the despawn ring on huge screens
+            );
+
             let x, y, attempts = 0;
             do {
                 const angle = Math.random() * Math.PI * 2;
-                const dist = 500 + Math.random() * 800; // ring around the player, just out of view
+                const dist = offScreenDistAlien + Math.random() * 400; // ring around the player, just out of view
                 x = player.x + Math.cos(angle) * dist;
                 y = player.y + Math.sin(angle) * dist;
                 attempts++;
@@ -5783,8 +6140,20 @@
                     : `DOCKING RANGE — PRESS E TO CRAFT AT MINI SANCTUARY (${OUTPOST_CRAFT_MULTIPLIER}x COST)`;
                 dockPrompt.classList.add("visible");
             } else {
-                dockPrompt.classList.remove("visible");
+                const wreckInRange = getDerelictInRange();
+                if (wreckInRange) {
+                    if (wreckInRange.charges > 0) {
+                        dockPrompt.textContent = `SALVAGE RANGE — PRESS E TO STRIP ${wreckInRange.name} (${wreckInRange.charges} CACHE${wreckInRange.charges === 1 ? '' : 'S'} LEFT)`;
+                    } else {
+                        dockPrompt.textContent = `${wreckInRange.name} — PICKED CLEAN`;
+                    }
+                    dockPrompt.classList.add("visible");
+                } else {
+                    dockPrompt.classList.remove("visible");
+                }
             }
+
+            if (derelictPullCooldown > 0) derelictPullCooldown--;
 
             positionHistory.push({ x: player.x, y: player.y });
             if (positionHistory.length > 60) positionHistory.shift();
@@ -5944,14 +6313,17 @@
                 crystalSpawnTimer = 0;
             }
 
+            // Persistent supply-drop pickups don't count against the ambient
+            // spawn caps - an uncollected cache shouldn't choke off the normal
+            // fuel/health trickle for the rest of the drift.
             fuelSpawnTimer += currentBiome.fuelPickupMult;
-            if (fuelSpawnTimer >= 500 && fuelCanisters.length < 4) {
+            if (fuelSpawnTimer >= 500 && fuelCanisters.filter(f => !f.persistent).length < 4) {
                 spawnFuel();
                 fuelSpawnTimer = 0;
             }
 
             healthSpawnTimer += currentBiome.healthPickupMult;
-            if (healthSpawnTimer >= 650 && healthPickups.length < 3) {
+            if (healthSpawnTimer >= 650 && healthPickups.filter(h => !h.persistent).length < 3) {
                 spawnHealthPickup();
                 healthSpawnTimer = 0;
             }
@@ -6009,7 +6381,9 @@
             for (let i = fuelCanisters.length - 1; i >= 0; i--) {
                 const f = fuelCanisters[i];
                 const distToPlayer = Math.hypot(player.x - f.x, player.y - f.y);
-                if (distToPlayer > PICKUP_DESPAWN_RADIUS) {
+                // Called-in supply drops are exempt from the drift cleanup -
+                // they stay exactly where they landed until collected.
+                if (!f.persistent && distToPlayer > PICKUP_DESPAWN_RADIUS) {
                     fuelCanisters.splice(i, 1);
                     spawnFuel();
                     continue;
@@ -6024,7 +6398,7 @@
             for (let i = healthPickups.length - 1; i >= 0; i--) {
                 const h = healthPickups[i];
                 const distToPlayer = Math.hypot(player.x - h.x, player.y - h.y);
-                if (distToPlayer > PICKUP_DESPAWN_RADIUS) {
+                if (!h.persistent && distToPlayer > PICKUP_DESPAWN_RADIUS) {
                     healthPickups.splice(i, 1);
                     spawnHealthPickup();
                     continue;
@@ -6062,6 +6436,24 @@
                 spawnObstacle();
                 spawnTimer = 0;
                 if (spawnInterval > 20) spawnInterval -= 0.4;
+            }
+
+            // Pre-load debris around the player so space doesn't feel empty
+            // when moving fast. At high speed, debris behind you falls out
+            // of DESPAWN_RADIUS and gets recycled faster than the normal
+            // trickle-spawn timer above can replace it. Top obstacles up
+            // toward a target density each frame (a few at a time, so it
+            // fills in smoothly rather than dumping a wall of debris on you)
+            // - the target itself scales with how fast you're moving.
+            const playerSpeed = Math.hypot(player.vx, player.vy);
+            const targetObstacleDensity = Math.min(
+                MAX_OBSTACLES,
+                Math.round(18 * currentBiome.debrisMult + playerSpeed * 2.5)
+            );
+            let debrisBackfillBudget = 2; // cap spawns per frame to avoid a sudden pop-in
+            while (obstacles.length < targetObstacleDensity && debrisBackfillBudget > 0) {
+                spawnObstacle();
+                debrisBackfillBudget--;
             }
 
             for (let i = obstacles.length - 1; i >= 0; i--) {
@@ -6624,6 +7016,77 @@
 
             drawInfiniteStars(camX, camY, canvas.width, canvas.height);
 
+            // Draw derelict sanctuaries - dead stations on the fixed grid.
+            // Drawn before the live station so a wreck never covers it.
+            for (const d of getNearbyDerelicts()) {
+                const dx = d.x - camX;
+                const dy = d.y - camY;
+                // Cheap cull: skip anything comfortably off screen.
+                if (dx < -200 || dy < -200 || dx > canvas.width + 200 || dy > canvas.height + 200) continue;
+                const stripped = d.charges <= 0;
+                const flicker = stripped ? 0 : (Math.sin(Date.now() / 170 + d.seed % 100) + 1) / 2;
+                ctx.save();
+                ctx.translate(dx, dy);
+                ctx.rotate(d.tilt);
+
+                // The hull ring, broken into three arcs with gaps blown
+                // out of it.
+                ctx.strokeStyle = stripped ? "#5d5566" : "#9aa7b0";
+                ctx.lineWidth = 3;
+                ctx.shadowBlur = stripped ? 0 : 6;
+                ctx.shadowColor = "#c08457";
+                const arcs = [[0.15, 1.45], [1.85, 3.25], [3.75, 5.6]];
+                for (const [a0, a1] of arcs) {
+                    ctx.beginPath();
+                    ctx.arc(0, 0, DERELICT_RADIUS, a0, a1);
+                    ctx.stroke();
+                }
+
+                // Snapped structural spars poking out of the breaks.
+                ctx.lineWidth = 2;
+                ctx.strokeStyle = stripped ? "#4e4757" : "#7d6a5a";
+                for (let i = 0; i < 3; i++) {
+                    const a = 1.6 + i * 2.05;
+                    ctx.beginPath();
+                    ctx.moveTo(Math.cos(a) * DERELICT_RADIUS * 0.45, Math.sin(a) * DERELICT_RADIUS * 0.45);
+                    ctx.lineTo(Math.cos(a) * DERELICT_RADIUS * 1.15, Math.sin(a) * DERELICT_RADIUS * 1.15);
+                    ctx.stroke();
+                }
+
+                // Dead core. Still has a failing light in it until the last
+                // cache is pulled, then it goes out for good.
+                ctx.shadowBlur = 0;
+                ctx.fillStyle = "rgba(36, 32, 48, 0.85)";
+                ctx.beginPath();
+                ctx.arc(0, 0, DERELICT_RADIUS * 0.42, 0, Math.PI * 2);
+                ctx.fill();
+                if (!stripped) {
+                    ctx.globalAlpha = 0.25 + flicker * 0.6;
+                    ctx.shadowBlur = 8 + flicker * 8;
+                    ctx.shadowColor = "#c08457";
+                    ctx.fillStyle = "#c08457";
+                    ctx.beginPath();
+                    ctx.arc(0, 0, DERELICT_RADIUS * 0.17, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.globalAlpha = 1;
+                }
+                ctx.restore();
+
+                // Label + remaining caches, unrotated so it stays readable.
+                ctx.save();
+                ctx.font = "bold 11px 'Segoe UI', sans-serif";
+                ctx.textAlign = "center";
+                ctx.fillStyle = stripped ? "#6c6478" : "#c08457";
+                ctx.fillText(`${d.name} — DERELICT`, dx, dy - DERELICT_RADIUS - 20);
+                ctx.font = "10px 'Segoe UI', sans-serif";
+                ctx.fillStyle = stripped ? "#5d5566" : "#9aa7b0";
+                ctx.fillText(
+                    stripped ? "PICKED CLEAN" : `${d.charges} SALVAGE CACHE${d.charges === 1 ? '' : 'S'}`,
+                    dx, dy - DERELICT_RADIUS - 7
+                );
+                ctx.restore();
+            }
+
             // Draw Sanctuary station
             ctx.save();
             const sx = sanctuary.x - camX;
@@ -6729,6 +7192,27 @@
                 }
             }
 
+            // A called-in supply drop stays put forever, which is only useful
+            // if you can find your way back to it - point at the nearest
+            // uncollected piece whenever it's off the edge of the screen.
+            {
+                let nearestDrop = null;
+                let nearestDropDist = Infinity;
+                for (const p of fuelCanisters) {
+                    if (!p.persistent) continue;
+                    const d = Math.hypot(player.x - p.x, player.y - p.y);
+                    if (d < nearestDropDist) { nearestDropDist = d; nearestDrop = p; }
+                }
+                for (const p of healthPickups) {
+                    if (!p.persistent) continue;
+                    const d = Math.hypot(player.x - p.x, player.y - p.y);
+                    if (d < nearestDropDist) { nearestDropDist = d; nearestDrop = p; }
+                }
+                if (nearestDrop) {
+                    drawEventPointer(nearestDrop.x - camX, nearestDrop.y - camY, "#9ad1ff", "SUPPLY DROP");
+                }
+            }
+
             // Draw Fuel Canisters
             for (let f of fuelCanisters) {
                 ctx.save();
@@ -6738,6 +7222,17 @@
                 ctx.beginPath();
                 ctx.arc(f.x - camX, f.y - camY, f.size, 0, Math.PI * 2);
                 ctx.fill();
+                // Called-in drops get a pulsing beacon ring so you can pick
+                // them out from the ambient canisters that come and go.
+                if (f.persistent) {
+                    const pulse = (Math.sin(Date.now() / 260) + 1) / 2;
+                    ctx.strokeStyle = "#a9d6ff";
+                    ctx.lineWidth = 1.5;
+                    ctx.globalAlpha = 0.5 + pulse * 0.5;
+                    ctx.beginPath();
+                    ctx.arc(f.x - camX, f.y - camY, f.size + 5 + pulse * 4, 0, Math.PI * 2);
+                    ctx.stroke();
+                }
                 ctx.restore();
             }
 
@@ -6755,6 +7250,15 @@
                 ctx.fillStyle = "#f7ede2";
                 ctx.fillRect(hx - 1.5, hy - 5, 3, 10);
                 ctx.fillRect(hx - 5, hy - 1.5, 10, 3);
+                if (h.persistent) {
+                    const pulse = (Math.sin(Date.now() / 260) + 1) / 2;
+                    ctx.strokeStyle = "#ffc2ce";
+                    ctx.lineWidth = 1.5;
+                    ctx.globalAlpha = 0.5 + pulse * 0.5;
+                    ctx.beginPath();
+                    ctx.arc(hx, hy, h.size + 5 + pulse * 4, 0, Math.PI * 2);
+                    ctx.stroke();
+                }
                 ctx.restore();
             }
 
