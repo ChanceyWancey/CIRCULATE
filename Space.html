@@ -415,7 +415,12 @@
             display: flex;
             flex-direction: column;
             gap: 6px;
-            z-index: 17;
+            /* Above every other in-flight HUD element (banners, dock
+               prompt, tutorial panel all top out at 22) so a radio line
+               is never rendered underneath one of them. Still below the
+               full-screen menus (30) and the crate-reveal overlay (100),
+               which are meant to cover everything, comms included. */
+            z-index: 28;
             pointer-events: none;
             align-items: flex-start;
             max-width: min(330px, 46vw);
@@ -1194,6 +1199,10 @@
                 <div id="update-log-entries">
                     <!-- Add new patches at the TOP of this list. -->
                     <div class="update-log-entry">
+                        <span class="update-log-version">Supply Pallet</span>
+                        <span class="update-log-text">Supply Drop's crate now includes a pallet of a random material alongside the fuel and hull kits &mdash; HQ reads the manifest out over the radio when it lands.</span>
+                    </div>
+                    <div class="update-log-entry">
                         <span class="update-log-version">Derelict Sanctuaries</span>
                         <span class="update-log-text">Burnt-out stations now drift out in the wild &mdash; fly alongside one and press <strong>E</strong> to cut its salvage caches free for Stardust and local materials. Three caches each, the last one being the crew's own vault. Strip a wreck and it stays stripped, and HQ has something to say about every hull you find.</span>
                     </div>
@@ -1459,7 +1468,7 @@
                 <div class="shop-item">
                     <div class="shop-info">
                         <h4>Supply Drop</h4>
-                        <span>Opens the long channel to Sanctuary HQ and requisitions a crate of fuel canisters and hull kits to your position. Unlike normal pickups, a called-in drop never fades &mdash; it holds station on its own beacon until you collect it, and an arrow points you back to it. / 500s cooldown</span>
+                        <span>Opens the long channel to Sanctuary HQ and requisitions a crate of fuel canisters, hull kits, and a pallet of a random material to your position. Unlike normal pickups, a called-in drop never fades &mdash; it holds station on its own beacon until you collect it, and an arrow points you back to it. / 500s cooldown</span>
                         <span class="craft-cost" id="cost-supplydrop"></span>
                     </div>
                     <button class="btn" id="buy-supplydrop-btn" onclick="buyAbility('supplydrop')">CRAFT</button>
@@ -2304,6 +2313,7 @@
             announceEvent(def);
             playSound('event');
             updateEventHud();
+            sayComms(COMMS_HQ, EVENT_ALERT_LINES[Math.floor(Math.random() * EVENT_ALERT_LINES.length)].text, 'hq', COMMS_PRIORITY.HIGH);
         }
 
         // Pins a local event to a random wild-biome tile within a rough
@@ -2341,6 +2351,7 @@
                 announceEvent(def, `${biomeName} · ${dir} · ${dist}m out`);
                 playSound('event');
                 updateEventHud();
+                sayComms(COMMS_HQ, EVENT_ALERT_LINES[Math.floor(Math.random() * EVENT_ALERT_LINES.length)].text, 'hq', COMMS_PRIORITY.HIGH);
                 return true;
             }
             return false;
@@ -2508,6 +2519,10 @@
         const GILBERT_MATERIAL = { id: 'gilstone', name: 'Gil Stone', color: '#dff6ff', biomeName: 'The Frozen Gilberts' };
         const ALL_MATERIALS_LOOKUP = MATERIAL_LIST.concat([CHEATER_MATERIAL, GILBERT_MATERIAL]);
         function addMaterial(id, amount) {
+            if (!materials[id] && !commsMaterialsAnnounced[id]) {
+                commsMaterialsAnnounced[id] = true;
+                sayComms(COMMS_HQ, FIRST_MATERIAL_LINES(materialName(id)), 'hq', COMMS_PRIORITY.NORMAL);
+            }
             materials[id] = (materials[id] || 0) + amount;
             showMaterialToast(id, amount);
         }
@@ -2537,22 +2552,51 @@
         const COMMS_LINE_LIFETIME = 7600;
         const COMMS_MAX_LINES = 4;
 
+        // Not every call on the channel matters equally. A death report
+        // shouldn't get talked over by idle radio filler, and a low-fuel
+        // warning shouldn't get bumped off screen by a "radio check" that
+        // happened to land a moment later. Every line and every exchange
+        // carries one of these, used both to decide whether a new call
+        // preempts whatever's currently mid-exchange, and which line gets
+        // dropped first when the on-screen stack is full.
+        const COMMS_PRIORITY = { IDLE: 0, NORMAL: 1, HIGH: 2, CRITICAL: 3 };
+
+        // Whichever exchange is currently "on the channel". Only its own
+        // still-pending lines live in commsActiveTimeouts, so preempting it
+        // can cancel exactly those without touching anything already on
+        // screen or unrelated timers.
+        let commsActivePriority = -1;
+        let commsActiveUntil = 0;
+        let commsActiveTimeouts = [];
+
         function clearComms() {
             commsTimeouts.forEach(t => clearTimeout(t));
             commsTimeouts = [];
+            commsActiveTimeouts = [];
+            commsActivePriority = -1;
+            commsActiveUntil = 0;
             if (commsLog) commsLog.innerHTML = '';
         }
 
-        function pushCommsLine(who, text, cls) {
+        function pushCommsLine(who, text, cls, priority) {
             if (!commsLog) return;
+            if (priority == null) priority = COMMS_PRIORITY.NORMAL;
             const line = document.createElement('div');
             line.className = `comms-line ${cls || 'hq'}`;
+            line.dataset.priority = priority;
             line.innerHTML = `<span class="comms-who">${who}</span><span>${text}</span>`;
             commsLog.appendChild(line);
-            // Keep the stack short so long exchanges don't crawl down the
-            // screen over the bars.
+            // Keep the stack short, but when something has to go, drop the
+            // lowest-priority line currently on screen (oldest among ties)
+            // rather than strictly the oldest - idle chatter shouldn't be
+            // able to bump a low-fuel warning off screen just by landing
+            // a moment later.
             while (commsLog.children.length > COMMS_MAX_LINES) {
-                commsLog.removeChild(commsLog.firstChild);
+                let victim = commsLog.children[0];
+                for (const child of commsLog.children) {
+                    if (Number(child.dataset.priority) < Number(victim.dataset.priority)) victim = child;
+                }
+                victim.remove();
             }
             requestAnimationFrame(() => line.classList.add('visible'));
             const t = setTimeout(() => {
@@ -2564,15 +2608,41 @@
 
         // Each entry is { who, text, cls } - played out in order with a
         // pause between lines so it reads like an actual radio call.
-        function playCommsExchange(lines, startDelay) {
+        // A lower-or-equal-priority call arriving while something's still
+        // talking gets dropped outright rather than queued, so the radio
+        // never backs up into a wall of stale chatter; a strictly higher
+        // priority call preempts it, cancelling only its remaining lines.
+        function playCommsExchange(lines, startDelay, priority) {
+            if (priority == null) priority = COMMS_PRIORITY.NORMAL;
+            const now = Date.now();
+            if (now < commsActiveUntil && priority <= commsActivePriority) return;
+
+            if (commsActiveTimeouts.length) {
+                commsActiveTimeouts.forEach(t => clearTimeout(t));
+                const stale = new Set(commsActiveTimeouts);
+                commsTimeouts = commsTimeouts.filter(t => !stale.has(t));
+            }
+            commsActiveTimeouts = [];
+            commsActivePriority = priority;
+
             let t = startDelay || 0;
             lines.forEach(l => {
                 const delay = t;
-                const handle = setTimeout(() => pushCommsLine(l.who, l.text, l.cls), delay);
+                const handle = setTimeout(() => pushCommsLine(l.who, l.text, l.cls, priority), delay);
                 commsTimeouts.push(handle);
+                commsActiveTimeouts.push(handle);
                 // Longer lines hold the channel a little longer.
                 t += 1350 + Math.min(1800, l.text.length * 22);
             });
+            commsActiveUntil = now + t;
+        }
+
+        // One-off instant line (event alerts, milestones, first-contact
+        // callouts) routed through the same priority arbitration as a
+        // full exchange, so it can preempt idle chatter or get dropped by
+        // something more important, instead of always cutting straight in.
+        function sayComms(who, text, cls, priority) {
+            playCommsExchange([{ who, text, cls }], 0, priority);
         }
 
         const COMMS_YOU = "DRIFTER";
@@ -2604,6 +2674,135 @@
                 { who: COMMS_HQ, text: "Copy all. Crate's on the way and it'll wait for you. Hold on, Drifter.", cls: 'hq' }
             ]
         ];
+
+        // ================= MORE HQ CHATTER =================
+        // Everything below plugs into the same pushCommsLine/playCommsExchange
+        // machinery above. Each category has its own small state so lines
+        // fire once at the right moment instead of spamming every frame.
+
+        // --- Docking / undocking -------------------------------------
+        const DOCK_EXCHANGES = [
+            [
+                { who: COMMS_YOU, text: "HQ, Drifter. Docking clamps engaged, I'm home.", cls: 'you' },
+                { who: COMMS_HQ, text: "Good to have you back in the light, Drifter. Shop's open.", cls: 'hq' }
+            ],
+            [
+                { who: COMMS_HQ, text: "Reading your approach, Drifter. Clamps standing by.", cls: 'hq' },
+                { who: COMMS_YOU, text: "Copy, HQ. Bringing her in.", cls: 'you' }
+            ],
+            [
+                { who: COMMS_YOU, text: "Sanctuary, Drifter on final approach.", cls: 'you' },
+                { who: COMMS_HQ, text: "Copy final. Field's steady, come on in and get yourself sorted.", cls: 'hq' }
+            ]
+        ];
+        const UNDOCK_EXCHANGES = [
+            [
+                { who: COMMS_YOU, text: "HQ, Drifter. Undocking, heading back out.", cls: 'you' },
+                { who: COMMS_HQ, text: "Copy, Drifter. Channel's open if you need us. Good drift.", cls: 'hq' }
+            ],
+            [
+                { who: COMMS_HQ, text: "Clamps releasing. Watch your burn on the way out, Drifter.", cls: 'hq' },
+                { who: COMMS_YOU, text: "Always do, HQ. Drifter out.", cls: 'you' }
+            ],
+            [
+                { who: COMMS_YOU, text: "Departing the field, HQ. Back to the drift.", cls: 'you' },
+                { who: COMMS_HQ, text: "Copy departure. We'll be listening.", cls: 'hq' }
+            ]
+        ];
+
+        // --- Low fuel / low hull ---------------------------------------
+        const LOW_FUEL_LINES = [
+            { who: COMMS_HQ, text: "Drifter, we're reading your fuel curve from here. Getting thin. Find a canister or call it in.", cls: 'hq' },
+            { who: COMMS_HQ, text: "HQ to Drifter — tank telemetry's in the red. Don't push your luck out there.", cls: 'hq' },
+            { who: COMMS_YOU, text: "HQ, Drifter. Fuel's getting low, keeping an eye on it.", cls: 'you' }
+        ];
+        const LOW_HULL_LINES = [
+            { who: COMMS_HQ, text: "Drifter, hull readings just dropped hard. You still with us?", cls: 'hq' },
+            { who: COMMS_YOU, text: "Still here, HQ. Ship's taken a beating though.", cls: 'you' },
+            { who: COMMS_HQ, text: "Get to cover if you can, Drifter. That hull won't take much more.", cls: 'hq' }
+        ];
+
+        // --- Sector events -----------------------------------------------
+        const EVENT_ALERT_LINES = [
+            { who: COMMS_HQ, text: "Drifter, we're picking up an anomaly on long-range. Sending you the read.", cls: 'hq' },
+            { who: COMMS_HQ, text: "HQ to Drifter — sensors just spiked out your way. Worth a look.", cls: 'hq' },
+            { who: COMMS_HQ, text: "Got something unusual on the scope, Drifter. Marking it on your board.", cls: 'hq' }
+        ];
+
+        // --- Stardust milestones -----------------------------------------
+        const SCORE_MILESTONES = [1000, 5000, 10000, 25000, 50000, 100000];
+        const MILESTONE_LINES = [
+            n => `Drifter, that's ${n.toLocaleString()} Stardust logged on your account. Nice work out there.`,
+            n => `HQ to Drifter — ${n.toLocaleString()} Stardust and climbing. Keep it up.`,
+            n => `Numbers just crossed ${n.toLocaleString()} Stardust on our end, Drifter. Good haul.`
+        ];
+
+        // --- First contact with a new material / biome this drift --------
+        const FIRST_MATERIAL_LINES = mat =>
+            `First telemetry we've got on ${mat} this drift, Drifter. Logging the sample.`;
+        const FIRST_BIOME_LINES = name =>
+            `New region on your board, Drifter — ${name}. Nothing in our files on it yet. Watch yourself.`;
+
+        // --- Idle radio filler, just to keep the channel feeling alive ---
+        const IDLE_EXCHANGES = [
+            [
+                { who: COMMS_HQ, text: "HQ to Drifter, radio check.", cls: 'hq' },
+                { who: COMMS_YOU, text: "Reading you, HQ. Still out here.", cls: 'you' }
+            ],
+            [
+                { who: COMMS_HQ, text: "Quiet out there?", cls: 'hq' },
+                { who: COMMS_YOU, text: "Quiet enough. I'll take it.", cls: 'you' }
+            ],
+            [
+                { who: COMMS_YOU, text: "HQ, Drifter. Just checking the line's still open.", cls: 'you' },
+                { who: COMMS_HQ, text: "Open and listening. Go make some Stardust.", cls: 'hq' }
+            ],
+            [
+                { who: COMMS_HQ, text: "How's she handling out there, Drifter?", cls: 'hq' },
+                { who: COMMS_YOU, text: "Handling fine. Complaining a little. Same as always.", cls: 'you' }
+            ]
+        ];
+
+        // --- Death / new drift ---------------------------------------------
+        const DEATH_EXCHANGES = [
+            [
+                { who: COMMS_YOU, text: "HQ, HQ, Drifter — I'm hit, I'm—", cls: 'you' },
+                { who: COMMS_HQ, text: "Drifter?! Say your position! Drifter, respond!", cls: 'hq' },
+                { who: COMMS_HQ, text: "...signal's gone. Logging last known coordinates. Rest easy out there.", cls: 'static' }
+            ],
+            [
+                { who: COMMS_HQ, text: "Drifter, your telemetry just flatlined. Come in.", cls: 'hq' },
+                { who: COMMS_HQ, text: "...no response. Marking the beacon. We'll find what's left.", cls: 'static' }
+            ]
+        ];
+        const NEW_DRIFT_EXCHANGES = [
+            [
+                { who: COMMS_HQ, text: "New beacon signature on our board. That you, Drifter?", cls: 'hq' },
+                { who: COMMS_YOU, text: "It's me, HQ. Suiting up, heading out again.", cls: 'you' },
+                { who: COMMS_HQ, text: "Copy. Channel's open the whole way. Good luck out there.", cls: 'hq' }
+            ],
+            [
+                { who: COMMS_YOU, text: "HQ, Drifter. New ship, same drift. Requesting clearance to depart.", cls: 'you' },
+                { who: COMMS_HQ, text: "Cleared, Drifter. Try to come back this time.", cls: 'hq' }
+            ]
+        ];
+
+        // One-shot / cooldown state for everything above. All of it is
+        // cosmetic-only, so none of it needs to survive a save/reload -
+        // it's reset fresh in startGame() alongside clearComms().
+        let commsLowFuelWarned = false;
+        let commsLowHullWarned = false;
+        let commsMilestonesHit = {};
+        let commsMaterialsAnnounced = {};
+        let commsBiomesAnnounced = {};
+        let commsIdleTimer = 0;
+        let commsIdleTarget = 999999; // set for real once startGame rolls it
+
+        function rollNextIdleTimer() {
+            // 100-200 seconds of real play between idle radio filler -
+            // frequent enough to feel alive, rare enough to stay background.
+            return (100 + Math.random() * 100) * 60;
+        }
 
         function hasMaterials(cost) {
             return Object.entries(cost).every(([id, amt]) => (materials[id] || 0) >= amt);
@@ -2970,12 +3169,12 @@
                 playCommsExchange([
                     { who: COMMS_YOU, text: `HQ, Drifter. I'm alongside a dead station, transponder reads ${d.name}. Beginning salvage.`, cls: 'you' },
                     { who: COMMS_HQ, text: `Copy, Drifter &mdash; ${log}`, cls: 'hq' }
-                ]);
+                ], 0, COMMS_PRIORITY.HIGH);
             } else if (isLastCache) {
                 playCommsExchange([
                     { who: COMMS_HQ, text: `That's ${d.name} stripped to the frame, Drifter. Found their reserves in the vault &mdash; they'd have wanted you to have them.`, cls: 'hq' },
                     { who: COMMS_YOU, text: "Understood, HQ. Moving on.", cls: 'you' }
-                ]);
+                ], 0, COMMS_PRIORITY.HIGH);
             }
         }
 
@@ -5081,6 +5280,12 @@
             updateShopWallet();
             showScreen(shopScreen);
 
+            // Only the real thing gets radio chatter - the Mini Sanctuary
+            // is unmanned, just a cache, so there's no one on the other end.
+            if (!dockedAtOutpost) {
+                playCommsExchange(DOCK_EXCHANGES[Math.floor(Math.random() * DOCK_EXCHANGES.length)], 0, COMMS_PRIORITY.NORMAL);
+            }
+
             // Swap to the Sanctuary's own track while the menu is open,
             // matching whatever volume the player already has dialed in.
             if (bgMusic && sanctuaryMusic) {
@@ -5091,9 +5296,14 @@
         }
 
         function undock() {
+            const wasAtOutpost = dockedAtOutpost; // capture before we clear it below
             docked = false;
             dockedAtOutpost = false;
             shopScreen.classList.add("hidden");
+
+            if (!wasAtOutpost) {
+                playCommsExchange(UNDOCK_EXCHANGES[Math.floor(Math.random() * UNDOCK_EXCHANGES.length)], 0, COMMS_PRIORITY.NORMAL);
+            }
 
             // Hand playback back to the regular sector music.
             if (sanctuaryMusic) sanctuaryMusic.pause();
@@ -5632,9 +5842,19 @@
             }
             else if (ab === 'supplydrop') {
                 playSound('special');
+                // HQ sends "backup materials" too - one random biome
+                // material rides along on its own pallet, possibly from a
+                // biome you haven't reached yet, which is most of its value.
+                const palletMat = MATERIAL_LIST[Math.floor(Math.random() * MATERIAL_LIST.length)];
+                const palletAmount = 2 + Math.floor(Math.random() * 3); // 2-4
                 // The crate is HQ's answer to a radio call, so run the
-                // exchange alongside the spawn.
-                playCommsExchange(SUPPLY_DROP_EXCHANGES[Math.floor(Math.random() * SUPPLY_DROP_EXCHANGES.length)]);
+                // exchange alongside the spawn, then read out the manifest.
+                const exchange = SUPPLY_DROP_EXCHANGES[Math.floor(Math.random() * SUPPLY_DROP_EXCHANGES.length)];
+                playCommsExchange(exchange.concat([{
+                    who: COMMS_HQ,
+                    text: `Manifest reads fuel, hull patches, and ${palletAmount}x ${palletMat.name} on the pallet. Best we had on the shelf.`,
+                    cls: 'hq'
+                }]), 0, COMMS_PRIORITY.HIGH);
                 // Same payload the Supply Drop sector event scatters when you
                 // arrive (3 canisters + 3 hull kits), except these are flagged
                 // persistent: the usual "drifted too far, recycle it elsewhere"
@@ -5656,6 +5876,23 @@
                         x: player.x + Math.cos(angle) * dist,
                         y: player.y + Math.sin(angle) * dist,
                         size: 10,
+                        persistent: true
+                    });
+                }
+                // The pallet itself: a persistent salvage crate carrying the
+                // material, so you still have to fly over and collect it,
+                // same as the fuel canisters and hull kits above.
+                {
+                    const angle = Math.random() * Math.PI * 2;
+                    const dist = 50 + Math.random() * 90;
+                    salvageCrates.push({
+                        x: player.x + Math.cos(angle) * dist,
+                        y: player.y + Math.sin(angle) * dist,
+                        size: 12,
+                        reward: 30,
+                        material: palletMat.id,
+                        materialAmount: palletAmount,
+                        isSupplyPallet: true,
                         persistent: true
                     });
                 }
@@ -5723,6 +5960,19 @@
             derelictSalvaged = {};
             derelictPullCooldown = 0;
             clearComms();
+            // Every one-shot HQ line (low resource warnings, milestones,
+            // first-material/first-biome callouts, idle filler) resets too -
+            // a new drift should be able to hear all of it again.
+            commsLowFuelWarned = false;
+            commsLowHullWarned = false;
+            commsMilestonesHit = {};
+            commsMaterialsAnnounced = {};
+            commsBiomesAnnounced = {};
+            commsIdleTimer = 0;
+            commsIdleTarget = rollNextIdleTimer();
+            if (!isTutorial) {
+                playCommsExchange(NEW_DRIFT_EXCHANGES[Math.floor(Math.random() * NEW_DRIFT_EXCHANGES.length)], 600, COMMS_PRIORITY.NORMAL);
+            }
             spawnTimer = 0;
             crystalSpawnTimer = 0;
             fuelSpawnTimer = 0;
@@ -5873,6 +6123,36 @@
             stressBar.style.width = `${Math.max(0, Math.min(100, (stress / STRESS_MAX) * 100))}%`;
             stressBar.style.backgroundColor = getStressColor(stress / STRESS_MAX);
 
+            // HQ radios in once when a resource first crosses the danger
+            // line, then goes quiet until it recovers past a higher mark
+            // and can drop again - hysteresis so it doesn't nag every frame.
+            if (gameRunning && !docked) {
+                const fuelRatio = fuel / maxFuel;
+                if (!commsLowFuelWarned && fuelRatio <= 0.2) {
+                    commsLowFuelWarned = true;
+                    const line = LOW_FUEL_LINES[Math.floor(Math.random() * LOW_FUEL_LINES.length)];
+                    sayComms(line.who, line.text, line.cls, COMMS_PRIORITY.HIGH);
+                } else if (commsLowFuelWarned && fuelRatio > 0.55) {
+                    commsLowFuelWarned = false;
+                }
+
+                const healthRatio = health / maxHealth;
+                if (!commsLowHullWarned && healthRatio <= 0.25) {
+                    commsLowHullWarned = true;
+                    playCommsExchange(LOW_HULL_LINES, 0, COMMS_PRIORITY.HIGH);
+                } else if (commsLowHullWarned && healthRatio > 0.6) {
+                    commsLowHullWarned = false;
+                }
+
+                for (const n of SCORE_MILESTONES) {
+                    if (score >= n && !commsMilestonesHit[n]) {
+                        commsMilestonesHit[n] = true;
+                        const line = MILESTONE_LINES[Math.floor(Math.random() * MILESTONE_LINES.length)];
+                        sayComms(COMMS_HQ, line(n), 'hq', COMMS_PRIORITY.NORMAL);
+                    }
+                }
+            }
+
             if (isCheatedRun) {
                 abilityHud.style.display = "block";
                 abilityHud.textContent = `CHEAT ACTIVE: ${cheatedAbilityMode.toUpperCase()}`;
@@ -5920,8 +6200,38 @@
             gameRunning = false;
             cancelAnimationFrame(animationFrameId);
             deleteRunSave(activeSaveSlot);
-            clearComms(); // no pending HQ chatter over the game over screen
 
+            // Persist immediately, before any radio-drama delay below - a
+            // closed tab in the next couple seconds shouldn't be able to
+            // lose the Stardust this drift earned.
+            if (score > highScore) {
+                highScore = score;
+                highScoreDisplay.textContent = `HIGH: ${highScore}`;
+            }
+            saveGameData();
+
+            if (tutorialMode) {
+                // Skip the radio drama during the scripted tutorial - go
+                // straight to cleanup so it can't interrupt a live step.
+                clearComms();
+                finishGameOver();
+                return;
+            }
+
+            // A frozen frame of the wreck with HQ scrambling to raise you
+            // makes a better beat than cutting straight to the score
+            // screen - the game screen is still up under the overlay for
+            // a moment, so the exchange is actually visible before it's
+            // covered and cleared.
+            clearComms();
+            playCommsExchange(DEATH_EXCHANGES[Math.floor(Math.random() * DEATH_EXCHANGES.length)], 0, COMMS_PRIORITY.CRITICAL);
+            setTimeout(() => {
+                clearComms();
+                finishGameOver();
+            }, 2400);
+        }
+
+        function finishGameOver() {
             if (tutorialMode) {
                 const currentStep = tutorialLiveSteps[tutorialLiveStep];
                 if (currentStep && currentStep.cleanup) currentStep.cleanup();
@@ -5936,13 +6246,6 @@
                 sanctuaryMusic.pause();
                 if (bgMusic) bgMusic.play().catch(() => {});
             }
-            
-            if (score > highScore) {
-                highScore = score;
-                highScoreDisplay.textContent = `HIGH: ${highScore}`;
-            }
-
-            saveGameData();
 
             if (isCheatedRun) {
                 finalScoreText.textContent = `Cheated Stardust: You gathered ${score} Stardust with cheats enabled!`;
@@ -6148,9 +6451,25 @@
 
             updateEvents();
 
+            // Idle radio filler - keeps the channel feeling staffed even
+            // when nothing else is triggering a line. Skipped during the
+            // tutorial so it can't interrupt a scripted step.
+            if (!tutorialMode) {
+                commsIdleTimer++;
+                if (commsIdleTimer >= commsIdleTarget) {
+                    commsIdleTimer = 0;
+                    commsIdleTarget = rollNextIdleTimer();
+                    playCommsExchange(IDLE_EXCHANGES[Math.floor(Math.random() * IDLE_EXCHANGES.length)], 0, COMMS_PRIORITY.IDLE);
+                }
+            }
+
             const currentBiome = getBiome(player.x, player.y);
             activeBiome = currentBiome;
             announceBiome(currentBiome);
+            if (currentBiome.id !== 'home' && !commsBiomesAnnounced[currentBiome.id]) {
+                commsBiomesAnnounced[currentBiome.id] = true;
+                sayComms(COMMS_HQ, FIRST_BIOME_LINES(currentBiome.name), 'hq', COMMS_PRIORITY.NORMAL);
+            }
 
             if (player.hasBeacon) {
                 beaconRecalcTimer++;
@@ -6456,7 +6775,9 @@
                 if (Math.hypot(player.x - s.x, player.y - s.y) < 25) {
                     score += s.reward;
                     totalCredits += s.reward;
-                    if (s.material) addMaterial(s.material, Math.random() < 0.3 ? 2 : 1);
+                    // A supply pallet's amount is fixed at call-in time (and
+                    // read out over the radio); ordinary wrecks roll for it.
+                    if (s.material) addMaterial(s.material, s.materialAmount || (Math.random() < 0.3 ? 2 : 1));
                     if (s.isCacheDrop) {
                         if (s.fuelAmount) fuel = Math.min(maxFuel, fuel + s.fuelAmount);
                         if (s.healthAmount) health = Math.min(maxHealth, health + s.healthAmount);
@@ -6467,7 +6788,8 @@
                     continue;
                 }
                 // Salvage only exists in the Ghost Sector - if you drift out, the wreck fades from view.
-                if (Math.hypot(s.x - player.x, s.y - player.y) > DESPAWN_RADIUS) {
+                // A supply pallet is the exception: it holds position until collected.
+                if (!s.persistent && Math.hypot(s.x - player.x, s.y - player.y) > DESPAWN_RADIUS) {
                     salvageCrates.splice(i, 1);
                 }
             }
@@ -7253,6 +7575,11 @@
                     const d = Math.hypot(player.x - p.x, player.y - p.y);
                     if (d < nearestDropDist) { nearestDropDist = d; nearestDrop = p; }
                 }
+                for (const p of salvageCrates) {
+                    if (!p.persistent) continue;
+                    const d = Math.hypot(player.x - p.x, player.y - p.y);
+                    if (d < nearestDropDist) { nearestDropDist = d; nearestDrop = p; }
+                }
                 if (nearestDrop) {
                     drawEventPointer(nearestDrop.x - camX, nearestDrop.y - camY, "#9ad1ff", "SUPPLY DROP");
                 }
@@ -7327,6 +7654,18 @@
                 ctx.moveTo(sxp + s.size, syp - s.size);
                 ctx.lineTo(sxp - s.size, syp + s.size);
                 ctx.stroke();
+                if (s.persistent) {
+                    // Called-in pallets get the same pulsing beacon ring as
+                    // the supply drop's fuel/health, so it reads as one crate.
+                    const pulse = (Math.sin(Date.now() / 260) + 1) / 2;
+                    ctx.strokeStyle = "#9ad1ff";
+                    ctx.lineWidth = 1.5;
+                    ctx.globalAlpha = 0.5 + pulse * 0.5;
+                    ctx.beginPath();
+                    ctx.arc(sxp, syp, s.size + 6 + pulse * 4, 0, Math.PI * 2);
+                    ctx.stroke();
+                    ctx.globalAlpha = 1;
+                }
                 ctx.restore();
             }
 
