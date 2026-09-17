@@ -406,7 +406,7 @@
             flex-shrink: 0;
         }
 
-        /* Radio traffic with Sanctuary HQ - mirrors the material toasts on
+        /* Radio traffic with Halcyon Control - mirrors the material toasts on
            the opposite side of the screen so the two never collide. */
         #comms-log {
             position: absolute;
@@ -1199,16 +1199,20 @@
                 <div id="update-log-entries">
                     <!-- Add new patches at the TOP of this list. -->
                     <div class="update-log-entry">
+                        <span class="update-log-version">Long Channel</span>
+                        <span class="update-log-text">HQ signs on as <strong>Halcyon Control</strong> now, every Derelict Sanctuary reads out a registry name when you pull its first cache, and there's more traffic on the radio the further out you get. Some manifest entries won't show up in the shop until you've earned them.</span>
+                    </div>
+                    <div class="update-log-entry">
                         <span class="update-log-version">Supply Pallet</span>
                         <span class="update-log-text">Supply Drop's crate now includes a pallet of a random material alongside the fuel and hull kits &mdash; HQ reads the manifest out over the radio when it lands.</span>
                     </div>
                     <div class="update-log-entry">
                         <span class="update-log-version">Derelict Sanctuaries</span>
-                        <span class="update-log-text">Burnt-out stations now drift out in the wild &mdash; fly alongside one and press <strong>E</strong> to cut its salvage caches free for Stardust and local materials. Three caches each, the last one being the crew's own vault. Strip a wreck and it stays stripped, and HQ has something to say about every hull you find.</span>
+                        <span class="update-log-text">Burnt-out company headquarters now drift out in the wild &mdash; fly alongside one and press <strong>E</strong> to cut its salvage caches free for Stardust and local materials. Three caches each, the last one being the crew's own vault. Strip a wreck and it stays stripped, and HQ has something to say about every outfit you close out.</span>
                     </div>
                     <div class="update-log-entry">
                         <span class="update-log-version">Supply Drop</span>
-                        <span class="update-log-text">New craftable blessing: call Sanctuary HQ on the long channel and requisition fuel and hull to your position. The crate holds station on its own beacon until you collect it &mdash; it never fades like ordinary pickups. 500s cooldown.</span>
+                        <span class="update-log-text">New craftable blessing: call Halcyon Control on the long channel and requisition fuel and hull to your position. The crate holds station on its own beacon until you collect it &mdash; it never fades like ordinary pickups. 500s cooldown.</span>
                     </div>
                     <div class="update-log-entry">
                         <span class="update-log-version">Live Tutorial</span>
@@ -1468,15 +1472,15 @@
                 <div class="shop-item">
                     <div class="shop-info">
                         <h4>Supply Drop</h4>
-                        <span>Opens the long channel to Sanctuary HQ and requisitions a crate of fuel canisters, hull kits, and a pallet of a random material to your position. Unlike normal pickups, a called-in drop never fades &mdash; it holds station on its own beacon until you collect it, and an arrow points you back to it. / 500s cooldown</span>
+                        <span>Opens the long channel to Halcyon Control and requisitions a crate of fuel canisters, hull kits, and a pallet of a random material to your position. Unlike normal pickups, a called-in drop never fades &mdash; it holds station on its own beacon until you collect it, and an arrow points you back to it. / 500s cooldown</span>
                         <span class="craft-cost" id="cost-supplydrop"></span>
                     </div>
                     <button class="btn" id="buy-supplydrop-btn" onclick="buyAbility('supplydrop')">CRAFT</button>
                 </div>
-                <div class="shop-item">
+                <div class="shop-item" id="gilbertbullets-item" style="display:none;">
                     <div class="shop-info">
                         <h4>Gilbert Bullets</h4>
-                        <span>Permanent, purely cosmetic &mdash; replaces your bullets with mini "Gilberts", the size of debris. Stacks with whichever passive you have equipped. Requires 10x Gil Stone, salvaged from the Frozen Gilberts ring a million meters from home.</span>
+                        <span>Permanent, purely cosmetic &mdash; replaces your bullets with mini "Gilberts", the size of debris. Stacks with whichever passive you have equipped. Requires 10x Gil Stone, cut out of the Frozen Gilberts ring &mdash; or out of The Settler &mdash; a million meters from home.</span>
                         <span class="craft-cost" id="cost-gilbertbullets"></span>
                     </div>
                     <button class="btn" id="buy-gilbertbullets-btn" onclick="buyGilbertBullets()">CRAFT</button>
@@ -1789,7 +1793,7 @@
             frozenGilberts: {
                 id: 'frozenGilberts',
                 name: 'The Frozen Gilberts',
-                desc: 'A thin ring of ice a million meters out. Every wreck out here drifts slow and answers to the name "Gilbert".',
+                desc: 'A thin ring of ice a million meters out. Every wreck here drifts slow and answers to the name "Gilbert" — and something bigger drifts with them, still squawking a struck-off Halcyon retrieval code.',
                 starColor: '#dff6ff',
                 tint: 'rgba(160, 220, 255, 0.10)',
                 fog: 0,
@@ -2646,14 +2650,14 @@
         }
 
         const COMMS_YOU = "DRIFTER";
-        const COMMS_HQ = "SANCTUARY HQ";
+        const COMMS_HQ = "HALCYON CONTROL";
 
         // Supply Drop call-ins. One of these plays each time the blessing
         // fires, so the ability reads as actually requisitioning a crate
         // from home rather than conjuring one out of nothing.
         const SUPPLY_DROP_EXCHANGES = [
             [
-                { who: COMMS_YOU, text: "Sanctuary HQ, Drifter on the long channel. Running light out here &mdash; requesting a materials drop on my mark.", cls: 'you' },
+                { who: COMMS_YOU, text: "Halcyon Control, Drifter on the long channel. Running light out here &mdash; requesting a materials drop on my mark.", cls: 'you' },
                 { who: COMMS_HQ, text: "Copy, Drifter. Mark received. Loading a cache now &mdash; stay off the throttle.", cls: 'hq' },
                 { who: COMMS_HQ, text: "Crate's away on its own beacon. It'll hold position until you collect it. HQ out.", cls: 'hq' }
             ],
@@ -2663,7 +2667,7 @@
                 { who: COMMS_HQ, text: "Fuel and hull patches, beacon-tagged. Nothing out there will touch it &mdash; take your time.", cls: 'hq' }
             ],
             [
-                { who: COMMS_YOU, text: "Sanctuary HQ &mdash; Drifter. Calling in the favour. Materials drop, if you've got one spare.", cls: 'you' },
+                { who: COMMS_YOU, text: "Halcyon Control &mdash; Drifter. Calling in the favour. Materials drop, if you've got one spare.", cls: 'you' },
                 { who: COMMS_HQ, text: "Always got one spare for you. Requisition logged, no questions asked.", cls: 'hq' },
                 { who: COMMS_HQ, text: "Cache is drifting on your mark and it isn't going anywhere. Come home when you can.", cls: 'hq' }
             ],
@@ -2720,6 +2724,37 @@
             { who: COMMS_HQ, text: "Drifter, hull readings just dropped hard. You still with us?", cls: 'hq' },
             { who: COMMS_YOU, text: "Still here, HQ. Ship's taken a beating though.", cls: 'you' },
             { who: COMMS_HQ, text: "Get to cover if you can, Drifter. That hull won't take much more.", cls: 'hq' }
+        ];
+
+        // --- Stress -------------------------------------------------------
+        // Same hysteresis pattern as fuel/hull: HQ radios in once you've
+        // redlined, then stays quiet until you've actually calmed back down.
+        const HIGH_STRESS_LINES = [
+            { who: COMMS_HQ, text: "Drifter, your biometrics just spiked. Breathe. Get moving or get docked, your call.", cls: 'hq' },
+            { who: COMMS_HQ, text: "HQ to Drifter — you've been sitting still a long time out there. Everything alright?", cls: 'hq' },
+            { who: COMMS_YOU, text: "HQ, Drifter. I'm fine. Just... watching something.", cls: 'you' }
+        ];
+        // Fires only once the meter has actually pinned at max, not just
+        // crossed the warning line - a step above HIGH_STRESS_LINES.
+        const MAX_STRESS_LINES = [
+            { who: COMMS_HQ, text: "Drifter, that reading's off the top of the scale. I need you to talk to me.", cls: 'hq' },
+            { who: COMMS_YOU, text: "...it's nothing, HQ. Just the quiet out here. Gets to you after a while.", cls: 'you' },
+            { who: COMMS_HQ, text: "Copy. Vent it if you've got the gear, or bring her home. No shame in either one.", cls: 'hq' }
+        ];
+        // Fires when the meter finally comes back down out of the red on
+        // its own, rather than via Stress Vent.
+        const STRESS_RECOVERED_LINES = [
+            { who: COMMS_YOU, text: "HQ, Drifter. I'm alright. Reading's coming back down.", cls: 'you' },
+            { who: COMMS_HQ, text: "Copy that, Drifter. Good to hear it.", cls: 'hq' }
+        ];
+        // Fires when Stress Vent actually fires, scaled by how much stress
+        // was banked at the moment it's used.
+        const STRESS_VENT_LINES_LOW = [
+            { who: COMMS_YOU, text: "HQ, venting some stress. Nothing major.", cls: 'you' }
+        ];
+        const STRESS_VENT_LINES_HIGH = [
+            { who: COMMS_YOU, text: "HQ, venting now — hard burn, don't wait up.", cls: 'you' },
+            { who: COMMS_HQ, text: "Copy, Drifter. Felt that on our end.", cls: 'hq' }
         ];
 
         // --- Sector events -----------------------------------------------
@@ -2787,16 +2822,65 @@
             ]
         ];
 
+        // --- The million-meter arc: the settler --------------------------
+        // Halcyon Control lets slip, once per drift and only after you've
+        // pushed a fair way out, that somebody got all the way to the
+        // million-meter line before you did. That rumour is the only thing
+        // that points at the Frozen Gilberts ring, Gil Stone, and the hull
+        // still flying out there under a struck-off Halcyon retrieval code.
+        const SETTLER_RUMOUR_EXCHANGE = [
+            { who: COMMS_HQ, text: "Drifter &mdash; slow-channel question. I heard there was a drifter that once settled out to one million meters. Before you. Before there was a Drifter on the roster at all.", cls: 'hq' },
+            { who: COMMS_YOU, text: "Really? I should set out there then.", cls: 'you' },
+            { who: COMMS_HQ, text: "Maybe.. there might be something out there.", cls: 'hq' }
+        ];
+        // Fires the first time you actually cross the line. Control gives
+        // you the manifest change and one detail it doesn't explain.
+        const SETTLER_ARRIVAL_EXCHANGE = [
+            { who: COMMS_YOU, text: "HQ, Drifter. Odometer just rolled past one million meters. I'm inside a ring of ice out here.", cls: 'you' },
+            { who: COMMS_HQ, text: "...we see it. Ice logs as salvage &mdash; Gil Stone. It's on your manifest now, the shop will honour it.", cls: 'hq' },
+            { who: COMMS_HQ, text: "Drifter, there's a transponder cycling out there with you. Halcyon prefix.", cls: 'hq' },
+            { who: COMMS_YOU, text: "Say again? There's nobody else on the books.", cls: 'you' },
+            { who: COMMS_HQ, text: "...stand by.", cls: 'static' }
+        ];
+        // First time a Settler comes into view on a given drift. Control
+        // doesn't answer the question, which is the point.
+        const SETTLER_CONTACT_EXCHANGE = [
+            { who: COMMS_YOU, text: "HQ, contact &mdash; big hull, no running lights, coming straight at me. It's squawking the retrieval code you just read out.", cls: 'you' },
+            { who: COMMS_HQ, text: "That code was struck off the register a long time ago, Drifter.", cls: 'hq' },
+            { who: COMMS_YOU, text: "Somebody's still flying it.", cls: 'you' },
+            { who: COMMS_HQ, text: "Something is. Break it and get clear.", cls: 'hq' }
+        ];
+        // First Settler destroyed on a given drift. You're handed the log,
+        // not the conclusion - it's the same detail every derelict carries.
+        const SETTLER_KILL_EXCHANGE = [
+            { who: COMMS_HQ, text: "Hull's open. Cut the core out of it &mdash; that's Gil Stone, and this is the only place it comes from.", cls: 'hq' },
+            { who: COMMS_YOU, text: "HQ, the log's intact. Reads like a retrieval run. Find survivors, strip what's left.", cls: 'you' },
+            { who: COMMS_YOU, text: "Clocks stopped inside one minute. Same minute as the ring.", cls: 'you' },
+            { who: COMMS_HQ, text: "...log it and keep salvaging, Drifter.", cls: 'static' }
+        ];
+        // How far out you have to have pushed before Control will bring the
+        // rumour up unprompted.
+        const SETTLER_RUMOUR_DIST = 30000;
+
         // One-shot / cooldown state for everything above. All of it is
         // cosmetic-only, so none of it needs to survive a save/reload -
         // it's reset fresh in startGame() alongside clearComms().
         let commsLowFuelWarned = false;
         let commsLowHullWarned = false;
+        let commsHighStressWarned = false;
+        let commsMaxStressWarned = false;
         let commsMilestonesHit = {};
         let commsMaterialsAnnounced = {};
         let commsBiomesAnnounced = {};
         let commsIdleTimer = 0;
         let commsIdleTarget = 999999; // set for real once startGame rolls it
+        // Million-meter arc one-shots. millionReached is NOT cosmetic - it
+        // gates Gil Stone and Gilbert Bullets out of existence until you've
+        // actually been out there, so it rides along in the run save.
+        let millionReached = false;
+        let commsSettlerRumourHeard = false;
+        let commsSettlerContact = false;
+        let commsSettlerKilled = false;
 
         function rollNextIdleTimer() {
             // 100-200 seconds of real play between idle radio filler -
@@ -2936,6 +3020,21 @@
         const ALIEN_PREFERRED_DIST = 320;
         const ALIEN_MAX_HEALTH = 70;
 
+        // ================= THE SETTLER =================
+        // The one enemy that only exists past the million-meter line: the
+        // hull of the drifter who settled out there, still under way, still
+        // running a retrieval protocol nobody cancelled. Slow, heavy, fires
+        // a spread, and doesn't shatter when it rams you the way ordinary
+        // hostiles do. It's also the only guaranteed source of Gil Stone.
+        const SETTLER_SPAWN_CHANCE = 0.28; // per alien spawn, past the line
+        const SETTLER_HEALTH = ALIEN_MAX_HEALTH * 6;
+        const SETTLER_SIZE = 46;
+        const SETTLER_REWARD = 450;
+        const SETTLER_RAM_DAMAGE = 35;
+        const SETTLER_SPREAD = 0.26; // radians between its three shots
+        const SETTLER_COLOR = "#dff6ff";
+        const SETTLER_GILSTONE_MIN = 3;
+
         let mouseDown = false;
         let mouseScreenX = 0;
         let mouseScreenY = 0;
@@ -3066,6 +3165,16 @@
             'THETA', 'VESPER', 'MARROW', 'CANDLE', 'LULLABY', 'HOLLOW',
             'EMBER', 'SOLACE', 'WIDOW', 'KETTLE', 'ORCHARD', 'NOCTURNE'
         ];
+        // Every derelict is the headquarters of a rival outfit that worked
+        // this sector before Halcyon was the last one left. They all went
+        // dark inside the same season, none of them got a distress call out,
+        // and finding out why is the whole point of your retrieval mission.
+        const DERELICT_COMPANIES = [
+            'Theta Bell Industries', 'Vesper Salvage Group', 'Marrow & Sons Reclamation',
+            'Candlewick Mutual', 'Lullaby Deep Holdings', 'Hollowmere Freight',
+            'Ember Line Recovery', 'Solace Assurance Co.', 'Widow Creek Mining',
+            'Kettle Haulage Union', 'Orchard Deep Prospecting', 'Nocturne Transit Co.'
+        ];
         // key "tx,ty" -> how many of its caches have been pulled
         let derelictSalvaged = {};
         let derelictPullCooldown = 0;
@@ -3094,6 +3203,7 @@
             return {
                 key, x, y,
                 name: `${DERELICT_PREFIXES[h % DERELICT_PREFIXES.length]}-${(h >>> 5) % 90 + 10}`,
+                company: DERELICT_COMPANIES[h % DERELICT_COMPANIES.length],
                 tilt: ((h >>> 3) % 628) / 100,
                 seed: h,
                 pulled,
@@ -3130,12 +3240,16 @@
         // HQ has records on these places, and reading them out is half the
         // point of stripping a wreck.
         const DERELICT_LOGS = [
-            "that's an old forward station. Logged lost with all hands. Take what you can carry.",
-            "records say that one went dark mid-resupply. Whatever they were waiting on never came.",
-            "we stopped listing that hull years ago. Strip it. It won't mind.",
-            "careful in there. Those old fields fail loud when they fail.",
-            "that's one of ours. Was. Say something nice for them and get moving.",
-            "reading a dead beacon on your position. It's been calling since before your first drift."
+            "that's a headquarters. Whole outfit, one station. Logged lost with all hands, no distress call on file. Take what you can carry.",
+            "records have them going dark mid-resupply. No mayday. No debris field. No bodies.",
+            "we stopped listing that hull the season they went quiet. Strip it. It won't mind.",
+            "careful in there. Their containment failed from the inside, and the report never says how.",
+            "that one's still on the old register. Say something nice for them and get moving.",
+            "dead beacon on your position, still cycling a crew roster. Log the names, Drifter. That's the mission.",
+            "nothing on that one survived, and nothing on that one fought back.",
+            "their clocks all stopped inside the same minute. Log the timestamp and move on.",
+            "no scoring on the hull, no burn marks, nothing forced. Whatever got in was already aboard.",
+            "last entry in their log is a routine one. It just stops mid-sentence."
         ];
 
         function salvageDerelict(d) {
@@ -3167,13 +3281,13 @@
             if (pulled === 0) {
                 const log = DERELICT_LOGS[d.seed % DERELICT_LOGS.length];
                 playCommsExchange([
-                    { who: COMMS_YOU, text: `HQ, Drifter. I'm alongside a dead station, transponder reads ${d.name}. Beginning salvage.`, cls: 'you' },
+                    { who: COMMS_YOU, text: `HQ, Drifter. I'm alongside a dead station, transponder reads ${d.name} &mdash; registry says ${d.company}. Beginning salvage.`, cls: 'you' },
                     { who: COMMS_HQ, text: `Copy, Drifter &mdash; ${log}`, cls: 'hq' }
                 ], 0, COMMS_PRIORITY.HIGH);
             } else if (isLastCache) {
                 playCommsExchange([
-                    { who: COMMS_HQ, text: `That's ${d.name} stripped to the frame, Drifter. Found their reserves in the vault &mdash; they'd have wanted you to have them.`, cls: 'hq' },
-                    { who: COMMS_YOU, text: "Understood, HQ. Moving on.", cls: 'you' }
+                    { who: COMMS_HQ, text: `That's ${d.name} stripped to the frame, Drifter. No survivors logged &mdash; that's ${d.company} closed out. Their reserves are yours; they'd have wanted it that way.`, cls: 'hq' },
+                    { who: COMMS_YOU, text: "Understood, HQ. Another empty one. Moving on.", cls: 'you' }
                 ], 0, COMMS_PRIORITY.HIGH);
             }
         }
@@ -3314,7 +3428,11 @@
                 activeEvent, eventCooldownTimer, eventHudTick,
                 // Which derelict caches have already been stripped - a
                 // wreck must stay picked clean across a save/reload.
-                derelictSalvaged
+                derelictSalvaged,
+                // Whether this drift has ever crossed the million-meter
+                // line. Gates Gil Stone / Gilbert Bullets, so unlike the
+                // cosmetic radio one-shots it has to survive a reload.
+                millionReached, commsSettlerRumourHeard
             };
         }
 
@@ -3457,6 +3575,10 @@
             spawnAnchor = data.spawnAnchor || { x: player.x, y: player.y };
             if (data.sanctuary) { sanctuary.x = data.sanctuary.x; sanctuary.y = data.sanctuary.y; }
             derelictSalvaged = data.derelictSalvaged || {};
+            millionReached = !!data.millionReached;
+            commsSettlerRumourHeard = !!data.commsSettlerRumourHeard;
+            commsSettlerContact = false;
+            commsSettlerKilled = false;
 
             obstacles = data.obstacles || [];
             aliens = data.aliens || [];
@@ -5596,9 +5718,14 @@
                 // Konami cheat is active (or a stray count is somehow still
                 // sitting in the pouch) - it stays invisible to anyone who
                 // never triggered the cheat.
-                const visibleMaterials = (isCheatedRun || (materials.cheateralloy || 0) > 0)
-                    ? MATERIAL_LIST.concat([CHEATER_MATERIAL, GILBERT_MATERIAL])
-                    : MATERIAL_LIST.concat([GILBERT_MATERIAL]);
+                // Gil Stone is likewise invisible until you've actually
+                // crossed the million-meter line yourself - before that the
+                // ring, the stone and the Settler are just a rumour on the
+                // radio, and the pouch shouldn't spoil it.
+                const gilstoneKnown = millionReached || (materials.gilstone || 0) > 0 || player.hasGilbertBullets;
+                const visibleMaterials = MATERIAL_LIST.slice();
+                if (isCheatedRun || (materials.cheateralloy || 0) > 0) visibleMaterials.push(CHEATER_MATERIAL);
+                if (gilstoneKnown) visibleMaterials.push(GILBERT_MATERIAL);
                 pouch.innerHTML = visibleMaterials.map(m => {
                     const count = materials[m.id] || 0;
                     return `<div class="material-chip"><span class="dot" style="background:${m.color}; box-shadow:0 0 5px ${m.color};"></span><span class="material-chip-text"><span class="material-name">${m.name}: ${count}</span><span class="material-source">${m.biomeName}</span></span></div>`;
@@ -5615,6 +5742,13 @@
                     costEl.classList.toggle('insufficient', !affordable);
                 }
                 if (btn) btn.disabled = false; // allow click so the alert explains what's missing
+            }
+            // Gilbert Bullets only appears on the board once the line has
+            // been crossed (or you already own it / already hold the stone).
+            const gilbertItem = document.getElementById('gilbertbullets-item');
+            if (gilbertItem) {
+                const showGilbert = millionReached || player.hasGilbertBullets || (materials.gilstone || 0) > 0;
+                gilbertItem.style.display = showGilbert ? "" : "none";
             }
             // The Cheater's Cure item only ever shows up once a Konami cheat
             // is actually active - a clean run never sees it.
@@ -5837,7 +5971,11 @@
                 ventBoostMult = 1 + stressRatio * 0.9;
                 activeEffectTimer = Math.round(40 + stressRatio * 120);
                 invulnTime = Math.max(invulnTime, Math.round(20 + stressRatio * 70));
+                const ventLines = stressRatio >= 0.7 ? STRESS_VENT_LINES_HIGH : STRESS_VENT_LINES_LOW;
+                playCommsExchange(ventLines, 0, COMMS_PRIORITY.NORMAL);
                 stress = 0; // venting empties the meter
+                commsHighStressWarned = false;
+                commsMaxStressWarned = false;
                 player.cooldownTime = 480;
             }
             else if (ab === 'supplydrop') {
@@ -5965,11 +6103,19 @@
             // a new drift should be able to hear all of it again.
             commsLowFuelWarned = false;
             commsLowHullWarned = false;
+            commsHighStressWarned = false;
+            commsMaxStressWarned = false;
             commsMilestonesHit = {};
             commsMaterialsAnnounced = {};
             commsBiomesAnnounced = {};
             commsIdleTimer = 0;
             commsIdleTarget = rollNextIdleTimer();
+            // A fresh drift has never been to the line, so Gil Stone,
+            // Gilbert Bullets and the settler are all rumour again.
+            millionReached = false;
+            commsSettlerRumourHeard = false;
+            commsSettlerContact = false;
+            commsSettlerKilled = false;
             if (!isTutorial) {
                 playCommsExchange(NEW_DRIFT_EXCHANGES[Math.floor(Math.random() * NEW_DRIFT_EXCHANGES.length)], 600, COMMS_PRIORITY.NORMAL);
             }
@@ -6142,6 +6288,21 @@
                     playCommsExchange(LOW_HULL_LINES, 0, COMMS_PRIORITY.HIGH);
                 } else if (commsLowHullWarned && healthRatio > 0.6) {
                     commsLowHullWarned = false;
+                }
+
+                const stressRatioHud = stress / STRESS_MAX;
+                if (!commsMaxStressWarned && stressRatioHud >= 0.98) {
+                    commsMaxStressWarned = true;
+                    commsHighStressWarned = true;
+                    playCommsExchange(MAX_STRESS_LINES, 0, COMMS_PRIORITY.HIGH);
+                } else if (!commsHighStressWarned && stressRatioHud >= 0.75) {
+                    commsHighStressWarned = true;
+                    const line = HIGH_STRESS_LINES[Math.floor(Math.random() * HIGH_STRESS_LINES.length)];
+                    sayComms(line.who, line.text, line.cls, COMMS_PRIORITY.HIGH);
+                } else if ((commsHighStressWarned || commsMaxStressWarned) && stressRatioHud < 0.35) {
+                    commsHighStressWarned = false;
+                    commsMaxStressWarned = false;
+                    sayComms(STRESS_RECOVERED_LINES[0].who, STRESS_RECOVERED_LINES[0].text, STRESS_RECOVERED_LINES[0].cls, COMMS_PRIORITY.NORMAL);
                 }
 
                 for (const n of SCORE_MILESTONES) {
@@ -6338,8 +6499,38 @@
             const wanderAngle = Math.random() * Math.PI * 2;
             const wanderSpeed = Math.random() * 0.6 + 0.3;
             const biome = getBiome(x, y);
-            const isGuardian = Math.random() < biome.guardianChance;
+            // Settlers only exist at or past the million-meter line, and
+            // they take the slot an ordinary hostile would have used.
+            const spawnHomeDist = Math.hypot(x - spawnAnchor.x, y - spawnAnchor.y);
+            const isSettler = spawnHomeDist >= DEEP_SPACE_UNCAPPED_DIST && Math.random() < SETTLER_SPAWN_CHANCE;
+            const isGuardian = !isSettler && Math.random() < biome.guardianChance;
             const guardianMult = isGuardian ? 2.2 : 1;
+
+            if (isSettler) {
+                aliens.push({
+                    x: x, y: y,
+                    vx: Math.cos(wanderAngle) * wanderSpeed * 0.4,
+                    vy: Math.sin(wanderAngle) * wanderSpeed * 0.4,
+                    size: SETTLER_SIZE,
+                    health: SETTLER_HEALTH,
+                    maxHealth: SETTLER_HEALTH,
+                    shootCooldown: Math.random() * ALIEN_SHOOT_INTERVAL,
+                    wanderTimer: 240 + Math.random() * 180,
+                    reward: SETTLER_REWARD,
+                    color: SETTLER_COLOR,
+                    shootMult: 1.5,
+                    bulletSpeedMult: 1.15,
+                    isGuardian: false,
+                    isSettler: true,
+                    material: 'gilstone'
+                });
+                // First sighting on this drift gets the story behind it.
+                if (!commsSettlerContact && !tutorialMode) {
+                    commsSettlerContact = true;
+                    playCommsExchange(SETTLER_CONTACT_EXCHANGE, 0, COMMS_PRIORITY.HIGH);
+                }
+                return;
+            }
 
             aliens.push({
                 x: x,
@@ -6460,6 +6651,23 @@
                     commsIdleTimer = 0;
                     commsIdleTarget = rollNextIdleTimer();
                     playCommsExchange(IDLE_EXCHANGES[Math.floor(Math.random() * IDLE_EXCHANGES.length)], 0, COMMS_PRIORITY.IDLE);
+                }
+            }
+
+            // ---- The million-meter arc ----------------------------------
+            // Control brings the settler up once you've pushed a fair way
+            // out, and the line itself is what puts Gil Stone and Gilbert
+            // Bullets on the manifest. Before that, neither one exists as
+            // far as the shop is concerned.
+            if (!tutorialMode) {
+                const homeDistNow = Math.hypot(player.x - spawnAnchor.x, player.y - spawnAnchor.y);
+                if (!millionReached && homeDistNow >= DEEP_SPACE_UNCAPPED_DIST) {
+                    millionReached = true;
+                    playCommsExchange(SETTLER_ARRIVAL_EXCHANGE, 0, COMMS_PRIORITY.HIGH);
+                    updateCraftShopUI();
+                } else if (!commsSettlerRumourHeard && !millionReached && homeDistNow >= SETTLER_RUMOUR_DIST) {
+                    commsSettlerRumourHeard = true;
+                    playCommsExchange(SETTLER_RUMOUR_EXCHANGE, 900, COMMS_PRIORITY.NORMAL);
                 }
             }
 
@@ -6968,20 +7176,28 @@
 
                     a.shootCooldown--;
                     if (a.shootCooldown <= 0 && (cheatedAbilityMode !== 'freeze')) {
-                        alienBullets.push({
-                            x: a.x,
-                            y: a.y,
-                            vx: Math.cos(angleToPlayer) * ALIEN_BULLET_SPEED * (a.bulletSpeedMult || 1),
-                            vy: Math.sin(angleToPlayer) * ALIEN_BULLET_SPEED * (a.bulletSpeedMult || 1),
-                            life: 150
-                        });
+                        // Settlers fire a three-round spread instead of the
+                        // single aimed shot everything else out here uses.
+                        const shotAngles = a.isSettler
+                            ? [angleToPlayer - SETTLER_SPREAD, angleToPlayer, angleToPlayer + SETTLER_SPREAD]
+                            : [angleToPlayer];
+                        for (const sa of shotAngles) {
+                            alienBullets.push({
+                                x: a.x,
+                                y: a.y,
+                                vx: Math.cos(sa) * ALIEN_BULLET_SPEED * (a.bulletSpeedMult || 1),
+                                vy: Math.sin(sa) * ALIEN_BULLET_SPEED * (a.bulletSpeedMult || 1),
+                                life: 150
+                            });
+                        }
                         a.shootCooldown = (ALIEN_SHOOT_INTERVAL + Math.random() * 40) * (a.shootMult || 1);
                         playSound('alienShoot');
                     }
                 }
 
                 const alienSpeed = Math.hypot(a.vx, a.vy);
-                const maxAlienSpeed = 1.7;
+                // The Settler is heavy and never hurries. It doesn't need to.
+                const maxAlienSpeed = a.isSettler ? 1.05 : 1.7;
                 if (alienSpeed > maxAlienSpeed) {
                     a.vx = (a.vx / alienSpeed) * maxAlienSpeed;
                     a.vy = (a.vy / alienSpeed) * maxAlienSpeed;
@@ -6999,6 +7215,34 @@
                 }
 
                 const alienHitDist = Math.hypot(player.x - a.x, player.y - a.y);
+
+                // A Settler doesn't shatter itself on you like an ordinary
+                // hostile - it rams straight through, hurts more, and is
+                // still there afterwards. The only way past one is guns.
+                if (a.isSettler && alienHitDist < player.size + a.size / 2 && invulnTime <= 0) {
+                    playSound('hit');
+                    const knockAngleS = Math.atan2(player.y - a.y, player.x - a.x);
+                    player.vx += Math.cos(knockAngleS) * 5.5;
+                    player.vy += Math.sin(knockAngleS) * 5.5;
+                    a.vx -= Math.cos(knockAngleS) * 0.5;
+                    a.vy -= Math.sin(knockAngleS) * 0.5;
+                    invulnTime = INVULN_FRAMES;
+                    const settlerCloaked = (player.equippedAbility === 'cloak' && activeEffectTimer > 0);
+                    if (cheatedAbilityMode !== 'godmode' && !settlerCloaked) {
+                        if (player.hasShield) {
+                            player.hasShield = false;
+                        } else {
+                            health -= SETTLER_RAM_DAMAGE;
+                            if (health <= 0) {
+                                health = 0;
+                                gameOver();
+                                return;
+                            }
+                        }
+                    }
+                    continue;
+                }
+
                 if (alienHitDist < player.size + a.size / 2 && invulnTime <= 0) {
                     let isCloaked = (player.equippedAbility === 'cloak' && activeEffectTimer > 0);
                     if (cheatedAbilityMode === 'godmode' || player.hasShield || isCloaked) {
@@ -7164,7 +7408,15 @@
                             aliens.splice(j, 1);
                             score += a.reward || 10;
                             totalCredits += a.reward || 10;
-                            if (a.material) {
+                            if (a.isSettler) {
+                                // Guaranteed haul - cracking one open is the
+                                // whole reason to be out at the line.
+                                addMaterial('gilstone', SETTLER_GILSTONE_MIN + Math.floor(Math.random() * 3));
+                                if (!commsSettlerKilled) {
+                                    commsSettlerKilled = true;
+                                    playCommsExchange(SETTLER_KILL_EXCHANGE, 400, COMMS_PRIORITY.HIGH);
+                                }
+                            } else if (a.material) {
                                 const dropChance = a.material === 'cheateralloy' ? 0.1 : (a.isGuardian ? 0.4 : 0.2);
                                 if (Math.random() < dropChance) addMaterial(a.material, 1);
                             }
@@ -7440,8 +7692,10 @@
                 ctx.font = "bold 11px 'Segoe UI', sans-serif";
                 ctx.textAlign = "center";
                 ctx.fillStyle = stripped ? "#6c6478" : "#c08457";
-                ctx.fillText(`${d.name} — DERELICT`, dx, dy - DERELICT_RADIUS - 20);
+                ctx.fillText(`${d.name} — DERELICT HQ`, dx, dy - DERELICT_RADIUS - 33);
                 ctx.font = "10px 'Segoe UI', sans-serif";
+                ctx.fillStyle = stripped ? "#5d5566" : "#8e7f9a";
+                ctx.fillText((d.company || "").toUpperCase(), dx, dy - DERELICT_RADIUS - 20);
                 ctx.fillStyle = stripped ? "#5d5566" : "#9aa7b0";
                 ctx.fillText(
                     stripped ? "PICKED CLEAN" : `${d.charges} SALVAGE CACHE${d.charges === 1 ? '' : 'S'}`,
@@ -7830,6 +8084,74 @@
                 const ax = a.x - camX;
                 const ay = a.y - camY;
                 const angleToPlayer = Math.atan2(player.y - a.y, player.x - a.x);
+                if (a.isSettler) {
+                    // A drifter's hull, not an alien one: the same silhouette
+                    // you fly, scaled up, iced over, running dark with one
+                    // dead beacon still blinking on the spine.
+                    const pulse = (Math.sin(Date.now() / 420) + 1) / 2;
+                    ctx.save();
+                    ctx.translate(ax, ay);
+                    ctx.rotate(angleToPlayer + Math.PI / 2);
+                    ctx.shadowBlur = 16;
+                    ctx.shadowColor = SETTLER_COLOR;
+                    ctx.fillStyle = "#2b3440";
+                    ctx.strokeStyle = SETTLER_COLOR;
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.moveTo(0, -a.size / 2);
+                    ctx.lineTo(-a.size / 2.4, a.size / 6);
+                    ctx.lineTo(-a.size / 2, a.size / 2);
+                    ctx.lineTo(0, a.size / 3.5);
+                    ctx.lineTo(a.size / 2, a.size / 2);
+                    ctx.lineTo(a.size / 2.4, a.size / 6);
+                    ctx.closePath();
+                    ctx.fill();
+                    ctx.stroke();
+                    // Ice growth across the hull.
+                    ctx.strokeStyle = "rgba(223, 246, 255, 0.45)";
+                    ctx.lineWidth = 1;
+                    for (let k = -1; k <= 1; k++) {
+                        ctx.beginPath();
+                        ctx.moveTo(k * a.size / 6, -a.size / 3);
+                        ctx.lineTo(k * a.size / 3.2, a.size / 3);
+                        ctx.stroke();
+                    }
+                    // The beacon that never got switched off.
+                    ctx.globalAlpha = 0.35 + pulse * 0.65;
+                    ctx.fillStyle = "#ff6b6b";
+                    ctx.shadowColor = "#ff6b6b";
+                    ctx.beginPath();
+                    ctx.arc(0, -a.size / 5, 3.2, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.globalAlpha = 1;
+                    ctx.restore();
+
+                    // Cold halo so it reads at a distance in the ice ring.
+                    ctx.save();
+                    ctx.globalAlpha = 0.25 + pulse * 0.2;
+                    ctx.strokeStyle = SETTLER_COLOR;
+                    ctx.lineWidth = 1.5;
+                    ctx.setLineDash([6, 8]);
+                    ctx.beginPath();
+                    ctx.arc(ax, ay, a.size / 2 + 14, 0, Math.PI * 2);
+                    ctx.stroke();
+                    ctx.restore();
+
+                    ctx.save();
+                    ctx.font = "bold 12px 'Segoe UI', sans-serif";
+                    ctx.textAlign = "center";
+                    ctx.fillStyle = SETTLER_COLOR;
+                    ctx.shadowBlur = 6;
+                    ctx.shadowColor = SETTLER_COLOR;
+                    ctx.fillText("THE SETTLER", ax, ay - a.size / 2 - 30);
+                    ctx.font = "9px 'Segoe UI', sans-serif";
+                    ctx.fillStyle = "#9aa7b0";
+                    ctx.fillText("HALCYON RETRIEVAL — CODE STRUCK", ax, ay - a.size / 2 - 19);
+                    ctx.restore();
+
+                    drawMiniHealthBar(ax, ay - a.size / 2 - 12, a.health / a.maxHealth, a.size + 20, "#dff6ff");
+                    continue;
+                }
                 ctx.save();
                 ctx.translate(ax, ay);
                 ctx.rotate(angleToPlayer + Math.PI / 2);
