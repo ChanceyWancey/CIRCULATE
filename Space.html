@@ -415,12 +415,12 @@
             display: flex;
             flex-direction: column;
             gap: 6px;
-            /* Above every other in-flight HUD element (banners, dock
-               prompt, tutorial panel all top out at 22) so a radio line
-               is never rendered underneath one of them. Still below the
-               full-screen menus (30) and the crate-reveal overlay (100),
-               which are meant to cover everything, comms included. */
-            z-index: 28;
+            /* Above every other piece of UI in the page, full-screen
+               menus (30) and the crate-reveal overlay (100) included -
+               HQ can always be heard from, even mid-menu. pointer-events
+               stays none below so it never blocks clicks on whatever
+               it's floating over. */
+            z-index: 200;
             pointer-events: none;
             align-items: flex-start;
             max-width: min(330px, 46vw);
