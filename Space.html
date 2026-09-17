@@ -1497,7 +1497,7 @@
                 <div class="shop-item">
                     <div class="shop-info">
                         <h4>Sector Beacon (Passive)</h4>
-                        <span>Pick a biome and follow a compass to the nearest one &mdash; press B in-flight to cycle targets</span>
+                        <span>Pick a biome (or an un-stripped Derelict Sanctuary) and follow a compass to the nearest one &mdash; press B in-flight to cycle targets</span>
                         <span class="craft-cost" id="cost-beacon"></span>
                     </div>
                     <button class="btn" id="buy-beacon-btn" onclick="buyBeacon()">CRAFT</button>
@@ -2174,12 +2174,45 @@
             return null;
         }
 
+        // The beacon cycle is the WILD_BIOME_IDS list plus one extra "virtual"
+        // slot at the end for Derelict Sanctuaries - they aren't a biome, so
+        // they're handled as a special-cased target index rather than an
+        // entry in WILD_BIOME_IDS itself.
+        const BEACON_DERELICT_INDEX = WILD_BIOME_IDS.length;
+        const BEACON_TARGET_COUNT = WILD_BIOME_IDS.length + 1;
+        const DERELICT_BEACON_COLOR = "#c08457";
+
         let beaconTargetIndex = 0;
         let beaconTarget = null; // { x, y, dist }
         let beaconRecalcTimer = 0;
 
+        // Spirals outward grid-cell by grid-cell from (x,y) looking for a
+        // Derelict Sanctuary that still has salvage left. Mirrors
+        // findNearestBiomeTile's ring search, but walks the derelict grid
+        // instead of the biome tile grid.
+        function findNearestDerelict(x, y, maxRingRadius = 40) {
+            const tx0 = Math.floor(x / DERELICT_CELL_SIZE);
+            const ty0 = Math.floor(y / DERELICT_CELL_SIZE);
+            for (let r = 0; r <= maxRingRadius; r++) {
+                let best = null;
+                let bestDist = Infinity;
+                for (let dx = -r; dx <= r; dx++) {
+                    for (let dy = -r; dy <= r; dy++) {
+                        if (Math.max(Math.abs(dx), Math.abs(dy)) !== r) continue; // perimeter only
+                        const d = getDerelictInCell(tx0 + dx, ty0 + dy);
+                        if (d && d.charges > 0) {
+                            const dist = Math.hypot(d.x - x, d.y - y);
+                            if (dist < bestDist) { bestDist = dist; best = { x: d.x, y: d.y, dist }; }
+                        }
+                    }
+                }
+                if (best) return best;
+            }
+            return null;
+        }
+
         function cycleBeaconTarget() {
-            beaconTargetIndex = (beaconTargetIndex + 1) % WILD_BIOME_IDS.length;
+            beaconTargetIndex = (beaconTargetIndex + 1) % BEACON_TARGET_COUNT;
             beaconTarget = null;
             beaconRecalcTimer = 999; // force immediate recalculation
             updateBeaconHud();
@@ -2191,14 +2224,18 @@
                 beaconHud.style.display = "none";
                 return;
             }
-            const targetBiome = BIOMES[WILD_BIOME_IDS[beaconTargetIndex]];
+            const isDerelict = beaconTargetIndex === BEACON_DERELICT_INDEX;
+            const label = isDerelict ? "DERELICT SANCTUARY" : BIOMES[WILD_BIOME_IDS[beaconTargetIndex]].name.toUpperCase();
+            const color = isDerelict ? DERELICT_BEACON_COLOR : BIOMES[WILD_BIOME_IDS[beaconTargetIndex]].starColor;
             beaconHud.style.display = "block";
-            beaconHud.style.borderColor = targetBiome.starColor;
-            beaconHud.style.color = targetBiome.starColor;
+            beaconHud.style.borderColor = color;
+            beaconHud.style.color = color;
             if (beaconTarget) {
-                beaconHud.textContent = `BEACON [B]: ${targetBiome.name.toUpperCase()} — ${Math.round(beaconTarget.dist)}m`;
+                beaconHud.textContent = `BEACON [B]: ${label} — ${Math.round(beaconTarget.dist)}m`;
+            } else if (isDerelict) {
+                beaconHud.textContent = `BEACON [B]: ${label} — none found nearby`;
             } else {
-                beaconHud.textContent = `BEACON [B]: ${targetBiome.name.toUpperCase()} — locating...`;
+                beaconHud.textContent = `BEACON [B]: ${label} — locating...`;
             }
         }
 
@@ -6119,8 +6156,12 @@
                 beaconRecalcTimer++;
                 if (beaconRecalcTimer >= 90) {
                     beaconRecalcTimer = 0;
-                    const targetId = WILD_BIOME_IDS[beaconTargetIndex];
-                    beaconTarget = findNearestBiomeTile(targetId, player.x, player.y);
+                    if (beaconTargetIndex === BEACON_DERELICT_INDEX) {
+                        beaconTarget = findNearestDerelict(player.x, player.y);
+                    } else {
+                        const targetId = WILD_BIOME_IDS[beaconTargetIndex];
+                        beaconTarget = findNearestBiomeTile(targetId, player.x, player.y);
+                    }
                     updateBeaconHud();
                 }
             }
@@ -7181,8 +7222,12 @@
             }
 
             if (player.hasBeacon && beaconTarget) {
-                const targetBiome = BIOMES[WILD_BIOME_IDS[beaconTargetIndex]];
-                drawBeaconPointer(beaconTarget.x - camX, beaconTarget.y - camY, targetBiome.starColor, targetBiome.name);
+                if (beaconTargetIndex === BEACON_DERELICT_INDEX) {
+                    drawBeaconPointer(beaconTarget.x - camX, beaconTarget.y - camY, DERELICT_BEACON_COLOR, "Derelict Sanctuary");
+                } else {
+                    const targetBiome = BIOMES[WILD_BIOME_IDS[beaconTargetIndex]];
+                    drawBeaconPointer(beaconTarget.x - camX, beaconTarget.y - camY, targetBiome.starColor, targetBiome.name);
+                }
             }
 
             if (activeEvent && activeEvent.kind === 'local') {
