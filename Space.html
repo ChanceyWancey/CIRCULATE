@@ -238,6 +238,13 @@
             transition: width 0.1s linear;
         }
 
+        #stress-bar {
+            width: 0%;
+            height: 100%;
+            background: #5dade2;
+            transition: width 0.15s linear, background-color 0.3s linear;
+        }
+
         .bar-label {
             font-size: 0.6rem;
             color: #9b8da9;
@@ -512,6 +519,73 @@
         }
         .btn-warm:hover:not(:disabled) {
             background-color: #e2738a;
+        }
+
+        #tutorial-banner {
+            position: absolute;
+            top: 46px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 380px;
+            max-width: 90vw;
+            background: rgba(23, 21, 38, 0.92);
+            border: 1px solid #6c5b7b;
+            border-radius: 10px;
+            padding: 12px 16px;
+            text-align: center;
+            z-index: 22;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.5);
+        }
+
+        #tutorial-banner.hidden {
+            display: none;
+        }
+
+        #tutorial-banner-title {
+            color: #ffd166;
+            font-size: 0.85rem;
+            font-weight: normal;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+        }
+
+        #tutorial-banner-text {
+            color: #c7b198;
+            font-size: 0.72rem;
+            line-height: 1.4;
+            margin-bottom: 8px;
+        }
+
+        .tutorial-banner-actions {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .tutorial-objective {
+            display: inline-block;
+            background: rgba(56, 46, 78, 0.75);
+            border: 1px solid #6c5b7b;
+            border-radius: 20px;
+            padding: 5px 14px;
+            font-size: 0.72rem;
+            letter-spacing: 0.4px;
+            color: #ffd166;
+            margin-bottom: 10px;
+            transition: all 0.25s ease;
+        }
+
+        .tutorial-objective.tutorial-done {
+            color: #171526;
+            background: #7ed6a5;
+            border-color: #7ed6a5;
+        }
+
+        #tutorial-banner-next-btn.tutorial-ready {
+            background-color: #7ed6a5;
+            border-color: #7ed6a5;
+            color: #171526;
+            box-shadow: 0 0 12px rgba(126, 214, 165, 0.6);
         }
 
         #slots-list, #presets-list {
@@ -1066,8 +1140,12 @@
                 <div id="update-log-entries">
                     <!-- Add new patches at the TOP of this list. -->
                     <div class="update-log-entry">
-                        <span class="update-log-version">Latest</span>
-                        <span class="update-log-text">update log was shot dead, and we hired Patch List</span>
+                        <span class="update-log-version">Live Tutorial</span>
+                        <span class="update-log-text">Training now runs for real, inside the actual sector &mdash; a real fuel canister, a real crystal, a real target drone, the real Sanctuary, and borrowed abilities to try out. Skip anytime with the banner up top.</span>
+                    </div>
+                    <div class="update-log-entry">
+                        <span class="update-log-version">Stress Meter</span>
+                        <span class="update-log-text">New Stress bar builds up while you sit still, faster still near debris or aliens. High Stress fills crystals faster but shrinks their Stardust payout. Craft Stress Vent to dump it all into an escape burst, or Steel Nerves to slow the buildup.</span>
                     </div>
                 </div>
             </div>
@@ -1092,10 +1170,20 @@
 
         <div id="tutorial-screen" class="screen hidden">
             <h2 id="tutorial-title">FLIGHT ACADEMY</h2>
-            <p id="tutorial-text">Welcome, pilot. Let's run through your core flight operations before you hit open space.</p>
+            <p id="tutorial-text">Welcome, pilot. We'll walk you through your ship's systems live, right out in the sector &mdash; watch for the banner at the top of the screen once you launch, and do each objective for real.</p>
             <div class="btn-group">
-                <button class="btn" id="tutorial-next-btn">NEXT</button>
+                <button class="btn" id="tutorial-next-btn">BEGIN TRAINING</button>
                 <button class="btn btn-warm" id="tutorial-back-btn">RETURN</button>
+            </div>
+        </div>
+
+        <div id="tutorial-banner" class="hidden">
+            <h3 id="tutorial-banner-title"></h3>
+            <p id="tutorial-banner-text"></p>
+            <div id="tutorial-banner-objective" class="tutorial-objective"></div>
+            <div class="tutorial-banner-actions">
+                <button class="btn btn-small" id="tutorial-banner-next-btn">NEXT &rsaquo;</button>
+                <button class="btn btn-small btn-warm" id="tutorial-banner-skip-btn">SKIP TUTORIAL</button>
             </div>
         </div>
 
@@ -1296,6 +1384,14 @@
                 </div>
                 <div class="shop-item">
                     <div class="shop-info">
+                        <h4>Stress Vent</h4>
+                        <span>Dumps your entire Stress meter into a burst of speed &amp; brief invulnerability &mdash; the more stress you'd banked, the bigger the burst. Empties your Stress on use / 3.3s cooldown</span>
+                        <span class="craft-cost" id="cost-ventstress"></span>
+                    </div>
+                    <button class="btn" id="buy-ventstress-btn" onclick="buyAbility('ventstress')">CRAFT</button>
+                </div>
+                <div class="shop-item">
+                    <div class="shop-info">
                         <h4>Gilbert Bullets</h4>
                         <span>Permanent, purely cosmetic &mdash; replaces your bullets with mini "Gilberts", the size of debris. Stacks with whichever passive you have equipped. Requires 10x Gil Stone, salvaged from the Frozen Gilberts ring a million meters from home.</span>
                         <span class="craft-cost" id="cost-gilbertbullets"></span>
@@ -1348,6 +1444,14 @@
                     </div>
                     <button class="btn" id="buy-homing-btn" onclick="buyHoming()">CRAFT</button>
                 </div>
+                <div class="shop-item">
+                    <div class="shop-info">
+                        <h4>Steel Nerves (Passive)</h4>
+                        <span>Halves how fast Stress builds up, always on &mdash; keeps crystal harvests closer to full Stardust value out in messy, debris/alien-crowded space</span>
+                        <span class="craft-cost" id="cost-steelnerves"></span>
+                    </div>
+                    <button class="btn" id="buy-steelnerves-btn" onclick="buySteelNerves()">CRAFT</button>
+                </div>
             </div>
             </div>
             </div>
@@ -1390,6 +1494,9 @@
             <div class="meter-container">
                 <div id="fuel-bar"></div>
             </div>
+            <div class="meter-container" title="Stress">
+                <div id="stress-bar"></div>
+            </div>
         </div>
         <div id="ability-hud">BLESSING READY</div>
         <div id="beacon-hud" style="display:none;"></div>
@@ -1425,6 +1532,7 @@
         const highScoreDisplay = document.getElementById("high-score-display");
         const fuelBar = document.getElementById("fuel-bar");
         const healthBar = document.getElementById("health-bar");
+        const stressBar = document.getElementById("stress-bar");
         const abilityHud = document.getElementById("ability-hud");
         const cheatStatus = document.getElementById("cheat-status");
         const dockPrompt = document.getElementById("dock-prompt");
@@ -2001,6 +2109,7 @@
             beaconTarget = null;
             beaconRecalcTimer = 999; // force immediate recalculation
             updateBeaconHud();
+            if (tutorialMode && tutorialLiveStep === 6) tutorialFlags.bPresses = (tutorialFlags.bPresses || 0) + 1;
         }
 
         function updateBeaconHud() {
@@ -2262,6 +2371,11 @@
         const tutorialTitle = document.getElementById("tutorial-title");
         const tutorialText = document.getElementById("tutorial-text");
         const tutorialNextBtn = document.getElementById("tutorial-next-btn");
+        const tutorialBanner = document.getElementById("tutorial-banner");
+        const tutorialBannerTitle = document.getElementById("tutorial-banner-title");
+        const tutorialBannerText = document.getElementById("tutorial-banner-text");
+        const tutorialBannerObjective = document.getElementById("tutorial-banner-objective");
+        const tutorialBannerNextBtn = document.getElementById("tutorial-banner-next-btn");
         const difficultyToggleBtn = document.getElementById("difficulty-toggle-btn");
 
         let score = 0;
@@ -2334,6 +2448,8 @@
             overload: { sd: 55, mats: { plasmacore: 1, waralloy: 1 } },
             gravplate:{ sd: 65, mats: { singularity: 1, nullfrag: 1 } },
             homing: { sd: 60, mats: { circuit: 1, coil: 1 } },
+            ventstress: { sd: 45, mats: { cinder: 1, shard: 1 } },
+            steelnerves: { sd: 50, mats: { chitin: 1, scrap: 1 } },
             // Not tied to the single-passive-slot rotation like the four
             // above - this is a permanent unlock once crafted, purely
             // cosmetic (see buyGilbertBullets / playerBullets rendering).
@@ -2480,7 +2596,35 @@
         };
 
         let activeEffectTimer = 0;
+        // How hard the current Stress Vent burst pushes top speed/accel -
+        // set when the ability fires (scaled to how much stress was
+        // banked), consumed via activeEffectTimer like magnet/cloak.
+        let ventBoostMult = 1;
         let decoyEntity = null;
+
+        // ================= STRESS METER =================
+        // Climbs while drifting nearly stationary, and climbs faster still
+        // if debris or aliens are crowding you - standing in a calm empty
+        // patch barely moves it, camping in a debris storm or an alien pack
+        // redlines it fast. Moving still creeps it up, just much more
+        // slowly than sitting still. Only docking back at safety (or the
+        // Sanctuary/outpost field, or venting it via Stress Vent) brings it
+        // down. High stress makes crystal harvesting faster to fill but
+        // worth less Stardust per crystal - a risk/reward trade between
+        // "sit tight and grind it out safely" vs "hover in the danger zone
+        // and rush it for less payout".
+        let stress = 0;
+        const STRESS_MAX = 100;
+        const STRESS_STILL_SPEED = 0.4; // below this counts as "standing still"
+        const STRESS_STILL_GAIN = 0.045; // base stress/frame while still in calm space
+        const STRESS_MOVING_GAIN = 0.012; // base stress/frame while actually moving (slower climb)
+        const STRESS_DOCKED_DECAY = 1.4; // stress/frame recovered while docked/in a safe field
+        const STRESS_DEBRIS_RADIUS = 260;
+        const STRESS_ALIEN_RADIUS = 320;
+        const STRESS_PER_DEBRIS = 0.012;
+        const STRESS_PER_ALIEN = 0.026;
+        const STRESS_FILL_BONUS = 1.5; // at max stress, crystals fill up to 2.5x faster
+        const STRESS_REWARD_PENALTY = 0.5; // at max stress, crystals pay out only 50% Stardust
         let positionHistory = [];
         let debrisPieces = [];
         // Player-placed Mini Sanctuary: a fragile outpost that shatters
@@ -2619,7 +2763,7 @@
                 v: RUN_SAVE_VERSION,
                 savedAt: Date.now(),
                 score, materials,
-                fuel, maxFuel, health, maxHealth, invulnTime,
+                fuel, maxFuel, health, maxHealth, invulnTime, stress,
                 player: {
                     x: player.x, y: player.y, vx: player.vx, vy: player.vy,
                     accel: player.accel, friction: player.friction, maxSpeed: player.maxSpeed,
@@ -2627,7 +2771,8 @@
                     cooldownTime: player.cooldownTime, maxCooldown: player.maxCooldown,
                     hasShield: player.hasShield, hasMending: player.hasMending,
                     hasBeacon: player.hasBeacon, hasGravPlate: player.hasGravPlate,
-                    hasHoming: player.hasHoming, hasGilbertBullets: player.hasGilbertBullets
+                    hasHoming: player.hasHoming, hasGilbertBullets: player.hasGilbertBullets,
+                    hasSteelNerves: player.hasSteelNerves
                 },
                 camera: { x: camera.x, y: camera.y },
                 spawnAnchor: { x: spawnAnchor.x, y: spawnAnchor.y },
@@ -2764,6 +2909,8 @@
             docked = false;
             dockedAtOutpost = false;
             invulnTime = data.invulnTime || 0;
+            stress = data.stress || 0;
+            ventBoostMult = 1;
 
             const p = data.player || {};
             Object.assign(player, {
@@ -2774,7 +2921,8 @@
                 cooldownTime: p.cooldownTime || 0, maxCooldown: p.maxCooldown || 0,
                 hasShield: !!p.hasShield, hasMending: !!p.hasMending,
                 hasBeacon: !!p.hasBeacon, hasGravPlate: !!p.hasGravPlate,
-                hasHoming: !!p.hasHoming, hasGilbertBullets: !!p.hasGilbertBullets
+                hasHoming: !!p.hasHoming, hasGilbertBullets: !!p.hasGilbertBullets,
+                hasSteelNerves: !!p.hasSteelNerves
             });
 
             camera.x = data.camera ? data.camera.x : player.x;
@@ -2987,37 +3135,214 @@
             } catch (e) {}
         }
 
-        let tutorialStep = 0;
-        const tutorialSteps = [
+        // ================= LIVE INTERACTIVE TUTORIAL =================
+        // Runs each step for real, inside the actual drift: the real
+        // player, real physics, real crystals/debris/aliens/Sanctuary.
+        // A banner overlay (outside the canvas) shows the current
+        // objective and turns it green once you've actually done it in
+        // the live world - Next always works if you'd rather skip ahead.
+        let tutorialMode = false;
+        let tutorialLiveStep = 0;
+        let tutorialFlags = {};
+        let tutorialTargetCanister = null;
+        let tutorialTargetCrystal = null;
+        let tutorialTargetDummy = null;
+        let tutorialStartX = 0, tutorialStartY = 0;
+        let tutorialPrevEquippedAbility = null;
+        let tutorialPrevHasBeacon = false;
+
+        const tutorialLiveSteps = [
             {
                 title: "STEP 1: ZERO-G THRUSTERS",
-                text: "Use keys <strong>W A S D</strong> to push your thrusters and roam the open sector. Moving consumes fuel!"
+                text: "Use keys <strong>W A S D</strong> to push your thrusters and roam the open sector. Moving consumes fuel!",
+                objective: "Fly a couple hundred meters from your start point",
+                setup() {
+                    tutorialStartX = player.x;
+                    tutorialStartY = player.y;
+                },
+                check() {
+                    return Math.hypot(player.x - tutorialStartX, player.y - tutorialStartY) > 300;
+                }
             },
             {
                 title: "STEP 2: FUEL & HULL HEALTH",
-                text: "Watch your green fuel bar and pink health bar! Collect blue fuel canisters and pink hull kits to stay topped up. Getting hit by debris costs health, but you get a moment of invulnerability right after."
+                text: "Watch your green fuel bar and pink health bar! Collect blue fuel canisters and pink hull kits to stay topped up. Getting hit by debris costs health, but you get a moment of invulnerability right after.",
+                objective: "Fly through the fuel canister up ahead",
+                setup() {
+                    fuel = Math.min(fuel, maxFuel * 0.4);
+                    tutorialTargetCanister = { x: player.x + 170, y: player.y - 90, size: 10 };
+                    fuelCanisters.push(tutorialTargetCanister);
+                    updateHudDisplay();
+                },
+                check() {
+                    return !fuelCanisters.includes(tutorialTargetCanister);
+                }
             },
             {
                 title: "STEP 3: SECTOR CRYSTALS",
-                text: "Hover near pulsing sector crystals for a while to harvest Stardust &mdash; it's the only way to earn it, so seek them out and watch for incoming debris!"
+                text: "Hover near pulsing sector crystals for a while to harvest Stardust &mdash; it's the only way to earn it, so seek them out and watch for incoming debris!",
+                objective: "Hover by the crystal until it's fully harvested",
+                setup() {
+                    tutorialTargetCrystal = {
+                        x: player.x, y: player.y - 150,
+                        progress: 0, maxProgress: 150, size: 12,
+                        reward: 20, material: null
+                    };
+                    crystals.push(tutorialTargetCrystal);
+                },
+                check() {
+                    return !crystals.includes(tutorialTargetCrystal);
+                }
             },
             {
                 title: "STEP 4: WEAPONS & ALIENS",
-                text: "Click anywhere to fire toward your cursor &mdash; your blaster has a 1 second cooldown. Debris and hostile aliens both have health bars, so it may take a few shots to break them. Aliens keep their distance and shoot back!"
+                text: "Click anywhere to fire toward your cursor &mdash; your blaster has a 1 second cooldown. Debris and hostile aliens both have health bars, so it may take a few shots to break them. Aliens keep their distance and shoot back!",
+                objective: "Shoot down the drone (it'll take a couple hits)",
+                setup() {
+                    tutorialTargetDummy = {
+                        x: player.x + 220, y: player.y,
+                        vx: 0, vy: 0, size: 26,
+                        health: 50, maxHealth: 50,
+                        reward: 8, color: "#ffd166", material: null
+                    };
+                    obstacles.push(tutorialTargetDummy);
+                },
+                check() {
+                    return !obstacles.includes(tutorialTargetDummy);
+                }
             },
             {
                 title: "STEP 5: THE SANCTUARY",
-                text: "Fly to the golden Sanctuary station and press <strong>E</strong> to dock. Its field auto-shatters any debris or aliens that get close, so you're always safe there. Spend Stardust on ship upgrades, and craft blessings using Stardust plus the biome materials you salvage out in the sector."
+                text: "Fly to the golden Sanctuary station and press <strong>E</strong> to dock. Its field auto-shatters any debris or aliens that get close, so you're always safe there. Spend Stardust on ship upgrades, and craft blessings using Stardust plus the biome materials you salvage out in the sector. Undock (<strong>E</strong> or <strong>ESC</strong>) when you're ready to continue.",
+                objective: "Dock at the Sanctuary, then undock",
+                setup() {
+                    player.x = sanctuary.x - 150;
+                    player.y = sanctuary.y;
+                    player.vx = 0; player.vy = 0;
+                    tutorialFlags.dockedOnce = false;
+                },
+                check() {
+                    if (docked) tutorialFlags.dockedOnce = true;
+                    return !!(tutorialFlags.dockedOnce && !docked);
+                }
             },
             {
                 title: "STEP 6: ABILITIES & PAUSING",
-                text: "Press <strong>SPACEBAR</strong> to activate your equipped blessing, and press <strong>ESC</strong> to pause."
+                text: "Press <strong>SPACEBAR</strong> to activate your equipped blessing, and press <strong>ESC</strong> to pause. We've lent you a Dash blessing just for this drill.",
+                objective: "Press SPACE, then press ESC",
+                setup() {
+                    tutorialPrevEquippedAbility = player.equippedAbility;
+                    player.equippedAbility = 'dash';
+                    player.cooldownTime = 0;
+                    tutorialFlags.spaceUsed = false;
+                    tutorialFlags.escUsed = false;
+                    updateHudDisplay();
+                },
+                check() {
+                    return !!(tutorialFlags.spaceUsed && tutorialFlags.escUsed);
+                },
+                cleanup() {
+                    player.equippedAbility = tutorialPrevEquippedAbility;
+                    player.cooldownTime = 0;
+                }
             },
             {
                 title: "STEP 7: BIOMES",
-                text: "The sector is infinite and made of distinct biomes &mdash; each with its own hazards, rewards, and a unique crafting material dropped by its crystals, debris, and aliens. If you craft the Sector Beacon, press <strong>B</strong> in-flight to cycle which biome you're hunting for, and follow the compass arrow to find it."
+                text: "The sector is infinite and made of distinct biomes &mdash; each with its own hazards, rewards, and a unique crafting material dropped by its crystals, debris, and aliens. If you craft the Sector Beacon, press <strong>B</strong> in-flight to cycle which biome you're hunting for, and follow the compass arrow to find it. We've lent you a Beacon just for this drill.",
+                objective: "Press B a few times to cycle the Beacon",
+                setup() {
+                    tutorialPrevHasBeacon = player.hasBeacon;
+                    player.hasBeacon = true;
+                    tutorialFlags.bPresses = 0;
+                    beaconTarget = null;
+                    beaconRecalcTimer = 999;
+                    updateBeaconHud();
+                },
+                check() {
+                    return (tutorialFlags.bPresses || 0) >= 3;
+                },
+                cleanup() {
+                    player.hasBeacon = tutorialPrevHasBeacon;
+                    updateBeaconHud();
+                }
+            },
+            {
+                title: "STEP 8: STRESS",
+                text: "Sitting still &mdash; especially near debris or aliens &mdash; builds up Stress. High Stress fills crystals faster but shrinks their Stardust payout. Fly into a Sanctuary or outpost field (or vent it with a crafted ability) to bring it back down.",
+                objective: "Let Stress climb, then calm it near the Sanctuary",
+                setup() {
+                    stress = 0;
+                    tutorialFlags.stressPeaked = false;
+                    player.x = sanctuary.x - 320;
+                    player.y = sanctuary.y;
+                    player.vx = 0; player.vy = 0;
+                },
+                check() {
+                    if (stress > 40) tutorialFlags.stressPeaked = true;
+                    const inSafe = docked || Math.hypot(player.x - sanctuary.x, player.y - sanctuary.y) < sanctuary.safeRadius;
+                    return !!(tutorialFlags.stressPeaked && inSafe && stress < 15);
+                }
             }
         ];
+
+        function setupTutorialLiveStep() {
+            const step = tutorialLiveSteps[tutorialLiveStep];
+            tutorialBannerTitle.textContent = step.title;
+            tutorialBannerText.innerHTML = step.text;
+            tutorialBannerObjective.textContent = step.objective;
+            tutorialBannerObjective.classList.remove("tutorial-done");
+            tutorialBannerNextBtn.classList.remove("tutorial-ready");
+            tutorialBannerNextBtn.textContent = (tutorialLiveStep === tutorialLiveSteps.length - 1) ? "FINISH ›" : "NEXT ›";
+            if (step.setup) step.setup();
+        }
+
+        // Called once per real simulation tick from update() while tutorialMode is on.
+        function tutorialLiveTick() {
+            const step = tutorialLiveSteps[tutorialLiveStep];
+            if (!step) return;
+            if (step.check && step.check()) {
+                tutorialBannerObjective.classList.add("tutorial-done");
+                tutorialBannerObjective.textContent = "\u2713 Objective complete!";
+                tutorialBannerNextBtn.classList.add("tutorial-ready");
+            }
+        }
+
+        function advanceTutorialLiveStep() {
+            const finishedStep = tutorialLiveSteps[tutorialLiveStep];
+            if (finishedStep && finishedStep.cleanup) finishedStep.cleanup();
+            // Clean up anything the finished step spawned but the player
+            // never actually interacted with (e.g. skipped ahead early).
+            if (tutorialTargetCanister) { const idx = fuelCanisters.indexOf(tutorialTargetCanister); if (idx !== -1) fuelCanisters.splice(idx, 1); tutorialTargetCanister = null; }
+            if (tutorialTargetCrystal) { const idx = crystals.indexOf(tutorialTargetCrystal); if (idx !== -1) crystals.splice(idx, 1); tutorialTargetCrystal = null; }
+            if (tutorialTargetDummy) { const idx = obstacles.indexOf(tutorialTargetDummy); if (idx !== -1) obstacles.splice(idx, 1); tutorialTargetDummy = null; }
+
+            tutorialLiveStep++;
+            if (tutorialLiveStep >= tutorialLiveSteps.length) {
+                endTutorialMode();
+            } else {
+                setupTutorialLiveStep();
+            }
+        }
+
+        function endTutorialMode() {
+            tutorialMode = false;
+            tutorialBanner.classList.add("hidden");
+            stress = 0;
+            // Hand off into normal free play: seed the sector with hazards
+            // like a fresh drift does, since tutorial steps only spawned
+            // the specific practice objects they needed.
+            for (let i = 0; i < 40; i++) spawnObstacle();
+            for (let i = 0; i < 6; i++) spawnAlien();
+        }
+
+        function startLiveTutorial() {
+            tutorialScreen.classList.add("hidden");
+            startGame(activeSaveSlot || 1, true);
+            tutorialMode = true;
+            tutorialLiveStep = 0;
+            tutorialBanner.classList.remove("hidden");
+            setupTutorialLiveStep();
+        }
 
         // Infinite starfield: instead of storing a finite array of stars,
         // tile space into fixed-size cells and deterministically generate
@@ -3097,7 +3422,8 @@
             hasBeacon: false,
             hasGravPlate: false,
             hasHoming: false,
-            hasGilbertBullets: false
+            hasGilbertBullets: false,
+            hasSteelNerves: false
         };
 
         let obstacles = [];
@@ -3113,6 +3439,7 @@
                 if (docked) {
                     undock();
                 } else if (gameRunning) {
+                    if (tutorialMode && tutorialLiveStep === 5) tutorialFlags.escUsed = true;
                     togglePause();
                 }
             }
@@ -3167,9 +3494,24 @@
             keys[e.code] = false;
         });
 
-        document.getElementById("to-tutorial-btn").addEventListener("click", startTutorial);
-        document.getElementById("tutorial-next-btn").addEventListener("click", nextTutorialStep);
+        document.getElementById("to-tutorial-btn").addEventListener("click", () => showScreen(tutorialScreen));
+        document.getElementById("tutorial-next-btn").addEventListener("click", startLiveTutorial);
         document.getElementById("tutorial-back-btn").addEventListener("click", () => showScreen(menuScreen));
+        tutorialBannerNextBtn.addEventListener("click", advanceTutorialLiveStep);
+        document.getElementById("tutorial-banner-skip-btn").addEventListener("click", () => {
+            if (!confirm("Skip the rest of training and quit back to the menu?")) return;
+            const skippedStep = tutorialLiveSteps[tutorialLiveStep];
+            if (skippedStep && skippedStep.cleanup) skippedStep.cleanup();
+            tutorialMode = false;
+            tutorialBanner.classList.add("hidden");
+            gameRunning = false;
+            gamePaused = false;
+            docked = false;
+            dockedAtOutpost = false;
+            cancelAnimationFrame(animationFrameId);
+            deleteRunSave(activeSaveSlot);
+            showScreen(menuScreen);
+        });
         document.getElementById("back-to-menu-shop").addEventListener("click", undock);
         document.getElementById("resume-btn").addEventListener("click", togglePause);
         document.getElementById("menu-from-pause-btn").addEventListener("click", () => {
@@ -4435,32 +4777,6 @@
             }
         }
 
-        function startTutorial() {
-            tutorialStep = 0;
-            updateTutorialContent();
-            showScreen(tutorialScreen);
-        }
-
-        function updateTutorialContent() {
-            const step = tutorialSteps[tutorialStep];
-            tutorialTitle.textContent = step.title;
-            tutorialText.innerHTML = step.text;
-            if (tutorialStep === tutorialSteps.length - 1) {
-                tutorialNextBtn.textContent = "START DRIFT";
-            } else {
-                tutorialNextBtn.textContent = "NEXT";
-            }
-        }
-
-        function nextTutorialStep() {
-            tutorialStep++;
-            if (tutorialStep >= tutorialSteps.length) {
-                startGame(activeSaveSlot || 1);
-            } else {
-                updateTutorialContent();
-            }
-        }
-
         // Shared check: can we afford a recipe's Stardust fee + material cost?
         function canAffordRecipe(recipe) {
             const eff = getEffectiveRecipe(recipe);
@@ -4502,11 +4818,13 @@
             player.hasBeacon = false;
             player.hasGravPlate = false;
             player.hasHoming = false;
+            player.hasSteelNerves = false;
             playSound('crystal');
             updateMendingButton();
             updateBeaconButton();
             updateGravPlateButton();
             updateHomingButton();
+            updateSteelNervesButton();
             updateBeaconHud();
             updateShopWallet();
         }
@@ -4537,11 +4855,13 @@
             player.hasMending = false;
             player.hasGravPlate = false;
             player.hasHoming = false;
+            player.hasSteelNerves = false;
             playSound('crystal');
             updateMendingButton();
             updateBeaconButton();
             updateGravPlateButton();
             updateHomingButton();
+            updateSteelNervesButton();
             updateShopWallet();
             updateBeaconHud();
         }
@@ -4572,11 +4892,13 @@
             player.hasMending = false;
             player.hasBeacon = false;
             player.hasHoming = false;
+            player.hasSteelNerves = false;
             playSound('crystal');
             updateMendingButton();
             updateBeaconButton();
             updateGravPlateButton();
             updateHomingButton();
+            updateSteelNervesButton();
             updateBeaconHud();
             updateShopWallet();
         }
@@ -4595,11 +4917,13 @@
             player.hasMending = false;
             player.hasBeacon = false;
             player.hasGravPlate = false;
+            player.hasSteelNerves = false;
             playSound('crystal');
             updateMendingButton();
             updateBeaconButton();
             updateGravPlateButton();
             updateHomingButton();
+            updateSteelNervesButton();
             updateBeaconHud();
             updateShopWallet();
         }
@@ -4613,6 +4937,46 @@
             } else {
                 btn.textContent = "CRAFT";
                 btn.disabled = !canAffordRecipe(CRAFT_RECIPES.homing);
+            }
+        }
+
+        // Steel Nerves: the calm counterpart to Stress Vent - halves how
+        // fast stress builds up, so crystal harvesting stays closer to
+        // full-reward even out in messy, debris/alien-crowded pockets of
+        // space. Same one-passive-slot rotation as Mending/Beacon/
+        // GravPlate/Homing above.
+        function buySteelNerves() {
+            if (player.hasSteelNerves) return; // already your equipped passive
+            const recipe = CRAFT_RECIPES.steelnerves;
+            if (!canAffordRecipe(recipe)) {
+                alert(`Missing materials or Stardust! Need ${craftCostLabel(recipe)}.`);
+                return;
+            }
+            craftRecipe(recipe);
+            player.hasSteelNerves = true;
+            player.hasMending = false;
+            player.hasBeacon = false;
+            player.hasGravPlate = false;
+            player.hasHoming = false;
+            playSound('crystal');
+            updateMendingButton();
+            updateBeaconButton();
+            updateGravPlateButton();
+            updateHomingButton();
+            updateSteelNervesButton();
+            updateBeaconHud();
+            updateShopWallet();
+        }
+
+        function updateSteelNervesButton() {
+            const btn = document.getElementById('buy-steelnerves-btn');
+            if (!btn) return;
+            if (player.hasSteelNerves) {
+                btn.textContent = "OWNED";
+                btn.disabled = true;
+            } else {
+                btn.textContent = "CRAFT";
+                btn.disabled = !canAffordRecipe(CRAFT_RECIPES.steelnerves);
             }
         }
 
@@ -4697,7 +5061,7 @@
                 }).join('');
             }
             for (const type of Object.keys(CRAFT_RECIPES)) {
-                if (type === 'mending' || type === 'beacon' || type === 'gravplate' || type === 'homing' || type === 'gilbertbullets' || type === 'cheaterscure') continue; // handled by their own buttons
+                if (type === 'mending' || type === 'beacon' || type === 'gravplate' || type === 'homing' || type === 'gilbertbullets' || type === 'cheaterscure' || type === 'steelnerves') continue; // handled by their own buttons
                 const recipe = CRAFT_RECIPES[type];
                 const costEl = document.getElementById(`cost-${type}`);
                 const btn = document.getElementById(`buy-${type}-btn`);
@@ -4737,6 +5101,11 @@
                 homingCost.textContent = `Craft: ${craftCostLabel(CRAFT_RECIPES.homing)}`;
                 homingCost.classList.toggle('insufficient', !canAffordRecipe(CRAFT_RECIPES.homing));
             }
+            const steelnervesCost = document.getElementById('cost-steelnerves');
+            if (steelnervesCost) {
+                steelnervesCost.textContent = `Craft: ${craftCostLabel(CRAFT_RECIPES.steelnerves)}`;
+                steelnervesCost.classList.toggle('insufficient', !canAffordRecipe(CRAFT_RECIPES.steelnerves));
+            }
             const gilbertBulletsCost = document.getElementById('cost-gilbertbullets');
             if (gilbertBulletsCost) {
                 gilbertBulletsCost.textContent = `Craft: ${craftCostLabel(CRAFT_RECIPES.gilbertbullets)}`;
@@ -4746,6 +5115,7 @@
             updateBeaconButton();
             updateGravPlateButton();
             updateHomingButton();
+            updateSteelNervesButton();
             updateGilbertBulletsButton();
         }
 
@@ -4823,6 +5193,7 @@
 
         function useAbility() {
             if (!player.equippedAbility || player.cooldownTime > 0) return;
+            if (tutorialMode && tutorialLiveStep === 5) tutorialFlags.spaceUsed = true;
 
             const ab = player.equippedAbility;
             if (ab === 'blink') {
@@ -4915,9 +5286,19 @@
                 scoreDisplay.textContent = `STARDUST: ${score}`;
                 player.cooldownTime = 840;
             }
+            else if (ab === 'ventstress') {
+                playSound('special');
+                const stressRatio = stress / STRESS_MAX;
+                // The more stress you'd banked, the harder and longer the burst.
+                ventBoostMult = 1 + stressRatio * 0.9;
+                activeEffectTimer = Math.round(40 + stressRatio * 120);
+                invulnTime = Math.max(invulnTime, Math.round(20 + stressRatio * 70));
+                stress = 0; // venting empties the meter
+                player.cooldownTime = 480;
+            }
         }
 
-        function startGame(slot) {
+        function startGame(slot, isTutorial) {
             if (slot) activeSaveSlot = slot;
             deleteRunSave(activeSaveSlot);
             menuScreen.classList.add("hidden");
@@ -4947,9 +5328,12 @@
             player.hasGravPlate = false;
             player.hasHoming = false;
             player.hasGilbertBullets = false;
+            player.hasSteelNerves = false;
             applyUpgradeStats();
             fuel = maxFuel;
             health = maxHealth;
+            stress = 0;
+            ventBoostMult = 1;
             invulnTime = 0;
             docked = false;
             dockedAtOutpost = false;
@@ -5021,12 +5405,17 @@
             }
 
             // Seed the sector with a scattered debris field so the whole map
-            // is already populated, not just the area around the player
-            for (let i = 0; i < 40; i++) {
-                spawnObstacle();
-            }
-            for (let i = 0; i < 6; i++) {
-                spawnAlien();
+            // is already populated, not just the area around the player.
+            // Skipped for the tutorial run - a clean sector lets each step's
+            // practice object be found and used without stray hazards
+            // getting in the way; endTutorialMode() seeds it once training wraps up.
+            if (!isTutorial) {
+                for (let i = 0; i < 40; i++) {
+                    spawnObstacle();
+                }
+                for (let i = 0; i < 6; i++) {
+                    spawnAlien();
+                }
             }
 
             gameRunning = true;
@@ -5082,12 +5471,38 @@
             return `hsl(${h.toFixed(1)}, ${s.toFixed(0)}%, ${l.toFixed(0)}%)`;
         }
 
+        // HSL keypoints for the stress meter: calm = cool blue, redlining = alarm red.
+        const STRESS_HSL_CALM = { h: 205, s: 65, l: 58 };
+        const STRESS_HSL_MID  = { h: 45,  s: 90, l: 58 };
+        const STRESS_HSL_HIGH = { h: 350, s: 82, l: 62 };
+
+        function getStressColor(ratio) {
+            ratio = Math.max(0, Math.min(1, ratio));
+            let a, b, t;
+            if (ratio < 0.5) {
+                a = STRESS_HSL_CALM;
+                b = STRESS_HSL_MID;
+                t = ratio / 0.5;
+            } else {
+                a = STRESS_HSL_MID;
+                b = STRESS_HSL_HIGH;
+                t = (ratio - 0.5) / 0.5;
+            }
+            const h = lerpHue(a.h, b.h, t);
+            const s = lerp(a.s, b.s, t);
+            const l = lerp(a.l, b.l, t);
+            return `hsl(${h.toFixed(1)}, ${s.toFixed(0)}%, ${l.toFixed(0)}%)`;
+        }
+
         function updateHudDisplay() {
             fuelBar.style.width = `${Math.max(0, fuel)}%`;
             fuelBar.style.backgroundColor = getFuelColor(fuel / maxFuel);
 
             healthBar.style.width = `${Math.max(0, (health / maxHealth) * 100)}%`;
             healthBar.style.opacity = (invulnTime > 0) ? 0.5 : 1.0;
+
+            stressBar.style.width = `${Math.max(0, Math.min(100, (stress / STRESS_MAX) * 100))}%`;
+            stressBar.style.backgroundColor = getStressColor(stress / STRESS_MAX);
 
             if (isCheatedRun) {
                 abilityHud.style.display = "block";
@@ -5129,6 +5544,13 @@
             gameRunning = false;
             cancelAnimationFrame(animationFrameId);
             deleteRunSave(activeSaveSlot);
+
+            if (tutorialMode) {
+                const currentStep = tutorialLiveSteps[tutorialLiveStep];
+                if (currentStep && currentStep.cleanup) currentStep.cleanup();
+                tutorialMode = false;
+                tutorialBanner.classList.add("hidden");
+            }
 
             // Safety net: if the run ends while still docked (e.g. killed
             // at an exposed Mini Sanctuary), make sure the Sanctuary track
@@ -5317,6 +5739,8 @@
         function update() {
             if (gamePaused) return;
 
+            if (tutorialMode) tutorialLiveTick();
+
             if (player.cooldownTime > 0) player.cooldownTime--;
             if (activeEffectTimer > 0) activeEffectTimer--;
             if (invulnTime > 0) invulnTime--;
@@ -5376,6 +5800,13 @@
                 currentAccel *= 0.55;
             }
 
+            // Stress Vent's burst window: a temporary speed/accel spike sized
+            // to how much stress was banked when it was triggered.
+            if (player.equippedAbility === 'ventstress' && activeEffectTimer > 0) {
+                activeMaxSpeed *= ventBoostMult;
+                currentAccel *= ventBoostMult;
+            }
+
             let accelerating = false;
             if (fuel > 0 && !docked) {
                 if (keys["KeyW"] || keys["ArrowUp"]) { player.vy -= currentAccel; accelerating = true; }
@@ -5411,6 +5842,35 @@
                 player.vx = (player.vx / currentVel) * activeMaxSpeed;
                 player.vy = (player.vy / currentVel) * activeMaxSpeed;
             }
+
+            // Stress: rises while sitting nearly still, faster still if
+            // debris or aliens are crowding close - drains once you're
+            // safely inside the Sanctuary's field (or docked, or standing
+            // in a Mini Sanctuary outpost's field), or in one shot via
+            // Stress Vent. Simply moving doesn't bleed it off on its own.
+            const inSanctuaryField = Math.hypot(player.x - sanctuary.x, player.y - sanctuary.y) < sanctuary.safeRadius;
+            const inOutpostField = outpost && Math.hypot(player.x - outpost.x, player.y - outpost.y) < OUTPOST_SAFE_RADIUS;
+            if (docked || inSanctuaryField || inOutpostField) {
+                stress -= STRESS_DOCKED_DECAY;
+            } else {
+                let nearbyDebrisCount = 0;
+                for (let i = 0; i < obstacles.length; i++) {
+                    if (Math.hypot(player.x - obstacles[i].x, player.y - obstacles[i].y) < STRESS_DEBRIS_RADIUS) nearbyDebrisCount++;
+                }
+                let nearbyAlienCount = 0;
+                for (let i = 0; i < aliens.length; i++) {
+                    if (Math.hypot(player.x - aliens[i].x, player.y - aliens[i].y) < STRESS_ALIEN_RADIUS) nearbyAlienCount++;
+                }
+                const harshness = Math.min(nearbyDebrisCount, 8) * STRESS_PER_DEBRIS + Math.min(nearbyAlienCount, 6) * STRESS_PER_ALIEN;
+                const nerveMult = player.hasSteelNerves ? 0.5 : 1;
+
+                if (currentVel < STRESS_STILL_SPEED) {
+                    stress += (STRESS_STILL_GAIN + harshness) * nerveMult;
+                } else {
+                    stress += (STRESS_MOVING_GAIN + harshness * 0.5) * nerveMult; // moving still creeps stress up, just slower than sitting still
+                }
+            }
+            stress = Math.max(0, Math.min(STRESS_MAX, stress));
 
             if (currentVel > 0.4) {
                 const moveAngle = Math.atan2(player.vy, player.vx);
@@ -5525,10 +5985,13 @@
                 }
 
                 if (distToPlayer <= 35) {
-                    c.progress += (cheatedAbilityMode === 'vacuum' || (player.equippedAbility === 'magnet' && activeEffectTimer > 0)) ? 25 : 1;
+                    const baseGain = (cheatedAbilityMode === 'vacuum' || (player.equippedAbility === 'magnet' && activeEffectTimer > 0)) ? 25 : 1;
+                    const stressRatio = stress / STRESS_MAX;
+                    c.progress += baseGain * (1 + stressRatio * STRESS_FILL_BONUS);
                     if (c.progress >= c.maxProgress) {
-                        score += c.reward;
-                        totalCredits += c.reward;
+                        const stressedReward = Math.max(1, Math.round(c.reward * (1 - stressRatio * STRESS_REWARD_PENALTY)));
+                        score += stressedReward;
+                        totalCredits += stressedReward;
                         if (c.material) {
                             if (c.material === 'cheateralloy') {
                                 if (Math.random() < 0.1) addMaterial(c.material, 1);
