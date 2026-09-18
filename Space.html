@@ -1178,7 +1178,7 @@
     <audio id="sanctuary-music" src="https://res.cloudinary.com/dz1dungk5/video/upload/v1789404780/Weightless_Space_wiyyta.mp4" loop preload="auto"></audio>
 
     <h1>✨ Stellar Drift: Sector Radar ✨</h1>
-    <div id="dock-prompt">DOCKING RANGE — PRESS E TO ENTER SANCTUARY</div>
+    <div id="dock-prompt">DOCKING RANGE - PRESS E TO ENTER SANCTUARY</div>
     <div id="biome-banner"><span class="biome-name"></span><span class="biome-desc"></span></div>
     <div id="event-banner"><span class="event-name"></span><span class="event-desc"></span></div>
     <div id="material-toast-container"></div>
@@ -1204,19 +1204,19 @@
                     </div>
                     <div class="update-log-entry">
                         <span class="update-log-version">Supply Pallet</span>
-                        <span class="update-log-text">Supply Drop's crate now includes a pallet of a random material alongside the fuel and hull kits &mdash; HQ reads the manifest out over the radio when it lands.</span>
+                        <span class="update-log-text">Supply Drop's crate now includes a pallet of a random material alongside the fuel and hull kits - HQ reads the manifest out over the radio when it lands.</span>
                     </div>
                     <div class="update-log-entry">
                         <span class="update-log-version">Derelict Sanctuaries</span>
-                        <span class="update-log-text">Burnt-out company headquarters now drift out in the wild &mdash; fly alongside one and press <strong>E</strong> to cut its salvage caches free for Stardust and local materials. Three caches each, the last one being the crew's own vault. Strip a wreck and it stays stripped, and HQ has something to say about every outfit you close out.</span>
+                        <span class="update-log-text">Burnt-out company headquarters now drift out in the wild - fly alongside one and press <strong>E</strong> to cut its salvage caches free for Stardust and local materials. Three caches each, the last one being the crew's own vault. Strip a wreck and it stays stripped, and HQ has something to say about every outfit you close out.</span>
                     </div>
                     <div class="update-log-entry">
                         <span class="update-log-version">Supply Drop</span>
-                        <span class="update-log-text">New craftable blessing: call Halcyon Control on the long channel and requisition fuel and hull to your position. The crate holds station on its own beacon until you collect it &mdash; it never fades like ordinary pickups. 500s cooldown.</span>
+                        <span class="update-log-text">New craftable blessing: call Halcyon Control on the long channel and requisition fuel and hull to your position. The crate holds station on its own beacon until you collect it - it never fades like ordinary pickups. 500s cooldown.</span>
                     </div>
                     <div class="update-log-entry">
                         <span class="update-log-version">Live Tutorial</span>
-                        <span class="update-log-text">Training now runs for real, inside the actual sector &mdash; a real fuel canister, a real crystal, a real target drone, the real Sanctuary, and borrowed abilities to try out. Skip anytime with the banner up top.</span>
+                        <span class="update-log-text">Training now runs for real, inside the actual sector - a real fuel canister, a real crystal, a real target drone, the real Sanctuary, and borrowed abilities to try out. Skip anytime with the banner up top.</span>
                     </div>
                     <div class="update-log-entry">
                         <span class="update-log-version">Stress Meter</span>
@@ -1249,7 +1249,7 @@
 
         <div id="tutorial-screen" class="screen hidden">
             <h2 id="tutorial-title">FLIGHT ACADEMY</h2>
-            <p id="tutorial-text">Welcome, pilot. We'll walk you through your ship's systems live, right out in the sector &mdash; watch for the banner at the top of the screen once you launch, and do each objective for real.</p>
+            <p id="tutorial-text">Welcome, pilot. We'll walk you through your ship's systems live, right out in the sector - watch for the banner at the top of the screen once you launch, and do each objective for real.</p>
             <div class="btn-group">
                 <button class="btn" id="tutorial-next-btn">BEGIN TRAINING</button>
                 <button class="btn btn-warm" id="tutorial-back-btn">RETURN</button>
@@ -1284,9 +1284,9 @@
                 <div class="emblem-section-title">Stardust Crate</div>
                 <div class="emblem-crate-section">
                     <div id="emblem-crate-wallet">STARDUST POUCH: 0 SD</div>
-                    <button class="btn" id="open-crate-btn">OPEN STARDUST CRATE — 30 SD</button>
+                    <button class="btn" id="open-crate-btn">OPEN STARDUST CRATE - 30 SD</button>
                     <div style="font-size:0.58rem; color:#9b8da9; max-width:260px; text-align:center;">
-                        Every shape, color, thruster trail, and even the freeform color picker is locked until you gamble Stardust for it. Odds — Common 55% · Rare 30% · Legendary 12% · Mythic 3%. Duplicate pulls refund half the cost.
+                        Every shape, color, thruster trail, and even the freeform color picker is locked until you gamble Stardust for it. Odds - Common 55% · Rare 30% · Legendary 12% · Mythic 3%. Duplicate pulls refund half the cost.
                     </div>
                 </div>
             </div>
@@ -1339,7 +1339,7 @@
 
         <div id="shop-screen" class="screen hidden sanctuary-reveal">
             <h2 id="shop-title">COZY SANCTUARY</h2>
-            <p id="shop-desc">Docked at the Sanctuary station. This field auto-shatters debris on approach &mdash; you're safe here. Basic upgrades cost Stardust; blessings are crafted from Stardust plus biome materials you salvage out in the sector.</p>
+            <p id="shop-desc">Docked at the Sanctuary station. This field auto-shatters debris on approach - you're safe here. Basic upgrades cost Stardust; blessings are crafted from Stardust plus biome materials you salvage out in the sector.</p>
             <p id="shop-wallet" style="margin-top:-14px; color:#ffd166; font-weight:bold;">STARDUST POUCH: 0 SD</p>
             <div id="materials-pouch"></div>
 
@@ -1375,6 +1375,14 @@
                     </div>
                     <button class="btn" id="buy-damage-upgrade-btn" onclick="buyUpgrade('damage')">55 SD</button>
                 </div>
+                <div class="shop-item" id="juggernaut-item">
+                    <div class="shop-info">
+                        <h4>Juggernaut Refit</h4>
+                        <span id="juggernaut-desc">Requires every ship upgrade above at max level. A total rebuild: much more fuel, faster fuel recharge, more hull, more speed, more damage - and a hull big enough that it shows.</span>
+                        <span class="craft-cost" id="cost-juggernaut"></span>
+                    </div>
+                    <button class="btn" id="buy-juggernaut-btn" onclick="buyJuggernaut()">LOCKED</button>
+                </div>
             </div>
             </div>
 
@@ -1384,7 +1392,7 @@
                 <div class="shop-item">
                     <div class="shop-info">
                         <h4>Mini Sanctuary</h4>
-                        <span>Places an outpost with 3000 HP that shatters nearby hazards &mdash; only one can stand at a time. Alien shots and debris chip away its HP, and once it breaks you must wait 60s to place another. Press SPACE again (twice) to break it yourself on demand. Placed a million meters or further from home, it takes root as an actual, indestructible Sanctuary instead &mdash; full ship upgrades, no crafting markup.</span>
+                        <span>Places an outpost with 3000 HP that shatters nearby hazards - only one can stand at a time. Alien shots and debris chip away its HP, and once it breaks you must wait 60s to place another. Press SPACE again (twice) to break it yourself on demand. Placed a million meters or further from home, it takes root as an actual, indestructible Sanctuary instead - full ship upgrades, no crafting markup.</span>
                         <span class="craft-cost" id="cost-outpost"></span>
                     </div>
                     <button class="btn" id="buy-outpost-btn" onclick="buyAbility('outpost')">CRAFT</button>
@@ -1464,7 +1472,7 @@
                 <div class="shop-item">
                     <div class="shop-info">
                         <h4>Stress Vent</h4>
-                        <span>Dumps your entire Stress meter into a burst of speed &amp; brief invulnerability &mdash; the more stress you'd banked, the bigger the burst. Empties your Stress on use / 3.3s cooldown</span>
+                        <span>Dumps your entire Stress meter into a burst of speed &amp; brief invulnerability - the more stress you'd banked, the bigger the burst. Empties your Stress on use / 3.3s cooldown</span>
                         <span class="craft-cost" id="cost-ventstress"></span>
                     </div>
                     <button class="btn" id="buy-ventstress-btn" onclick="buyAbility('ventstress')">CRAFT</button>
@@ -1472,7 +1480,7 @@
                 <div class="shop-item">
                     <div class="shop-info">
                         <h4>Supply Drop</h4>
-                        <span>Opens the long channel to Halcyon Control and requisitions a crate of fuel canisters, hull kits, and a pallet of a random material to your position. Unlike normal pickups, a called-in drop never fades &mdash; it holds station on its own beacon until you collect it, and an arrow points you back to it. / 500s cooldown</span>
+                        <span>Opens the long channel to Halcyon Control and requisitions a crate of fuel canisters, hull kits, and a pallet of a random material to your position. Unlike normal pickups, a called-in drop never fades - it holds station on its own beacon until you collect it, and an arrow points you back to it. / 500s cooldown</span>
                         <span class="craft-cost" id="cost-supplydrop"></span>
                     </div>
                     <button class="btn" id="buy-supplydrop-btn" onclick="buyAbility('supplydrop')">CRAFT</button>
@@ -1480,7 +1488,7 @@
                 <div class="shop-item" id="gilbertbullets-item" style="display:none;">
                     <div class="shop-info">
                         <h4>Gilbert Bullets</h4>
-                        <span>Permanent, purely cosmetic &mdash; replaces your bullets with mini "Gilberts", the size of debris. Stacks with whichever passive you have equipped. Requires 10x Gil Stone, cut out of the Frozen Gilberts ring &mdash; or out of The Settler &mdash; a million meters from home.</span>
+                        <span>Permanent, purely cosmetic - replaces your bullets with mini "Gilberts", the size of debris. Stacks with whichever passive you have equipped. Requires 10x Gil Stone, cut out of the Frozen Gilberts ring - or out of The Settler - a million meters from home.</span>
                         <span class="craft-cost" id="cost-gilbertbullets"></span>
                     </div>
                     <button class="btn" id="buy-gilbertbullets-btn" onclick="buyGilbertBullets()">CRAFT</button>
@@ -1488,7 +1496,7 @@
                 <div class="shop-item" id="cheaterscure-item" style="display:none;">
                     <div class="shop-info">
                         <h4 style="color:#ff2e63;">The Cheater's Cure</h4>
-                        <span>One-time cure for your Konami cheat &mdash; purges it completely and resets you to a normal run. Find The Cheater's Desolate biome and salvage 10x Cheater's Alloy (10% drop chance) to craft it.</span>
+                        <span>One-time cure for your Konami cheat - purges it completely and resets you to a normal run. Find The Cheater's Desolate biome and salvage 10x Cheater's Alloy (10% drop chance) to craft it.</span>
                         <span class="craft-cost" id="cost-cheaterscure"></span>
                     </div>
                     <button class="btn" id="buy-cheaterscure-btn" onclick="buyCheatersCure()">CRAFT</button>
@@ -1502,7 +1510,7 @@
                 <div class="shop-item">
                     <div class="shop-info">
                         <h4>Mending (Passive)</h4>
-                        <span>Slowly repairs your hull over time, always on &mdash; no activation needed</span>
+                        <span>Slowly repairs your hull over time, always on - no activation needed</span>
                         <span class="craft-cost" id="cost-mending"></span>
                     </div>
                     <button class="btn" id="buy-mending-btn" onclick="buyMending()">CRAFT</button>
@@ -1510,7 +1518,7 @@
                 <div class="shop-item">
                     <div class="shop-info">
                         <h4>Sector Beacon (Passive)</h4>
-                        <span>Pick a biome (or an un-stripped Derelict Sanctuary) and follow a compass to the nearest one &mdash; press B in-flight to cycle targets</span>
+                        <span>Pick a biome (or an un-stripped Derelict Sanctuary) and follow a compass to the nearest one - press B in-flight to cycle targets</span>
                         <span class="craft-cost" id="cost-beacon"></span>
                     </div>
                     <button class="btn" id="buy-beacon-btn" onclick="buyBeacon()">CRAFT</button>
@@ -1534,7 +1542,7 @@
                 <div class="shop-item">
                     <div class="shop-info">
                         <h4>Steel Nerves (Passive)</h4>
-                        <span>Halves how fast Stress builds up, always on &mdash; keeps crystal harvests closer to full Stardust value out in messy, debris/alien-crowded space</span>
+                        <span>Halves how fast Stress builds up, always on - keeps crystal harvests closer to full Stardust value out in messy, debris/alien-crowded space</span>
                         <span class="craft-cost" id="cost-steelnerves"></span>
                     </div>
                     <button class="btn" id="buy-steelnerves-btn" onclick="buySteelNerves()">CRAFT</button>
@@ -1793,7 +1801,7 @@
             frozenGilberts: {
                 id: 'frozenGilberts',
                 name: 'The Frozen Gilberts',
-                desc: 'A thin ring of ice a million meters out. Every wreck here drifts slow and answers to the name "Gilbert" — and something bigger drifts with them, still squawking a struck-off Halcyon retrieval code.',
+                desc: 'A thin ring of ice a million meters out. Every wreck here drifts slow and answers to the name "Gilbert" - and something bigger drifts with them, still squawking a struck-off Halcyon retrieval code.',
                 starColor: '#dff6ff',
                 tint: 'rgba(160, 220, 255, 0.10)',
                 fog: 0,
@@ -2244,11 +2252,11 @@
             beaconHud.style.borderColor = color;
             beaconHud.style.color = color;
             if (beaconTarget) {
-                beaconHud.textContent = `BEACON [B]: ${label} — ${Math.round(beaconTarget.dist)}m`;
+                beaconHud.textContent = `BEACON [B]: ${label} - ${Math.round(beaconTarget.dist)}m`;
             } else if (isDerelict) {
-                beaconHud.textContent = `BEACON [B]: ${label} — none found nearby`;
+                beaconHud.textContent = `BEACON [B]: ${label} - none found nearby`;
             } else {
-                beaconHud.textContent = `BEACON [B]: ${label} — locating...`;
+                beaconHud.textContent = `BEACON [B]: ${label} - locating...`;
             }
         }
 
@@ -2382,15 +2390,15 @@
             }
             let line;
             if (activeEvent.kind === 'global') {
-                line = `⚡ ${activeEvent.def.name.toUpperCase()} — ${Math.ceil(activeEvent.timeLeft / 60)}s`;
+                line = `⚡ ${activeEvent.def.name.toUpperCase()} - ${Math.ceil(activeEvent.timeLeft / 60)}s`;
             } else {
                 const dist = Math.round(Math.hypot(player.x - activeEvent.x, player.y - activeEvent.y));
                 const biomeName = BIOMES[activeEvent.biomeId].name;
                 if (dist <= EVENT_ARRIVAL_RADIUS) {
-                    line = `◈ ${activeEvent.def.name.toUpperCase()} — ${biomeName} — ARRIVED`;
+                    line = `◈ ${activeEvent.def.name.toUpperCase()} - ${biomeName} - ARRIVED`;
                 } else {
                     const dir = compassDirection(activeEvent.x - player.x, activeEvent.y - player.y);
-                    line = `◈ ${activeEvent.def.name.toUpperCase()} — ${biomeName} (${dir}) — ${dist}m`;
+                    line = `◈ ${activeEvent.def.name.toUpperCase()} - ${biomeName} (${dir}) - ${dist}m`;
                 }
             }
             eventHud.style.display = "block";
@@ -2657,17 +2665,17 @@
         // from home rather than conjuring one out of nothing.
         const SUPPLY_DROP_EXCHANGES = [
             [
-                { who: COMMS_YOU, text: "Halcyon Control, Drifter on the long channel. Running light out here &mdash; requesting a materials drop on my mark.", cls: 'you' },
-                { who: COMMS_HQ, text: "Copy, Drifter. Mark received. Loading a cache now &mdash; stay off the throttle.", cls: 'hq' },
+                { who: COMMS_YOU, text: "Halcyon Control, Drifter on the long channel. Running light out here - requesting a materials drop on my mark.", cls: 'you' },
+                { who: COMMS_HQ, text: "Copy, Drifter. Mark received. Loading a cache now - stay off the throttle.", cls: 'hq' },
                 { who: COMMS_HQ, text: "Crate's away on its own beacon. It'll hold position until you collect it. HQ out.", cls: 'hq' }
             ],
             [
                 { who: COMMS_YOU, text: "HQ, this is Drifter. Tanks are thin and the hull's worse. Requesting resupply, my coordinates.", cls: 'you' },
                 { who: COMMS_HQ, text: "We see you out there, Drifter. That's a long way from the lamps. Kicking a crate out the airlock.", cls: 'hq' },
-                { who: COMMS_HQ, text: "Fuel and hull patches, beacon-tagged. Nothing out there will touch it &mdash; take your time.", cls: 'hq' }
+                { who: COMMS_HQ, text: "Fuel and hull patches, beacon-tagged. Nothing out there will touch it - take your time.", cls: 'hq' }
             ],
             [
-                { who: COMMS_YOU, text: "Halcyon Control &mdash; Drifter. Calling in the favour. Materials drop, if you've got one spare.", cls: 'you' },
+                { who: COMMS_YOU, text: "Halcyon Control - Drifter. Calling in the favour. Materials drop, if you've got one spare.", cls: 'you' },
                 { who: COMMS_HQ, text: "Always got one spare for you. Requisition logged, no questions asked.", cls: 'hq' },
                 { who: COMMS_HQ, text: "Cache is drifting on your mark and it isn't going anywhere. Come home when you can.", cls: 'hq' }
             ],
@@ -2717,7 +2725,7 @@
         // --- Low fuel / low hull ---------------------------------------
         const LOW_FUEL_LINES = [
             { who: COMMS_HQ, text: "Drifter, we're reading your fuel curve from here. Getting thin. Find a canister or call it in.", cls: 'hq' },
-            { who: COMMS_HQ, text: "HQ to Drifter — tank telemetry's in the red. Don't push your luck out there.", cls: 'hq' },
+            { who: COMMS_HQ, text: "HQ to Drifter - tank telemetry's in the red. Don't push your luck out there.", cls: 'hq' },
             { who: COMMS_YOU, text: "HQ, Drifter. Fuel's getting low, keeping an eye on it.", cls: 'you' }
         ];
         const LOW_HULL_LINES = [
@@ -2731,7 +2739,7 @@
         // redlined, then stays quiet until you've actually calmed back down.
         const HIGH_STRESS_LINES = [
             { who: COMMS_HQ, text: "Drifter, your biometrics just spiked. Breathe. Get moving or get docked, your call.", cls: 'hq' },
-            { who: COMMS_HQ, text: "HQ to Drifter — you've been sitting still a long time out there. Everything alright?", cls: 'hq' },
+            { who: COMMS_HQ, text: "HQ to Drifter - you've been sitting still a long time out there. Everything alright?", cls: 'hq' },
             { who: COMMS_YOU, text: "HQ, Drifter. I'm fine. Just... watching something.", cls: 'you' }
         ];
         // Fires only once the meter has actually pinned at max, not just
@@ -2753,14 +2761,14 @@
             { who: COMMS_YOU, text: "HQ, venting some stress. Nothing major.", cls: 'you' }
         ];
         const STRESS_VENT_LINES_HIGH = [
-            { who: COMMS_YOU, text: "HQ, venting now — hard burn, don't wait up.", cls: 'you' },
+            { who: COMMS_YOU, text: "HQ, venting now - hard burn, don't wait up.", cls: 'you' },
             { who: COMMS_HQ, text: "Copy, Drifter. Felt that on our end.", cls: 'hq' }
         ];
 
         // --- Sector events -----------------------------------------------
         const EVENT_ALERT_LINES = [
             { who: COMMS_HQ, text: "Drifter, we're picking up an anomaly on long-range. Sending you the read.", cls: 'hq' },
-            { who: COMMS_HQ, text: "HQ to Drifter — sensors just spiked out your way. Worth a look.", cls: 'hq' },
+            { who: COMMS_HQ, text: "HQ to Drifter - sensors just spiked out your way. Worth a look.", cls: 'hq' },
             { who: COMMS_HQ, text: "Got something unusual on the scope, Drifter. Marking it on your board.", cls: 'hq' }
         ];
 
@@ -2768,7 +2776,7 @@
         const SCORE_MILESTONES = [1000, 5000, 10000, 25000, 50000, 100000];
         const MILESTONE_LINES = [
             n => `Drifter, that's ${n.toLocaleString()} Stardust logged on your account. Nice work out there.`,
-            n => `HQ to Drifter — ${n.toLocaleString()} Stardust and climbing. Keep it up.`,
+            n => `HQ to Drifter - ${n.toLocaleString()} Stardust and climbing. Keep it up.`,
             n => `Numbers just crossed ${n.toLocaleString()} Stardust on our end, Drifter. Good haul.`
         ];
 
@@ -2776,7 +2784,7 @@
         const FIRST_MATERIAL_LINES = mat =>
             `First telemetry we've got on ${mat} this drift, Drifter. Logging the sample.`;
         const FIRST_BIOME_LINES = name =>
-            `New region on your board, Drifter — ${name}. Nothing in our files on it yet. Watch yourself.`;
+            `New region on your board, Drifter - ${name}. Nothing in our files on it yet. Watch yourself.`;
 
         // --- Idle radio filler, just to keep the channel feeling alive ---
         const IDLE_EXCHANGES = [
@@ -2801,7 +2809,7 @@
         // --- Death / new drift ---------------------------------------------
         const DEATH_EXCHANGES = [
             [
-                { who: COMMS_YOU, text: "HQ, HQ, Drifter — I'm hit, I'm—", cls: 'you' },
+                { who: COMMS_YOU, text: "HQ, HQ, Drifter - I'm hit, I'm-", cls: 'you' },
                 { who: COMMS_HQ, text: "Drifter?! Say your position! Drifter, respond!", cls: 'hq' },
                 { who: COMMS_HQ, text: "...signal's gone. Logging last known coordinates. Rest easy out there.", cls: 'static' }
             ],
@@ -2829,7 +2837,7 @@
         // that points at the Frozen Gilberts ring, Gil Stone, and the hull
         // still flying out there under a struck-off Halcyon retrieval code.
         const SETTLER_RUMOUR_EXCHANGE = [
-            { who: COMMS_HQ, text: "Drifter &mdash; slow-channel question. I heard there was a drifter that once settled out to one million meters. Before you. Before there was a Drifter on the roster at all.", cls: 'hq' },
+            { who: COMMS_HQ, text: "Drifter - slow-channel question. I heard there was a drifter that once settled out to one million meters. Before you. Before there was a Drifter on the roster at all.", cls: 'hq' },
             { who: COMMS_YOU, text: "Really? I should set out there then.", cls: 'you' },
             { who: COMMS_HQ, text: "Maybe.. there might be something out there.", cls: 'hq' }
         ];
@@ -2837,7 +2845,7 @@
         // you the manifest change and one detail it doesn't explain.
         const SETTLER_ARRIVAL_EXCHANGE = [
             { who: COMMS_YOU, text: "HQ, Drifter. Odometer just rolled past one million meters. I'm inside a ring of ice out here.", cls: 'you' },
-            { who: COMMS_HQ, text: "...we see it. Ice logs as salvage &mdash; Gil Stone. It's on your manifest now, the shop will honour it.", cls: 'hq' },
+            { who: COMMS_HQ, text: "...we see it. Ice logs as salvage - Gil Stone. It's on your manifest now, the shop will honour it.", cls: 'hq' },
             { who: COMMS_HQ, text: "Drifter, there's a transponder cycling out there with you. Halcyon prefix.", cls: 'hq' },
             { who: COMMS_YOU, text: "Say again? There's nobody else on the books.", cls: 'you' },
             { who: COMMS_HQ, text: "...stand by.", cls: 'static' }
@@ -2845,7 +2853,7 @@
         // First time a Settler comes into view on a given drift. Control
         // doesn't answer the question, which is the point.
         const SETTLER_CONTACT_EXCHANGE = [
-            { who: COMMS_YOU, text: "HQ, contact &mdash; big hull, no running lights, coming straight at me. It's squawking the retrieval code you just read out.", cls: 'you' },
+            { who: COMMS_YOU, text: "HQ, contact - big hull, no running lights, coming straight at me. It's squawking the retrieval code you just read out.", cls: 'you' },
             { who: COMMS_HQ, text: "That code was struck off the register a long time ago, Drifter.", cls: 'hq' },
             { who: COMMS_YOU, text: "Somebody's still flying it.", cls: 'you' },
             { who: COMMS_HQ, text: "Something is. Break it and get clear.", cls: 'hq' }
@@ -2853,14 +2861,67 @@
         // First Settler destroyed on a given drift. You're handed the log,
         // not the conclusion - it's the same detail every derelict carries.
         const SETTLER_KILL_EXCHANGE = [
-            { who: COMMS_HQ, text: "Hull's open. Cut the core out of it &mdash; that's Gil Stone, and this is the only place it comes from.", cls: 'hq' },
+            { who: COMMS_HQ, text: "Hull's open. Cut the core out of it - that's Gil Stone, and this is the only place it comes from.", cls: 'hq' },
             { who: COMMS_YOU, text: "HQ, the log's intact. Reads like a retrieval run. Find survivors, strip what's left.", cls: 'you' },
             { who: COMMS_YOU, text: "Clocks stopped inside one minute. Same minute as the ring.", cls: 'you' },
             { who: COMMS_HQ, text: "...log it and keep salvaging, Drifter.", cls: 'static' }
         ];
+
+        // --- The Warden -----------------------------------------------
+        // Its hull carries the same kind of registry mark every Derelict
+        // Sanctuary does (see DERELICT_COMPANIES, defined below) - it's a
+        // leftover security asset from one of the outfits that went dark.
+        // It's also the one piece of anyone's gear still doing its job:
+        // non-engagement protocol, dormant unless fired on first. First
+        // sighting, while it's still dormant and drifting past you.
+        function wardenSightExchange(company) {
+            return [
+                { who: COMMS_YOU, text: `HQ, contact - hexagonal drone, marked ${company}. Not tracking me, not shooting.`, cls: 'you' },
+                { who: COMMS_HQ, text: "Copy. Company asset, standby mode. Non-engagement unless it's fired on first. Leave it be.", cls: 'hq' },
+                { who: COMMS_HQ, text: "It's the only piece of their gear we've found still following orders.", cls: 'static' }
+            ];
+        }
+        // Fires the instant your first shot lands and it wakes up. This is
+        // the special exchange for actually engaging it - distinct from
+        // just spotting it dormant.
+        const WARDEN_AGGRO_EXCHANGE = [
+            { who: COMMS_YOU, text: "HQ, it's turning! Whatever that thing is, it's active now!", cls: 'you' },
+            { who: COMMS_HQ, text: "You just made it do the one thing apparently nothing else out here needed to. Handle it, Drifter.", cls: 'hq' }
+        ];
+        // Fires once, mid-fight, the first time its health crosses half -
+        // a second beat of dialogue for actually standing and trading fire
+        // with it rather than just triggering it and running.
+        function wardenMidfightExchange(company) {
+            return [
+                { who: COMMS_YOU, text: "HQ, it's still coming! Whatever's driving this thing isn't giving up.", cls: 'you' },
+                { who: COMMS_HQ, text: `Copy. ${company} didn't skimp on their security contracts. Keep at it, Drifter.`, cls: 'hq' }
+            ];
+        }
+        // Fires on a clean kill - the lore payoff for actually finishing
+        // the fight. You crack the core open and pull its log, same as you
+        // would a derelict, and it tells the same story every one of them
+        // has told so far: nothing forced, nothing fought back, the report
+        // just stops.
+        function wardenKillExchange(company) {
+            return [
+                { who: COMMS_HQ, text: `Contact down. Whoever built ${company}'s hardware built it to last.`, cls: 'hq' },
+                { who: COMMS_YOU, text: "Not last enough. Same as the rest of them.", cls: 'you' },
+                { who: COMMS_YOU, text: "HQ, hold on - there's a log buried in the core. Timestamped right before they went dark.", cls: 'you' },
+                { who: COMMS_HQ, text: "Play it.", cls: 'hq' },
+                { who: COMMS_YOU, text: "...it's just a routine patrol report. Nothing forced the door. It just stops answering mid-line.", cls: 'you' },
+                { who: COMMS_HQ, text: "Same as every other one of them. Log it and keep moving, Drifter. And - good work.", cls: 'static' }
+            ];
+        }
         // How far out you have to have pushed before Control will bring the
         // rumour up unprompted.
         const SETTLER_RUMOUR_DIST = 30000;
+
+        // Fires once, the moment the Juggernaut refit is installed.
+        const JUGGERNAUT_EXCHANGE = [
+            { who: COMMS_YOU, text: "HQ, Drifter. Refit's done. She doesn't fit the old bay anymore.", cls: 'you' },
+            { who: COMMS_HQ, text: "Copy that. Halcyon's never fielded hardware like this before - nobody has, that we know of.", cls: 'hq' },
+            { who: COMMS_HQ, text: "Whatever's out past the line, Drifter... go find out if it's enough.", cls: 'static' }
+        ];
 
         // One-shot / cooldown state for everything above. All of it is
         // cosmetic-only, so none of it needs to survive a save/reload -
@@ -2881,6 +2942,13 @@
         let commsSettlerRumourHeard = false;
         let commsSettlerContact = false;
         let commsSettlerKilled = false;
+        // The Warden: only one active at a time, and once this drift has
+        // seen one spawn, killed, or otherwise cleared, it doesn't respawn
+        // again until a new drift starts - it's meant to feel like an event.
+        let commsWardenSighted = false;
+        let commsWardenKilled = false;
+        let commsWardenMidfight = false;
+        let wardenSpawnedThisDrift = false;
 
         function rollNextIdleTimer() {
             // 100-200 seconds of real play between idle radio filler -
@@ -3020,6 +3088,23 @@
         const ALIEN_PREFERRED_DIST = 320;
         const ALIEN_MAX_HEALTH = 70;
 
+        // ================= THE WARDEN =================
+        // A roaming boss that ignores you completely - no chase, no shots,
+        // no damage on contact - right up until you fire on it. One shot
+        // trips its defense protocol permanently for that encounter, and
+        // it fights for real from then on: faster, tankier, and immune to
+        // the "ram it and it shatters" trick ordinary hostiles allow.
+        const WARDEN_SPAWN_CHANCE = 0.01; // per alien spawn slot, while none is active
+        const WARDEN_MIN_HOME_DIST = 4000; // don't spring it right on top of the Sanctuary
+        const WARDEN_HEALTH = 15000;
+        const WARDEN_SIZE = 68; // noticeably bigger hull than a normal alien
+        const WARDEN_REWARD = 600;
+        const WARDEN_RAM_DAMAGE = 30;
+        const WARDEN_SPREAD = 0.18;
+        const WARDEN_DORMANT_COLOR = "#5c6b7a";
+        const WARDEN_AGGRO_COLOR = "#ff5252";
+        const WARDEN_MATERIAL = 'cheateralloy'; // rare drop on a clean kill
+
         // ================= THE SETTLER =================
         // The one enemy that only exists past the million-meter line: the
         // hull of the drifter who settled out there, still under way, still
@@ -3067,6 +3152,29 @@
             damage: "Overcharged Damage Coils"
         };
 
+        // ================= THE JUGGERNAUT =================
+        // The end-game refit. It doesn't unlock like a normal upgrade tier -
+        // it needs every ship upgrade already maxed, then a huge one-time
+        // Stardust + full-material toll on top of that, before the Sanctuary
+        // will even authorize the parts. Once installed it's not just a
+        // bigger version of the same stats: it's the whole ship rebuilt
+        // around a hull that visibly does not fit through the doors it used
+        // to fit through.
+        const JUGGERNAUT_SD_COST = 10000;
+        const JUGGERNAUT_MAT_COST = 50; // of every non-Gil Stone material
+        const JUGGERNAUT_FUEL_BONUS = 150;
+        const JUGGERNAUT_HEALTH_BONUS = 120;
+        const JUGGERNAUT_SPEED_BONUS = 1.4;
+        const JUGGERNAUT_ACCEL_BONUS = 0.16;
+        const JUGGERNAUT_DAMAGE_BONUS = 20;
+        const JUGGERNAUT_FUEL_REGEN_MULT = 1.8; // idle regen
+        const JUGGERNAUT_FUEL_DRAIN_MULT = 0.7; // thrusting drain
+        const JUGGERNAUT_SHIP_SCALE = 1.55; // visual + hitbox size multiplier
+        const JUGGERNAUT_MATS = {};
+        for (const m of MATERIAL_LIST) JUGGERNAUT_MATS[m.id] = JUGGERNAUT_MAT_COST;
+        CRAFT_RECIPES.juggernaut = { sd: JUGGERNAUT_SD_COST, mats: JUGGERNAUT_MATS };
+
+
         let playerBulletDamage = BASE_BULLET_DAMAGE;
 
         function applyUpgradeStats() {
@@ -3075,6 +3183,16 @@
             player.maxSpeed = BASE_MAX_SPEED + thrusterLevel * SPEED_PER_LEVEL;
             player.accel = BASE_ACCEL + thrusterLevel * ACCEL_PER_LEVEL;
             playerBulletDamage = BASE_BULLET_DAMAGE + damageLevel * DAMAGE_PER_LEVEL;
+            if (player.hasJuggernaut) {
+                maxFuel += JUGGERNAUT_FUEL_BONUS;
+                maxHealth += JUGGERNAUT_HEALTH_BONUS;
+                player.maxSpeed += JUGGERNAUT_SPEED_BONUS;
+                player.accel += JUGGERNAUT_ACCEL_BONUS;
+                playerBulletDamage += JUGGERNAUT_DAMAGE_BONUS;
+                player.size = 10 * JUGGERNAUT_SHIP_SCALE;
+            } else {
+                player.size = 10;
+            }
         }
 
         let docked = false;
@@ -3281,12 +3399,12 @@
             if (pulled === 0) {
                 const log = DERELICT_LOGS[d.seed % DERELICT_LOGS.length];
                 playCommsExchange([
-                    { who: COMMS_YOU, text: `HQ, Drifter. I'm alongside a dead station, transponder reads ${d.name} &mdash; registry says ${d.company}. Beginning salvage.`, cls: 'you' },
-                    { who: COMMS_HQ, text: `Copy, Drifter &mdash; ${log}`, cls: 'hq' }
+                    { who: COMMS_YOU, text: `HQ, Drifter. I'm alongside a dead station, transponder reads ${d.name} - registry says ${d.company}. Beginning salvage.`, cls: 'you' },
+                    { who: COMMS_HQ, text: `Copy, Drifter - ${log}`, cls: 'hq' }
                 ], 0, COMMS_PRIORITY.HIGH);
             } else if (isLastCache) {
                 playCommsExchange([
-                    { who: COMMS_HQ, text: `That's ${d.name} stripped to the frame, Drifter. No survivors logged &mdash; that's ${d.company} closed out. Their reserves are yours; they'd have wanted it that way.`, cls: 'hq' },
+                    { who: COMMS_HQ, text: `That's ${d.name} stripped to the frame, Drifter. No survivors logged - that's ${d.company} closed out. Their reserves are yours; they'd have wanted it that way.`, cls: 'hq' },
                     { who: COMMS_YOU, text: "Understood, HQ. Another empty one. Moving on.", cls: 'you' }
                 ], 0, COMMS_PRIORITY.HIGH);
             }
@@ -3410,7 +3528,7 @@
                     hasShield: player.hasShield, hasMending: player.hasMending,
                     hasBeacon: player.hasBeacon, hasGravPlate: player.hasGravPlate,
                     hasHoming: player.hasHoming, hasGilbertBullets: player.hasGilbertBullets,
-                    hasSteelNerves: player.hasSteelNerves
+                    hasSteelNerves: player.hasSteelNerves, hasJuggernaut: player.hasJuggernaut
                 },
                 camera: { x: camera.x, y: camera.y },
                 spawnAnchor: { x: spawnAnchor.x, y: spawnAnchor.y },
@@ -3432,7 +3550,12 @@
                 // Whether this drift has ever crossed the million-meter
                 // line. Gates Gil Stone / Gilbert Bullets, so unlike the
                 // cosmetic radio one-shots it has to survive a reload.
-                millionReached, commsSettlerRumourHeard
+                millionReached, commsSettlerRumourHeard,
+                // The Warden itself lives inside the aliens array and rides
+                // along automatically (aggro included), but whether one has
+                // spawned yet this drift needs to persist too, or a reload
+                // would let a second one spawn on top of a dead or dormant one.
+                wardenSpawnedThisDrift, commsWardenSighted, commsWardenKilled, commsWardenMidfight
             };
         }
 
@@ -3567,7 +3690,7 @@
                 hasShield: !!p.hasShield, hasMending: !!p.hasMending,
                 hasBeacon: !!p.hasBeacon, hasGravPlate: !!p.hasGravPlate,
                 hasHoming: !!p.hasHoming, hasGilbertBullets: !!p.hasGilbertBullets,
-                hasSteelNerves: !!p.hasSteelNerves
+                hasSteelNerves: !!p.hasSteelNerves, hasJuggernaut: !!p.hasJuggernaut
             });
 
             camera.x = data.camera ? data.camera.x : player.x;
@@ -3579,6 +3702,10 @@
             commsSettlerRumourHeard = !!data.commsSettlerRumourHeard;
             commsSettlerContact = false;
             commsSettlerKilled = false;
+            wardenSpawnedThisDrift = !!data.wardenSpawnedThisDrift;
+            commsWardenSighted = !!data.commsWardenSighted;
+            commsWardenKilled = !!data.commsWardenKilled;
+            commsWardenMidfight = !!data.commsWardenMidfight;
 
             obstacles = data.obstacles || [];
             aliens = data.aliens || [];
@@ -3830,7 +3957,7 @@
             },
             {
                 title: "STEP 3: SECTOR CRYSTALS",
-                text: "Hover near pulsing sector crystals for a while to harvest Stardust &mdash; it's the only way to earn it, so seek them out and watch for incoming debris!",
+                text: "Hover near pulsing sector crystals for a while to harvest Stardust - it's the only way to earn it, so seek them out and watch for incoming debris!",
                 objective: "Hover by the crystal until it's fully harvested",
                 setup() {
                     tutorialTargetCrystal = {
@@ -3846,7 +3973,7 @@
             },
             {
                 title: "STEP 4: WEAPONS & ALIENS",
-                text: "Click anywhere to fire toward your cursor &mdash; your blaster has a 1 second cooldown. Debris and hostile aliens both have health bars, so it may take a few shots to break them. Aliens keep their distance and shoot back!",
+                text: "Click anywhere to fire toward your cursor - your blaster has a 1 second cooldown. Debris and hostile aliens both have health bars, so it may take a few shots to break them. Aliens keep their distance and shoot back!",
                 objective: "Shoot down the drone (it'll take a couple hits)",
                 setup() {
                     tutorialTargetDummy = {
@@ -3898,7 +4025,7 @@
             },
             {
                 title: "STEP 7: BIOMES",
-                text: "The sector is infinite and made of distinct biomes &mdash; each with its own hazards, rewards, and a unique crafting material dropped by its crystals, debris, and aliens. If you craft the Sector Beacon, press <strong>B</strong> in-flight to cycle which biome you're hunting for, and follow the compass arrow to find it. We've lent you a Beacon just for this drill.",
+                text: "The sector is infinite and made of distinct biomes - each with its own hazards, rewards, and a unique crafting material dropped by its crystals, debris, and aliens. If you craft the Sector Beacon, press <strong>B</strong> in-flight to cycle which biome you're hunting for, and follow the compass arrow to find it. We've lent you a Beacon just for this drill.",
                 objective: "Press B a few times to cycle the Beacon",
                 setup() {
                     tutorialPrevHasBeacon = player.hasBeacon;
@@ -3918,7 +4045,7 @@
             },
             {
                 title: "STEP 8: STRESS",
-                text: "Sitting still &mdash; especially near debris or aliens &mdash; builds up Stress. High Stress fills crystals faster but shrinks their Stardust payout. Fly into a Sanctuary or outpost field (or vent it with a crafted ability) to bring it back down.",
+                text: "Sitting still - especially near debris or aliens - builds up Stress. High Stress fills crystals faster but shrinks their Stardust payout. Fly into a Sanctuary or outpost field (or vent it with a crafted ability) to bring it back down.",
                 objective: "Let Stress climb, then calm it near the Sanctuary",
                 setup() {
                     stress = 0;
@@ -4073,9 +4200,9 @@
             hasGravPlate: false,
             hasHoming: false,
             hasGilbertBullets: false,
-            hasSteelNerves: false
+            hasSteelNerves: false,
+            hasJuggernaut: false
         };
-
         let obstacles = [];
         let spawnTimer = 0;
         let spawnInterval = 55; 
@@ -4196,8 +4323,8 @@
 
 
         // ---- STARDUST CRATES ----
-        // Every cosmetic option — every shape, every preset color, and even
-        // the freeform color picker itself — is gated behind a crate pull.
+        // Every cosmetic option - every shape, every preset color, and even
+        // the freeform color picker itself - is gated behind a crate pull.
         // Nothing is free; everything is gambled for with Stardust.
         const CRATE_COST = 30;
         const CRATE_PITY_REFUND = 15; // refunded when a crate rolls something you already own
@@ -4543,7 +4670,7 @@
 
             card.className = 'crate-reveal-card rarity-' + rarity;
             rarityEl.className = 'crate-reveal-rarity rarity-' + rarity;
-            rarityEl.textContent = rarity.toUpperCase() + (alreadyOwned ? ' (DUPLICATE — +' + CRATE_PITY_REFUND + ' SD)' : ' — NEW!');
+            rarityEl.textContent = rarity.toUpperCase() + (alreadyOwned ? ' (DUPLICATE - +' + CRATE_PITY_REFUND + ' SD)' : ' - NEW!');
             nameEl.textContent = item.name;
 
             if (canvas) {
@@ -4572,7 +4699,7 @@
                         drawEmblemShape(rctx, params.shape, 26, previewColor);
                     }
                 } else {
-                    // Mythic "feature" unlock — draw a little rainbow dial icon.
+                    // Mythic "feature" unlock - draw a little rainbow dial icon.
                     const grad = rctx.createConicGradient ? rctx.createConicGradient(0, 0, 0) : null;
                     if (grad) {
                         ['#ff6b6b', '#ffd166', '#06d6a0', '#3a86ff', '#c9a7ff', '#ff6b6b'].forEach((c, i, arr) => grad.addColorStop(i / (arr.length - 1), c));
@@ -4955,7 +5082,7 @@
             if (!emblemLayerList) return;
             emblemLayerList.innerHTML = '';
             if (editorLayers.length === 0) {
-                emblemLayerList.innerHTML = '<div style="opacity:0.6; font-size:0.65rem;">No layers yet — tap a shape below.</div>';
+                emblemLayerList.innerHTML = '<div style="opacity:0.6; font-size:0.65rem;">No layers yet - tap a shape below.</div>';
                 return;
             }
             // Show front-most layer at the top of the list, like a typical layer stack.
@@ -4982,7 +5109,7 @@
                     const btn = document.createElement('canvas');
                     btn.width = 32; btn.height = 32;
                     btn.className = 'emblem-shape-btn' + (rarity ? ' rarity-' + rarity : '') + (locked ? ' emblem-locked' : '');
-                    btn.title = locked ? `${entry.name} (locked — open a crate)` : type;
+                    btn.title = locked ? `${entry.name} (locked - open a crate)` : type;
                     const bctx = btn.getContext('2d');
                     bctx.save();
                     bctx.translate(16, 16);
@@ -5011,7 +5138,7 @@
                     const btn = document.createElement('button');
                     btn.className = 'emblem-color-btn' + (color === editorSelectedColor ? ' selected' : '') + (rarity ? ' rarity-' + rarity : '') + (locked ? ' emblem-locked' : '');
                     btn.style.background = locked ? '#453a56' : color;
-                    btn.title = locked ? `${entry.name} (locked — open a crate)` : '';
+                    btn.title = locked ? `${entry.name} (locked - open a crate)` : '';
                     btn.addEventListener('click', () => {
                         if (locked) {
                             btn.classList.remove('crate-shake');
@@ -5037,7 +5164,7 @@
                 const pickerUnlocked = unlockedCosmetics.features.includes(MYTHIC_FEATURE.id);
                 const pickerWrap = document.createElement('label');
                 pickerWrap.className = 'emblem-color-picker-wrap rarity-mythic' + (pickerUnlocked ? '' : ' emblem-locked');
-                pickerWrap.title = pickerUnlocked ? 'Custom color' : 'Custom Color Picker (Mythic — locked, open a crate)';
+                pickerWrap.title = pickerUnlocked ? 'Custom color' : 'Custom Color Picker (Mythic - locked, open a crate)';
                 const picker = document.createElement('input');
                 picker.type = 'color';
                 picker.id = 'emblem-color-picker';
@@ -5095,7 +5222,7 @@
                     const btn = document.createElement('canvas');
                     btn.width = 32; btn.height = 32;
                     btn.className = 'emblem-shape-btn' + (rarity ? ' rarity-' + rarity : '') + (locked ? ' emblem-locked' : '') + (equippedTrail === type ? ' selected' : '');
-                    btn.title = locked ? `${name} (locked — open a crate)` : name;
+                    btn.title = locked ? `${name} (locked - open a crate)` : name;
                     const bctx = btn.getContext('2d');
                     bctx.save();
                     bctx.translate(16, 16);
@@ -5394,7 +5521,7 @@
                 upgradesColumn.style.display = "";
             } else {
                 shopTitle.textContent = "COZY SANCTUARY";
-                shopDesc.textContent = "Docked at the Sanctuary station. This field auto-shatters debris on approach — you're safe here. Basic upgrades cost Stardust; blessings are crafted from Stardust plus biome materials you salvage out in the sector.";
+                shopDesc.textContent = "Docked at the Sanctuary station. This field auto-shatters debris on approach - you're safe here. Basic upgrades cost Stardust; blessings are crafted from Stardust plus biome materials you salvage out in the sector.";
                 upgradesColumn.style.display = "";
             }
             updateUpgradeShopUI();
@@ -5646,6 +5773,55 @@
             }
         }
 
+        // The Juggernaut refit - not part of the passive rotation, not
+        // repeatable, and not just Stardust: it's locked behind every other
+        // ship upgrade already sitting at max level, on top of its own
+        // 10,000 SD + 50-of-everything material toll. Once installed it's
+        // permanent for the drift (resets like every other upgrade on a
+        // fresh one) and stacks with whatever passive is equipped.
+        function juggernautRequirementsMet() {
+            return fuelTankLevel >= MAX_UPGRADE_LEVEL && thrusterLevel >= MAX_UPGRADE_LEVEL &&
+                hullLevel >= MAX_UPGRADE_LEVEL && damageLevel >= MAX_UPGRADE_LEVEL;
+        }
+        function buyJuggernaut() {
+            if (player.hasJuggernaut) return; // already installed
+            if (!juggernautRequirementsMet()) {
+                alert("The Juggernaut refit needs every ship upgrade above maxed out first.");
+                return;
+            }
+            const recipe = CRAFT_RECIPES.juggernaut;
+            if (!canAffordRecipe(recipe)) {
+                alert(`Missing materials or Stardust! Need ${craftCostLabel(recipe)}.`);
+                return;
+            }
+            craftRecipe(recipe);
+            player.hasJuggernaut = true;
+            applyUpgradeStats();
+            fuel = maxFuel;
+            health = maxHealth;
+            playSound('crystal');
+            updateJuggernautButton();
+            updateHudDisplay();
+            updateShopWallet();
+            playCommsExchange(JUGGERNAUT_EXCHANGE, 0, COMMS_PRIORITY.HIGH);
+        }
+        function updateJuggernautButton() {
+            const btn = document.getElementById('buy-juggernaut-btn');
+            const costEl = document.getElementById('cost-juggernaut');
+            if (!btn) return;
+            if (costEl) costEl.textContent = "Requires: " + craftCostLabel(CRAFT_RECIPES.juggernaut);
+            if (player.hasJuggernaut) {
+                btn.textContent = "INSTALLED";
+                btn.disabled = true;
+            } else if (!juggernautRequirementsMet()) {
+                btn.textContent = "LOCKED";
+                btn.disabled = true;
+            } else {
+                btn.textContent = "CRAFT";
+                btn.disabled = !canAffordRecipe(CRAFT_RECIPES.juggernaut);
+            }
+        }
+
         // Gilbert Bullets isn't part of the single-passive-slot rotation
         // above - it's a permanent, purely cosmetic unlock that stacks
         // alongside whichever passive (or none) is equipped.
@@ -5851,6 +6027,7 @@
                     }
                 }
             }
+            updateJuggernautButton();
         }
 
         function tryFireWeapon() {
@@ -6069,6 +6246,7 @@
             player.hasHoming = false;
             player.hasGilbertBullets = false;
             player.hasSteelNerves = false;
+            player.hasJuggernaut = false;
             applyUpgradeStats();
             fuel = maxFuel;
             health = maxHealth;
@@ -6116,6 +6294,10 @@
             commsSettlerRumourHeard = false;
             commsSettlerContact = false;
             commsSettlerKilled = false;
+            wardenSpawnedThisDrift = false;
+            commsWardenSighted = false;
+            commsWardenKilled = false;
+            commsWardenMidfight = false;
             if (!isTutorial) {
                 playCommsExchange(NEW_DRIFT_EXCHANGES[Math.floor(Math.random() * NEW_DRIFT_EXCHANGES.length)], 600, COMMS_PRIORITY.NORMAL);
             }
@@ -6329,11 +6511,11 @@
             if (player.equippedAbility === 'outpost' && outpost) {
                 if (outpost.isReal) {
                     abilityHud.textContent = outpostBreakArmed
-                        ? `FIELD SANCTUARY STANDING — PRESS SPACE AGAIN TO BREAK`
+                        ? `FIELD SANCTUARY STANDING - PRESS SPACE AGAIN TO BREAK`
                         : `FIELD SANCTUARY STANDING [SPACE x2 TO BREAK]`;
                 } else {
                     abilityHud.textContent = outpostBreakArmed
-                        ? `OUTPOST STANDING: ${Math.ceil(outpost.hp)} HP — PRESS SPACE AGAIN TO BREAK`
+                        ? `OUTPOST STANDING: ${Math.ceil(outpost.hp)} HP - PRESS SPACE AGAIN TO BREAK`
                         : `OUTPOST STANDING: ${Math.ceil(outpost.hp)} HP`;
                 }
             } else if (player.equippedAbility === 'outpost' && outpostBreakCooldown > 0) {
@@ -6503,8 +6685,40 @@
             // they take the slot an ordinary hostile would have used.
             const spawnHomeDist = Math.hypot(x - spawnAnchor.x, y - spawnAnchor.y);
             const isSettler = spawnHomeDist >= DEEP_SPACE_UNCAPPED_DIST && Math.random() < SETTLER_SPAWN_CHANCE;
-            const isGuardian = !isSettler && Math.random() < biome.guardianChance;
+
+            // The Warden takes an alien slot too, but only once per drift
+            // and only once it's actually clear of the Sanctuary.
+            const isWarden = !isSettler && !wardenSpawnedThisDrift && !tutorialMode &&
+                spawnHomeDist >= WARDEN_MIN_HOME_DIST && Math.random() < WARDEN_SPAWN_CHANCE;
+            const isGuardian = !isSettler && !isWarden && Math.random() < biome.guardianChance;
             const guardianMult = isGuardian ? 2.2 : 1;
+
+            if (isWarden) {
+                wardenSpawnedThisDrift = true;
+                aliens.push({
+                    x: x, y: y,
+                    vx: Math.cos(wanderAngle) * wanderSpeed * 0.5,
+                    vy: Math.sin(wanderAngle) * wanderSpeed * 0.5,
+                    size: WARDEN_SIZE,
+                    health: WARDEN_HEALTH,
+                    maxHealth: WARDEN_HEALTH,
+                    shootCooldown: ALIEN_SHOOT_INTERVAL,
+                    wanderTimer: 200 + Math.random() * 200,
+                    reward: WARDEN_REWARD,
+                    color: WARDEN_DORMANT_COLOR,
+                    shootMult: 1.1,
+                    bulletSpeedMult: 1.1,
+                    isGuardian: false,
+                    isWarden: true,
+                    aggro: false, // stays passive until you shoot it
+                    // Same registry pool as the Derelict Sanctuaries - this
+                    // drone is a leftover from one of the outfits that
+                    // went dark, still on its last standing order.
+                    company: DERELICT_COMPANIES[Math.floor(Math.random() * DERELICT_COMPANIES.length)],
+                    material: WARDEN_MATERIAL
+                });
+                return;
+            }
 
             if (isSettler) {
                 aliens.push({
@@ -6700,20 +6914,20 @@
             const distToSanctuary = Math.hypot(player.x - sanctuary.x, player.y - sanctuary.y);
             const distToOutpostDock = outpost ? Math.hypot(player.x - outpost.x, player.y - outpost.y) : Infinity;
             if (distToSanctuary < sanctuary.dockRange) {
-                dockPrompt.textContent = "DOCKING RANGE — PRESS E TO ENTER SANCTUARY";
+                dockPrompt.textContent = "DOCKING RANGE - PRESS E TO ENTER SANCTUARY";
                 dockPrompt.classList.add("visible");
             } else if (distToOutpostDock < OUTPOST_DOCK_RANGE) {
                 dockPrompt.textContent = (outpost && outpost.isReal)
-                    ? "DOCKING RANGE — PRESS E TO ENTER SANCTUARY"
-                    : `DOCKING RANGE — PRESS E TO CRAFT AT MINI SANCTUARY (${OUTPOST_CRAFT_MULTIPLIER}x COST)`;
+                    ? "DOCKING RANGE - PRESS E TO ENTER SANCTUARY"
+                    : `DOCKING RANGE - PRESS E TO CRAFT AT MINI SANCTUARY (${OUTPOST_CRAFT_MULTIPLIER}x COST)`;
                 dockPrompt.classList.add("visible");
             } else {
                 const wreckInRange = getDerelictInRange();
                 if (wreckInRange) {
                     if (wreckInRange.charges > 0) {
-                        dockPrompt.textContent = `SALVAGE RANGE — PRESS E TO STRIP ${wreckInRange.name} (${wreckInRange.charges} CACHE${wreckInRange.charges === 1 ? '' : 'S'} LEFT)`;
+                        dockPrompt.textContent = `SALVAGE RANGE - PRESS E TO STRIP ${wreckInRange.name} (${wreckInRange.charges} CACHE${wreckInRange.charges === 1 ? '' : 'S'} LEFT)`;
                     } else {
-                        dockPrompt.textContent = `${wreckInRange.name} — PICKED CLEAN`;
+                        dockPrompt.textContent = `${wreckInRange.name} - PICKED CLEAN`;
                     }
                     dockPrompt.classList.add("visible");
                 } else {
@@ -6754,7 +6968,8 @@
 
             if (accelerating) {
                 const precisionFuelMult = isPrecisionMode ? 0.5 : 1;
-                fuel -= 0.08 * currentBiome.fuelDrainMult * (player.hasGravPlate ? 0.7 : 1) * precisionFuelMult;
+                const juggernautDrainMult = player.hasJuggernaut ? JUGGERNAUT_FUEL_DRAIN_MULT : 1;
+                fuel -= 0.08 * currentBiome.fuelDrainMult * (player.hasGravPlate ? 0.7 : 1) * precisionFuelMult * juggernautDrainMult;
                 if (fuel <= 0) fuel = 0;
             } else {
                 // Idle regen must always outpace the worst-case passive biome
@@ -6762,7 +6977,8 @@
                 // pinned at exactly 0 forever once it empties there - since
                 // fuel > 0 gates all movement input, that would permanently
                 // strand the player with no way to ever thrust again.
-                fuel += 0.035 + currentBiome.fuelRegenBonus;
+                const juggernautRegenMult = player.hasJuggernaut ? JUGGERNAUT_FUEL_REGEN_MULT : 1;
+                fuel += (0.035 + currentBiome.fuelRegenBonus) * juggernautRegenMult;
                 if (fuel > maxFuel) fuel = maxFuel;
             }
             if (currentBiome.passiveFuelDrain > 0) {
@@ -7154,6 +7370,28 @@
                     a.wanderTimer = 120 + Math.random() * 120;
                 }
 
+                // A dormant Warden ignores the player entirely - no chase,
+                // no preferred-distance jockeying, no shots - so it just
+                // falls through to the wander/movement code below.
+                if (a.isWarden && !a.aggro) {
+                    if (!commsWardenSighted && Math.hypot(a.x - player.x, a.y - player.y) < ALIEN_DETECT_RANGE) {
+                        commsWardenSighted = true;
+                        playCommsExchange(wardenSightExchange(a.company), 0, COMMS_PRIORITY.HIGH);
+                    }
+                    const alienSpeedDormant = Math.hypot(a.vx, a.vy);
+                    if (alienSpeedDormant > 0.5) {
+                        a.vx = (a.vx / alienSpeedDormant) * 0.5;
+                        a.vy = (a.vy / alienSpeedDormant) * 0.5;
+                    }
+                    const alienSpeedFactorDormant = cheatedAbilityMode === 'freeze' ? 0.15 : 1.0;
+                    a.x += a.vx * alienSpeedFactorDormant;
+                    a.y += a.vy * alienSpeedFactorDormant;
+                    if (Math.hypot(a.x - player.x, a.y - player.y) > DESPAWN_RADIUS) {
+                        aliens.splice(i, 1);
+                    }
+                    continue;
+                }
+
                 const distToPlayer = Math.hypot(a.x - player.x, a.y - player.y);
                 if (playerInSanctuary) {
                     // Player is safe inside the Sanctuary - rather than just
@@ -7176,10 +7414,13 @@
 
                     a.shootCooldown--;
                     if (a.shootCooldown <= 0 && (cheatedAbilityMode !== 'freeze')) {
-                        // Settlers fire a three-round spread instead of the
-                        // single aimed shot everything else out here uses.
+                        // Settlers and an aggroed Warden fire a three-round
+                        // spread instead of the single aimed shot everything
+                        // else out here uses.
                         const shotAngles = a.isSettler
                             ? [angleToPlayer - SETTLER_SPREAD, angleToPlayer, angleToPlayer + SETTLER_SPREAD]
+                            : a.isWarden
+                            ? [angleToPlayer - WARDEN_SPREAD, angleToPlayer, angleToPlayer + WARDEN_SPREAD]
                             : [angleToPlayer];
                         for (const sa of shotAngles) {
                             alienBullets.push({
@@ -7196,8 +7437,9 @@
                 }
 
                 const alienSpeed = Math.hypot(a.vx, a.vy);
-                // The Settler is heavy and never hurries. It doesn't need to.
-                const maxAlienSpeed = a.isSettler ? 1.05 : 1.7;
+                // The Settler is heavy and never hurries. The Warden only
+                // moves like this once it's actually decided to fight.
+                const maxAlienSpeed = a.isSettler ? 1.05 : a.isWarden ? 2.1 : 1.7;
                 if (alienSpeed > maxAlienSpeed) {
                     a.vx = (a.vx / alienSpeed) * maxAlienSpeed;
                     a.vy = (a.vy / alienSpeed) * maxAlienSpeed;
@@ -7216,23 +7458,33 @@
 
                 const alienHitDist = Math.hypot(player.x - a.x, player.y - a.y);
 
-                // A Settler doesn't shatter itself on you like an ordinary
-                // hostile - it rams straight through, hurts more, and is
-                // still there afterwards. The only way past one is guns.
-                if (a.isSettler && alienHitDist < player.size + a.size / 2 && invulnTime <= 0) {
+                // A Settler, or an aggroed Warden, doesn't shatter itself on
+                // you like an ordinary hostile - it rams straight through,
+                // hurts more, and is still there afterwards. The only way
+                // past one is guns. A dormant Warden hasn't earned this
+                // treatment yet: bumping into it does nothing at all.
+                if (a.isWarden && !a.aggro && alienHitDist < player.size + a.size / 2) {
+                    const bumpAngle = Math.atan2(a.y - player.y, a.x - player.x);
+                    a.vx += Math.cos(bumpAngle) * 0.3;
+                    a.vy += Math.sin(bumpAngle) * 0.3;
+                    continue;
+                }
+                const isHeavyRammer = a.isSettler || (a.isWarden && a.aggro);
+                if (isHeavyRammer && alienHitDist < player.size + a.size / 2 && invulnTime <= 0) {
                     playSound('hit');
+                    const ramDamage = a.isWarden ? WARDEN_RAM_DAMAGE : SETTLER_RAM_DAMAGE;
                     const knockAngleS = Math.atan2(player.y - a.y, player.x - a.x);
                     player.vx += Math.cos(knockAngleS) * 5.5;
                     player.vy += Math.sin(knockAngleS) * 5.5;
                     a.vx -= Math.cos(knockAngleS) * 0.5;
                     a.vy -= Math.sin(knockAngleS) * 0.5;
                     invulnTime = INVULN_FRAMES;
-                    const settlerCloaked = (player.equippedAbility === 'cloak' && activeEffectTimer > 0);
-                    if (cheatedAbilityMode !== 'godmode' && !settlerCloaked) {
+                    const heavyCloaked = (player.equippedAbility === 'cloak' && activeEffectTimer > 0);
+                    if (cheatedAbilityMode !== 'godmode' && !heavyCloaked) {
                         if (player.hasShield) {
                             player.hasShield = false;
                         } else {
-                            health -= SETTLER_RAM_DAMAGE;
+                            health -= ramDamage;
                             if (health <= 0) {
                                 health = 0;
                                 gameOver();
@@ -7401,14 +7653,35 @@
                 for (let j = aliens.length - 1; j >= 0; j--) {
                     const a = aliens[j];
                     if (Math.hypot(pb.x - a.x, pb.y - a.y) < a.size / 2 + 4) {
+                        // First hit on a dormant Warden is what wakes it up -
+                        // the damage still applies, but from this frame on
+                        // it fights back for real.
+                        if (a.isWarden && !a.aggro) {
+                            a.aggro = true;
+                            a.color = WARDEN_AGGRO_COLOR;
+                            playCommsExchange(WARDEN_AGGRO_EXCHANGE, 0, COMMS_PRIORITY.HIGH);
+                        }
                         a.health -= playerBulletDamage;
                         playSound('hit');
+                        // Special mid-fight dialogue, once, the first time
+                        // it's actually taken real damage - a beat for
+                        // sticking with the fight rather than just starting it.
+                        if (a.isWarden && !commsWardenMidfight && a.health > 0 && a.health <= a.maxHealth * 0.5) {
+                            commsWardenMidfight = true;
+                            playCommsExchange(wardenMidfightExchange(a.company), 200, COMMS_PRIORITY.NORMAL);
+                        }
                         if (a.health <= 0) {
                             shatterObject(a, a.color || ALIEN_COLOR);
                             aliens.splice(j, 1);
                             score += a.reward || 10;
                             totalCredits += a.reward || 10;
-                            if (a.isSettler) {
+                            if (a.isWarden) {
+                                if (a.material) addMaterial(a.material, 1);
+                                if (!commsWardenKilled) {
+                                    commsWardenKilled = true;
+                                    playCommsExchange(wardenKillExchange(a.company), 300, COMMS_PRIORITY.HIGH);
+                                }
+                            } else if (a.isSettler) {
                                 // Guaranteed haul - cracking one open is the
                                 // whole reason to be out at the line.
                                 addMaterial('gilstone', SETTLER_GILSTONE_MIN + Math.floor(Math.random() * 3));
@@ -7518,7 +7791,7 @@
             ctx.font = "bold 10px 'Segoe UI', sans-serif";
             ctx.fillStyle = pointerColor;
             ctx.textAlign = "center";
-            ctx.fillText(`${outpost.isReal ? "FIELD SANCTUARY" : "MINI SANCTUARY"} — ${Math.round(dist)}m`, px, py + (dy > 0 ? 22 : -14));
+            ctx.fillText(`${outpost.isReal ? "FIELD SANCTUARY" : "MINI SANCTUARY"} - ${Math.round(dist)}m`, px, py + (dy > 0 ? 22 : -14));
             ctx.restore();
         }
 
@@ -7692,7 +7965,7 @@
                 ctx.font = "bold 11px 'Segoe UI', sans-serif";
                 ctx.textAlign = "center";
                 ctx.fillStyle = stripped ? "#6c6478" : "#c08457";
-                ctx.fillText(`${d.name} — DERELICT HQ`, dx, dy - DERELICT_RADIUS - 33);
+                ctx.fillText(`${d.name} - DERELICT HQ`, dx, dy - DERELICT_RADIUS - 33);
                 ctx.font = "10px 'Segoe UI', sans-serif";
                 ctx.fillStyle = stripped ? "#5d5566" : "#8e7f9a";
                 ctx.fillText((d.company || "").toUpperCase(), dx, dy - DERELICT_RADIUS - 20);
@@ -8015,13 +8288,17 @@
                 let angle = Math.atan2(player.vy, player.vx) + Math.PI / 2;
                 if (Math.hypot(player.vx, player.vy) < 0.1) angle = 0;
                 ctx.rotate(angle);
+                // A Juggernaut hull is drawn at the same base path, just
+                // scaled up - the refit is a rebuild, not a new sprite.
+                const shipScale = player.hasJuggernaut ? JUGGERNAUT_SHIP_SCALE : 1;
+                ctx.scale(shipScale, shipScale);
 
                 let isCloaked = (player.equippedAbility === 'cloak' && activeEffectTimer > 0);
                 ctx.globalAlpha = isCloaked ? 0.4 : 1.0;
 
                 ctx.shadowBlur = 12;
-                ctx.shadowColor = isCheatedRun ? "#06d6a0" : "#ffd166";
-                ctx.fillStyle = isCheatedRun ? "#06d6a0" : "#ffd166";
+                ctx.shadowColor = isCheatedRun ? "#06d6a0" : (player.hasJuggernaut ? "#8ecbff" : "#ffd166");
+                ctx.fillStyle = isCheatedRun ? "#06d6a0" : (player.hasJuggernaut ? "#8ecbff" : "#ffd166");
                 
                 ctx.beginPath();
                 ctx.moveTo(0, -12);
@@ -8051,7 +8328,7 @@
                 ctx.strokeStyle = cheatedAbilityMode === 'godmode' ? "#06d6a0" : "#e2738a";
                 ctx.lineWidth = 2;
                 ctx.beginPath();
-                ctx.arc(playerScreenX, playerScreenY, 18, 0, Math.PI * 2);
+                ctx.arc(playerScreenX, playerScreenY, 18 * (player.hasJuggernaut ? JUGGERNAUT_SHIP_SCALE : 1), 0, Math.PI * 2);
                 ctx.stroke();
             }
 
@@ -8084,6 +8361,59 @@
                 const ax = a.x - camX;
                 const ay = a.y - camY;
                 const angleToPlayer = Math.atan2(player.y - a.y, player.x - a.x);
+                if (a.isWarden) {
+                    // A hexagonal drone that just slowly tumbles in place
+                    // while dormant, no rotation locked to the player at
+                    // all - it isn't looking at you. Once aggroed it snaps
+                    // to face you and its lights flip from standby to red.
+                    const wPulse = (Math.sin(Date.now() / (a.aggro ? 160 : 900)) + 1) / 2;
+                    const wFacing = a.aggro ? angleToPlayer + Math.PI / 2 : Date.now() / 2400;
+                    ctx.save();
+                    ctx.translate(ax, ay);
+                    ctx.rotate(wFacing);
+                    ctx.shadowBlur = a.aggro ? 18 : 6;
+                    ctx.shadowColor = a.aggro ? WARDEN_AGGRO_COLOR : WARDEN_DORMANT_COLOR;
+                    ctx.fillStyle = "#20262e";
+                    ctx.strokeStyle = a.aggro ? WARDEN_AGGRO_COLOR : WARDEN_DORMANT_COLOR;
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    for (let k = 0; k < 6; k++) {
+                        const ang = (Math.PI / 3) * k;
+                        const px = Math.cos(ang) * a.size / 2;
+                        const py = Math.sin(ang) * a.size / 2;
+                        if (k === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+                    }
+                    ctx.closePath();
+                    ctx.fill();
+                    ctx.stroke();
+                    // Standby / warning light in the center.
+                    ctx.globalAlpha = a.aggro ? (0.5 + wPulse * 0.5) : (0.25 + wPulse * 0.35);
+                    ctx.fillStyle = a.aggro ? WARDEN_AGGRO_COLOR : "#e0c060";
+                    ctx.shadowColor = ctx.fillStyle;
+                    ctx.beginPath();
+                    ctx.arc(0, 0, 4, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.globalAlpha = 1;
+                    ctx.restore();
+
+                    ctx.save();
+                    ctx.font = "bold 12px 'Segoe UI', sans-serif";
+                    ctx.textAlign = "center";
+                    ctx.fillStyle = a.aggro ? WARDEN_AGGRO_COLOR : "#9aa7b0";
+                    ctx.shadowBlur = 5;
+                    ctx.shadowColor = ctx.fillStyle;
+                    ctx.fillText(a.aggro ? "THE WARDEN - HOSTILE" : "??? - DORMANT", ax, ay - a.size / 2 - 24);
+                    ctx.font = "10px 'Segoe UI', sans-serif";
+                    ctx.fillStyle = "#6b7480";
+                    ctx.shadowBlur = 0;
+                    ctx.fillText((a.company || "").toUpperCase(), ax, ay - a.size / 2 - 12);
+                    ctx.restore();
+
+                    if (a.aggro) {
+                        drawMiniHealthBar(ax, ay - a.size / 2, a.health / a.maxHealth, a.size + 20, WARDEN_AGGRO_COLOR);
+                    }
+                    continue;
+                }
                 if (a.isSettler) {
                     // A drifter's hull, not an alien one: the same silhouette
                     // you fly, scaled up, iced over, running dark with one
@@ -8146,7 +8476,7 @@
                     ctx.fillText("THE SETTLER", ax, ay - a.size / 2 - 30);
                     ctx.font = "9px 'Segoe UI', sans-serif";
                     ctx.fillStyle = "#9aa7b0";
-                    ctx.fillText("HALCYON RETRIEVAL — CODE STRUCK", ax, ay - a.size / 2 - 19);
+                    ctx.fillText("HALCYON RETRIEVAL - CODE STRUCK", ax, ay - a.size / 2 - 19);
                     ctx.restore();
 
                     drawMiniHealthBar(ax, ay - a.size / 2 - 12, a.health / a.maxHealth, a.size + 20, "#dff6ff");
