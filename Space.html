@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stellar Drift: Sector Radar</title>
+    <title>Stellar Drift: Halcyon Control Sector</title>
     <style>
         * {
             box-sizing: border-box;
@@ -3235,6 +3235,18 @@
         const STRESS_PER_ALIEN = 0.026;
         const STRESS_FILL_BONUS = 1.5; // at max stress, crystals fill up to 2.5x faster
         const STRESS_REWARD_PENALTY = 0.5; // at max stress, crystals pay out only 50% Stardust
+        // A close call - debris or an alien bullet sweeping just past without
+        // actually hitting - spikes Stress hard, on top of the slow ambient
+        // buildup above. Each object only spikes Stress once as it passes.
+        const NEARMISS_MARGIN_DEBRIS = 26; // px beyond the hit radius that still counts as "barely missed"
+        const NEARMISS_MARGIN_BULLET = 24;
+        const STRESS_NEARMISS_DEBRIS = 7;
+        const STRESS_NEARMISS_BULLET = 11;
+        // The more banked Stress, the more on-edge the pilot flies: top
+        // speed/acceleration climb with it, but so does fuel burn under
+        // thrust - a jittery, twitchy, thirstier ship at high Stress.
+        const STRESS_SPEED_BOOST_MAX = 0.25; // up to +25% speed/accel at max stress
+        const STRESS_FUEL_DRAIN_MAX = 0.9; // up to +90% thrust fuel drain at max stress
         let positionHistory = [];
         let debrisPieces = [];
         // Player-placed Mini Sanctuary: a fragile outpost that shatters
@@ -6987,6 +6999,14 @@
                 currentAccel *= ventBoostMult;
             }
 
+            // Banked Stress itself makes the ship twitchier: higher Stress
+            // means a higher top speed/acceleration, but also a thirstier
+            // engine (see the fuel drain line below).
+            const stressBoostRatio = stress / STRESS_MAX;
+            const stressSpeedMult = 1 + stressBoostRatio * STRESS_SPEED_BOOST_MAX;
+            activeMaxSpeed *= stressSpeedMult;
+            currentAccel *= stressSpeedMult;
+
             let accelerating = false;
             if (fuel > 0 && !docked) {
                 if (keys["KeyW"] || keys["ArrowUp"]) { player.vy -= currentAccel; accelerating = true; }
@@ -6998,7 +7018,8 @@
             if (accelerating) {
                 const precisionFuelMult = isPrecisionMode ? 0.5 : 1;
                 const juggernautDrainMult = player.hasJuggernaut ? JUGGERNAUT_FUEL_DRAIN_MULT : 1;
-                fuel -= 0.08 * currentBiome.fuelDrainMult * (player.hasGravPlate ? 0.7 : 1) * precisionFuelMult * juggernautDrainMult;
+                const stressFuelMult = 1 + stressBoostRatio * STRESS_FUEL_DRAIN_MAX;
+                fuel -= 0.08 * currentBiome.fuelDrainMult * (player.hasGravPlate ? 0.7 : 1) * precisionFuelMult * juggernautDrainMult * stressFuelMult;
                 if (fuel <= 0) fuel = 0;
             } else {
                 // Idle regen must always outpace the worst-case passive biome
@@ -7311,6 +7332,14 @@
                 }
 
                 const hitDist = Math.hypot(player.x - obs.x, player.y - obs.y);
+                const debrisHitRadius = player.size + obs.size / 2;
+
+                // Barely dodging a chunk of debris spikes Stress - once per
+                // chunk, the moment it sweeps through the close-call band.
+                if (!obs.nearMissDone && hitDist >= debrisHitRadius && hitDist < debrisHitRadius + NEARMISS_MARGIN_DEBRIS) {
+                    obs.nearMissDone = true;
+                    stress = Math.min(STRESS_MAX, stress + STRESS_NEARMISS_DEBRIS);
+                }
 
                 if (hitDist < player.size + obs.size / 2 && invulnTime <= 0) {
                     let isCloaked = (player.equippedAbility === 'cloak' && activeEffectTimer > 0);
@@ -7598,6 +7627,15 @@
                 }
 
                 const bd = Math.hypot(player.x - b.x, player.y - b.y);
+                const bulletHitRadius = player.size + 4;
+
+                // A bullet whizzing just past without landing spikes Stress -
+                // once per bullet, right as it grazes through the close-call band.
+                if (!b.nearMissDone && bd >= bulletHitRadius && bd < bulletHitRadius + NEARMISS_MARGIN_BULLET) {
+                    b.nearMissDone = true;
+                    stress = Math.min(STRESS_MAX, stress + STRESS_NEARMISS_BULLET);
+                }
+
                 if (bd < player.size + 4 && invulnTime <= 0) {
                     let isCloaked = (player.equippedAbility === 'cloak' && activeEffectTimer > 0);
                     if (cheatedAbilityMode === 'godmode' || player.hasShield || isCloaked) {
