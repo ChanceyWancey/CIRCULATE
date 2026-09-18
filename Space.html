@@ -1212,7 +1212,7 @@
                     </div>
                     <div class="update-log-entry">
                         <span class="update-log-version">Supply Drop</span>
-                        <span class="update-log-text">New craftable blessing: call Halcyon Control on the long channel and requisition fuel and hull to your position. The crate holds station on its own beacon until you collect it. It never fades like ordinary pickups. 500s cooldown.</span>
+                        <span class="update-log-text">New craftable blessing: call Halcyon Control on the long channel and requisition fuel and hull to your position. The crate holds station on its own beacon until you collect it. It never fades like ordinary pickups. 120s cooldown.</span>
                     </div>
                     <div class="update-log-entry">
                         <span class="update-log-version">Live Tutorial</span>
@@ -1480,7 +1480,7 @@
                 <div class="shop-item">
                     <div class="shop-info">
                         <h4>Supply Drop</h4>
-                        <span>Opens the long channel to Halcyon Control and requisitions a crate of fuel canisters, hull kits, and a pallet of a random material to your position. Unlike normal pickups, a called-in drop never fades. It holds station on its own beacon until you collect it, and an arrow points you back to it. / 500s cooldown</span>
+                        <span>Opens the long channel to Halcyon Control and requisitions a crate of fuel canisters, hull kits, and a pallet of a random material to your position. Unlike normal pickups, a called-in drop never fades. It holds station on its own beacon until you collect it, and an arrow points you back to it. / 120s cooldown</span>
                         <span class="craft-cost" id="cost-supplydrop"></span>
                     </div>
                     <button class="btn" id="buy-supplydrop-btn" onclick="buyAbility('supplydrop')">CRAFT</button>
@@ -2972,9 +2972,9 @@
         // small set of biome materials. Cheap ones lean on a single biome;
         // pricier ones deliberately mix materials from two different biomes
         // so the strongest gear requires having explored further out.
-        // Supply Drop blessing: a very long cooldown (500s at 60fps) in
+        // Supply Drop blessing: a long cooldown (120s at 60fps) in
         // exchange for a permanent, hand-placed cache of fuel and hull.
-        const SUPPLY_DROP_COOLDOWN_FRAMES = 500 * 60;
+        const SUPPLY_DROP_COOLDOWN_FRAMES = 120 * 60;
         const SUPPLY_DROP_FUEL_COUNT = 3;
         const SUPPLY_DROP_HEALTH_COUNT = 3;
         const CRAFT_RECIPES = {
@@ -5631,6 +5631,7 @@
             }
             craftRecipe(recipe);
             player.equippedAbility = type;
+            player.cooldownTime = 0; // don't inherit a leftover cooldown from whichever ability was equipped before
             if (type === 'shield') player.hasShield = true;
             playSound('crystal');
             alert(`Crafted blessing: ${type.toUpperCase()}`);
@@ -6562,8 +6563,8 @@
             } else if (player.equippedAbility === 'outpost' && outpostBreakCooldown > 0) {
                 abilityHud.textContent = `OUTPOST REBUILDING: ${Math.ceil(outpostBreakCooldown / 60)}s`;
             } else if (player.cooldownTime > 0) {
-                // 500s of Supply Drop cooldown reads better as m:ss than as
-                // a four-digit second count.
+                // Long cooldowns like Supply Drop's read better as m:ss than as
+                // a big second count.
                 const cdSecs = Math.ceil(player.cooldownTime / 60);
                 abilityHud.textContent = cdSecs >= 100
                     ? `COOLDOWN: ${Math.floor(cdSecs / 60)}:${String(cdSecs % 60).padStart(2, '0')}`
