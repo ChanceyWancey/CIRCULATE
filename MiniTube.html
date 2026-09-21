@@ -311,31 +311,251 @@
     resultsArea.appendChild(section);
   }
 
+  let searchState = {
+    mode: null,
+    q: '',
+    channelId: null,
+    nextPageToken: null,
+    loading: false,
+    done: false,
+    items: [],
+    title: ''
+  };
+
+  async function apiSearchPage({ mode, q, channelId, pageToken }) {
+    if (!YOUTUBE_API_KEY || YOUTUBE_API_KEY === "YOUR_YOUTUBE_API_KEY_HERE") {
+      throw new Error('NO_KEY');
+    }
+
+    const params = new URLSearchParams({
+      part: 'snippet',
+      maxResults: '50',
+      key: YOUTUBE_API_KEY
+    });
+
+    if (pageToken) params.set('pageToken', pageToken);
+
+    if (mode === 'channel') {
+      params.set('q', q);
+      params.set('type', 'channel');
+    } else {
+      params.set('type', 'video');
+      if (channelId) {
+        params.set('channelId', channelId);
+        params.set('order', 'date');
+        if (q) params.set('q', q);
+      } else {
+        params.set('q', q);
+        params.set('order', 'relevance');
+      }
+    }
+
+    const res = await fetch(
+      `https://www.googleapis.com/youtube/v3/search?${params.toString()}`
+    );
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error((data.error && data.error.message) || 'Search failed');
+    }
+
+    return {
+      items: (data.items || []).map((item) => {
+        if (mode === 'channel') {
+          return {
+            channelId: item.snippet.channelId,
+            title: item.snippet.title,
+            thumbnail: item.snippet.thumbnails &&
+              item.snippet.thumbnails.default &&
+              item.snippet.thumbnails.default.url
+          };
+        }
+
+        return {
+          videoId: item.id.videoId,
+          title: item.snippet.title,
+          channelTitle: item.snippet.channelTitle,
+          thumbnail: item.snippet.thumbnails &&
+            item.snippet.thumbnails.medium &&
+            item.snippet.thumbnails.medium.url
+        };
+      }),
+      nextPageToken: data.nextPageToken || null
+    };
+  }
+
+  function renderVideoResults(title, items, append = false) {
+    let section = resultsArea.querySelector('.search-results-section');
+    let grid;
+
+    if (!append || !section) {
+      resultsArea.innerHTML = '';
+
+      section = document.createElement('div');
+      section.className = 'search-results-section';
+
+      const titleEl = document.createElement('div');
+      titleEl.className = 'section-title';
+      titleEl.textContent = title;
+
+      grid = document.createElement('div');
+      grid.className = 'results-grid';
+
+      section.appendChild(titleEl);
+      section.appendChild(grid);
+      resultsArea.appendChild(section);
+    } else {
+      grid = section.querySelector('.results-grid');
+    }
+
+    items.forEach(v => {
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.innerHTML = `
+        <img src="${v.thumbnail || ''}" alt="">
+        <div class="playIcon">Copy link</div>
+        <div class="info">
+          <div class="title">${escapeHtml(v.title)}</div>
+          <div class="meta">${escapeHtml(v.channelTitle || '')}</div>
+        </div>`;
+
+      const icon = card.querySelector('.playIcon');
+
+      card.addEventListener('click', async () => {
+        const link = `https://www.youtube.com/watch?v=${v.videoId}`;
+        try {
+          await navigator.clipboard.writeText(link);
+          icon.textContent = 'Copied ✓';
+        } catch (e) {
+          window.prompt('Copy this link:', link);
+        }
+        setTimeout(() => { icon.textContent = 'Copy link'; }, 1500);
+      });
+
+      grid.appendChild(card);
+    });
+
+    // Loading marker at the bottom of the search results.
+    let loader = section.querySelector('.search-loader');
+    if (!loader) {
+      loader = document.createElement('div');
+      loader.className = 'search-loader hint';
+      loader.style.textAlign = 'center';
+      loader.style.padding = '20px';
+      section.appendChild(loader);
+    }
+
+    loader.textContent = searchState.done
+      ? 'No more results.'
+      : 'Scroll down for more videos...';
+  }
+
+  async function loadMoreSearchResults() {
+    if (searchState.loading || searchState.done || !searchState.nextPageToken) return;
+
+    searchState.loading = true;
+
+    const loader = resultsArea.querySelector('.search-loader');
+    if (loader) loader.textContent = 'Loading 50 more videos...';
+
+    try {
+      const page = await apiSearchPage({
+        mode: 'video',
+        q: searchState.q,
+        channelId: searchState.channelId,
+        pageToken: searchState.nextPageToken
+      });
+
+      searchState.nextPageToken = page.nextPageToken;
+      searchState.done = !searchState.nextPageToken;
+
+      searchState.items.push(...page.items);
+      renderVideoResults(searchState.title, page.items, true);
+    } catch (err) {
+      if (loader) loader.textContent = 'Could not load more results: ' + err.message;
+    } finally {
+      searchState.loading = false;
+    }
+  }
+
   async function runSearch() {
     const q = searchInput.value.trim();
     if (!q) return;
+
     errorMsg.innerHTML = '';
     resultsArea.innerHTML = '<div class="hint">Searching...</div>';
+
     try {
+      searchState = {
+        mode: null,
+        q,
+        channelId: null,
+        nextPageToken: null,
+        loading: false,
+        done: false,
+        items: [],
+        title: ''
+      };
+
       if (searchMode.value === 'video') {
-        const items = await apiSearch({ mode: 'video', q });
-        renderVideoResults(`Results for "${q}" — click to copy link`, items);
+        const page = await apiSearchPage({ mode: 'video', q });
+
+        searchState.mode = 'video';
+        searchState.nextPageToken = page.nextPageToken;
+        searchState.done = !page.nextPageToken;
+        searchState.items = page.items;
+        searchState.title = `Results for "${q}" — click to copy link`;
+
+        renderVideoResults(searchState.title, page.items);
       } else {
-        const channels = await apiSearch({ mode: 'channel', q });
-        if (!channels.length) { resultsArea.innerHTML = '<div class="hint">No channel found.</div>'; return; }
-        const channel = channels[0];
-        const videos = await apiSearch({ mode: 'video', channelId: channel.channelId, q: '' });
-        renderVideoResults(`Videos from ${channel.title} — click to copy link`, videos);
+        const channels = await apiSearchPage({ mode: 'channel', q });
+
+        if (!channels.items.length) {
+          resultsArea.innerHTML = '<div class="hint">No channel found.</div>';
+          return;
+        }
+
+        const channel = channels.items[0];
+        const page = await apiSearchPage({
+          mode: 'video',
+          channelId: channel.channelId,
+          q: ''
+        });
+
+        searchState.mode = 'video';
+        searchState.q = '';
+        searchState.channelId = channel.channelId;
+        searchState.nextPageToken = page.nextPageToken;
+        searchState.done = !page.nextPageToken;
+        searchState.items = page.items;
+        searchState.title = `Videos from ${channel.title} — click to copy link`;
+
+        renderVideoResults(searchState.title, page.items);
       }
     } catch (err) {
       resultsArea.innerHTML = '';
+
       if (err.message === 'NO_KEY') {
-        errorMsg.innerHTML = 'No YouTube API key set — edit YOUTUBE_API_KEY near the top of the script.';
+        errorMsg.innerHTML =
+          'No YouTube API key set — edit YOUTUBE_API_KEY near the top of the script.';
       } else {
         errorMsg.textContent = err.message;
       }
     }
   }
+
+  // Infinite scroll: when the user gets near the bottom, request the next
+  // 50 videos from YouTube using the nextPageToken.
+  window.addEventListener('scroll', () => {
+    const distanceFromBottom =
+      document.documentElement.scrollHeight -
+      (window.scrollY + window.innerHeight);
+
+    if (distanceFromBottom < 900) {
+      loadMoreSearchResults();
+    }
+  });
+
   searchBtn.addEventListener('click', runSearch);
   searchInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') runSearch(); });
 
