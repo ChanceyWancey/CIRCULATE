@@ -30,7 +30,6 @@
   }
   header h1 { font-size: 18px; margin: 0; font-weight: 600; }
   header h1 span { color: var(--accent); }
-  #keyStatus { font-size: 12px; color: var(--muted); cursor: pointer; text-decoration: underline; }
   main { max-width: 1100px; margin: 0 auto; padding: 24px; }
   .row { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
   input[type="text"], input[type="password"] {
@@ -107,26 +106,22 @@
   .tabpanel { display: none; }
   .tabpanel.active { display: block; }
 
-  .site-frame-wrap {
-    width: 100%; height: 75vh; min-height: 400px; background: #000;
-    border-radius: 8px; overflow: hidden; border: 1px solid #2a2a2a;
-  }
-  .site-frame-wrap iframe { width: 100%; height: 100%; border: 0; background: #fff; }
-  .site-empty {
-    display: flex; align-items: center; justify-content: center; height: 100%;
-    color: var(--muted); font-size: 14px; text-align: center; padding: 20px;
+  #siteTextDisplay {
+    width: 100%; min-height: 400px; white-space: pre-wrap;
+    padding: 16px; border-radius: 8px; border: 1px solid #333;
+    background: #121212; color: var(--text); font-size: 14px;
+    font-family: "Segoe UI", Arial, sans-serif; line-height: 1.5;
   }
 </style>
 </head>
 <body>
   <header>
     <h1>Mini<span>Tube</span></h1>
-    <span id="keyStatus">Set API key for search</span>
   </header>
 
   <div class="tabbar">
     <button class="tabbtn active" id="tabBtnMiniTube" data-tab="minitube">MiniTube</button>
-    <button class="tabbtn" id="tabBtnSite" data-tab="site">Download The Video</button>
+    <button class="tabbtn" id="tabBtnSite" data-tab="site">Web Page</button>
   </div>
 
   <main>
@@ -167,25 +162,9 @@
     </div>
 
     <div class="tabpanel" id="tabpanel-site">
-      <div class="site-frame-wrap" id="siteFrameWrap"></div>
+      <div id="siteTextDisplay"></div>
     </div>
   </main>
-
-  <div class="modal-backdrop" id="keyModal">
-    <div class="modal">
-      <h3>YouTube API key</h3>
-      <p>
-      Put This As The Key Below     AIzaSyBkcPMDqrlou3eRp56sZlN-wrD2Fyexzvc
-      </p>
-      <div class="row">
-        <input type="password" id="apiKeyInput" placeholder="Paste your API key">
-      </div>
-      <div class="row">
-        <button id="saveKeyBtn">Save key</button>
-        <button id="closeModalBtn" class="secondary">Close</button>
-      </div>
-    </div>
-  </div>
 
 <script>
   const urlInput = document.getElementById('urlInput');
@@ -200,40 +179,17 @@
   const searchBtn = document.getElementById('searchBtn');
   const searchMode = document.getElementById('searchMode');
   const resultsArea = document.getElementById('resultsArea');
-  const keyStatus = document.getElementById('keyStatus');
-  const keyModal = document.getElementById('keyModal');
-  const apiKeyInput = document.getElementById('apiKeyInput');
-  const saveKeyBtn = document.getElementById('saveKeyBtn');
-  const closeModalBtn = document.getElementById('closeModalBtn');
 
   let currentSrc = null;   // the src currently loaded in <video>
   let currentLabel = null;
   let currentIsBlob = false; // blob: URLs can't survive a page reload
   let watchlist = [];
 
-  // ---------- API key handling ----------
-  // Search needs the user's own key, saved only in this browser. No key
-  // is ever shipped inside this file.
-  function getApiKey() {
-    return localStorage.getItem('minitube_api_key') || '';
-  }
-  function setApiKey(key) {
-    localStorage.setItem('minitube_api_key', key);
-    updateKeyStatus();
-  }
-  function updateKeyStatus() {
-    keyStatus.textContent = getApiKey() ? 'API key set ✓ (click to change)' : 'Set API key for search';
-  }
-  keyStatus.addEventListener('click', () => {
-    apiKeyInput.value = getApiKey();
-    keyModal.classList.add('open');
-  });
-  closeModalBtn.addEventListener('click', () => keyModal.classList.remove('open'));
-  saveKeyBtn.addEventListener('click', () => {
-    setApiKey(apiKeyInput.value.trim());
-    keyModal.classList.remove('open');
-  });
-  updateKeyStatus();
+  // ---------- YouTube API key ----------
+  // Hardcoded here — edit this to your own key from console.cloud.google.com
+  // (APIs & Services -> Credentials -> Create Credentials -> API key, with
+  // "YouTube Data API v3" enabled on the project).
+  const YOUTUBE_API_KEY = "AIzaSyBkcPMDqrlou3eRp56sZlN-wrD2Fyexzvc";
 
   // ---------- HTML5 video playback ----------
   function playVideo(src, label, isBlob) {
@@ -263,10 +219,9 @@
 
   // ---------- YouTube search (browse-only; opens results on youtube.com) ----------
   async function apiSearch({ mode, q, channelId }) {
-    const apiKey = getApiKey();
-    if (!apiKey) throw new Error('NO_KEY');
+    if (!YOUTUBE_API_KEY || YOUTUBE_API_KEY === "YOUR_YOUTUBE_API_KEY_HERE") throw new Error('NO_KEY');
 
-    const params = new URLSearchParams({ part: 'snippet', maxResults: '12', key: apiKey });
+    const params = new URLSearchParams({ part: 'snippet', maxResults: '12', key: YOUTUBE_API_KEY });
     if (mode === 'channel') {
       params.set('q', q);
       params.set('type', 'channel');
@@ -362,8 +317,7 @@
     } catch (err) {
       resultsArea.innerHTML = '';
       if (err.message === 'NO_KEY') {
-        errorMsg.innerHTML = 'No API key set yet — click "Set API key" in the top right.';
-        keyModal.classList.add('open');
+        errorMsg.innerHTML = 'No YouTube API key set — edit YOUTUBE_API_KEY near the top of the script.';
       } else {
         errorMsg.textContent = err.message;
       }
@@ -430,12 +384,12 @@
   tabBtnMiniTube.addEventListener('click', () => showTab('minitube'));
   tabBtnSite.addEventListener('click', () => showTab('site'));
 
-  // ---------- Web Page tab (hardcoded iframe) ----------
-  // Edit this URL to whatever page you want to embed.
-  const HARDCODED_SITE_URL = "https://turboscribe.ai/downloader/youtube/mp4";
+  // ---------- Web Page tab (hardcoded text) ----------
+  // Edit this string to whatever text you want shown in the tab.
+  const HARDCODED_SITE_TEXT = "Goto This Site https://turboscribe.ai/downloader/youtube/mp4 and paste the url you copied and download the video and play it on your laptop and delete the file later if you want or keep it!";
 
-  const siteFrameWrap = document.getElementById('siteFrameWrap');
-  siteFrameWrap.innerHTML = `<iframe src="${HARDCODED_SITE_URL}" referrerpolicy="no-referrer" sandbox="allow-scripts allow-same-origin allow-forms allow-popups"></iframe>`;
+  const siteTextDisplay = document.getElementById('siteTextDisplay');
+  siteTextDisplay.textContent = HARDCODED_SITE_TEXT;
 
   // Restore last active tab
   (function restoreTabState() {
