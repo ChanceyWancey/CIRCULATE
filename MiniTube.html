@@ -221,7 +221,7 @@
   async function apiSearch({ mode, q, channelId }) {
     if (!YOUTUBE_API_KEY || YOUTUBE_API_KEY === "YOUR_YOUTUBE_API_KEY_HERE") throw new Error('NO_KEY');
 
-    const params = new URLSearchParams({ part: 'snippet', maxResults: '12', key: YOUTUBE_API_KEY });
+    const params = new URLSearchParams({ part: 'snippet', maxResults: '50', key: YOUTUBE_API_KEY });
     if (mode === 'channel') {
       params.set('q', q);
       params.set('type', 'channel');
@@ -236,11 +236,24 @@
         params.set('order', 'relevance');
       }
     }
-    const res = await fetch(`https://www.googleapis.com/youtube/v3/search?${params.toString()}`);
-    const data = await res.json();
-    if (!res.ok) throw new Error((data.error && data.error.message) || 'Search failed');
+    const allItems = [];
+    let pageToken = '';
+    // YouTube search returns at most 50 results per request.
+    // Keep paging until we have at least 200 results or YouTube has no more pages.
+    while (allItems.length < 200) {
+      if (pageToken) params.set('pageToken', pageToken);
+      else params.delete('pageToken');
 
-    return (data.items || []).map((item) => {
+      const res = await fetch(`https://www.googleapis.com/youtube/v3/search?${params.toString()}`);
+      const data = await res.json();
+      if (!res.ok) throw new Error((data.error && data.error.message) || 'Search failed');
+
+      allItems.push(...(data.items || []));
+      pageToken = data.nextPageToken || '';
+      if (!pageToken || !data.items || data.items.length === 0) break;
+    }
+
+    return allItems.slice(0, 200).map((item) => {
       if (mode === 'channel') {
         return {
           channelId: item.snippet.channelId,
