@@ -1400,7 +1400,7 @@
                 <div class="shop-item">
                     <div class="shop-info">
                         <h4>Starlight Blink</h4>
-                        <span>Instantly teleport forward / 6s cooldown</span>
+                        <span>Teleport forward and detonate a small shockwave on arrival that shatters nearby debris for bonus Stardust / 6s cooldown</span>
                         <span class="craft-cost" id="cost-blink"></span>
                     </div>
                     <button class="btn" id="buy-blink-btn" onclick="buyAbility('blink')">CRAFT</button>
@@ -1408,23 +1408,15 @@
                 <div class="shop-item">
                     <div class="shop-info">
                         <h4>Supernova Pulse</h4>
-                        <span>Destroys nearby hazards / 10s cooldown</span>
+                        <span>Destroys nearby hazards in a wide blast, and knocks back anything just outside the blast radius / 11s cooldown</span>
                         <span class="craft-cost" id="cost-pulse"></span>
                     </div>
                     <button class="btn" id="buy-pulse-btn" onclick="buyAbility('pulse')">CRAFT</button>
                 </div>
                 <div class="shop-item">
                     <div class="shop-info">
-                        <h4>Astral Shield</h4>
-                        <span>Absorbs 1 hazard hit / 8s recharge</span>
-                        <span class="craft-cost" id="cost-shield"></span>
-                    </div>
-                    <button class="btn" id="buy-shield-btn" onclick="buyAbility('shield')">CRAFT</button>
-                </div>
-                <div class="shop-item">
-                    <div class="shop-info">
                         <h4>Magnet Pulse</h4>
-                        <span>Pulls nearby crystals / 3s duration</span>
+                        <span>Opens a full tractor field, pulling in nearby crystals, fuel, hull kits, and salvage at once / 4s duration / 10s cooldown</span>
                         <span class="craft-cost" id="cost-magnet"></span>
                     </div>
                     <button class="btn" id="buy-magnet-btn" onclick="buyAbility('magnet')">CRAFT</button>
@@ -1432,7 +1424,7 @@
                 <div class="shop-item">
                     <div class="shop-info">
                         <h4>Phase Cloak</h4>
-                        <span>Pass through hazards / 2s duration</span>
+                        <span>Pass through hazards and gain a burst of speed while cloaked / 2.5s duration / 9s cooldown</span>
                         <span class="craft-cost" id="cost-cloak"></span>
                     </div>
                     <button class="btn" id="buy-cloak-btn" onclick="buyAbility('cloak')">CRAFT</button>
@@ -1440,7 +1432,7 @@
                 <div class="shop-item">
                     <div class="shop-info">
                         <h4>Decoy Beacon</h4>
-                        <span>Spawns fake decoy / draws hazards</span>
+                        <span>Spawns a fake decoy that pulls in nearby debris and aliens, then detonates on expiry, shattering whatever it drew in / 13s cooldown</span>
                         <span class="craft-cost" id="cost-decoy"></span>
                     </div>
                     <button class="btn" id="buy-decoy-btn" onclick="buyAbility('decoy')">CRAFT</button>
@@ -1448,23 +1440,15 @@
                 <div class="shop-item">
                     <div class="shop-info">
                         <h4>Chrono Rewind</h4>
-                        <span>Auto-rewinds before a fatal hit / 30s cooldown</span>
+                        <span>Auto-rewinds before a fatal hit, patches you up for a bit of hull, and grants a moment of grace so you don't land right back in trouble / 25s cooldown</span>
                         <span class="craft-cost" id="cost-rewind"></span>
                     </div>
                     <button class="btn" id="buy-rewind-btn" onclick="buyAbility('rewind')">CRAFT</button>
                 </div>
                 <div class="shop-item">
                     <div class="shop-info">
-                        <h4>Comet Dash</h4>
-                        <span>Long forward dash with brief invulnerability / 8s cooldown</span>
-                        <span class="craft-cost" id="cost-dash"></span>
-                    </div>
-                    <button class="btn" id="buy-dash-btn" onclick="buyAbility('dash')">CRAFT</button>
-                </div>
-                <div class="shop-item">
-                    <div class="shop-info">
                         <h4>Overload Burst</h4>
-                        <span>Vaporizes nearby hazards and collects their Stardust / 14s cooldown</span>
+                        <span>Vaporizes nearby hazards in a wider radius and collects double their Stardust / 13s cooldown</span>
                         <span class="craft-cost" id="cost-overload"></span>
                     </div>
                     <button class="btn" id="buy-overload-btn" onclick="buyAbility('overload')">CRAFT</button>
@@ -2979,16 +2963,14 @@
         const SUPPLY_DROP_HEALTH_COUNT = 3;
         const CRAFT_RECIPES = {
             outpost:{ sd: 120, mats: {} },
-            blink:  { sd: 25, mats: { prism: 2 } },
+            blink:  { sd: 25, mats: { prism: 2, cometice: 1 } },
             magnet: { sd: 30, mats: { scrap: 2 } },
             decoy:  { sd: 35, mats: { chitin: 2 } },
             pulse:  { sd: 35, mats: { cinder: 1, coil: 1 } },
             cloak:  { sd: 40, mats: { prism: 1, coil: 1 } },
-            shield: { sd: 45, mats: { shard: 1, circuit: 1 } },
             mending:{ sd: 40, mats: { chitin: 1, shard: 1 } },
             beacon: { sd: 60, mats: { circuit: 1 } },
             rewind: { sd: 50, mats: { nullfrag: 1, waralloy: 1 } },
-            dash:     { sd: 40, mats: { cometice: 2 } },
             overload: { sd: 55, mats: { plasmacore: 1, waralloy: 1 } },
             gravplate:{ sd: 65, mats: { singularity: 1, nullfrag: 1 } },
             homing: { sd: 60, mats: { circuit: 1, coil: 1 } },
@@ -4065,11 +4047,11 @@
             },
             {
                 title: "STEP 6: ABILITIES & PAUSING",
-                text: "Press <strong>SPACEBAR</strong> to activate your equipped blessing, and press <strong>ESC</strong> to pause. We've lent you a Dash blessing just for this drill.",
+                text: "Press <strong>SPACEBAR</strong> to activate your equipped blessing, and press <strong>ESC</strong> to pause. We've lent you a Starlight Blink blessing just for this drill.",
                 objective: "Press SPACE, then press ESC",
                 setup() {
                     tutorialPrevEquippedAbility = player.equippedAbility;
-                    player.equippedAbility = 'dash';
+                    player.equippedAbility = 'blink';
                     player.cooldownTime = 0;
                     tutorialFlags.spaceUsed = false;
                     tutorialFlags.escUsed = false;
@@ -5632,7 +5614,6 @@
             craftRecipe(recipe);
             player.equippedAbility = type;
             player.cooldownTime = 0; // don't inherit a leftover cooldown from whichever ability was equipped before
-            if (type === 'shield') player.hasShield = true;
             playSound('crystal');
             alert(`Crafted blessing: ${type.toUpperCase()}`);
             updateHudDisplay();
@@ -6098,32 +6079,64 @@
                 const angle = Math.atan2(player.vy, player.vx) || 0;
                 player.x += Math.cos(angle) * 70;
                 player.y += Math.sin(angle) * 70;
+                // Arrival shockwave: a small icy burst that shatters any
+                // debris caught right where you land, paid out as bonus
+                // Stardust instead of a plain teleport.
+                obstacles = obstacles.filter(obs => {
+                    if (Math.hypot(player.x - obs.x, player.y - obs.y) <= 90) {
+                        shatterObject(obs, obs.color || DEBRIS_COLOR);
+                        totalCredits += obs.reward || 5;
+                        score += obs.reward || 5;
+                        return false;
+                    }
+                    return true;
+                });
+                scoreDisplay.textContent = `STARDUST: ${score}`;
                 player.cooldownTime = 360;
             } 
             else if (ab === 'pulse') {
                 playSound('pulse');
-                obstacles = obstacles.filter(obs => Math.hypot(player.x - obs.x, player.y - obs.y) > 140);
-                player.cooldownTime = 600;
-            }
-            else if (ab === 'shield' && !player.hasShield) {
-                playSound('blink');
-                player.hasShield = true;
-                player.cooldownTime = 480;
+                obstacles = obstacles.filter(obs => {
+                    const d = Math.hypot(player.x - obs.x, player.y - obs.y);
+                    if (d <= 190) return false;
+                    // Anything just outside the destroy radius gets thrown clear instead.
+                    if (d <= 320) {
+                        const knockAngle = Math.atan2(obs.y - player.y, obs.x - player.x);
+                        obs.vx += Math.cos(knockAngle) * 4;
+                        obs.vy += Math.sin(knockAngle) * 4;
+                    }
+                    return true;
+                });
+                aliens = aliens.filter(a => {
+                    const d = Math.hypot(player.x - a.x, player.y - a.y);
+                    if (d <= 190) return false;
+                    if (d <= 320) {
+                        const knockAngle = Math.atan2(a.y - player.y, a.x - player.x);
+                        a.vx += Math.cos(knockAngle) * 4;
+                        a.vy += Math.sin(knockAngle) * 4;
+                    }
+                    return true;
+                });
+                player.cooldownTime = 660;
             }
             else if (ab === 'magnet') {
                 playSound('special');
-                activeEffectTimer = 180;
-                player.cooldownTime = 540;
+                // Tractor field now pulls in every pickup type, not just
+                // crystals - see the crystal/fuel/health/salvage loops.
+                activeEffectTimer = 240;
+                player.cooldownTime = 600;
             }
             else if (ab === 'cloak') {
                 playSound('special');
-                activeEffectTimer = 120;
-                player.cooldownTime = 480;
+                // Also grants a burst of speed while phased - see the
+                // movement block for the accompanying accel/top-speed boost.
+                activeEffectTimer = 150;
+                player.cooldownTime = 540;
             }
             else if (ab === 'decoy') {
                 playSound('special');
                 decoyEntity = { x: player.x, y: player.y, life: 300 };
-                player.cooldownTime = 720;
+                player.cooldownTime = 780;
             }
             else if (ab === 'outpost') {
                 if (outpost) {
@@ -6154,34 +6167,28 @@
                 // No standard cooldown here - the outpost itself blocks re-placement
                 // while it's alive, then the break-cooldown takes over once it falls.
             }
-            else if (ab === 'dash') {
-                playSound('blink');
-                const angle = Math.atan2(player.vy, player.vx) || 0;
-                player.x += Math.cos(angle) * 220;
-                player.y += Math.sin(angle) * 220;
-                invulnTime = Math.max(invulnTime, 24);
-                player.cooldownTime = 480;
-            }
             else if (ab === 'overload') {
                 playSound('pulse');
+                // Wider radius and a full double payout - the "surge" in
+                // Overload Burst now outright out-earns a normal clear.
                 obstacles = obstacles.filter(obs => {
-                    if (Math.hypot(player.x - obs.x, player.y - obs.y) <= 220) {
-                        totalCredits += obs.reward || 5;
-                        score += obs.reward || 5;
+                    if (Math.hypot(player.x - obs.x, player.y - obs.y) <= 260) {
+                        totalCredits += (obs.reward || 5) * 2;
+                        score += (obs.reward || 5) * 2;
                         return false;
                     }
                     return true;
                 });
                 aliens = aliens.filter(a => {
-                    if (Math.hypot(player.x - a.x, player.y - a.y) <= 220) {
-                        totalCredits += a.reward || 10;
-                        score += a.reward || 10;
+                    if (Math.hypot(player.x - a.x, player.y - a.y) <= 260) {
+                        totalCredits += (a.reward || 10) * 2;
+                        score += (a.reward || 10) * 2;
                         return false;
                     }
                     return true;
                 });
                 scoreDisplay.textContent = `STARDUST: ${score}`;
-                player.cooldownTime = 840;
+                player.cooldownTime = 780;
             }
             else if (ab === 'ventstress') {
                 playSound('special');
@@ -6389,9 +6396,6 @@
             player.vx = 0;
             player.vy = 0;
             player.cooldownTime = 0;
-            if (player.equippedAbility === 'shield' || isCheatedRun) {
-                player.hasShield = true;
-            }
 
             // Seed the sector with a scattered debris field so the whole map
             // is already populated, not just the area around the player.
@@ -6638,7 +6642,6 @@
                 finalScoreText.textContent = `Your hull gave out. You gathered ${score} Stardust this drift! Total Pouch: ${totalCredits} SD`;
             }
             showScreen(gameoverScreen);
-            player.hasShield = false;
             docked = false;
             dockedAtOutpost = false;
         }
@@ -7000,6 +7003,13 @@
                 currentAccel *= ventBoostMult;
             }
 
+            // Phase Cloak now also grants a burst of speed while phased,
+            // absorbing what used to be Comet Dash's niche.
+            if (player.equippedAbility === 'cloak' && activeEffectTimer > 0) {
+                activeMaxSpeed *= 1.6;
+                currentAccel *= 1.6;
+            }
+
             // Banked Stress itself makes the ship twitchier: higher Stress
             // means a higher top speed/acceleration, but also a thirstier
             // engine (see the fuel drain line below).
@@ -7120,7 +7130,19 @@
 
             if (decoyEntity) {
                 decoyEntity.life--;
-                if (decoyEntity.life <= 0) decoyEntity = null;
+                if (decoyEntity.life <= 0) {
+                    // Overwatch Decoy detonates when its charge runs out,
+                    // shattering whatever debris it pulled in around itself.
+                    const dx = decoyEntity.x, dy = decoyEntity.y;
+                    obstacles = obstacles.filter(obs => {
+                        if (Math.hypot(dx - obs.x, dy - obs.y) <= 110) {
+                            shatterObject(obs, obs.color || DEBRIS_COLOR);
+                            return false;
+                        }
+                        return true;
+                    });
+                    decoyEntity = null;
+                }
             }
 
             for (let i = particles.length - 1; i >= 0; i--) {
@@ -7213,6 +7235,8 @@
                 }
             }
 
+            const magnetActive = (player.equippedAbility === 'magnet' && activeEffectTimer > 0);
+
             for (let i = fuelCanisters.length - 1; i >= 0; i--) {
                 const f = fuelCanisters[i];
                 const distToPlayer = Math.hypot(player.x - f.x, player.y - f.y);
@@ -7222,6 +7246,11 @@
                     fuelCanisters.splice(i, 1);
                     spawnFuel();
                     continue;
+                }
+                if (magnetActive) {
+                    const angleToPlayer = Math.atan2(player.y - f.y, player.x - f.x);
+                    f.x += Math.cos(angleToPlayer) * 3;
+                    f.y += Math.sin(angleToPlayer) * 3;
                 }
                 if (distToPlayer < 25) {
                     fuel = Math.min(maxFuel, fuel + 40);
@@ -7238,6 +7267,11 @@
                     spawnHealthPickup();
                     continue;
                 }
+                if (magnetActive) {
+                    const angleToPlayer = Math.atan2(player.y - h.y, player.x - h.x);
+                    h.x += Math.cos(angleToPlayer) * 3;
+                    h.y += Math.sin(angleToPlayer) * 3;
+                }
                 if (distToPlayer < 25) {
                     health = Math.min(maxHealth, health + 30);
                     playSound('fuel');
@@ -7247,6 +7281,11 @@
 
             for (let i = salvageCrates.length - 1; i >= 0; i--) {
                 const s = salvageCrates[i];
+                if (magnetActive) {
+                    const angleToPlayer = Math.atan2(player.y - s.y, player.x - s.x);
+                    s.x += Math.cos(angleToPlayer) * 3;
+                    s.y += Math.sin(angleToPlayer) * 3;
+                }
                 if (Math.hypot(player.x - s.x, player.y - s.y) < 25) {
                     score += s.reward;
                     totalCredits += s.reward;
@@ -7300,8 +7339,8 @@
 
                 if (decoyEntity) {
                     const angleToDecoy = Math.atan2(decoyEntity.y - obs.y, decoyEntity.x - obs.x);
-                    obs.vx += Math.cos(angleToDecoy) * 0.04;
-                    obs.vy += Math.sin(angleToDecoy) * 0.04;
+                    obs.vx += Math.cos(angleToDecoy) * 0.09;
+                    obs.vy += Math.sin(angleToDecoy) * 0.09;
                 }
 
                 obs.x += obs.vx * obsSpeedFactor;
@@ -7344,9 +7383,8 @@
 
                 if (hitDist < player.size + obs.size / 2 && invulnTime <= 0) {
                     let isCloaked = (player.equippedAbility === 'cloak' && activeEffectTimer > 0);
-                    if (cheatedAbilityMode === 'godmode' || player.hasShield || isCloaked) {
+                    if (cheatedAbilityMode === 'godmode' || isCloaked) {
                         playSound('hit');
-                        if (!cheatedAbilityMode && !isCloaked) player.hasShield = false;
                         shatterObject(obs, obs.color || DEBRIS_COLOR);
                         obstacles.splice(i, 1); 
                         player.cooldownTime = 480; 
@@ -7360,9 +7398,14 @@
                             player.vx = 0;
                             player.vy = 0;
                         }
+                        // Temporal Anchor now patches the hull a little and
+                        // grants a short grace window so you don't land
+                        // straight back into trouble.
+                        health = Math.min(maxHealth, health + 15);
+                        invulnTime = Math.max(invulnTime, 40);
                         shatterObject(obs, obs.color || DEBRIS_COLOR);
                         obstacles.splice(i, 1);
-                        player.cooldownTime = 1800; // 30 seconds cooldown
+                        player.cooldownTime = 1500; // 25 seconds cooldown
                         continue;
                     } else {
                         playSound('hit');
@@ -7471,6 +7514,13 @@
                         a.vy += Math.sin(angleToPlayer) * 0.05;
                     }
 
+                    // Overwatch Decoy draws aliens toward it too, not just debris.
+                    if (decoyEntity) {
+                        const angleToDecoyA = Math.atan2(decoyEntity.y - a.y, decoyEntity.x - a.x);
+                        a.vx += Math.cos(angleToDecoyA) * 0.06;
+                        a.vy += Math.sin(angleToDecoyA) * 0.06;
+                    }
+
                     a.shootCooldown--;
                     if (a.shootCooldown <= 0 && (cheatedAbilityMode !== 'freeze')) {
                         // Settlers and an aggroed Warden fire a three-round
@@ -7540,15 +7590,11 @@
                     invulnTime = INVULN_FRAMES;
                     const heavyCloaked = (player.equippedAbility === 'cloak' && activeEffectTimer > 0);
                     if (cheatedAbilityMode !== 'godmode' && !heavyCloaked) {
-                        if (player.hasShield) {
-                            player.hasShield = false;
-                        } else {
-                            health -= ramDamage;
-                            if (health <= 0) {
-                                health = 0;
-                                gameOver();
-                                return;
-                            }
+                        health -= ramDamage;
+                        if (health <= 0) {
+                            health = 0;
+                            gameOver();
+                            return;
                         }
                     }
                     continue;
@@ -7556,9 +7602,8 @@
 
                 if (alienHitDist < player.size + a.size / 2 && invulnTime <= 0) {
                     let isCloaked = (player.equippedAbility === 'cloak' && activeEffectTimer > 0);
-                    if (cheatedAbilityMode === 'godmode' || player.hasShield || isCloaked) {
+                    if (cheatedAbilityMode === 'godmode' || isCloaked) {
                         playSound('hit');
-                        if (!cheatedAbilityMode && !isCloaked) player.hasShield = false;
                         shatterObject(a, a.color || ALIEN_COLOR);
                         aliens.splice(i, 1);
                         player.cooldownTime = 480;
@@ -7572,9 +7617,11 @@
                             player.vx = 0;
                             player.vy = 0;
                         }
+                        health = Math.min(maxHealth, health + 15);
+                        invulnTime = Math.max(invulnTime, 40);
                         shatterObject(a, a.color || ALIEN_COLOR);
                         aliens.splice(i, 1);
-                        player.cooldownTime = 1800;
+                        player.cooldownTime = 1500;
                         continue;
                     } else {
                         playSound('hit');
@@ -7639,9 +7686,8 @@
 
                 if (bd < player.size + 4 && invulnTime <= 0) {
                     let isCloaked = (player.equippedAbility === 'cloak' && activeEffectTimer > 0);
-                    if (cheatedAbilityMode === 'godmode' || player.hasShield || isCloaked) {
+                    if (cheatedAbilityMode === 'godmode' || isCloaked) {
                         playSound('hit');
-                        if (!cheatedAbilityMode && !isCloaked) player.hasShield = false;
                         player.cooldownTime = 480;
                     } else {
                         playSound('hit');
@@ -8392,8 +8438,8 @@
                 ctx.restore();
             }
 
-            if (player.hasShield || cheatedAbilityMode === 'godmode') {
-                ctx.strokeStyle = cheatedAbilityMode === 'godmode' ? "#06d6a0" : "#e2738a";
+            if (cheatedAbilityMode === 'godmode') {
+                ctx.strokeStyle = "#06d6a0";
                 ctx.lineWidth = 2;
                 ctx.beginPath();
                 ctx.arc(playerScreenX, playerScreenY, 18 * (player.hasJuggernaut ? JUGGERNAUT_SHIP_SCALE : 1), 0, Math.PI * 2);
