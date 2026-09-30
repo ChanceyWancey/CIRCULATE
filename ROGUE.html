@@ -427,6 +427,7 @@
         <button onclick="gungeonResume()">RESUME</button>
         <button onclick="gungeonQuit()">QUIT RUN</button>
     </div>
+    <div id="gunSwap" class="menu hidden" style="z-index:20;cursor:default;"><h2 style="color:#ff8844;margin:0 0 6px;">NEW GUN</h2><div style="color:#aaa;font-size:13px;margin-bottom:10px;">Your hands are full. Pick a gun to drop (the Rusty Pistol can't be dropped).<br>Green/red on your guns = better/worse than the new one. Base stats; upgrades apply on top.</div><div id="gunSwapBox" style="display:flex;flex-wrap:wrap;gap:10px;justify-content:center;"></div><button id="gunSwapLeave" style="font-size:14px;padding:8px 16px;">LEAVE IT</button></div>
     <div id="gunTouch" style="display:none;position:fixed;bottom:max(12px,env(safe-area-inset-bottom));right:max(12px,env(safe-area-inset-right));z-index:30;flex-direction:column;gap:8px;opacity:.85;">
         <div class="mc-row" style="display:flex;gap:8px;"><button id="gtRoll" class="mc" style="font-size:12px;">ROLL</button><button id="gtBlank" class="mc" style="font-size:12px;">BLANK</button></div>
         <div class="mc-row" style="display:flex;gap:8px;"><button id="gtRel" class="mc" style="font-size:12px;">RLD</button><button id="gtSwap" class="mc" style="font-size:12px;">SWAP</button></div>
@@ -2712,6 +2713,51 @@ const GUNS={
  bouncer:{n:'Ricochet',d:1.2,r:.22,m:12,rl:1,sp:.06,p:1,v:380,c:'#aaff66',ammo:120,bounce:3},
  minigun:{n:'Chunker',d:.8,r:.06,m:60,rl:2,sp:.16,p:1,v:490,c:'#ff66cc',ammo:300}
 };
+
+`Peashooter|.8|.2|14|.7|.04|1|440|260|#ffcc99
+Revolver|2|.55|6|1.4|.02|1|480|90|#ddaa66
+Dueling Pistol|2.4|.6|7|1.1|.01|1|520|84|#ffddaa
+Machine Pistol|.5|.11|20|1|.14|1|450|300|#99ccff
+Sawed-Off|.7|.9|2|1.2|.4|7|380|40|#ff8866
+Flintlock|3|1.1|1|1.6|.03|1|420|40|#cc9966
+Nail Gun|.45|.1|28|1.1|.06|1|500|280|#bbbbbb
+Crossbow|3|.8|1|1.2|0|1|600|40|#aa8855|pierce:1
+Bubble Blower|.4|.15|20|1|.1|1|250|200|#aaeeff
+Slingshot|1.3|.4|5|.8|.05|1|380|120|#88aa55|bounce:1
+Dart Gun|.6|.14|16|1|.05|1|520|220|#ff88aa
+Scrap Blaster|.5|.45|8|1.1|.25|5|400|70|#ccaa88
+Laser Pointer|.35|.07|40|1.3|.02|1|900|400|#ff3333
+Hand Cannon|4|.85|5|1.5|.05|1|520|55|#ffaa33
+Pump Gun|.8|.7|5|1.3|.3|6|420|45|#ff9966
+Assault Rifle|.9|.1|30|1.3|.07|1|520|270|#99ff99
+Rapid Rifle|.8|.085|24|1.2|.05|1|540|240|#77ddaa
+Marksman|3.5|.4|8|1.4|.01|1|750|64|#ddddff
+Auto Shotgun|.45|.25|10|1.6|.3|6|420|80|#ff7744
+Double Barrel|.85|.65|2|1|.3|8|400|40|#ffaa66
+Piercer|2.4|.3|10|1.2|.02|1|800|80|#bbffff|pierce:2
+Ricochet SMG|.7|.1|30|1.2|.1|1|450|240|#ccff55|bounce:2
+Pinball|1.6|.2|14|1|.05|1|400|110|#66ffaa|bounce:5
+Gatling Lite|.55|.065|50|1.8|.15|1|480|300|#ff88dd
+Plasma Rifle|1.2|.14|22|1.3|.04|1|560|180|#55aaff
+Sniper Carbine|4.2|.5|6|1.4|0|1|850|42|#eeeeee|pierce:2
+Triple Shot|.9|.3|15|1.1|.12|3|460|100|#ffee66
+Fan Gun|.7|.35|12|1.1|.35|5|430|70|#ff99cc
+Ion Blaster|1.5|.17|20|1.3|.03|1|640|150|#99ffff
+Thumper|2.6|.36|8|1.4|.1|1|380|70|#ffbb55
+Lightning Rod|1.4|.15|18|1.2|.08|1|700|150|#ffffaa|pierce:1
+HMG|1.1|.08|60|2.2|.1|1|520|360|#ff6644
+Railgun|10|.85|3|1.8|0|1|1200|24|#ffffff|pierce:99
+Annihilator|.6|.07|80|2.4|.14|2|500|480|#ff55aa
+Dragon Breath|.5|.09|40|1.5|.35|2|330|260|#ff5500
+Tommy Gun|.85|.075|50|1.7|.1|1|500|340|#ccaa77
+Boomstick|1|.75|2|1.1|.3|10|420|36|#ff8833
+Shredder|.7|.5|6|1.6|.22|8|480|60|#dd5555|pierce:1
+Hammer Rifle|1.2|.1|30|1.5|.06|1|520|200|#cc66ff
+Bouncy Castle|1.3|.1|30|1.6|.12|1|430|200|#99ff99|bounce:4
+Void Piercer|4|.35|8|1.6|0|1|900|50|#9966ff|pierce:4
+Golden Gun|7|.6|4|1.8|0|1|800|32|#ffd700|pierce:1
+Storm Bringer|.8|.06|70|2.6|.2|1|540|400|#66ccff
+Obliterator|1.2|.3|12|2|.12|3|500|90|#ff2255|pierce:1`.split('\n').forEach((l,i)=>{const[n,d,r,m,rl,sp,p,v,am,c,x]=l.split('|'),o={n,d:+d,r:+r,m:+m,rl:+rl,sp:+sp,p:+p,v:+v,c,ammo:+am};if(x){const[a,b]=x.split(':');o[a]=+b;}GUNS['g'+i]=o;});
 const EN={grunt:{hp:4,r:10,c:'#ff5555'},shot:{hp:6,r:11,c:'#ff9944'},charger:{hp:5,r:11,c:'#ffd633'},spinner:{hp:9,r:12,c:'#cc66ff'},boss:{hp:70,r:26,c:'#ff2222'}};
 let meta={bank:0,best:0,hp:0,dmg:0,blank:0,rate:0,reload:0,speed:0,dodge:0,ammo:0,lifesteal:0,thorns:0,crit:0,exec:0,magnet:0,warp:0,buddy:0,saw:0};
 try{Object.assign(meta,JSON.parse(localStorage.getItem('gungeonMeta')||'{}'));}catch(e){}
@@ -2719,7 +2765,7 @@ const save=()=>{try{localStorage.setItem('gungeonMeta',JSON.stringify(meta));}ca
 const L=k=>meta[k]||0,dim=(k,mx,h)=>mx*L(k)/(L(k)+h);
 const maxRes=d=>Math.round(d.ammo*(1+.1*L('ammo')));
 const keys={},mouse={x:320,y:100,down:false};
-let S=null,raf=0,last=0,paused=false,running=false;
+let S=null,raf=0,last=0,paused=false,running=false,choosing=false;
 
 function mkGun(k){const g=GUNS[k];return{k,mag:g.m,res:g.inf?999:maxRes(g)};}
 function newRun(){
@@ -2840,14 +2886,47 @@ function cleared(){
  if(S.boss||Math.random()<.2)S.pk.push({t:'blank',x:370,y:240});
  msg(S.boss?'BOSS DOWN! Loot the chest, then take the portal':'Room clear! Portal opened.');
 }
+const dpsOf=d=>d.d*d.p/d.r,tier=d=>{const v=dpsOf(d);return v<7.05?1:v<11?2:3;},TC=['','#cccccc','#44aaff','#cc66ff'],TN=['','Common','Rare','Epic'];
 function giveGun(){
- const p=S.p,pool=Object.keys(GUNS).filter(k=>k!=='pistol'&&!p.guns.some(g=>g.k===k));
+ const p=S.p,mt=S.r<4?1:S.r<9?2:3;
+ let pool=Object.keys(GUNS).filter(k=>k!=='pistol'&&!p.guns.some(g=>g.k===k));
+ const lo=pool.filter(k=>tier(GUNS[k])<=mt);if(lo.length)pool=lo;
  if(!pool.length){p.guns.forEach(g=>{if(!GUNS[g.k].inf)g.res=maxRes(GUNS[g.k]);});msg('Ammo restocked!');return;}
- const k=pool[ri(0,pool.length-1)],ng=mkGun(k);
- if(p.guns.length<3){p.guns.push(ng);p.gi=p.guns.length-1;}
- else{const i=p.gi===0?2:p.gi;p.guns[i]=ng;p.gi=i;}
- p.rel=0;msg('Found the '+GUNS[k].n+'!');
+ const k=pool[ri(0,pool.length-1)];
+ if(p.guns.length<3){p.guns.push(mkGun(k));p.gi=p.guns.length-1;p.rel=0;msg('Found the '+GUNS[k].n+'!');}
+ else showSwap(k);
 }
+function gstats(k){const d=GUNS[k];return[
+ ['DPS',dpsOf(d),1,dpsOf(d).toFixed(1)],
+ ['Damage',d.d,1,d.d+(d.p>1?' x'+d.p:'')],
+ ['Fire rate',1/d.r,1,(1/d.r).toFixed(1)+'/s'],
+ ['Magazine',d.m,1,d.m],
+ ['Reload',d.rl,0,d.rl+'s'],
+ ['Spread',d.sp,0,'\u00b1'+Math.round(d.sp*57.3)+'\u00b0'],
+ ['Ammo',d.inf?1e9:d.ammo,1,d.inf?'\u221e':d.ammo]];}
+function gcard(k,cmp,tag){
+ const d=GUNS[k],t=tier(d),cs=cmp?gstats(cmp):null;
+ let h='<div style="background:#1a1a1a;border:2px solid '+TC[t]+';padding:8px;width:150px;text-align:left;font-size:12px;"><div style="color:#888;font-size:11px">'+tag+'</div><b style="color:'+d.c+'">'+d.n+'</b><div style="color:'+TC[t]+';margin-bottom:4px">'+TN[t]+'</div>';
+ gstats(k).forEach((r,i)=>{let col='#ddd';if(cs&&r[1]!==cs[i][1])col=(r[1]>cs[i][1])===!!r[2]?'#66ff66':'#ff6666';h+='<div style="display:flex;justify-content:space-between"><span style="color:#888">'+r[0]+'</span><span style="color:'+col+'">'+r[3]+'</span></div>';});
+ const sp=[d.pierce?(d.pierce>=99?'Pierces all':'Pierce '+d.pierce):'',d.bounce?'Bounce '+d.bounce:''].filter(x=>x).join(', ');
+ if(sp)h+='<div style="color:#8ff;margin-top:3px">'+sp+'</div>';
+ return h+'</div>';
+}
+function showSwap(nk){
+ const p=S.p,box=$('gunSwapBox');choosing=paused=true;mouse.down=false;for(const q in keys)keys[q]=false;
+ box.innerHTML='';
+ const add=(html,btn)=>{const w=document.createElement('div');w.innerHTML=html;if(btn)w.appendChild(btn);box.appendChild(w);};
+ add(gcard(nk,null,'NEW'));
+ p.guns.forEach((g,i)=>{
+  const b=document.createElement('button');b.style.cssText='width:100%;font-size:12px;padding:6px;margin:4px 0 0;';
+  if(i===0){b.textContent="CAN'T DROP";b.disabled=true;b.style.background='#333';b.style.cursor='not-allowed';}
+  else{b.textContent='DROP THIS';b.onclick=()=>{p.guns[i]=mkGun(nk);p.gi=i;p.rel=0;closeSwap();msg('Took the '+GUNS[nk].n+'!');};}
+  add(gcard(g.k,nk,'SLOT '+(i+1)+(i===p.gi?' (equipped)':'')),b);
+ });
+ $('gunSwapLeave').onclick=()=>{closeSwap();msg('Left the '+GUNS[nk].n);};
+ $('gunSwap').classList.remove('hidden');
+}
+function closeSwap(){choosing=paused=false;$('gunSwap').classList.add('hidden');}
 
 function updateEnemy(e,dt){
  const p=S.p,dx=p.x-e.x,dy=p.y-e.y,d=Math.hypot(dx,dy)||1,ux=dx/d,uy=dy/d;
@@ -3022,7 +3101,7 @@ function loop(ts){
  if(!paused)update(dt);
  draw();
 }
-function stop(){running=false;cancelAnimationFrame(raf);canvas.style.cursor='';canvas.style.touchAction='';$('gunPause').classList.add('hidden');const t=$('gunTouch');if(t)t.style.display='none';mouse.down=false;for(const k in keys)keys[k]=false;}
+function stop(){running=false;choosing=false;$('gunSwap').classList.add('hidden');cancelAnimationFrame(raf);canvas.style.cursor='';canvas.style.touchAction='';$('gunPause').classList.add('hidden');const t=$('gunTouch');if(t)t.style.display='none';mouse.down=false;for(const k in keys)keys[k]=false;}
 function hideAll(){['mainMenu','difficultyMenu','deathMenu','victoryMenu','pauseMenu','customMenu','devMenu','gunMenu','gunPause'].forEach(i=>{const e=$(i);if(e)e.classList.add('hidden');});}
 function showGun(){hideAll();renderMeta();$('gunMenu').classList.remove('hidden');}
 const pc=v=>Math.round(v*100)+'%';
@@ -3084,6 +3163,7 @@ window.addEventListener('keydown',e=>{
  if(!running)return;
  keys[k]=true;
  if([' ','arrowup','arrowdown','arrowleft','arrowright'].includes(k))e.preventDefault();
+ if(choosing)return;
  if(k==='escape'&&!S.over){paused=!paused;$('gunPause').classList.toggle('hidden',!paused);return;}
  if(paused||S.over)return;
  if(k===' '||k==='shift')roll();
