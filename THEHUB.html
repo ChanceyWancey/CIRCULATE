@@ -24,7 +24,71 @@ header{text-align:center;}
 .title{font-family:'Bebas Neue',sans-serif;font-size:clamp(72px,14vw,140px);line-height:.9;letter-spacing:.02em;color:var(--ink);display:inline-block;}
 .title span{display:block;background:linear-gradient(135deg,#e8eaf0 30%,#6b7385 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
 .title .sub{font-family:'DM Mono',monospace;font-size:13px;font-weight:400;letter-spacing:.18em;-webkit-text-fill-color:var(--ink2);color:var(--ink2);background:none;margin-top:12px;display:block;text-transform:uppercase;}
-.games{display:flex;flex-direction:column;gap:16px;width:100%;max-width:560px;}
+.games{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:16px;
+  width:100%;
+  max-width:760px;
+}
+.search-wrap{
+  width:100%;
+  max-width:760px;
+  position:relative;
+}
+.search-input{
+  width:100%;
+  padding:15px 18px 15px 46px;
+  border:1px solid var(--border);
+  border-radius:8px;
+  background:var(--surface);
+  color:var(--ink);
+  font-family:'DM Mono',monospace;
+  font-size:11px;
+  letter-spacing:.08em;
+  outline:none;
+  transition:border-color .2s ease,box-shadow .2s ease,background .2s ease;
+}
+.search-input::placeholder{
+  color:var(--ink3);
+  text-transform:uppercase;
+}
+.search-input:focus{
+  border-color:#4f8ef755;
+  box-shadow:0 0 0 3px #4f8ef711,0 8px 32px rgba(0,0,0,.35);
+}
+.search-icon{
+  position:absolute;
+  left:18px;
+  top:50%;
+  transform:translateY(-50%);
+  color:var(--ink3);
+  font-family:'DM Mono',monospace;
+  font-size:13px;
+  pointer-events:none;
+}
+.search-count{
+  margin-top:8px;
+  min-height:12px;
+  font-family:'DM Mono',monospace;
+  font-size:9px;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:var(--ink3);
+  text-align:right;
+}
+.no-results{
+  grid-column:1 / -1;
+  border:1px solid var(--border);
+  padding:28px;
+  background:var(--surface);
+  color:var(--ink3);
+  font-family:'DM Mono',monospace;
+  font-size:10px;
+  letter-spacing:.12em;
+  text-align:center;
+  text-transform:uppercase;
+}
 .game-card{display:block;text-decoration:none;border:1px solid var(--border);border-radius:10px;padding:28px 32px;background:var(--surface);position:relative;overflow:hidden;transition:transform .2s ease,border-color .2s ease,box-shadow .2s ease;cursor:pointer;animation:cardIn .6s cubic-bezier(.22,1,.36,1) both;}
 @keyframes cardIn{from{opacity:0;transform:translateY(24px);}to{opacity:1;transform:translateY(0);}}
 .game-card::before{content:'';position:absolute;inset:0;background:var(--card-glow,transparent);opacity:0;transition:opacity .3s;border-radius:inherit;}
@@ -56,6 +120,26 @@ footer::before,footer::after{content:'';display:block;width:32px;height:1px;back
 .download-btn:hover{color:var(--ink);border-color:#4f8ef755;box-shadow:0 8px 32px rgba(0,0,0,.5);transform:translateY(-2px);}
 .download-btn:active{transform:translateY(0);}
 .download-btn svg{width:12px;height:12px;flex-shrink:0;}
+
+@media(max-width:650px){
+  .games{
+    grid-template-columns:1fr;
+    max-width:560px;
+  }
+  .search-wrap{
+    max-width:560px;
+  }
+}
+
+@media(max-width:500px){
+  .wrap{
+    padding:40px 16px;
+    gap:36px;
+  }
+  .game-card{
+    padding:22px 24px;
+  }
+}
 
 /* ── disabled card state ── */
 .game-card.is-disabled{cursor:not-allowed;opacity:.5;filter:grayscale(.6);}
@@ -92,6 +176,20 @@ footer::before,footer::after{content:'';display:block;width:32px;height:1px;back
       <span class="sub">select a game to play</span>
     </h1>
   </header>
+
+  <div class="search-wrap">
+    <span class="search-icon">⌕</span>
+    <input
+      class="search-input"
+      id="gameSearch"
+      type="search"
+      placeholder="Search games..."
+      autocomplete="off"
+      spellcheck="false"
+    >
+    <div class="search-count" id="searchCount"></div>
+  </div>
+
   <nav class="games" id="gameList"></nav>
   <footer>Chance's Games — 2026</footer>
 </div>
@@ -167,36 +265,75 @@ const GAMES = [
 ];
 // ── Don't touch anything below this line ──
 const list = document.getElementById('gameList');
-GAMES.forEach((g, i) => {
-  const num = String(i + 1).padStart(2, '0');
-  const isDisabled = !!g.disabled;
-  const a = document.createElement('a');
-  a.className = 'game-card' + (isDisabled ? ' is-disabled' : '');
-  a.href = isDisabled ? '#' : g.url;
-  if (!isDisabled) a.target = '_blank';
-  if (isDisabled) {
-    a.setAttribute('aria-disabled', 'true');
-    a.addEventListener('click', e => e.preventDefault());
+const search = document.getElementById('gameSearch');
+const searchCount = document.getElementById('searchCount');
+
+function renderGames(query = '') {
+  list.innerHTML = '';
+
+  const term = query.trim().toLowerCase();
+
+  const matches = GAMES.filter(g => {
+    if (!term) return true;
+
+    return [
+      g.name,
+      g.tag,
+      g.desc,
+      g.reason,
+      g.disabled ? 'locked' : 'available'
+    ].some(value => String(value || '').toLowerCase().includes(term));
+  });
+
+  matches.forEach((g, matchIndex) => {
+    const originalIndex = GAMES.indexOf(g);
+    const num = String(originalIndex + 1).padStart(2, '0');
+    const isDisabled = !!g.disabled;
+
+    const a = document.createElement('a');
+    a.className = 'game-card' + (isDisabled ? ' is-disabled' : '');
+    a.href = isDisabled ? '#' : g.url;
+
+    if (!isDisabled) a.target = '_blank';
+
+    if (isDisabled) {
+      a.setAttribute('aria-disabled', 'true');
+      a.addEventListener('click', e => e.preventDefault());
+    }
+
+    a.style.cssText = [
+      `--card-color:${g.color}`,
+      `--card-glow:linear-gradient(135deg,${g.color}08,transparent)`,
+      `--card-border:${g.color}55`,
+      `animation-delay:${0.05 + matchIndex * 0.06}s`,
+    ].join(';');
+
+    a.innerHTML = `
+      <div class="scanline"></div>
+      <div class="card-inner">
+        <div class="card-left">
+          <span class="card-num">${num} — ${g.tag}${isDisabled ? ' — LOCKED' : ''}</span>
+          <span class="card-name">${g.name}</span>
+          <span class="card-desc">${g.desc}</span>
+          ${isDisabled && g.reason ? `<span class="card-reason">⚠ ${g.reason}</span>` : ''}
+        </div>
+        <span class="card-arrow${isDisabled ? ' is-locked' : ''}">${isDisabled ? '🔒' : '↗'}</span>
+      </div>`;
+
+    list.appendChild(a);
+  });
+
+  if (matches.length === 0) {
+    list.innerHTML = '<div class="no-results">No games found</div>';
   }
-  a.style.cssText = [
-    `--card-color:${g.color}`,
-    `--card-glow:linear-gradient(135deg,${g.color}08,transparent)`,
-    `--card-border:${g.color}55`,
-    `animation-delay:${0.1 + i * 0.1}s`,
-  ].join(';');
-  a.innerHTML = `
-    <div class="scanline"></div>
-    <div class="card-inner">
-      <div class="card-left">
-        <span class="card-num">${num} — ${g.tag}${isDisabled ? ' — LOCKED' : ''}</span>
-        <span class="card-name">${g.name}</span>
-        <span class="card-desc">${g.desc}</span>
-        ${isDisabled && g.reason ? `<span class="card-reason">⚠ ${g.reason}</span>` : ''}
-      </div>
-      <span class="card-arrow${isDisabled ? ' is-locked' : ''}">${isDisabled ? '🔒' : '↗'}</span>
-    </div>`;
-  list.appendChild(a);
-});
+
+  searchCount.textContent = term
+    ? `${matches.length} result${matches.length === 1 ? '' : 's'}`
+    : `${GAMES.length} games`;
+}
+
+search.addEventListener('input', () => renderGames(search.value));
+renderGames();
 </script>
 </body>
 </html>
