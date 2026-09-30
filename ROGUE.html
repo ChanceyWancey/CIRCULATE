@@ -409,6 +409,7 @@
     <div id="gunMenu" class="menu hidden">
         <h1 style="color:#ff8844;">ROGUELITE DUNGEON</h1>
         <button onclick="gungeonStart()">START RUN</button>
+        <button onclick="showGunList()" style="background:#44aa88;">GUN CATALOG</button>
         <button onclick="showMainMenu()">BACK</button>
         <div id="gunResult" style="margin:10px 0;"></div>
         <div style="color:#aaa;font-size:14px;text-align:left;max-width:380px;margin:10px auto;line-height:1.6;">
@@ -421,6 +422,13 @@
         </div>
         <div style="color:#ffd700;margin:10px 0;">Bank: <span id="gunBank">0</span> shells &nbsp;|&nbsp; Best chamber: <span id="gunBest">0</span></div>
         <div id="gunUp"></div>
+    </div>
+    <div id="gunList" class="menu hidden" style="width:min(640px,94vw);">
+        <h1 style="color:#ff8844;">GUN CATALOG</h1>
+        <div id="gunListNote" style="color:#aaa;font-size:13px;line-height:1.5;margin-bottom:8px;"></div>
+        <button onclick="closeGunList()">BACK</button>
+        <div id="gunListBody" style="text-align:left;"></div>
+        <button onclick="closeGunList()">BACK</button>
     </div>
     <div id="gunPause" class="menu hidden">
         <h1 style="color:#ffaa00;">PAUSED</h1>
@@ -2757,7 +2765,69 @@ Bouncy Castle|1.3|.1|30|1.6|.12|1|430|200|#99ff99|bounce:4
 Void Piercer|4|.35|8|1.6|0|1|900|50|#9966ff|pierce:4
 Golden Gun|7|.6|4|1.8|0|1|800|32|#ffd700|pierce:1
 Storm Bringer|.8|.06|70|2.6|.2|1|540|400|#66ccff
-Obliterator|1.2|.3|12|2|.12|3|500|90|#ff2255|pierce:1`.split('\n').forEach((l,i)=>{const[n,d,r,m,rl,sp,p,v,am,c,x]=l.split('|'),o={n,d:+d,r:+r,m:+m,rl:+rl,sp:+sp,p:+p,v:+v,c,ammo:+am};if(x){const[a,b]=x.split(':');o[a]=+b;}GUNS['g'+i]=o;});
+Obliterator|1.2|.3|12|2|.12|3|500|90|#ff2255|pierce:1
+Pea Popper|.7|.18|16|.8|.05|1|440|280|#ccee99
+Stapler|.5|.14|20|.9|.06|1|470|300|#dddddd
+Cap Gun|.9|.3|8|.7|.04|1|420|200|#ffaaaa
+Zip Gun|1.6|.6|3|1.2|.08|1|440|60|#bb9977
+Pocket Pistol|1.1|.32|8|.8|.03|1|450|120|#eebb88
+Spud Gun|1.4|.45|5|1.1|.12|1|340|100|#cc9955
+Hunting Rifle|3.2|.8|5|1.3|.01|1|750|50|#88aa66
+Lever Action|2.2|.5|8|1.4|.02|1|600|96|#bb8844
+Coach Gun|.6|.85|2|1.2|.3|6|400|40|#cc8866
+Spray Pistol|.45|.1|24|1.1|.15|1|430|300|#88ccff
+Twin Pistols|.5|.18|20|1.2|.08|2|450|260|#ffcc77
+Rubber Band Gun|.8|.2|12|.8|.06|1|360|220|#ffaa66|bounce:2
+Skipper|1|.3|10|1|.05|1|400|150|#99ddff|bounce:3
+Needle Gun|.4|.08|30|1.2|.05|1|560|330|#eeeeff
+Air Rifle|1|.25|12|1.1|.02|1|560|180|#aaccee
+Burst Pistol|.7|.14|15|1|.08|1|470|250|#ddbb99
+Blunderbuss|.45|1|2|1.4|.4|9|380|36|#aa8866
+Bolt Thrower|2.6|.7|4|1.3|.01|1|580|48|#997755|pierce:1
+Junk Launcher|.55|.4|10|1.1|.3|4|380|100|#bbaa99
+Carbine|.9|.11|30|1.2|.05|1|520|270|#88dd99
+Battle Rifle|1.8|.22|16|1.3|.03|1|560|160|#99cc77
+Repeater|1.3|.16|18|1.2|.04|1|520|200|#ddcc77
+Uzi Twin|.45|.09|36|1.3|.14|2|460|340|#77bbff
+Semi-Auto|2|.25|12|1.1|.02|1|600|140|#ccddee
+Magnum|5|.6|6|1.6|.02|1|560|54|#ffbb66
+Riot Gun|.85|.5|8|1.3|.28|6|420|72|#ff9988
+Grapeshot|.7|.6|6|1.2|.3|7|400|60|#dd8877
+Bouncer Pro|1.1|.13|24|1.1|.07|1|420|220|#bbff77|bounce:4
+Rebound Rifle|1.5|.2|16|1.2|.04|1|480|150|#aaff99|bounce:3
+Spear Launcher|3|.35|8|1.2|.01|1|700|70|#ddddaa|pierce:2
+Impaler|2.6|.3|10|1.2|.02|1|720|80|#ccbbff|pierce:2
+Arc Pistol|1.2|.14|20|1.1|.05|1|620|200|#66ddff|pierce:1
+Flak Cannon|.6|.45|10|1.3|.35|8|420|80|#ffaa55
+Wasp Gun|.6|.06|40|1.3|.18|1|500|360|#ffee44
+Compact SMG|.5|.055|30|1.1|.14|1|470|300|#99ddff
+Prism Rifle|1.4|.15|20|1.3|.03|1|600|160|#ff99ff
+Heavy Repeater|2.4|.17|20|1.6|.04|1|560|180|#ff9944
+Thunder Cannon|9|.7|4|1.8|.02|1|640|40|#ffdd44|pierce:1
+Scorcher|.55|.045|70|2|.25|1|340|420|#ff6622
+Wrecking Ball Gun|1.8|.12|30|1.6|.1|1|420|260|#99ff66|bounce:5
+Sonic Shotgun|.8|.4|8|1.5|.3|8|460|64|#77eeff
+Maelstrom|.5|.07|60|2.2|.2|2|500|440|#aa77ff
+Star Piercer|3.4|.2|12|1.5|.02|1|850|96|#ffffaa|pierce:3
+Devastator|.9|.35|10|1.8|.15|6|480|60|#ff4444
+Comet Gun|2|.13|24|1.5|.04|1|700|180|#88bbff|pierce:2
+Chain Rifle|1.3|.09|40|1.8|.06|1|540|300|#ff88aa
+Volt Cannon|3|.25|12|1.7|.03|1|760|100|#ffff66|pierce:2
+Reaper|1.5|.11|30|1.7|.08|1|520|240|#cc3355
+Meteor Launcher|10|.8|4|2|.03|1|520|36|#ff7733
+Mega Bouncer|1.6|.1|40|1.8|.08|1|440|300|#77ffaa|bounce:6
+Sunfire|1.8|.09|40|1.8|.05|1|640|360|#ffcc33|pierce:2
+Dragonfang|.5|.3|10|1.8|.3|12|480|90|#ff5533
+Stormcaller|1.2|.06|80|2.4|.12|1|600|480|#66ddff|pierce:1
+Judgment|16|.8|4|2|.01|1|1000|30|#ffffff|pierce:5
+Phoenix|.7|.07|60|2.2|.1|2|560|420|#ff8844|bounce:2
+Void Reaper|5|.22|16|1.8|.02|1|900|120|#aa55ff|pierce:4
+Chaos Engine|1.3|.055|90|2.6|.14|1|520|540|#ff55cc|bounce:4
+Worldbreaker|14|.6|5|2.2|.03|1|700|40|#ff3300|pierce:3
+Starfall|2.2|.08|50|2|.07|1|760|300|#ffffaa|pierce:3
+Omega Array|.8|.05|100|2.8|.2|2|600|600|#55ffcc`.split('\n').forEach((l,i)=>{const[n,d,r,m,rl,sp,p,v,am,c,x]=l.split('|'),o={n,d:+d,r:+r,m:+m,rl:+rl,sp:+sp,p:+p,v:+v,c,ammo:+am};if(x){const[a,b]=x.split(':');o[a]=+b;}GUNS['g'+i]=o;});
+// EXOTIC: one bullet, effectively an instakill. Not in the normal drop pool (see giveGun). Consumed when fired.
+GUNS.exotic={n:'Last Round',d:9999,r:.5,m:1,rl:1,sp:0,p:1,v:1100,c:'#ff3366',ammo:0,exotic:1};
 const EN={grunt:{hp:4,r:10,c:'#ff5555'},shot:{hp:6,r:11,c:'#ff9944'},charger:{hp:5,r:11,c:'#ffd633'},spinner:{hp:9,r:12,c:'#cc66ff'},boss:{hp:70,r:26,c:'#ff2222'}};
 let meta={bank:0,best:0,hp:0,dmg:0,blank:0,rate:0,reload:0,speed:0,dodge:0,ammo:0,lifesteal:0,thorns:0,crit:0,exec:0,magnet:0,warp:0,buddy:0,saw:0};
 try{Object.assign(meta,JSON.parse(localStorage.getItem('gungeonMeta')||'{}'));}catch(e){}
@@ -2839,9 +2909,10 @@ function shoot(){
  const cc=dim('crit',.75,4),cm=2+.05*Math.max(0,L('crit')-1);
  for(let i=0;i<d.p;i++){
   const cr=Math.random()<cc,aa=a+(Math.random()-.5)*2*d.sp,sp=d.v*(d.p>1?rnd(.85,1.1):1);
-  S.b.push({x:p.x+Math.cos(a)*12,y:p.y+Math.sin(a)*12,vx:Math.cos(aa)*sp,vy:Math.sin(aa)*sp,r:(d.pierce?5:3)+(cr?1:0),dmg:d.d*(1+.08*L('dmg'))*(cr?cm:1),f:'p',life:1.4,bounce:d.bounce||0,pierce:d.pierce||0,hit:[],c:cr?'#ffee00':d.c});
+  S.b.push({x:p.x+Math.cos(a)*12,y:p.y+Math.sin(a)*12,vx:Math.cos(aa)*sp,vy:Math.sin(aa)*sp,r:(d.exotic?6:d.pierce?5:3)+(cr?1:0),dmg:d.d*(1+.08*L('dmg'))*(cr?cm:1),f:'p',life:1.4,bounce:d.bounce||0,pierce:d.pierce||0,hit:[],c:cr?'#ffee00':d.c});
  }
- g.mag--;p.fire=d.r/(1+.04*L('rate'));S.shake=Math.max(S.shake,d.p>1||d.pierce?4:1);
+ g.mag--;p.fire=d.r/(1+.04*L('rate'));S.shake=Math.max(S.shake,d.exotic?10:d.p>1||d.pierce?4:1);
+ if(d.exotic){p.guns.splice(p.gi,1);p.gi=0;p.rel=0;msg(d.n+' spent!');return;}
  if(g.mag<=0)reload();
 }
 function reload(){
@@ -2886,24 +2957,34 @@ function cleared(){
  if(S.boss||Math.random()<.2)S.pk.push({t:'blank',x:370,y:240});
  msg(S.boss?'BOSS DOWN! Loot the chest, then take the portal':'Room clear! Portal opened.');
 }
-const dpsOf=d=>d.d*d.p/d.r,tier=d=>{const v=dpsOf(d);return v<7.05?1:v<11?2:3;},TC=['','#cccccc','#44aaff','#cc66ff'],TN=['','Common','Rare','Epic'];
+const dpsOf=d=>d.d*d.p/d.r,tier=d=>{if(d.exotic)return 5;const v=dpsOf(d);return v<7.05?1:v<11?2:v<18?3:4;},TC=['','#cccccc','#44aaff','#cc66ff','#ff9922','#ff3366'],TN=['','Common','Rare','Epic','Legendary','Exotic'];
+// TIER_AT[i] = first chamber where tier i+1 (Common, Rare, Epic, Legendary) can drop. The catalog reads this too.
+const TIER_AT=[1,4,9,13];
+const maxTier=r=>TIER_AT.filter(c=>r>=c).length;
+// Each chest from chamber EXO_MIN on has EXO_CHANCE to hold the exotic instead of a normal gun.
+// Keep EXO_MIN equal to one of the TIER_AT values so the rate is constant across each catalog chamber range.
+const EXO_MIN=4,EXO_CHANCE=.03,exoRate=r=>r>=EXO_MIN?EXO_CHANCE:0;
 function giveGun(){
- const p=S.p,mt=S.r<4?1:S.r<9?2:3;
- let pool=Object.keys(GUNS).filter(k=>k!=='pistol'&&!p.guns.some(g=>g.k===k));
- const lo=pool.filter(k=>tier(GUNS[k])<=mt);if(lo.length)pool=lo;
- if(!pool.length){p.guns.forEach(g=>{if(!GUNS[g.k].inf)g.res=maxRes(GUNS[g.k]);});msg('Ammo restocked!');return;}
- const k=pool[ri(0,pool.length-1)];
- if(p.guns.length<3){p.guns.push(mkGun(k));p.gi=p.guns.length-1;p.rel=0;msg('Found the '+GUNS[k].n+'!');}
+ const p=S.p,mt=maxTier(S.r);
+ let k=null;
+ if(Math.random()<exoRate(S.r)&&!p.guns.some(g=>g.k==='exotic'))k='exotic';
+ if(!k){
+  let pool=Object.keys(GUNS).filter(q=>q!=='pistol'&&!GUNS[q].exotic&&!p.guns.some(g=>g.k===q));
+  const lo=pool.filter(q=>tier(GUNS[q])<=mt);if(lo.length)pool=lo;
+  if(!pool.length){p.guns.forEach(g=>{if(!GUNS[g.k].inf)g.res=maxRes(GUNS[g.k]);});msg('Ammo restocked!');return;}
+  k=pool[ri(0,pool.length-1)];
+ }
+ if(p.guns.length<3){p.guns.push(mkGun(k));p.gi=p.guns.length-1;p.rel=0;msg(GUNS[k].exotic?'EXOTIC! Last Round - one bullet, one kill':(tier(GUNS[k])===4?'LEGENDARY! ':'')+'Found the '+GUNS[k].n+'!');}
  else showSwap(k);
 }
-function gstats(k){const d=GUNS[k];return[
- ['DPS',dpsOf(d),1,dpsOf(d).toFixed(1)],
- ['Damage',d.d,1,d.d+(d.p>1?' x'+d.p:'')],
- ['Fire rate',1/d.r,1,(1/d.r).toFixed(1)+'/s'],
+function gstats(k){const d=GUNS[k],x=!!d.exotic;return[
+ ['DPS',dpsOf(d),1,x?'\u221e':dpsOf(d).toFixed(1)],
+ ['Damage',d.d,1,x?'INSTAKILL':d.d+(d.p>1?' x'+d.p:'')],
+ ['Fire rate',1/d.r,1,x?'-':(1/d.r).toFixed(1)+'/s'],
  ['Magazine',d.m,1,d.m],
- ['Reload',d.rl,0,d.rl+'s'],
+ ['Reload',d.rl,0,x?'-':d.rl+'s'],
  ['Spread',d.sp,0,'\u00b1'+Math.round(d.sp*57.3)+'\u00b0'],
- ['Ammo',d.inf?1e9:d.ammo,1,d.inf?'\u221e':d.ammo]];}
+ ['Ammo',d.inf?1e9:d.ammo,1,d.inf?'\u221e':x?'1 bullet':d.ammo]];}
 function gcard(k,cmp,tag){
  const d=GUNS[k],t=tier(d),cs=cmp?gstats(cmp):null;
  let h='<div style="background:#1a1a1a;border:2px solid '+TC[t]+';padding:8px;width:150px;text-align:left;font-size:12px;"><div style="color:#888;font-size:11px">'+tag+'</div><b style="color:'+d.c+'">'+d.n+'</b><div style="color:'+TC[t]+';margin-bottom:4px">'+TN[t]+'</div>';
@@ -3087,7 +3168,7 @@ function draw(){
  else{c.fillStyle='#ff4466';c.fillRect(8,10,10,10);c.font='12px Courier New';c.textAlign='left';c.fillText(p.hp+'/'+p.max,22,20);}
   c.font='12px Courier New';c.fillStyle='#44ffff';c.fillText('Blanks:'+p.blanks,8,H*TS-8);
  c.fillStyle='#fff';c.textAlign='center';c.fillText('Chamber '+S.r,320,20);
- c.textAlign='right';c.fillStyle=gd.c;c.fillText(gd.n+' '+g.mag+'/'+gd.m+(gd.inf?' \u221e':' ['+g.res+']'),BASE_W-8,20);
+ c.textAlign='right';c.fillStyle=gd.c;c.fillText(gd.n+' '+g.mag+'/'+gd.m+(gd.inf?' \u221e':gd.exotic?' [1 shot]':' ['+g.res+']'),BASE_W-8,20);
  c.textAlign='left';c.fillStyle='#aaa';let gx=110;
  p.guns.forEach((q,i)=>{const t=(i+1)+':'+GUNS[q.k].n;c.fillStyle=i===p.gi?GUNS[q.k].c:'#777';c.fillText(t,gx,H*TS-8);gx+=t.length*7.5+14;});
  c.textAlign='right';c.fillStyle=p.rollCd>0?'#777':'#8f8';c.fillText('Roll',BASE_W-8,H*TS-8);c.textAlign='left';
@@ -3102,7 +3183,7 @@ function loop(ts){
  draw();
 }
 function stop(){running=false;choosing=false;$('gunSwap').classList.add('hidden');cancelAnimationFrame(raf);canvas.style.cursor='';canvas.style.touchAction='';$('gunPause').classList.add('hidden');const t=$('gunTouch');if(t)t.style.display='none';mouse.down=false;for(const k in keys)keys[k]=false;}
-function hideAll(){['mainMenu','difficultyMenu','deathMenu','victoryMenu','pauseMenu','customMenu','devMenu','gunMenu','gunPause'].forEach(i=>{const e=$(i);if(e)e.classList.add('hidden');});}
+function hideAll(){['mainMenu','difficultyMenu','deathMenu','victoryMenu','pauseMenu','customMenu','devMenu','gunMenu','gunList','gunPause'].forEach(i=>{const e=$(i);if(e)e.classList.add('hidden');});}
 function showGun(){hideAll();renderMeta();$('gunMenu').classList.remove('hidden');}
 const pc=v=>Math.round(v*100)+'%';
 const UPS=[
@@ -3144,6 +3225,42 @@ function renderMeta(){
   box.appendChild(b);
  });
 }
+function renderGunList(){
+ const ALL=Object.keys(GUNS).filter(k=>k!=='pistol'),ex=ALL.filter(k=>GUNS[k].exotic),keys=ALL.filter(k=>!GUNS[k].exotic),nT=[0,0,0,0,0,0];
+ keys.forEach(k=>nT[tier(GUNS[k])]++);nT[5]=ex.length;
+ const pool=[0];for(let i=1;i<=4;i++)pool[i]=pool[i-1]+nT[i];
+ // one column per chamber range: [max tier, label, first chamber of the range]
+ const RG=TIER_AT.map((c,i)=>[i+1,i+1<TIER_AT.length?'Ch '+c+(TIER_AT[i+1]-1>c?'-'+(TIER_AT[i+1]-1):''):'Ch '+c+'+',c]);
+ $('gunListNote').innerHTML='Guns come from chests: 50% after a cleared room, 100% after a boss. Chamber decides which rarities can drop (Rare from chamber '+TIER_AT[1]+', Epic from '+TIER_AT[2]+', Legendary from '+TIER_AT[3]+'), then each chest picks evenly from the guns you do not own yet. From chamber '+EXO_MIN+', each chest also has a '+Math.round(EXO_CHANCE*100)+'% chance to hold the Exotic instead. Odds shown are for a fresh run and go up as you collect guns.';
+ const body=$('gunListBody');body.innerHTML='';
+ const GRID='display:grid;grid-template-columns:1fr repeat('+RG.length+',46px);gap:5px;align-items:center;';
+ const info=d=>{
+  if(d.exotic)return 'INSTAKILL \u2022 1 bullet \u2022 gun is used up after firing';
+  const t=['DPS '+dpsOf(d).toFixed(1),(+(d.d).toFixed(2))+(d.p>1?' x'+d.p:'')+' dmg',(1/d.r).toFixed(1)+'/s','mag '+d.m,d.inf?'\u221e ammo':d.ammo+' ammo'];
+  if(d.pierce)t.push(d.pierce>=99?'pierces all':'pierce '+d.pierce);
+  if(d.bounce)t.push('bounce '+d.bounce);
+  return t.join(' \u2022 ');
+ };
+ const row=(k,chances)=>{
+  const d=GUNS[k],r=document.createElement('div');
+  r.style.cssText=GRID+'background:#1a1a1a;border-left:4px solid '+d.c+';margin:4px 0;padding:6px 8px;';
+  let h='<div><div style="color:'+d.c+';font-weight:bold;font-size:15px;">'+d.n+'</div><div style="color:#888;font-size:11px;line-height:1.35;">'+info(d)+'</div></div>';
+  chances.forEach(c=>{h+=c===null?'<div style="grid-column:span '+RG.length+';text-align:right;color:#888;font-size:12px;">STARTER - never drops</div>':c>0?'<div style="text-align:center;color:#ffd700;font-weight:bold;font-size:13px;">'+(+c.toFixed(1))+'%</div>':'<div style="text-align:center;color:#555;">-</div>';});
+  r.innerHTML=h;return r;
+ };
+ body.appendChild(row('pistol',[null]));
+ [1,2,3,4,5].forEach(t=>{
+  const hd=document.createElement('div');
+  hd.style.cssText=GRID+'margin:16px 0 4px;padding:0 8px;border-bottom:2px solid '+TC[t]+';';
+  hd.innerHTML='<div style="color:'+TC[t]+';font-weight:bold;">'+TN[t]+' ('+nT[t]+')</div>'+RG.map(r=>'<div style="text-align:center;color:#888;font-size:10px;">'+r[1]+'</div>').join('');
+  body.appendChild(hd);
+  (t===5?ex:keys).filter(k=>tier(GUNS[k])===t).sort((a,b)=>dpsOf(GUNS[b])-dpsOf(GUNS[a])).forEach(k=>{
+   body.appendChild(row(k,RG.map(([mt,,rc])=>t===5?exoRate(rc)*100:t<=mt?(1-exoRate(rc))*100/pool[mt]:0)));
+  });
+ });
+}
+window.showGunList=function(){hideAll();renderGunList();$('gunList').classList.remove('hidden');$('gunList').scrollTop=0;};
+window.closeGunList=function(){showGun();};
 window.showGungeon=function(){gameState.gameActive=false;$('gunResult').innerHTML='';showGun();};
 window.gungeonStart=function(){
  gameState.gameActive=false;hideAll();if(document.activeElement)document.activeElement.blur();
