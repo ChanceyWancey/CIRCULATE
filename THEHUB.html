@@ -96,7 +96,7 @@ header{text-align:center;}
 .game-card:hover{transform:translateY(-3px);box-shadow:0 12px 48px rgba(0,0,0,.5);border-color:var(--card-border,var(--border));}
 .game-card::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--card-color,#fff),transparent);opacity:0;transition:opacity .3s;}
 .game-card:hover::after{opacity:1;}
-.card-inner{display:flex;align-items:center;justify-content:space-between;gap:16px;}
+.card-inner{display:flex;align-items:center;justify-content:space-between;gap:16px;position:relative;z-index:1;}
 .card-left{flex:1;}
 .card-num{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.2em;text-transform:uppercase;margin-bottom:8px;display:block;color:var(--card-color,var(--ink2));}
 .card-name{font-family:'Bebas Neue',sans-serif;font-size:38px;letter-spacing:.04em;color:var(--ink);line-height:1;display:block;margin-bottom:6px;}
@@ -150,6 +150,89 @@ footer::before,footer::after{content:'';display:block;width:32px;height:1px;back
 .game-card.is-disabled:hover .card-arrow{transform:none;}
 .card-reason{font-family:'DM Mono',monospace;font-size:10px;color:#f74f4f;letter-spacing:.08em;line-height:1.6;text-transform:uppercase;margin-top:6px;display:block;}
 .card-arrow.is-locked{font-size:22px;}
+
+/* ── sparkle card (casino green) ── */
+.game-card.is-sparkle{
+  border-color:#00c85344;
+  background:linear-gradient(135deg,#00c85312,var(--surface) 60%);
+  box-shadow:0 0 28px #00c8531a,inset 0 0 24px #00c85308;
+}
+.game-card.is-sparkle:hover{
+  border-color:#00e676aa;
+  box-shadow:0 12px 48px rgba(0,0,0,.5),0 0 40px #00e67633;
+}
+.game-card.is-sparkle .card-name{
+  background:linear-gradient(100deg,#00c853 20%,#d4ffe4 45%,#00e676 55%,#00c853 80%);
+  background-size:220% 100%;
+  -webkit-background-clip:text;background-clip:text;
+  -webkit-text-fill-color:transparent;color:transparent;
+  animation:shimmer 3.5s linear infinite;
+}
+@keyframes shimmer{from{background-position:120% 0}to{background-position:-120% 0}}
+.sparkle{
+  position:absolute;z-index:0;left:var(--x);top:var(--y);
+  font-size:var(--s);line-height:1;color:#c8ffdc;
+  text-shadow:0 0 6px #00e676,0 0 14px #00c853;
+  pointer-events:none;opacity:0;
+  animation:twinkle var(--d) ease-in-out var(--delay) infinite;
+}
+@keyframes twinkle{
+  0%,100%{opacity:0;transform:scale(0) rotate(0deg)}
+  50%{opacity:1;transform:scale(1) rotate(90deg)}
+}
+.game-card.is-sparkle:hover .sparkle{animation-duration:calc(var(--d) * .6)}
+@media(prefers-reduced-motion:reduce){
+  .sparkle{animation:none;opacity:.5;transform:scale(.8)}
+  .game-card.is-sparkle .card-name{animation:none}
+}
+
+/* ── per-card effects ── */
+.fx{position:absolute;z-index:0;pointer-events:none}
+.game-card:hover .fx{animation-duration:calc(var(--d,3s) * .65)}
+
+/* Circulate: orbiting balls + bullets */
+.orb{right:42px;top:calc(50% - 4px);width:8px;height:8px;border-radius:50%;background:#4f8ef7;box-shadow:0 0 8px #4f8ef7;animation:orbit var(--d) linear var(--delay) infinite}
+@keyframes orbit{from{transform:rotate(0deg) translateX(var(--r))}to{transform:rotate(360deg) translateX(var(--r))}}
+.bul{left:-4%;width:5px;height:5px;border-radius:50%;background:#9cc2ff;box-shadow:0 0 6px #4f8ef7;opacity:.8;animation:bullet var(--d) linear var(--delay) infinite}
+@keyframes bullet{from{left:-4%}to{left:104%}}
+
+/* Hold The Line: enemies march into the defence line */
+.tdline{left:11%;top:0;bottom:0;width:0;border-left:1px dashed #ffffff55;animation:linepulse 2s ease-in-out infinite}
+@keyframes linepulse{50%{border-left-color:#ffffffcc}}
+.pip{width:5px;height:5px;background:#fff;box-shadow:0 0 6px #fff;animation:march var(--d) linear var(--delay) infinite}
+@keyframes march{0%{left:104%;opacity:.9;transform:scale(1)}72%{left:12%;opacity:.9;transform:scale(1)}80%{left:11%;opacity:0;transform:scale(3)}100%{left:11%;opacity:0}}
+
+/* MiniCord: chat bubbles floating up */
+.bub{bottom:-18px;width:var(--w);height:14px;border-radius:9px 9px 9px 2px;background:#7a56e0;opacity:0;animation:rise var(--d) ease-out var(--delay) infinite}
+.bub:nth-child(even){border-radius:9px 9px 2px 9px;background:#5534b2}
+@keyframes rise{0%{transform:translateY(0);opacity:0}15%{opacity:.55}100%{transform:translateY(-150px);opacity:0}}
+
+/* MiniTube: video progress bar + play ripple */
+.tbar{left:0;bottom:0;height:3px;width:0;background:#ff2a2a;box-shadow:0 0 8px #f00;animation:prog 4s linear infinite}
+@keyframes prog{from{width:0}to{width:100%}}
+.trip{right:32px;top:calc(50% - 14px);width:28px;height:28px;border-radius:50%;border:2px solid #ff3b3b;opacity:0;animation:ripple var(--d) ease-out var(--delay) infinite}
+@keyframes ripple{0%{transform:scale(.6);opacity:.7}100%{transform:scale(2.6);opacity:0}}
+
+/* Stellar Drift: drifting starfield + shooting star */
+.star{left:104%;width:var(--z);height:var(--z);border-radius:50%;background:#ffe9a8;box-shadow:0 0 4px #fac637;animation:drift var(--d) linear var(--delay) infinite}
+@keyframes drift{from{left:104%}to{left:-4%}}
+.shoot{width:70px;height:2px;background:linear-gradient(90deg,#fff,#fac63700);opacity:0;animation:shoot 5s ease-in var(--delay) infinite}
+@keyframes shoot{0%{transform:translate(0,0) rotate(-24deg);opacity:0}4%{opacity:1}22%,100%{transform:translate(-220px,100px) rotate(-24deg);opacity:0}}
+
+/* Roguelike: rising embers + torch flicker */
+.emb{bottom:-6px;width:4px;height:4px;border-radius:50%;background:#ff6a2b;box-shadow:0 0 6px #ff3d00;opacity:0;animation:ember var(--d) ease-out var(--delay) infinite}
+@keyframes ember{0%{transform:translate(0,0) scale(1);opacity:0}15%{opacity:1}100%{transform:translate(var(--sx),-120px) scale(.3);opacity:0}}
+.game-card.fx-ember{border-color:#8b000066;animation:cardIn .6s cubic-bezier(.22,1,.36,1) both,torch 2.6s ease-in-out infinite}
+@keyframes torch{
+  0%,100%{box-shadow:0 0 18px #8b000022,inset 0 0 28px #8b000022}
+  30%{box-shadow:0 0 26px #8b000044,inset 0 0 40px #8b000044}
+  55%{box-shadow:0 0 14px #8b000018,inset 0 0 22px #8b000018}
+  75%{box-shadow:0 0 30px #8b000050,inset 0 0 44px #8b000050}
+}
+@media(prefers-reduced-motion:reduce){
+  .fx{display:none}
+  .game-card.fx-ember{animation:cardIn .6s cubic-bezier(.22,1,.36,1) both}
+}
 </style>
 </head>
 <body>
@@ -205,17 +288,20 @@ footer::before,footer::after{content:'';display:block;width:32px;height:1px;back
 // ║  color    — accent color (any hex)               ║
 // ║  disabled — true to make the card unclickable    ║
 // ║  reason   — shown instead of desc when disabled  ║
+// ║  fx       — card effect: orbit, defend, chat,    ║
+// ║             tube, space, ember, sparkle          ║
 // ╚══════════════════════════════════════════════════╝ 
 
 const GAMES = [
   {
     name:  'Circulate',
     tag:   'Bullet Hell',
-    desc:  '',
+    desc:  'Ball survival bullet hell',
     url:   'https://chanceywancey.github.io/CIRCULATE/CIRCULATE.html',
     color: '#4f8ef7',
     disabled: false,
     reason: '',
+    fx:    'orbit',
   },
   {
     name:  'Hold The Line',
@@ -252,6 +338,7 @@ const GAMES = [
     color: '#fac637',
     disabled: false,
     reason: 'working on huge update freeroam maybe? :D',
+    fx:    'space',
   },    
     {
     name:  'Roguelike',
@@ -261,12 +348,73 @@ const GAMES = [
     color: '#8B0000',
     disabled: false,
     reason: 'working on huge update freeroam maybe? :D',
+    fx:    'ember',
+  },
+  {
+    name:  'HAKRIS DREAM',
+    tag:   'Jackpot',
+    desc:  'Feeling lucky?',
+    url:   'https://chanceywancey.github.io/CIRCULATE/JACKPOT.html',
+    color: '#00c853',
+    disabled: false,
+    reason: '',
+    fx:    'sparkle',
   },
 ];
 // ── Don't touch anything below this line ──
 const list = document.getElementById('gameList');
 const search = document.getElementById('gameSearch');
 const searchCount = document.getElementById('searchCount');
+
+function addSparkles(card, count = 16) {
+  for (let i = 0; i < count; i++) {
+    const s = document.createElement('span');
+    s.className = 'sparkle';
+    s.textContent = '✦';
+    s.style.cssText = [
+      `--x:${(Math.random() * 94 + 2).toFixed(1)}%`,
+      `--y:${(Math.random() * 88 + 4).toFixed(1)}%`,
+      `--s:${Math.round(Math.random() * 10 + 7)}px`,
+      `--d:${(Math.random() * 1.6 + 1.4).toFixed(2)}s`,
+      `--delay:${(Math.random() * 3).toFixed(2)}s`,
+    ].join(';');
+    card.appendChild(s);
+  }
+}
+
+const R = (a, b) => Math.random() * (b - a) + a;
+function mk(card, cls, vars) {
+  const el = document.createElement('span');
+  el.className = 'fx ' + cls;
+  el.style.cssText = Object.entries(vars || {}).map(([k, v]) => `${k}:${v}`).join(';');
+  card.appendChild(el);
+}
+const FX = {
+  sparkle: addSparkles,
+  orbit(c) {
+    [[20, 2.4], [28, 3.4], [36, 4.6]].forEach(([r, d]) =>
+      [0, .5].forEach(p => mk(c, 'orb', { '--r': r + 'px', '--d': d + 's', '--delay': (-d * p) + 's' })));
+    for (let i = 0; i < 5; i++) mk(c, 'bul', { top: R(10, 90) + '%', '--d': R(2.2, 4) + 's', '--delay': -R(0, 4) + 's' });
+  },
+  defend(c) {
+    mk(c, 'tdline');
+    for (let i = 0; i < 7; i++) mk(c, 'pip', { top: R(12, 88) + '%', '--d': R(2.6, 4.4) + 's', '--delay': -R(0, 4) + 's' });
+  },
+  chat(c) {
+    for (let i = 0; i < 6; i++) mk(c, 'bub', { left: R(4, 92) + '%', '--w': R(24, 48) + 'px', '--d': R(3.2, 5) + 's', '--delay': -R(0, 5) + 's' });
+  },
+  tube(c) {
+    mk(c, 'tbar');
+    [0, .5].forEach(p => mk(c, 'trip', { '--d': '2.4s', '--delay': (-2.4 * p) + 's' }));
+  },
+  space(c) {
+    for (let i = 0; i < 22; i++) mk(c, 'star', { top: R(4, 96) + '%', '--z': R(1, 2.6) + 'px', '--d': R(3, 9) + 's', '--delay': -R(0, 9) + 's' });
+    mk(c, 'shoot', { top: R(5, 35) + '%', left: R(55, 90) + '%', '--delay': R(0, 3) + 's' });
+  },
+  ember(c) {
+    for (let i = 0; i < 14; i++) mk(c, 'emb', { left: R(2, 96) + '%', '--sx': R(-25, 25) + 'px', '--d': R(2, 4) + 's', '--delay': -R(0, 4) + 's' });
+  },
+};
 
 function renderGames(query = '') {
   list.innerHTML = '';
@@ -291,7 +439,7 @@ function renderGames(query = '') {
     const isDisabled = !!g.disabled;
 
     const a = document.createElement('a');
-    a.className = 'game-card' + (isDisabled ? ' is-disabled' : '');
+    a.className = 'game-card' + (isDisabled ? ' is-disabled' : '') + (g.fx ? ' fx-' + g.fx : '') + (g.fx === 'sparkle' ? ' is-sparkle' : '');
     a.href = isDisabled ? '#' : g.url;
 
     if (!isDisabled) a.target = '_blank';
@@ -319,6 +467,8 @@ function renderGames(query = '') {
         </div>
         <span class="card-arrow${isDisabled ? ' is-locked' : ''}">${isDisabled ? '🔒' : '↗'}</span>
       </div>`;
+
+    if (g.fx && FX[g.fx]) FX[g.fx](a);
 
     list.appendChild(a);
   });
