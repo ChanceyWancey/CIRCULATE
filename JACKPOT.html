@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>High Roller Room</title>
+<style>
+:root{--bg:#0b0f14;--panel:#141b24;--ink:#f2efe6;--mute:#8b97a6;--gold:#f5c542;--red:#ff4d5e;--green:#3ddc84;--card:#fbf8ee;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme: light){:root:not([data-theme="dark"]){--bg:#efe9da;--panel:#fffaf0;--ink:#1b1a17;--mute:#6d675a;--gold:#b8860b;--red:#c62839;--green:#12853f;--card:#fff}}
+:root[data-theme="dark"]{--bg:#0b0f14;--panel:#141b24;--ink:#f2efe6;--mute:#8b97a6;--gold:#f5c542;--red:#ff4d5e;--green:#3ddc84;--card:#fbf8ee}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:var(--bg);color:var(--ink);font-family:Georgia,"Times New Roman",serif}
+body{max-width:1000px;margin:0 auto;padding:16px}
+h1{font-size:22px;letter-spacing:3px;text-transform:uppercase;margin:0;color:var(--gold)}
+header{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.bank{font:700 26px ui-monospace,Menlo,monospace;color:var(--gold)}
+.sub{color:var(--mute);font-size:12px;margin:4px 0 14px}
+.tabs{display:flex;gap:8px;margin-bottom:12px}
+.tabs button{flex:1;padding:10px;background:var(--panel);color:var(--mute);border:1px solid var(--mute);border-radius:8px;font:inherit;cursor:pointer}
+.tabs button.on{color:var(--bg);background:var(--gold);border-color:var(--gold);font-weight:700}
+.panel{background:var(--panel);border:1px solid #ffffff1a;border-radius:14px;padding:16px}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}
+.chip{padding:8px 12px;border-radius:999px;border:2px dashed var(--gold);background:transparent;color:var(--gold);font:700 13px ui-monospace,monospace;cursor:pointer}
+.chip.on{background:var(--gold);color:var(--bg)}
+.btn{padding:12px 18px;border:0;border-radius:10px;font:700 15px Georgia,serif;cursor:pointer;background:var(--gold);color:#111}
+.btn.r{background:var(--red);color:#fff}.btn.g{background:var(--green);color:#06210f}
+.btn:disabled{opacity:.35;cursor:not-allowed}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.row .btn{flex:1;min-width:90px}
+.hand{display:flex;gap:6px;flex-wrap:wrap;min-height:84px;margin:6px 0}
+.card{width:58px;height:82px;background:var(--card);color:#111;border-radius:8px;display:flex;align-items:center;justify-content:center;font:700 22px Georgia,serif;box-shadow:0 3px 8px #0006;animation:deal .25s ease-out}
+.card.red{color:#c8102e}.card.back{background:repeating-linear-gradient(45deg,#7a1020,#7a1020 6px,#a01830 6px,#a01830 12px);color:transparent}
+.vc{cursor:pointer;position:relative;border:0;padding:0;transition:transform .15s}.vc.held{transform:translateY(-10px);outline:3px solid var(--gold)}
+.vc.held::after{content:"HELD";position:absolute;bottom:-18px;font:700 11px Georgia,serif;color:var(--gold);letter-spacing:1px}
+#vph{padding-bottom:20px}.vpt{display:grid;grid-template-columns:1fr auto;gap:2px 16px;font-size:13px;color:var(--mute);max-width:260px;margin:8px 0}
+.vpt .hit{color:var(--gold);font-weight:700}
+@keyframes deal{from{transform:translateY(-20px) rotate(-8deg);opacity:0}}
+.lbl{color:var(--mute);font-size:13px;text-transform:uppercase;letter-spacing:1px}
+.msg{min-height:28px;font-size:18px;font-weight:700;margin-top:8px}
+.win{color:var(--green)}.lose{color:var(--red)}
+.mult{font:800 64px ui-monospace,monospace;text-align:center;margin:14px 0;transition:color .2s}
+.mult.crash{color:var(--red);animation:shake .4s}
+@keyframes shake{25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+.bar{height:10px;background:#ffffff14;border-radius:5px;overflow:hidden}.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--green),var(--gold),var(--red))}
+.hist{display:flex;gap:5px;flex-wrap:wrap;margin-top:12px}
+.hist span{font:12px ui-monospace,monospace;padding:3px 7px;border-radius:5px;background:#ffffff14}
+.hist .h{color:var(--green)}.hist .l{color:var(--red)}
+.foot{margin-top:14px;font-size:11px;color:var(--mute);text-align:center}
+.hide{display:none}
+.lay{display:grid;grid-template-columns:150px minmax(0,1fr) 150px;gap:14px;align-items:start}
+.side{display:flex;flex-direction:column;gap:6px;position:sticky;top:12px}
+.side button{padding:10px 8px;background:var(--panel);color:var(--mute);border:1px solid var(--mute);border-radius:8px;font:inherit;font-size:13px;cursor:pointer;text-align:left}
+.side button.on{color:var(--bg);background:var(--gold);border-color:var(--gold);font-weight:700}
+@media(max-width:860px){.lay{grid-template-columns:1fr}.main{order:3}.side{position:static;flex-direction:row;flex-wrap:wrap}.side button{flex:1 1 28%;text-align:center;font-size:12px;padding:8px 4px}}
+.gr{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin:10px 0}.gr.g3{grid-template-columns:repeat(3,1fr)}
+.tile{aspect-ratio:1;border:0;border-radius:8px;background:#ffffff1f;font-size:26px;cursor:pointer;color:var(--ink)}.tile.ok{background:var(--green)}.tile:disabled{opacity:1}
+.pb,.wheel{display:flex;gap:4px;margin:14px 0}.wheel{display:grid;grid-template-columns:repeat(8,1fr)}
+.pb span,.wheel span{flex:1;text-align:center;padding:12px 0;border-radius:6px;background:#ffffff14;font:12px ui-monospace,monospace}
+.pb span.hit,.wheel span.hit{background:var(--gold);color:#111}
+.lane{display:flex;gap:10px;align-items:center;margin:6px 0}.lane .chip{width:175px;text-align:left}.lane .bar{flex:1}
+.cup{font-size:44px}.shk{animation:shuf .25s infinite alternate}.shk:nth-child(2){animation-direction:alternate-reverse}
+@keyframes shuf{from{transform:translateX(-30px)}to{transform:translateX(30px)}}
+input[type=range]{width:100%;accent-color:var(--gold)}
+.tabs{flex-wrap:wrap}.tabs button{flex:1 1 22%;padding:8px 4px;font-size:13px}
+.reels{display:flex;gap:8px;justify-content:center;margin:14px 0}
+.reels span{font-size:48px;width:84px;height:96px;display:flex;align-items:center;justify-content:center;background:var(--card);border-radius:12px;box-shadow:inset 0 0 12px #0004}
+.big{font-size:56px;text-align:center;margin:10px 0;letter-spacing:6px}
+input{padding:10px;border-radius:10px;border:1px solid var(--mute);background:var(--bg);color:var(--ink);font:inherit;flex:2;min-width:100px}
+</style>
+</head>
+<body>
+<header><h1>♠ High Roller</h1><div class="bank" id="bank">$0</div></header>
+<div class="sub">Play money only. No real money, ever. Peak: <span id="peak"></span></div>
+
+<div class="lay"><div class="side" id="tl"></div>
+<div class="panel main">
+  <div class="lbl">Your bet: <b id="bet" style="color:var(--gold)">$0</b></div>
+  <div class="chips" id="chips"></div>
+
+  <div id="bj">
+    <div class="lbl">Dealer <span id="dv"></span></div><div class="hand" id="dh"></div>
+    <div class="lbl">You <span id="pv"></span></div><div class="hand" id="ph"></div>
+    <div class="row">
+      <button class="btn" id="deal">Deal</button>
+      <button class="btn g" id="hit" disabled>Hit</button>
+      <button class="btn r" id="stand" disabled>Stand</button>
+      <button class="btn" id="dbl" disabled>Double</button>
+    </div>
+  </div>
+
+  <div id="cr" class="hide">
+    <div class="mult" id="mult">1.00x</div>
+    <div class="bar"><i id="fill"></i></div>
+    <div class="row">
+      <button class="btn" id="launch">Launch</button>
+      <button class="btn g" id="cash" disabled>Cash out</button>
+    </div>
+    <div class="hist" id="hist"></div>
+  </div>
+
+  <div id="sl" class="hide">
+    <div class="reels" id="reels"><span>🍒</span><span>🍋</span><span>7️⃣</span></div>
+    <div class="lbl" style="text-align:center">3 of a kind: 🍒6× 🍋10× 🔔20× 💎40× 7️⃣100× · pair of 💎/7️⃣ pays 2×</div>
+    <div class="row"><button class="btn" id="spin">Spin</button></div>
+  </div>
+
+  <div id="ro" class="hide">
+    <div class="mult" id="rn">?</div>
+    <div class="lbl">Tap an outside bet to spin</div><div class="chips" id="rb"></div>
+    <div class="row"><input id="rnum" type="number" min="0" max="36" placeholder="Number 0–36"><button class="btn" id="rstr">Straight up 35:1</button></div>
+  </div>
+
+  <div id="dc" class="hide">
+    <div class="big" id="dd">⚀ ⚀</div>
+    <div class="lbl" style="text-align:center">Two dice. Call the total.</div>
+    <div class="row" id="dr"></div>
+  </div>
+
+  <div id="cf" class="hide">
+    <div class="mult" id="coin">🪙</div><div class="lbl" id="pot"></div>
+    <div class="row"><button class="btn" id="fh">Heads</button><button class="btn r" id="ft">Tails</button><button class="btn g" id="fc" disabled>Cash out</button></div>
+  </div>
+
+  <div id="hl" class="hide">
+    <div class="hand" id="hlc"></div><div class="lbl" id="hlp"></div>
+    <div class="row"><button class="btn" id="hstart">Deal</button><button class="btn g" id="hi" disabled>Higher</button><button class="btn r" id="lo" disabled>Lower</button><button class="btn" id="hcash" disabled>Cash out</button></div>
+  </div>
+
+  <div id="mn" class="hide"><div class="lbl" id="mi"></div><div class="gr" id="mg"></div>
+    <div class="row"><button class="btn" id="mstart">Start (3 mines)</button><button class="btn g" id="mcash" disabled>Cash out</button></div></div>
+  <div id="pl" class="hide"><div class="pb" id="pb"></div><div class="lbl" style="text-align:center">Drop the ball down 8 rows</div><div class="row"><button class="btn" id="pdrop">Drop</button></div></div>
+  <div id="tg" class="hide"><div class="big" id="tgn">00.00</div><input type="range" id="tgs" min="5" max="95" value="50"><div class="lbl" id="tgl"></div><div class="row"><button class="btn" id="tgr">Roll</button></div></div>
+  <div id="wf" class="hide"><div class="wheel" id="wc"></div><div class="row"><button class="btn" id="wspin">Spin the wheel</button></div></div>
+  <div id="sc" class="hide"><div class="gr g3" id="sg"></div><div class="row"><button class="btn" id="sbuy">Buy ticket</button></div></div>
+  <div id="hr" class="hide"><div id="hrt"></div><div class="lbl">Tap a horse to bet and start the race</div></div>
+  <div id="sh" class="hide"><div class="row" id="shc"></div><div class="row"><button class="btn" id="shs">Shuffle</button></div></div>
+  <div id="tw" class="hide"><div class="big" id="twf">🏰</div><div class="lbl" id="twp"></div><div class="row"><button class="btn" id="td0">Door 1</button><button class="btn" id="td1">Door 2</button><button class="btn" id="td2">Door 3</button><button class="btn g" id="tcash" disabled>Cash out</button></div></div>
+  <div id="wr" class="hide"><div class="lbl">You</div><div class="hand" id="wh"></div><div class="lbl">Dealer</div><div class="hand" id="wd"></div><div class="row"><button class="btn" id="wdeal">Draw</button></div><div class="lbl" style="margin-top:8px">Higher card wins 1.95× · tie pushes</div></div>
+  <div id="pk" class="hide"><div class="big" id="pkd">⚀ ⚀ ⚀ ⚀ ⚀</div><div class="lbl" style="text-align:center">5 of a kind 30× · 4 of a kind 6× · full house 4× · straight 4× · three 1.5× · two pair push</div><div class="row"><button class="btn" id="pkr">Roll</button></div></div>
+
+  <div id="vp" class="hide"><div class="lbl">Jacks or Better · tap cards to hold</div><div class="hand" id="vph"></div><div class="vpt" id="vpt"></div>
+    <div class="row"><button class="btn" id="vpd">Deal</button></div></div>
+
+  <div class="msg" id="msg">Pick your stake and tempt fate.</div>
+</div>
+<div class="side" id="tr"></div></div>
+<div class="foot">Blackjack pays 3:2 · Dealer stands on 17 · The rocket can crash at 1.00x. Every game has a house edge. Gamble responsibly, even with fake chips.</div>
+
+<script>
+const $=id=>document.getElementById(id);
+let bank=10000,peak=10000,bet=500,busy=false;
+try{const s=JSON.parse(localStorage.getItem("hr")||"null");if(s){bank=s.bank;peak=s.peak}}catch(e){}
+const fmt=n=>"$"+Math.round(n).toLocaleString();
+function save(){peak=Math.max(peak,bank);try{localStorage.setItem("hr",JSON.stringify({bank,peak}))}catch(e){}render()}
+function render(){
+  $("bank").textContent=fmt(bank);$("peak").textContent=fmt(peak);
+  if(bet>bank)bet=Math.max(0,bank);
+  $("bet").textContent=fmt(bet);
+  const c=$("chips");c.innerHTML="";
+  [100,500,1000,5000,"ALL IN"].forEach(v=>{
+    const b=document.createElement("button");b.className="chip"+((v==="ALL IN"?bet===bank:bet===v)?" on":"");
+    b.textContent=v==="ALL IN"?v:fmt(v);b.disabled=busy;
+    b.onclick=()=>{bet=v==="ALL IN"?bank:Math.min(v,bank);render()};c.appendChild(b)});
+  if(bank<=0&&!busy){const b=document.createElement("button");b.className="chip";b.textContent="💸 Rebuy $10,000";
+    b.onclick=()=>{bank=10000;bet=500;msg("Back from the brink. Don't blow it.");save()};c.appendChild(b)}
+}
+function msg(t,c){const m=$("msg");m.textContent=t;m.className="msg "+(c||"")}
+
+// Tabs
+const G={bj:"Blackjack",cr:"Rocket Crash",sl:"Slots",ro:"Roulette",dc:"Dice",cf:"Coin Ladder",hl:"Hi-Lo",mn:"Mines",pl:"Plinko",tg:"Target Roll",wf:"Wheel",sc:"Scratch Card",hr:"Horse Race",sh:"Shell Game",tw:"Door Climb",wr:"Card War",pk:"Poker Dice",vp:"Video Poker"};
+Object.keys(G).forEach((k,i)=>{const b=document.createElement("button");b.id="t"+k;b.textContent=G[k];b.onclick=()=>tab(k);$(i<9?"tl":"tr").appendChild(b)});
+function tab(k){if(busy)return;for(const g in G){$("t"+g).classList.toggle("on",g==k);$(g).classList.toggle("hide",g!=k)}msg("Place your bet.")}
+
+// Blackjack
+let deck=[],P=[],D=[],stake=0,hideD=true;
+const S=["♠","♥","♦","♣"],R=["A","2","3","4","5","6","7","8","9","10","J","Q","K"];
+function newDeck(){deck=[];for(let d=0;d<4;d++)for(const s of S)for(const r of R)deck.push({s,r});
+  for(let i=deck.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[deck[i],deck[j]]=[deck[j],deck[i]]}}
+const draw=()=>{if(deck.length<15)newDeck();return deck.pop()};
+function val(h){let t=0,a=0;for(const c of h){if(c.r==="A"){a++;t+=11}else t+=("JQK".includes(c.r)?10:+c.r)}
+  while(t>21&&a--)t-=10;return t}
+function showH(el,h,hide){el.innerHTML="";h.forEach((c,i)=>{const d=document.createElement("div");
+  d.className="card"+((hide&&i===1)?" back":"")+("♥♦".includes(c.s)?" red":"");
+  d.textContent=(hide&&i===1)?"":c.r+c.s;el.appendChild(d)})}
+function drawBJ(){showH($("ph"),P,false);showH($("dh"),D,hideD);
+  $("pv").textContent=P.length?"("+val(P)+")":"";$("dv").textContent=D.length?(hideD?"":"("+val(D)+")"):""}
+function ctl(on){$("hit").disabled=$("stand").disabled=!on;$("dbl").disabled=!on||P.length>2||bank<stake;$("deal").disabled=on}
+$("deal").onclick=()=>{
+  if(bet<=0||bet>bank)return msg("You're out of chips.","lose");
+  if(deck.length<15)newDeck();
+  stake=bet;bank-=stake;busy=true;hideD=true;P=[draw(),draw()];D=[draw(),draw()];save();drawBJ();
+  if(val(P)===21){hideD=false;end(val(D)===21?"push":"bj")}else{msg("Hit or stand?");ctl(true)}};
+$("hit").onclick=()=>{P.push(draw());drawBJ();if(val(P)>21)end("bust");else if(val(P)===21)stand();else ctl(true)};
+$("stand").onclick=()=>stand();
+$("dbl").onclick=()=>{bank-=stake;stake*=2;save();P.push(draw());drawBJ();val(P)>21?end("bust"):stand()};
+function stand(){hideD=false;while(val(D)<17)D.push(draw());
+  const p=val(P),d=val(D);end(d>21||p>d?"win":p===d?"push":"lose")}
+function end(r){hideD=false;drawBJ();ctl(false);busy=false;
+  const o={bj:[stake*2.5,"BLACKJACK! +"+fmt(stake*1.5),"win"],win:[stake*2,"You win +"+fmt(stake),"win"],
+    push:[stake,"Push. Chips returned.",""],lose:[0,"Dealer wins. −"+fmt(stake),"lose"],bust:[0,"Bust! −"+fmt(stake),"lose"]}[r];
+  bank+=o[0];msg(o[1],o[2]);save();$("deal").disabled=false}
+
+// Crash
+let crashAt=1,m=1,t0=0,raf=0,live=false,cb=0;const hist=[];
+$("launch").onclick=()=>{
+  if(bet<=0||bet>bank)return msg("You're out of chips.","lose");
+  cb=bet;bank-=cb;busy=true;live=true;save();
+  crashAt=Math.max(1,Math.floor(100*0.97/(1-Math.random()))/100);
+  if(Math.random()<0.03)crashAt=1;
+  $("launch").disabled=true;$("cash").disabled=false;$("mult").className="mult";msg("Rocket climbing… cash out before it blows!");
+  t0=performance.now();raf=requestAnimationFrame(tick)};
+function tick(now){
+  m=Math.exp((now-t0)/6000*Math.LN10*0.9);
+  if(m>=crashAt){m=crashAt;return boom()}
+  $("mult").textContent=m.toFixed(2)+"x";$("fill").style.width=Math.min(100,Math.log(m)/Math.log(20)*100)+"%";
+  $("cash").textContent="Cash out "+fmt(cb*m);raf=requestAnimationFrame(tick)}
+function addH(){if(hist.length>12)hist.length=12;
+  $("hist").innerHTML=hist.map(x=>`<span class="${x.w?"h":"l"}">${x.v.toFixed(2)}x</span>`).join("")}
+function boom(){live=false;busy=false;$("mult").textContent=crashAt.toFixed(2)+"x";$("mult").className="mult crash";
+  $("fill").style.width="100%";$("cash").disabled=true;$("cash").textContent="Cash out";$("launch").disabled=false;
+  hist.unshift({v:crashAt,w:false});addH();msg("💥 CRASHED at "+crashAt.toFixed(2)+"x. −"+fmt(cb),"lose");save()}
+$("cash").onclick=()=>{if(!live)return;live=false;cancelAnimationFrame(raf);busy=false;
+  const win=cb*m;bank+=win;$("cash").disabled=true;$("cash").textContent="Cash out";$("launch").disabled=false;
+  hist.unshift({v:m,w:true});addH();
+  msg("Cashed out at "+m.toFixed(2)+"x! +"+fmt(win-cb)+" (it would've gone to "+crashAt.toFixed(2)+"x)","win");save()};
+
+
+// Shared helpers
+const ok=()=>{if(bet<=0||bet>bank){msg("You're out of chips.","lose");return false}return true};
+const rnd=n=>Math.random()*n|0;
+function res(s,w,l){bank+=w;busy=false;const d=w-s;msg(l+(d>0?" +"+fmt(d):d<0?" −"+fmt(-d):" Push."),d>0?"win":d<0?"lose":"");save()}
+
+// Slots
+const SY=["🍒","🍒","🍒","🍋","🍋","🔔","🔔","💎","7️⃣"],PAY={"🍒":6,"🍋":10,"🔔":20,"💎":40,"7️⃣":100};
+$("spin").onclick=()=>{if(!ok())return;const s=bet,r=[...$("reels").children],f=[0,0,0].map(()=>SY[rnd(9)]);
+  bank-=s;busy=true;save();$("spin").disabled=true;msg("Spinning…");let n=0;
+  const iv=setInterval(()=>{n++;r.forEach((e,i)=>{e.textContent=n<10+i*6?SY[rnd(9)]:f[i]});
+    if(n>=22){clearInterval(iv);$("spin").disabled=false;let w=0,l="No luck.";
+      if(f[0]===f[1]&&f[1]===f[2]){w=s*PAY[f[0]];l="JACKPOT "+f[0]+"!"}
+      else{const p=f[0]===f[1]?f[0]:f[1]===f[2]?f[1]:f[0]===f[2]?f[0]:"";if(p==="💎"||p==="7️⃣"){w=s*2;l="Lucky pair!"}}
+      res(s,w,l)}},70)};
+
+// Roulette
+const RED=[1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36];
+const RB=[["Red",x=>RED.includes(x),1],["Black",x=>x&&!RED.includes(x),1],["Even",x=>x&&x%2==0,1],["Odd",x=>x%2==1,1],["1–18",x=>x>=1&&x<=18,1],["19–36",x=>x>=19,1],["1st 12",x=>x>=1&&x<=12,2],["2nd 12",x=>x>=13&&x<=24,2],["3rd 12",x=>x>=25,2]];
+function spinR(l,t,p){if(busy||!ok())return;const s=bet,rn=$("rn"),f=rnd(37);bank-=s;busy=true;save();msg("Wheel spinning…");let n=0;
+  const col=x=>x===0?"var(--green)":RED.includes(x)?"var(--red)":"var(--ink)";
+  const iv=setInterval(()=>{n++;const x=n<22?rnd(37):f;rn.textContent=x;rn.style.color=col(x);
+    if(n>=22){clearInterval(iv);const w=t(f)?s*(p+1):0;res(s,w,f+(w?" hits "+l+"!":" — "+l+" misses."))}},80)}
+RB.forEach(([l,t,p])=>{const b=document.createElement("button");b.className="chip";b.textContent=l+(p>1?" 2:1":"");b.onclick=()=>spinR(l,t,p);$("rb").appendChild(b)});
+$("rstr").onclick=()=>{const v=parseInt($("rnum").value);if(!(v>=0&&v<=36))return msg("Pick a number from 0 to 36.");spinR("#"+v,x=>x===v,35)};
+
+// Dice
+const DF="⚀⚁⚂⚃⚄⚅";
+[["Under 7",x=>x<7,2.3],["Exactly 7",x=>x==7,5.5],["Over 7",x=>x>7,2.3]].forEach(([l,t,m])=>{
+  const b=document.createElement("button");b.className="btn";b.textContent=l+" ×"+m;
+  b.onclick=()=>{if(busy||!ok())return;const s=bet,a=1+rnd(6),c=1+rnd(6);bank-=s;busy=true;save();msg("Rolling…");let n=0;
+    const iv=setInterval(()=>{n++;const x=n<14?1+rnd(6):a,y=n<14?1+rnd(6):c;$("dd").textContent=DF[x-1]+" "+DF[y-1];
+      if(n>=14){clearInterval(iv);res(s,t(a+c)?Math.round(s*m):0,"Rolled "+(a+c)+".")}},70)};
+  $("dr").appendChild(b)});
+
+// Coin ladder
+let cp=0,cs=0;
+const cbtn=(a,c)=>{$("fh").disabled=$("ft").disabled=a;$("fc").disabled=c};
+function pt(){$("pot").textContent=busy?"Pot "+fmt(cp)+" · next win pays "+fmt(cp*1.95):"Call it to start. Each win pays 1.95×."}
+function flip(call){if(!busy){if(!ok())return;cs=bet;bank-=cs;cp=cs;busy=true;save()}
+  cbtn(true,true);$("coin").textContent="🌀";msg("Flipping…");
+  setTimeout(()=>{const h=Math.random()<.5;$("coin").textContent=h?"HEADS":"TAILS";
+    if(h===call){cp*=1.95;cbtn(false,false);msg("Streak! Push your luck or bank it.","win")}
+    else{res(cs,0,"Wrong call.");cbtn(false,true)}pt()},700)}
+$("fh").onclick=()=>flip(true);$("ft").onclick=()=>flip(false);
+$("fc").onclick=()=>{const w=cp;cp=0;res(cs,w,"Banked!");cbtn(false,true);pt()};
+
+// Hi-Lo
+let hc=0,hp=0,hs=0,hh=[];
+const cardOf=r=>({s:S[rnd(4)],r:R[r-1]});
+function hlUI(){const on=busy,ph=(13-hc)/13,pl=(hc-1)/13;
+  $("hi").disabled=!on||ph==0;$("lo").disabled=!on||pl==0;
+  $("hi").textContent=on&&ph?"Higher ×"+(.95/ph).toFixed(2):"Higher";$("lo").textContent=on&&pl?"Lower ×"+(.95/pl).toFixed(2):"Lower";
+  $("hstart").disabled=on;$("hcash").disabled=!on||hp<=hs;
+  $("hlp").textContent=on?"Pot "+fmt(hp)+" (ties lose)":"Deal to start. Ace low, King high. Ties lose.";showH($("hlc"),hh.slice(-5),false)}
+$("hstart").onclick=()=>{if(!ok())return;hs=bet;bank-=hs;hp=hs;busy=true;hc=1+rnd(13);hh=[cardOf(hc)];save();msg("Higher or lower?");hlUI()};
+function guess(up){const n=1+rnd(13),m=.95/(up?(13-hc)/13:(hc-1)/13);hh.push(cardOf(n));
+  if(up?n>hc:n<hc){hp*=m;hc=n;msg("Correct! Pot "+fmt(hp),"win")}else res(hs,0,"Wrong.");hlUI()}
+$("hi").onclick=()=>guess(true);$("lo").onclick=()=>guess(false);
+$("hcash").onclick=()=>{res(hs,hp,"Banked!");hlUI()};
+
+// Mines
+let mm=[],mo=0,ms=0,mon=false;
+const mmul=k=>{let x=.96;for(let i=0;i<k;i++)x*=(25-i)/(22-i);return x};
+function mUI(){$("mcash").disabled=!mon||!mo;$("mstart").disabled=mon;$("mi").textContent=mon?"Gems "+mo+" · cash out "+fmt(ms*mmul(mo))+" · next ×"+mmul(mo+1).toFixed(2):"3 mines hide in 25 tiles. Every gem raises the payout."}
+function mrev(){[...$("mg").children].forEach((c,j)=>{c.disabled=true;if(mm.includes(j))c.textContent="💣"})}
+$("mstart").onclick=()=>{if(!ok())return;ms=bet;bank-=ms;busy=mon=true;mo=0;mm=[...Array(25).keys()].sort(()=>Math.random()-.5).slice(0,3);save();
+  const g=$("mg");g.innerHTML="";for(let i=0;i<25;i++){const b=document.createElement("button");b.className="tile";b.onclick=()=>{
+    if(!mon)return;b.disabled=true;if(mm.includes(i)){mon=false;mrev();res(ms,0,"BOOM.")}else{mo++;b.textContent="💎";b.classList.add("ok");msg("Safe!","win")}mUI()};g.appendChild(b)}
+  msg("Find the gems.");mUI()};
+$("mcash").onclick=()=>{mon=false;mrev();res(ms,ms*mmul(mo),"Cashed out "+mo+" gems.");mUI()};
+
+// Plinko
+const PB=[15,4,1.4,.5,.3,.5,1.4,4,15];
+PB.forEach(m=>{const e=document.createElement("span");e.textContent=m+"×";$("pb").appendChild(e)});
+$("pdrop").onclick=()=>{if(busy||!ok())return;const s=bet,c=[...$("pb").children];bank-=s;busy=true;save();let p=4,n=0;
+  const iv=setInterval(()=>{n++;p+=Math.random()<.5?-.5:.5;c.forEach((e,i)=>e.classList.toggle("hit",i===Math.round(p)));
+    if(n>=8){clearInterval(iv);res(s,s*PB[p],PB[p]+"× bucket.")}},300)};
+
+// Target roll
+const tu=()=>{$("tgl").textContent="Roll under "+$("tgs").value+" to win · pays ×"+(96/$("tgs").value).toFixed(2)};
+$("tgs").oninput=tu;
+$("tgr").onclick=()=>{if(busy||!ok())return;const s=bet,v=+$("tgs").value,r=Math.random()*100;bank-=s;busy=true;save();let n=0;
+  const iv=setInterval(()=>{n++;$("tgn").textContent=(n<14?Math.random()*100:r).toFixed(2);
+    if(n>=14){clearInterval(iv);res(s,r<v?s*96/v:0,"Rolled "+r.toFixed(2)+".")}},60)};
+
+// Wheel
+let wcur=0;const WS=[0,.5,0,1,0,2,0,.5,0,3,0,1,0,7,0,0];
+WS.forEach(m=>{const e=document.createElement("span");e.textContent=m?m+"×":"✖";$("wc").appendChild(e)});
+$("wspin").onclick=()=>{if(busy||!ok())return;const s=bet,f=rnd(16),T=32+(f-wcur+16)%16,c=[...$("wc").children];bank-=s;busy=true;save();let i=0;
+  (function st(){wcur=(wcur+1)%16;c.forEach((e,j)=>e.classList.toggle("hit",j===wcur));if(++i<T)setTimeout(st,40+i*6);else res(s,s*WS[wcur],WS[wcur]?WS[wcur]+"×!":"Bust.")})()};
+
+// Scratch card
+const SC=["🍀","🍋","🍒","🔔","⭐","🎁","💎"],SP=[1,2,2,2,3,5,7];let sk=[],sn=0,ss=0;
+$("sbuy").onclick=()=>{if(!ok())return;ss=bet;bank-=ss;busy=true;sn=0;sk=[0,0,0,0,0,0].map(()=>rnd(7));save();const g=$("sg");g.innerHTML="";
+  sk.forEach(v=>{const b=document.createElement("button");b.className="tile";b.textContent="❔";b.onclick=()=>{b.disabled=true;b.textContent=SC[v];if(++sn===6){
+    const c=Array(7).fill(0);sk.forEach(x=>c[x]++);const i=c.findIndex(x=>x>=3);$("sbuy").disabled=false;res(ss,i>=0?ss*SP[i]:0,i>=0?"Three "+SC[i]+"!":"No match.")}};g.appendChild(b)});
+  $("sbuy").disabled=true;msg("Scratch all 6. Match 3 to win (🍀1× … 💎7×).")};
+
+// Horse race
+const HP=[.4,.25,.17,.12,.06],HM=HP.map(p=>+(.93/p).toFixed(1)),HN=["Thunder","Midas","Ghost","Rowdy","Longshot"];
+HN.forEach((n,i)=>{const d=document.createElement("div");d.className="lane";d.innerHTML='<button class="chip">🐎 '+n+' ×'+HM[i]+'</button><div class="bar"><i></i></div>';d.firstChild.onclick=()=>race(i);$("hrt").appendChild(d)});
+function race(h){if(busy||!ok())return;const s=bet;bank-=s;busy=true;save();msg("And they're off!");let r=Math.random(),w=0;while(w<4&&r>HP[w]){r-=HP[w];w++}
+  const p=[0,0,0,0,0],bars=[...$("hrt").querySelectorAll("i")];
+  const iv=setInterval(()=>{let d=false;p.forEach((x,i)=>{p[i]=Math.min(i===w?100:96,x+Math.random()*6+(i===w?1.2:0));bars[i].style.width=p[i]+"%";if(p[i]>=100)d=true});
+    if(d){clearInterval(iv);res(s,w===h?Math.round(s*HM[h]):0,HN[w]+" wins!")}},120)}
+
+// Shell game
+let ssb=0,ssk=0,sa=false;
+const SHC=[0,1,2].map(i=>{const b=document.createElement("button");b.className="btn cup";b.textContent="🥤";b.disabled=true;
+  b.onclick=()=>{if(!sa)return;sa=false;SHC.forEach((c,j)=>{c.disabled=true;c.textContent=j===ssb?"🔴":"🥤"});$("shs").disabled=false;res(ssk,i===ssb?ssk*2.8:0,i===ssb?"Found it!":"Wrong cup.")};
+  $("shc").appendChild(b);return b});
+$("shs").onclick=async()=>{if(!ok())return;ssk=bet;bank-=ssk;busy=true;save();$("shs").disabled=true;ssb=rnd(3);
+  SHC.forEach(c=>{c.style.transition="none";c.style.transform="";c.disabled=true});
+  const bx=SHC.map(c=>c.offsetLeft),slot=[0,1,2],wait=t=>new Promise(r=>setTimeout(r,t));
+  SHC.forEach((c,j)=>c.textContent=j===ssb?"🔴":"🥤");msg("Watch the ball…");
+  await wait(1000);SHC.forEach(c=>c.textContent="🥤");msg("Shuffling…");
+  const mv=(c)=>{const x=bx[slot[c]]-bx[c];return x};
+  for(let n=0;n<10;n++){
+    const who=[0,1,2];const k=rnd(3);who.splice(k,1);// pick two distinct cups
+    const [p,q]=who;[slot[p],slot[q]]=[slot[q],slot[p]];
+    SHC.forEach(c=>c.style.transition="transform .32s ease-in-out");
+    SHC[p].style.transform="translate("+mv(p)+"px,-14px)";
+    SHC[q].style.transform="translate("+mv(q)+"px,14px)";
+    await wait(180);
+    SHC[p].style.transform="translate("+mv(p)+"px,0)";
+    SHC[q].style.transform="translate("+mv(q)+"px,0)";
+    await wait(220);
+  }
+  SHC.forEach(c=>c.disabled=false);sa=true;msg("Pick a cup. Pays 2.8×.")};
+
+// Door climb
+let tf=0,tp=0,ts=0,ton=false;
+const tdis=(a,c)=>{[0,1,2].forEach(i=>$("td"+i).disabled=a);$("tcash").disabled=c};
+function tUI(){$("twp").textContent=ton?"Floor "+tf+"/8 · pot "+fmt(tp)+" · next ×1.44":"Pick a door to start. One of three hides a trap. Each floor pays ×1.44."}
+function door(i){if(!ton){if(!ok())return;ts=bet;bank-=ts;tp=ts;tf=0;ton=busy=true;save()}
+  const t=rnd(3);$("twf").textContent=t===i?"🕳️":"🚪";
+  if(t===i){ton=false;res(ts,0,"Trap door!");tdis(false,true)}
+  else{tf++;tp*=1.44;if(tf>=8){ton=false;res(ts,tp,"Top of the tower!");tdis(false,true)}else{tdis(false,false);msg("Safe! Floor "+tf+".","win")}}tUI()}
+[0,1,2].forEach(i=>$("td"+i).onclick=()=>door(i));
+$("tcash").onclick=()=>{const w=tp;ton=false;res(ts,w,"Cashed out!");tdis(false,true);tUI()};
+
+// Card war
+const R2=["2","3","4","5","6","7","8","9","10","J","Q","K","A"];
+$("wdeal").onclick=()=>{if(busy||!ok())return;const s=bet,a=rnd(13),b=rnd(13);bank-=s;busy=true;save();
+  showH($("wh"),[{s:S[rnd(4)],r:R2[a]}],false);showH($("wd"),[{s:S[rnd(4)],r:R2[b]}],false);
+  res(s,a>b?s*1.95:a===b?s:0,a>b?"You win!":a===b?"Tie.":"Dealer's card is higher.")};
+
+// Poker dice
+$("pkr").onclick=()=>{if(busy||!ok())return;const s=bet,d=[0,0,0,0,0].map(()=>1+rnd(6));bank-=s;busy=true;save();let n=0;
+  const iv=setInterval(()=>{n++;$("pkd").textContent=(n<12?d.map(()=>1+rnd(6)):d).map(x=>DF[x-1]).join(" ");
+    if(n>=12){clearInterval(iv);const c=Array(7).fill(0);d.forEach(x=>c[x]++);const m=[...c].sort((a,b)=>b-a),st=[1,2].some(o=>[0,1,2,3,4].every(k=>c[o+k]===1));
+      const [x,nm]=m[0]===5?[30,"Five of a kind"]:m[0]===4?[6,"Four of a kind"]:m[0]===3&&m[1]===2?[4,"Full house"]:st?[4,"Straight"]:m[0]===3?[1.5,"Three of a kind"]:m[0]===2&&m[1]===2?[1,"Two pair"]:[0,m[0]===2?"Just a pair":"Nothing"];
+      res(s,s*x,nm+".")}},70)};
+
+// Video poker (Jacks or Better)
+const VPT=[["Royal flush",250],["Straight flush",50],["Four of a kind",25],["Full house",9],["Flush",6],["Straight",4],["Three of a kind",3],["Two pair",2],["Jacks or better",1]];
+const VPR=["2","3","4","5","6","7","8","9","10","J","Q","K","A"];
+let vh=[],vk=[],vs=0,vd=[],vst=0;
+function vpEval(h){const rk=h.map(c=>VPR.indexOf(c.r)).sort((a,b)=>a-b),cnt={};rk.forEach(r=>cnt[r]=(cnt[r]||0)+1);
+  const g=Object.values(cnt).sort((a,b)=>b-a),fl=h.every(c=>c.s===h[0].s);
+  const st=g[0]===1&&(rk[4]-rk[0]===4||rk.join()==="0,1,2,3,12"),roy=st&&rk[0]===8;
+  if(roy&&fl)return 0;if(st&&fl)return 1;if(g[0]===4)return 2;if(g[0]===3&&g[1]===2)return 3;if(fl)return 4;if(st)return 5;if(g[0]===3)return 6;
+  if(g[0]===2&&g[1]===2)return 7;
+  if(g[0]===2){const p=+Object.keys(cnt).find(k=>cnt[k]===2);if(p>=9)return 8}return -1}
+function vpShow(hit){const el=$("vph");el.innerHTML="";
+  vh.forEach((c,i)=>{const d=document.createElement("button");d.className="card vc"+("♥♦".includes(c.s)?" red":"")+(vk[i]?" held":"");d.textContent=c.r+c.s;d.disabled=vst!==1;
+    d.onclick=()=>{vk[i]=!vk[i];vpShow(hit)};el.appendChild(d)});
+  $("vpt").innerHTML=VPT.map((p,i)=>'<span class="'+(i===hit?"hit":"")+'">'+p[0]+'</span><span class="'+(i===hit?"hit":"")+'">'+p[1]+'×</span>').join("")}
+$("vpd").onclick=()=>{
+  if(vst===0){if(!ok())return;vs=bet;bank-=vs;busy=true;save();vd=[];
+    for(const s of S)for(const r of VPR)vd.push({s,r});
+    for(let i=vd.length-1;i>0;i--){const j=rnd(i+1);[vd[i],vd[j]]=[vd[j],vd[i]]}
+    vh=vd.splice(0,5);vk=[0,0,0,0,0];vst=1;vpShow(-1);$("vpd").textContent="Draw";msg("Tap cards to hold, then Draw.")}
+  else{vh=vh.map((c,i)=>vk[i]?c:vd.shift());vst=0;const e=vpEval(vh);vpShow(e);$("vpd").textContent="Deal";
+    res(vs,e>=0?vs*VPT[e][1]:0,e>=0?VPT[e][0]+"!":"No win.")}};
+vpShow(-1);
+
+tab("bj");pt();hlUI();mUI();tu();tUI();
+render();ctl(false);$("deal").disabled=false;
+</script>
+</body>
+</html>
