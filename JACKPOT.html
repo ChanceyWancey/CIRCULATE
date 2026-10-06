@@ -129,7 +129,7 @@ input{padding:10px;border-radius:10px;border:1px solid var(--mute);background:va
 
   <div id="mn" class="hide"><div class="lbl" id="mi"></div><div class="gr" id="mg"></div>
     <div class="row"><button class="btn" id="mstart">Start (3 mines)</button><button class="btn g" id="mcash" disabled>Cash out</button></div></div>
-  <div id="pl" class="hide"><div class="pb" id="pb"></div><div class="lbl" style="text-align:center">Drop the ball down 8 rows</div><div class="row"><button class="btn" id="pdrop">Drop</button></div></div>
+  <div id="pl" class="hide"><canvas id="plc" style="width:100%;max-width:420px;display:block;margin:10px auto"></canvas><div class="lbl" style="text-align:center" id="pinfo">Drop as many balls as you like</div><div class="row"><button class="btn" id="pdrop">Drop</button><button class="btn" id="pauto">Auto: Off</button></div></div>
   <div id="tg" class="hide"><div class="big" id="tgn">00.00</div><input type="range" id="tgs" min="5" max="95" value="50"><div class="lbl" id="tgl"></div><div class="row"><button class="btn" id="tgr">Roll</button></div></div>
   <div id="wf" class="hide"><div class="wheel" id="wc"></div><div class="row"><button class="btn" id="wspin">Spin the wheel</button></div></div>
   <div id="sc" class="hide"><div class="gr g3" id="sg"></div><div class="row"><button class="btn" id="sbuy">Buy ticket</button></div></div>
@@ -299,10 +299,83 @@ $("mcash").onclick=()=>{mon=false;mrev();res(ms,ms*mmul(mo),"Cashed out "+mo+" g
 
 // Plinko
 const PB=[15,4,1.4,.5,.3,.5,1.4,4,15];
-PB.forEach(m=>{const e=document.createElement("span");e.textContent=m+"×";$("pb").appendChild(e)});
-$("pdrop").onclick=()=>{if(busy||!ok())return;const s=bet,c=[...$("pb").children];bank-=s;busy=true;save();let p=4,n=0;
-  const iv=setInterval(()=>{n++;p+=Math.random()<.5?-.5:.5;c.forEach((e,i)=>e.classList.toggle("hit",i===Math.round(p)));
-    if(n>=8){clearInterval(iv);res(s,s*PB[p],PB[p]+"× bucket.")}},300)};
+const PL={W:360,H:290,cx:180,dx:36,y0:34,dy:24,by:236,bh:34,br:8,pr:3.5};
+const pcv=$("plc"),px=pcv.getContext("2d"),pdpr=window.devicePixelRatio||1;
+pcv.width=PL.W*pdpr;pcv.height=PL.H*pdpr;px.scale(pdpr,pdpr);
+const pPeg=(r,j)=>({x:PL.cx+(j-r/2)*PL.dx,y:PL.y0+r*PL.dy});
+const pTop=(r,j)=>{const p=pPeg(r,j);return{x:p.x,y:p.y-PL.pr-PL.br}};
+function pDraw(balls,hitB,hitPegs){
+  px.clearRect(0,0,PL.W,PL.H);
+  for(let r=0;r<8;r++)for(let j=0;j<=r;j++){const p=pPeg(r,j),h=hitPegs&&hitPegs.some(q=>q[0]===r&&q[1]===j);
+    px.beginPath();px.arc(p.x,p.y,h?PL.pr+1.5:PL.pr,0,7);px.fillStyle=h?"#ffd34d":"#cfd6e4";
+    if(h){px.shadowColor="#ffd34d";px.shadowBlur=10}px.fill();px.shadowBlur=0}
+  PB.forEach((m,k)=>{const x=PL.cx+(k-4)*PL.dx-(PL.dx-4)/2,on=k===hitB;
+    px.fillStyle=on?"#ffd34d":m>=4?"#7a6420":m>=1?"#2f6b4a":"#6b3030";
+    px.beginPath();px.roundRect(x,PL.by,PL.dx-4,PL.bh,6);px.fill();
+    px.fillStyle=on?"#111":"#fff";px.font="700 11px ui-monospace,monospace";px.textAlign="center";px.textBaseline="middle";
+    px.fillText(m+"×",x+(PL.dx-4)/2,PL.by+PL.bh/2)});
+  for(const ball of [].concat(balls||[])){const g=px.createRadialGradient(ball.x-2.5,ball.y-2.5,1,ball.x,ball.y,PL.br);
+    g.addColorStop(0,"#fff6c9");g.addColorStop(.5,"#ffc933");g.addColorStop(1,"#b8860b");
+    px.beginPath();px.arc(ball.x,ball.y,PL.br,0,7);px.fillStyle=g;px.shadowColor="#000a";px.shadowBlur=6;px.shadowOffsetY=2;px.fill();
+    px.shadowBlur=0;px.shadowOffsetY=0}
+}
+pDraw(null,-1,null);
+// Physics: gravity, elastic peg collisions, light steering keeps odds near the paytable
+const PHYS={g:1100,e:.38,drag:.12,dragx:3,steer:18,kick:14};
+const pegs=[];
+for(let r=0;r<8;r++)for(let j=0;j<=r;j++)pegs.push({x:PL.cx+(j-r/2)*PL.dx,y:PL.y0+r*PL.dy,r:PL.pr,id:[r,j]});
+for(let k=0;k<=9;k++)pegs.push({x:PL.cx+(k-4.5)*PL.dx,y:PL.by+2,r:2.5,id:null});
+function pTarget(){let n=0;for(let i=0;i<8;i++)n+=Math.random()<.5?1:0;return n} 
+function pSim(){ // returns {step(dt)->state}
+  const tk=pTarget(),tx=PL.cx+(tk-4)*PL.dx;
+  const b={x:PL.cx+(Math.random()-.5)*6,y:8,vx:(Math.random()-.5)*20,vy:0,hit:null,hitT:0,done:false,k:-1};
+  const minX=PL.cx-4.5*PL.dx+PL.br,maxX=PL.cx+4.5*PL.dx-PL.br;
+  b.step=dt=>{
+    if(b.done)return;
+    const depth=Math.max(0,(b.y-PL.y0)/(PL.by-PL.y0));
+    b.vx+=(tx-b.x)*PHYS.steer*depth*depth*dt;
+    b.vy+=PHYS.g*dt;
+    b.vx*=1-PHYS.dragx*dt;b.vy*=1-PHYS.drag*dt;
+    b.x+=b.vx*dt;b.y+=b.vy*dt;
+    if(b.x<minX){b.x=minX;b.vx=Math.abs(b.vx)*PHYS.e}
+    if(b.x>maxX){b.x=maxX;b.vx=-Math.abs(b.vx)*PHYS.e}
+    for(const p of pegs){
+      const dx=b.x-p.x,dy=b.y-p.y,m=PL.br+p.r,d2=dx*dx+dy*dy;
+      if(d2<m*m){
+        const dist=Math.sqrt(d2)||.001,nx=dx/dist,ny=dy/dist;
+        b.x=p.x+nx*m;b.y=p.y+ny*m;
+        const vn=b.vx*nx+b.vy*ny;
+        if(vn<0){b.vx-=(1+PHYS.e)*vn*nx;b.vy-=(1+PHYS.e)*vn*ny;
+          b.vx+=(Math.random()-.5)*PHYS.kick;
+          if(p.id){b.hit=p.id;b.hitT=.15}}
+      }
+    }
+    if(b.y>=PL.by+PL.bh/2){b.done=true;b.k=Math.max(0,Math.min(8,Math.round((b.x-PL.cx)/PL.dx)+4));b.x=PL.cx+(b.k-4)*PL.dx;b.y=PL.by+PL.bh/2}
+    if(b.hitT>0){b.hitT-=dt;if(b.hitT<=0)b.hit=null}
+  };
+  return b}
+const pBalls=[];let pLoop=false,pLast=0,pAcc=0,pFlash=-1,pFlashT=0,pAuto=false,pAutoT=null,pCool=0;
+function pFrame(now){
+  pAcc+=Math.min(.05,(now-pLast)/1000);pLast=now;
+  const DT=1/240;let n=0;
+  while(pAcc>=DT&&n++<40){for(const b of pBalls)b.step(DT);pAcc-=DT;if(pFlashT>0)pFlashT-=DT}
+  for(let i=pBalls.length-1;i>=0;i--){const b=pBalls[i];
+    if(b.done){pBalls.splice(i,1);const m=PB[b.k],w=b.stake*m,d=w-b.stake;bank+=w;pFlash=b.k;pFlashT=.35;
+      msg(m+"\u00d7 bucket."+(d>0?" +"+fmt(d):d<0?" \u2212"+fmt(-d):" Push."),d>0?"win":d<0?"lose":"");save()}}
+  pDraw(pBalls,pFlashT>0?pFlash:-1,pBalls.map(b=>b.hit).filter(Boolean));
+  if(pBalls.length||pFlashT>0)requestAnimationFrame(pFrame);else{pLoop=false;pDraw(null,-1,null)}
+  const pi=$("pinfo");if(pi)pi.textContent=pBalls.length?pBalls.length+" ball"+(pBalls.length>1?"s":"")+" in play":"Drop as many balls as you like"}
+function pDrop(){
+  const now=performance.now();if(now-pCool<90)return false;
+  if(!ok()){pStopAuto();return false}
+  pCool=now;const b=pSim();b.stake=bet;bank-=bet;save();pBalls.push(b);
+  if(!pLoop){pLoop=true;pLast=performance.now();pAcc=0;requestAnimationFrame(pFrame)}
+  return true}
+function pStopAuto(){pAuto=false;clearInterval(pAutoT);$("pauto").textContent="Auto: Off"}
+$("pdrop").onclick=()=>pDrop();
+$("pauto").onclick=()=>{if(pAuto){pStopAuto();return}
+  pAuto=true;$("pauto").textContent="Auto: On";pDrop();
+  pAutoT=setInterval(()=>{if($("pl").classList.contains("hide")){pStopAuto();return}pDrop()},400)};
 
 // Target roll
 const tu=()=>{$("tgl").textContent="Roll under "+$("tgs").value+" to win · pays ×"+(96/$("tgs").value).toFixed(2)};
