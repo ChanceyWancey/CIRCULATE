@@ -49,7 +49,7 @@ header{display:flex;justify-content:space-between;align-items:center;gap:8px;fle
 .foot{margin-top:14px;font-size:11px;color:var(--mute);text-align:center}
 .hide{display:none}
 .lay{display:grid;grid-template-columns:150px minmax(0,1fr) 150px;gap:14px;align-items:start}
-.side{display:flex;flex-direction:column;gap:6px;position:sticky;top:12px}
+.side{max-height:calc(100vh - 24px);overflow:auto;display:flex;flex-direction:column;gap:6px;position:sticky;top:12px}
 .side button{padding:10px 8px;background:var(--panel);color:var(--mute);border:1px solid var(--mute);border-radius:8px;font:inherit;font-size:13px;cursor:pointer;text-align:left}
 .side button.on{color:var(--bg);background:var(--gold);border-color:var(--gold);font-weight:700}
 @media(max-width:860px){.lay{grid-template-columns:1fr}.main{order:3}.side{position:static;flex-direction:row;flex-wrap:wrap}.side button{flex:1 1 28%;text-align:center;font-size:12px;padding:8px 4px}}
@@ -67,6 +67,12 @@ input[type=range]{width:100%;accent-color:var(--gold)}
 .reels span{font-size:48px;width:84px;height:96px;display:flex;align-items:center;justify-content:center;background:var(--card);border-radius:12px;box-shadow:inset 0 0 12px #0004}
 .big{font-size:56px;text-align:center;margin:10px 0;letter-spacing:6px}
 input{padding:10px;border-radius:10px;border:1px solid var(--mute);background:var(--bg);color:var(--ink);font:inherit;flex:2;min-width:100px}
+@keyframes flip{from{transform:rotateY(90deg)}}@keyframes pop{50%{transform:scale(1.35)}}
+@keyframes jig{from{transform:translateX(-8px) rotate(-5deg)}to{transform:translateX(8px) rotate(5deg)}}.jig{animation:jig .1s infinite alternate}
+.dbd{position:relative;width:200px;height:200px;margin:14px auto 30px;border-radius:50%;background:radial-gradient(circle,#c8102e 0 8%,#fff 8% 12%,#2f6b4a 12% 40%,#111 40% 70%,#7a1020 70% 100%)}
+.dart{position:absolute;font-size:26px;transform:translate(-50%,-100%);transition:left .7s ease-out,top .7s ease-out,opacity .2s}
+.gl{position:relative;width:300px;max-width:100%;height:150px;margin:10px auto;border:4px solid var(--ink);border-bottom:0;background:#ffffff10}
+.kp{position:absolute;font-size:32px;transform:translate(-50%,-50%);transition:left .45s,top .45s}
 </style>
 </head>
 <body>
@@ -145,7 +151,7 @@ input{padding:10px;border-radius:10px;border:1px solid var(--mute);background:va
   <div class="msg" id="msg">Pick your stake and tempt fate.</div>
 </div>
 <div class="side" id="tr"></div></div>
-<div class="foot">Blackjack pays 3:2 · Dealer stands on 17 · The rocket can crash at 1.00x. Every game has a house edge. Gamble responsibly, even with fake chips.</div>
+<div class="foot">Blackjack pays 3:2 · Dealer peeks for blackjack, stands on all 17s · 4-deck shoe reshuffled at the cut card · The rocket can crash at 1.00x. Every game has a house edge. Gamble responsibly, even with fake chips.</div>
 
 <script>
 const $=id=>document.getElementById(id);
@@ -176,25 +182,28 @@ function tab(k){if(busy)return;for(const g in G){$("t"+g).classList.toggle("on",
 let deck=[],P=[],D=[],stake=0,hideD=true;
 const S=["♠","♥","♦","♣"],R=["A","2","3","4","5","6","7","8","9","10","J","Q","K"];
 function newDeck(){deck=[];for(let d=0;d<4;d++)for(const s of S)for(const r of R)deck.push({s,r});
-  for(let i=deck.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[deck[i],deck[j]]=[deck[j],deck[i]]}}
-const draw=()=>{if(deck.length<15)newDeck();return deck.pop()};
+  for(let i=deck.length-1;i>0;i--){const j=crypto.getRandomValues(new Uint32Array(1))[0]%(i+1);[deck[i],deck[j]]=[deck[j],deck[i]]}}
+const draw=()=>{if(!deck.length)newDeck();return deck.pop()};
 function val(h){let t=0,a=0;for(const c of h){if(c.r==="A"){a++;t+=11}else t+=("JQK".includes(c.r)?10:+c.r)}
   while(t>21&&a--)t-=10;return t}
-function showH(el,h,hide){el.innerHTML="";h.forEach((c,i)=>{const d=document.createElement("div");
+function showH(el,h,hide,kp){const n=kp&&h.length>=(el._n||0)?el._n||0:0,fl=kp&&el._h&&!hide;el.innerHTML="";h.forEach((c,i)=>{const d=document.createElement("div");if(i<n)d.style.animation=fl&&i===1?"flip .45s":"none";
   d.className="card"+((hide&&i===1)?" back":"")+("♥♦".includes(c.s)?" red":"");
-  d.textContent=(hide&&i===1)?"":c.r+c.s;el.appendChild(d)})}
-function drawBJ(){showH($("ph"),P,false);showH($("dh"),D,hideD);
+  d.textContent=(hide&&i===1)?"":c.r+c.s;el.appendChild(d)});if(kp){el._n=h.length;el._h=hide}}
+function drawBJ(){showH($("ph"),P,false,1);showH($("dh"),D,hideD,1);
   $("pv").textContent=P.length?"("+val(P)+")":"";$("dv").textContent=D.length?(hideD?"":"("+val(D)+")"):""}
 function ctl(on){$("hit").disabled=$("stand").disabled=!on;$("dbl").disabled=!on||P.length>2||bank<stake;$("deal").disabled=on}
-$("deal").onclick=()=>{
+$("deal").onclick=async()=>{
   if(bet<=0||bet>bank)return msg("You're out of chips.","lose");
-  if(deck.length<15)newDeck();
-  stake=bet;bank-=stake;busy=true;hideD=true;P=[draw(),draw()];D=[draw(),draw()];save();drawBJ();
-  if(val(P)===21){hideD=false;end(val(D)===21?"push":"bj")}else{msg("Hit or stand?");ctl(true)}};
+  if(deck.length<80)newDeck();
+  stake=bet;bank-=stake;busy=true;hideD=true;P=[];D=[];ctl(false);$("deal").disabled=true;save();drawBJ();msg("Dealing…");
+  for(const h of [P,D,P,D]){await wt(380);h.push(draw());drawBJ()}await wt(300);
+  if(val(P)===21||val(D)===21){hideD=false;end(val(D)===21?(val(P)===21?"push":"lose"):"bj")}else{msg("Hit or stand?");ctl(true)}};
 $("hit").onclick=()=>{P.push(draw());drawBJ();if(val(P)>21)end("bust");else if(val(P)===21)stand();else ctl(true)};
 $("stand").onclick=()=>stand();
 $("dbl").onclick=()=>{bank-=stake;stake*=2;save();P.push(draw());drawBJ();val(P)>21?end("bust"):stand()};
-function stand(){hideD=false;while(val(D)<17)D.push(draw());
+async function stand(){ctl(false);hideD=false;drawBJ();msg("Dealer reveals…");await wt(800);
+  while(val(D)<17){msg("Dealer hits on "+val(D)+"…");await wt(700);D.push(draw());drawBJ();await wt(500)}
+  if(val(D)<22){msg("Dealer stands on "+val(D)+".");await wt(700)}
   const p=val(P),d=val(D);end(d>21||p>d?"win":p===d?"push":"lose")}
 function end(r){hideD=false;drawBJ();ctl(false);busy=false;
   const o={bj:[stake*2.5,"BLACKJACK! +"+fmt(stake*1.5),"win"],win:[stake*2,"You win +"+fmt(stake),"win"],
@@ -207,7 +216,6 @@ $("launch").onclick=()=>{
   if(bet<=0||bet>bank)return msg("You're out of chips.","lose");
   cb=bet;bank-=cb;busy=true;live=true;save();
   crashAt=Math.max(1,Math.floor(100*0.97/(1-Math.random()))/100);
-  if(Math.random()<0.03)crashAt=1;
   $("launch").disabled=true;$("cash").disabled=false;$("mult").className="mult";msg("Rocket climbing… cash out before it blows!");
   t0=performance.now();raf=requestAnimationFrame(tick)};
 function tick(now){
@@ -478,6 +486,102 @@ vpShow(-1);
 
 tab("bj");pt();hlUI();mUI();tu();tUI();
 render();ctl(false);$("deal").disabled=false;
+</script>
+<script>
+const el=(t,c,x,f)=>{const e=document.createElement(t);e.className=c;e.textContent=x;if(f)e.onclick=f;return e};
+const wt=t=>new Promise(r=>setTimeout(r,t));
+function game(k,n,intro){G[k]=n;const d=el("div","hide");d.id=k;const o=el("div","big","");o.style.cssText="font-size:34px;letter-spacing:2px;min-height:56px";
+  const l=el("div","lbl",intro);l.style.textAlign="center";const r=el("div","row");d.append(o,l,r);$("msg").before(d);
+  const b=el("button","",n,()=>tab(k));b.id="t"+k;($("tl").children.length<=$("tr").children.length?$("tl"):$("tr")).append(b);
+  return{o,l,r,add:(t,f,c)=>{const x=el("button","btn "+(c||""),t,f);r.append(x);return x}}}
+function shot(g,t,f,c){return g.add(t,async()=>{if(busy||!ok())return;const s=bet;bank-=s;busy=true;save();msg("…");const[w,l,v]=f(s);
+  if(g.an)await g.an(v,w);else if(v!=null)g.o.textContent=v;res(s,w,l)},c)}
+const D6=()=>1+rnd(6),df=a=>a.map(x=>DF[x-1]).join(" "),rd=()=>DF[rnd(6)],dice=g=>g.an=v=>tum(g.o,()=>v.split(" ").map(rd).join(" "),v);
+async function tum(o,fn,fin,n=12,ms=70){o.classList.add("jig");for(let i=0;i<n;i++){o.textContent=fn();await wt(ms)}o.classList.remove("jig");o.textContent=fin}
+async function deal(g,rows){const o=g.o;o.innerHTML="";const hs=rows.map(([l])=>{const w=el("div","",""),h=el("div","hand","");h.style.justifyContent="center";w.append(el("div","lbl",l),h);o.append(w);return h});
+  const ord=[];for(let c=0;c<3;c++)rows.forEach((r,i)=>r[1][c]&&ord.push([i,c]));const cs=[];
+  for(const[i]of ord){const d=el("div","card back","");hs[i].append(d);cs.push(d);await wt(280)}
+  for(let j=0;j<ord.length;j++){const t=rows[ord[j][0]][1][ord[j][1]],d=cs[j];d.className="card"+("♥♦".includes(t.slice(-1))?" red":"");d.style.animation="flip .35s";d.textContent=t;await wt(330)}}
+const cd=r=>R2[r]+S[rnd(4)];
+// Keno: balls drawn one by one onto the board
+{const g=game("kn","Keno","Pick exactly 5 of 40. 10 balls are drawn · 2 hits 1.6× · 3 hits 4× · 4 hits 14× · 5 hits 100×"),sel=new Set,T=[],gr=el("div","gr","");gr.style.gridTemplateColumns="repeat(8,1fr)";g.o.after(gr);
+ for(let i=1;i<=40;i++){const b=el("button","tile",i,()=>{if(busy)return;if(sel.has(i)){sel.delete(i);b.classList.remove("ok")}else if(sel.size<5){sel.add(i);b.classList.add("ok")}});b.style.fontSize="14px";T.push(b);gr.append(b)}
+ g.add("Draw",async()=>{if(busy)return;if(sel.size!=5)return msg("Pick exactly 5 numbers.");if(!ok())return;const s=bet;bank-=s;busy=true;save();
+  const dr=[];while(dr.length<10){const x=1+rnd(40);if(!dr.includes(x))dr.push(x)}
+  T.forEach((b,i)=>{b.style.outline="";b.textContent=i+1});let h=0;
+  for(const x of dr){T[x-1].style.outline="3px solid var(--gold)";if(sel.has(x)){h++;T[x-1].textContent="💎"}g.o.textContent="⚪ "+x+" · "+h+" hit"+(h==1?"":"s");await wt(280)}
+  g.o.textContent="";res(s,s*[0,0,1.6,4,14,100][h],h+" hit"+(h==1?"":"s")+".")})}
+// Craps: dice tumble, one roll at a time
+{const g=game("cp","Craps","Pass Line: 7/11 wins, 2/3/12 loses, otherwise roll the point before a 7. Pays 2×"),r=()=>2+rnd(6)+rnd(6);
+ g.an=async h=>{for(let i=0;i<Math.min(h.length,6);i++){await tum(g.o,()=>df([D6(),D6()]),"🎲 "+h[i]+(i?"":" · come-out"),8,60);await wt(500)}};
+ shot(g,"Roll",s=>{let x=r(),h=[x],w;if(x==7||x==11)w=1;else if(x<4||x==12)w=0;else{const p=x;for(;;){x=r();h.push(x);if(x==p){w=1;break}if(x==7){w=0;break}}}
+  return[w?s*2:0,w?"Pass wins!":"Seven out.",h]})}
+// Baccarat: two-row card table with flips
+{const g=game("bc","Baccarat","Closest to 9 wins · Player 2× · Banker 1.95× · Tie 9× (Player/Banker push on a tie)"),d=()=>rnd(13),vl=r=>r<9?r+1:0,L=h=>h.map(r=>R[r]+S[rnd(4)]);g.an=v=>deal(g,v);
+ [["Player",0],["Banker",1],["Tie",2]].forEach(([t,p])=>shot(g,t,s=>{const P=[d(),d()],B=[d(),d()],t2=h=>h.reduce((a,r)=>a+vl(r),0)%10;let a=t2(P),b=t2(B);
+  if(a<8&&b<8){let x=-1;if(a<=5)x=vl(P[2]=d());
+   if(x<0?b<=5:b<3||(b==3&&x!=8)||(b==4&&x>1&&x<8)||(b==5&&x>3&&x<8)||(b==6&&x>5&&x<8))B.push(d());a=t2(P);b=t2(B)}
+  const o=a>b?0:a<b?1:2;return[o==2?(p==2?s*9:s):o==p?s*(p?1.95:2):0,"Player "+a+" · Banker "+b+".",[["Player "+a,L(P)],["Banker "+b,L(B)]]]}))}
+{const g=game("sb","Sic Bo","Three dice shaken in the cage. Small 4–10 / Big 11–17. Any triple loses. Pays 2×");dice(g);
+ [["Small",x=>x<11],["Big",x=>x>10]].forEach(([t,f])=>shot(g,t,s=>{const d=[D6(),D6(),D6()],T=d[0]+d[1]+d[2],tr=d[0]==d[1]&&d[1]==d[2];return[!tr&&f(T)?s*2:0,"Total "+T+(tr?" (triple)":"")+".",df(d)]}))}
+{const g=game("cl","Chuck-a-Luck","Pick a number. Three dice in the cage: win your bet for every die that matches");dice(g);
+ for(let n=1;n<=6;n++)shot(g,""+n,s=>{const d=[D6(),D6(),D6()],m=d.filter(x=>x==n).length;return[m?s*(1+m):0,m+" match"+(m==1?"":"es")+".",df(d)]})}
+// Cho-Han: shaken cup lifts to reveal
+{const g=game("ch","Cho-Han","Two dice under a cup. Even or odd total? Pays 1.95×");g.an=v=>tum(g.o,()=>"🥤",v,14,90);
+ [["Even (Cho)",0],["Odd (Han)",1]].forEach(([t,p])=>shot(g,t,s=>{const a=D6(),b=D6();return[(a+b)%2==p?s*1.95:0,"Rolled "+(a+b)+".",df([a,b])]}))}
+{const g=game("dl","Dice Duel","You vs the house, 2 dice each. Higher total pays 1.9× · tie pushes"),r=()=>D6()+D6();g.an=v=>tum(g.o,()=>(2+rnd(11))+" vs "+(2+rnd(11)),v,14,70);
+ shot(g,"Roll",s=>{const a=r(),b=r();return[a>b?s*1.9:a==b?s:0,"You "+a+" · House "+b+".",a+" vs "+b]})}
+{const g=game("ng","Number Guess","Pick 1–10. The ticker spins. Nail it for 9×");g.an=v=>tum(g.o,()=>1+rnd(10),""+v,18,60);
+ for(let n=1;n<=10;n++)shot(g,""+n,s=>{const x=1+rnd(10);return[x==n?s*9:0,"Number was "+x+".",x]})}
+// Limbo: multiplier climbs until it lands
+{const g=game("lm","Limbo","");const sl=el("input","","");sl.type="range";sl.min=11;sl.max=200;sl.value=20;g.l.after(sl);
+ const u=()=>g.l.textContent="Target "+(sl.value/10).toFixed(1)+"× · win chance "+(970/sl.value).toFixed(1)+"% · pays the target";sl.oninput=u;u();
+ g.an=async x=>{let c=1;g.o.style.color="";while(c<x){c=Math.min(x,c*1.1+.01);g.o.textContent=c.toFixed(2)+"×";await wt(35)}g.o.style.color=x>=sl.value/10?"var(--green)":"var(--red)"};
+ shot(g,"Launch",s=>{const x=.97/(1-Math.random()),T=sl.value/10;return[x>=T?s*T:0,"Landed at "+x.toFixed(2)+"×.",x]})}
+{const E=["✊","✋","✌️"],g=game("rp","Rock Paper Scissors","Shake… then shoot. Win pays 1.85× · tie pushes");g.an=v=>tum(g.o,()=>"✊ vs ✊",v,8,130);
+ E.forEach((e,i)=>shot(g,e,s=>{const c=rnd(3),w=(i-c+3)%3;return[w==0?s:w==1?s*1.85:0,"House played "+E[c]+".",e+" vs "+E[c]]}))}
+// Envelopes / chests: chosen one opens, then the rest are revealed
+function pick(k,n,e,o,pz){const g=game(k,n,"Pick one. Hidden prizes: "+pz.map(x=>x+"×").join(" ")),row=el("div","row","");row.style.justifyContent="center";
+ const it=pz.map(()=>{const x=el("span","big",e);x.style.fontSize="44px";row.append(x);return x});g.o.after(row);
+ g.an=async v=>{it.forEach(x=>x.textContent=e);await wt(300);const a=it[v.i];a.textContent=o+v.p+"×";a.style.animation="pop .5s";await wt(700);
+  const rest=pz.slice();rest.splice(rest.indexOf(v.p),1);rest.sort(()=>Math.random()-.5);
+  for(let j=0;j<it.length;j++)if(j!=v.i){it[j].textContent=o+rest.pop()+"×";it[j].style.opacity=.5;await wt(250)}
+  await wt(300);it.forEach(x=>{x.style.opacity=1;x.style.animation=""})};
+ pz.forEach((_,i)=>shot(g,e+" "+(i+1),s=>{const p=pz[rnd(pz.length)];return[s*p,"It held "+p+"×.",{i,p}]}))}
+pick("en","Lucky Envelopes","✉️","📄 ",[0,0,1,2.8]);pick("tc","Treasure Chests","🧰","💰 ",[0,0,0,1.5,3.2]);
+{const g=game("dt","Dragon Tiger","One card each, ace high. Dragon/Tiger 2.05× · Tie 12× (ties lose on D/T)");g.an=v=>deal(g,v);
+ [["🐉 Dragon",0],["🐯 Tiger",1],["Tie",2]].forEach(([t,p])=>shot(g,t,s=>{const a=rnd(13),b=rnd(13),o=a>b?0:a<b?1:2;return[o==p?s*(p==2?12:2.05):0,"Dragon "+R2[a]+" · Tiger "+R2[b]+".",[["Dragon",[cd(a)]],["Tiger",[cd(b)]]]]}))}
+{const g=game("su","Suit Bet","Name the suit. The card flips. Pays 3.8×");g.an=v=>deal(g,v);
+ S.forEach((u,i)=>shot(g,u,s=>{const x=rnd(4);return[x==i?s*3.8:0,"Drew "+S[x]+".",[["Next card",[R2[rnd(13)]+S[x]]]]]}))}
+// Triple Flip: coins spin one at a time
+{const g=game("tf","Triple Flip","Three coins. All alike pays 3.8× · Mixed pays 1.26×");
+ g.an=async v=>{const s=[];for(const x of v.split(" ")){await tum(g.o,()=>s.concat("🪙").join(" "),s.concat(x).join(" "),7,70);s.push(x)}};
+ [["All alike",1],["Mixed",0]].forEach(([t,a])=>shot(g,t,s=>{const c=[rnd(2),rnd(2),rnd(2)],same=c[0]==c[1]&&c[1]==c[2];return[(same?1:0)==a?s*(a?3.8:1.26):0,same?"All alike.":"Mixed.",c.map(x=>x?"H":"T").join(" ")]}))}
+// Lucky Wheel: ring of 20 slots with a decelerating light
+{const W=[...Array(11).fill(0),1,1,1,1,2,2,3,3,5],g=game("lw","Lucky Wheel","20 slots: 11 bust · 1× ×4 · 2× ×2 · 3× ×2 · 5× ×1"),ring=el("div","wheel","");ring.style.gridTemplateColumns="repeat(10,1fr)";
+ const sp=W.map(m=>{const x=el("span","",m?m+"×":"✖");x.style.padding="10px 0";ring.append(x);return x});g.o.after(ring);let cur=0;
+ g.an=async f=>{const T=24+(f-cur+20)%20;g.o.textContent="";for(let i=0;i<T;i++){cur=(cur+1)%20;sp.forEach((x,j)=>x.classList.toggle("hit",j==cur));await wt(30+i*3)}g.o.textContent=W[cur]?W[cur]+"×":"✖"};
+ shot(g,"Spin",s=>{const f=rnd(20),m=W[f];return[s*m,m?m+"×!":"Bust.",f]})}
+// Darts: dart flies to the board
+{const g=game("da","Darts","Bullseye 10× · inner ring 2× · outer ring 0.35× · miss 0"),bd=el("div","dbd",""),dt=el("span","dart","📍");bd.append(dt);g.o.after(bd);
+ const pos=(x,y,o)=>{dt.style.left=x+"px";dt.style.top=y+"px";dt.style.opacity=o};pos(100,240,0);
+ g.an=async z=>{g.o.textContent="";dt.style.transition="none";pos(100,240,0);void dt.offsetWidth;dt.style.transition="";
+  const r={Bullseye:.03,"Inner ring":.28,"Outer ring":.55,Miss:1.25}[z]*100,a=Math.random()*6.28;pos(100+r*Math.cos(a),100+r*Math.sin(a),1);await wt(800);g.o.textContent=z};
+ shot(g,"Throw",s=>{const r=Math.random(),[m,z]=r<.04?[10,"Bullseye"]:r<.24?[2,"Inner ring"]:r<.64?[.35,"Outer ring"]:[0,"Miss"];return[s*m,z+".",z]})}
+// Penalty: ball vs diving keeper
+{const g=game("pn","Penalty Shootout","Corners score 55% (1.7×) · Centre scores 70% (1.35×)"),gl=el("div","gl",""),kp=el("span","kp","🧤"),bl=el("span","kp","⚽"),X=[15,50,85];gl.append(kp,bl);g.o.after(gl);
+ const put=(e,x,y)=>{e.style.left=x+"%";e.style.top=y+"%"};put(kp,50,45);put(bl,50,110);
+ g.an=async v=>{g.o.textContent="";put(kp,50,45);put(bl,50,110);await wt(400);let k=v.i;if(v.w)k=(k+1+rnd(2))%3;put(kp,X[k],45);put(bl,X[v.i],40);await wt(800);g.o.textContent=v.w?"GOAL!":"SAVED!"};
+ ["⬅️ Left","⬆️ Centre","➡️ Right"].forEach((t,i)=>shot(g,t,s=>{const w=Math.random()<(i==1?.7:.55);return[w?s*(i==1?1.35:1.7):0,w?"GOAL!":"Saved!",{i,w}]}))}
+// Ladders: balloon inflates, frog hops
+function lad(k,n,p,intro,ic,vis){const g=game(k,n,intro);let on=0,lv=0,s0=0;const mu=j=>.95/Math.pow(1-p,j);
+ const show=b=>{vis(g.o,lv,b);g.o.style.animation="none";void g.o.offsetWidth;g.o.style.animation="pop .3s"};show(0);
+ const go=g.add(ic,()=>{if(!on){if(busy||!ok())return;s0=bet;bank-=s0;busy=on=1;lv=0;save()}
+  if(Math.random()<p){on=0;cash.disabled=1;show(1);res(s0,0,"Boom.")}
+  else{lv++;cash.disabled=0;show(0);msg("Safe! Level "+lv+" · cash out ×"+mu(lv).toFixed(2)+" · next ×"+mu(lv+1).toFixed(2),"win")}});
+ const cash=g.add("Cash out",()=>{on=0;cash.disabled=1;res(s0,s0*mu(lv),"Cashed out at level "+lv+".")},"g");cash.disabled=1}
+lad("bz","Balloon Pump",.08,"Each pump has an 8% pop chance. The balloon keeps growing. Cash out any time.","🎈 Pump",(o,lv,b)=>{o.style.fontSize=b?"70px":Math.min(130,40+lv*9)+"px";o.textContent=b?"💥":"🎈"});
+lad("lh","Lava Hop",.25,"Hop across the rocks. 25% chance of lava each hop.","🐸 Hop",(o,lv,b)=>{const a=Array(lv+8).fill("🪨");a[0]="🏁";if(b){a[lv]="🪨";a[lv+1]="🌋"}else a[lv]="🐸";const s=Math.max(0,lv-3);o.textContent=a.slice(s,s+8).join("")});
 </script>
 </body>
 </html>
