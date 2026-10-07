@@ -249,6 +249,16 @@ footer::before,footer::after{content:'';display:block;width:32px;height:1px;back
 @keyframes tbounce{0%,60%,100%{transform:translateY(0);opacity:.35}30%{transform:translateY(-5px);opacity:1}}
 .online{top:14px;right:18px;width:7px;height:7px;border-radius:50%;background:#3ba55d;box-shadow:0 0 6px #3ba55d;animation:ping var(--d) ease-out infinite}
 @keyframes ping{0%{box-shadow:0 0 0 0 #3ba55daa}70%,100%{box-shadow:0 0 0 9px #3ba55d00}}
+
+/* Stellar Drift v2: ship cruising through a parallax starfield with rocks */
+.planet{right:-34px;top:-40px;width:96px;height:96px;border-radius:50%;background:radial-gradient(circle at 30% 30%,#fac63766,#fac63711 60%,transparent 72%);animation:planetfloat 8s ease-in-out infinite alternate}
+@keyframes planetfloat{from{transform:translate(0,0)}to{transform:translate(-8px,6px)}}
+.rock{left:104%;width:var(--z);height:var(--z);background:#8a8372;clip-path:polygon(20% 0,70% 8%,100% 40%,85% 85%,40% 100%,5% 70%);opacity:.8;animation:rockdrift var(--d) linear var(--delay) infinite}
+@keyframes rockdrift{from{left:104%;transform:rotate(0)}to{left:-6%;transform:rotate(360deg)}}
+.ship{left:58%;top:50%;width:15px;height:11px;margin-top:-5px;background:#ffe9a8;clip-path:polygon(0 0,100% 50%,0 100%,28% 50%);filter:drop-shadow(0 0 4px #fac637);animation:shipbob var(--d) ease-in-out infinite}
+.flame{left:calc(58% - 18px);top:50%;width:18px;height:4px;margin-top:-2px;border-radius:2px;background:linear-gradient(90deg,#fac63700,#ff9a2b,#fff3c4);transform-origin:right center;animation:shipbob var(--d) ease-in-out infinite,flick .1s steps(2) infinite alternate}
+@keyframes shipbob{0%,100%{transform:translateY(-9px) rotate(-5deg)}50%{transform:translateY(9px) rotate(5deg)}}
+@keyframes flick{from{opacity:.55}to{opacity:1}}
 @media(prefers-reduced-motion:reduce){
   .fx{display:none}
   .game-card.fx-ember{animation:cardIn .6s cubic-bezier(.22,1,.36,1) both}
@@ -438,7 +448,14 @@ const FX = {
     [0, .5].forEach(p => mk(c, 'trip', { '--d': '2.4s', '--delay': (-2.4 * p) + 's' }));
   },
   space(c) {
-    for (let i = 0; i < 22; i++) mk(c, 'star', { top: R(4, 96) + '%', '--z': R(1, 2.6) + 'px', '--d': R(3, 9) + 's', '--delay': -R(0, 9) + 's' });
+    mk(c, 'planet');
+    for (let i = 0; i < 26; i++) {
+      const z = R(1, 2.8);
+      mk(c, 'star', { top: R(4, 96) + '%', '--z': z + 'px', '--d': (12 - z * 3.2).toFixed(2) + 's', '--delay': -R(0, 9) + 's' });
+    }
+    for (let i = 0; i < 3; i++) mk(c, 'rock', { top: R(12, 88) + '%', '--z': R(7, 14) + 'px', '--d': R(7, 11) + 's', '--delay': -R(0, 10) + 's' });
+    mk(c, 'ship', { '--d': '3.6s' });
+    mk(c, 'flame', { '--d': '3.6s' });
     mk(c, 'shoot', { top: R(5, 35) + '%', left: R(55, 90) + '%', '--delay': R(0, 3) + 's' });
   },
   ember(c) {
