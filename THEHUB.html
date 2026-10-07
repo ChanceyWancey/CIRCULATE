@@ -229,6 +229,26 @@ footer::before,footer::after{content:'';display:block;width:32px;height:1px;back
   55%{box-shadow:0 0 14px #8b000018,inset 0 0 22px #8b000018}
   75%{box-shadow:0 0 30px #8b000050,inset 0 0 44px #8b000050}
 }
+
+/* Hold The Line v2: turrets shoot enemies marching down lanes */
+.tdline{left:11%;top:0;bottom:0;width:0;border-left:1px dashed #ffffff55;animation:linepulse 2s ease-in-out infinite}
+.twr{left:13%;width:10px;height:10px;margin-top:-5px;border:1.5px solid #fff;border-radius:2px;transform:rotate(45deg);box-shadow:0 0 6px #ffffff88;animation:twrfire var(--d) linear var(--delay) infinite}
+@keyframes twrfire{0%,58%{box-shadow:0 0 6px #ffffff88;background:transparent}62%{box-shadow:0 0 16px #fff;background:#fff}70%,100%{box-shadow:0 0 6px #ffffff88;background:transparent}}
+.foe{width:7px;height:7px;margin-top:-3.5px;border-radius:1px;background:#ff6b5e;box-shadow:0 0 7px #ff3b2e;animation:foe var(--d) linear var(--delay) infinite}
+@keyframes foe{0%{left:104%;opacity:1;transform:scale(1)}70%{left:36%;opacity:1;transform:scale(1)}74%{left:35.5%;opacity:1;transform:scale(2.2);background:#fff}82%{left:35.5%;opacity:0;transform:scale(3.4)}100%{left:35.5%;opacity:0}}
+.shot{width:9px;height:2px;margin-top:-1px;border-radius:2px;background:linear-gradient(90deg,#fff0,#fff);box-shadow:0 0 6px #fff;opacity:0;animation:shot var(--d) linear var(--delay) infinite}
+@keyframes shot{0%,61%{left:16%;opacity:0}62%{left:16%;opacity:1}71%{left:35%;opacity:1}72%,100%{left:35%;opacity:0}}
+.leak{width:7px;height:7px;margin-top:-3.5px;background:#ff6b5e;box-shadow:0 0 7px #ff3b2e;animation:leak var(--d) linear var(--delay) infinite}
+@keyframes leak{0%{left:104%;opacity:1;transform:scale(1)}78%{left:12%;opacity:1;transform:scale(1)}84%{left:11%;opacity:0;transform:scale(3)}100%{left:11%;opacity:0}}
+
+/* MiniCord v2: messages pop in and float up, typing dots, online ping */
+.msg{bottom:-20px;width:var(--w);height:16px;border-radius:9px 9px 9px 2px;background:linear-gradient(#ffffff45,#ffffff45) 8px 50%/calc(100% - 16px) 3px no-repeat,#7a56e0;transform-origin:bottom left;opacity:0;animation:msgrise var(--d) ease-out var(--delay) infinite}
+.msg.me{border-radius:9px 9px 2px 9px;transform-origin:bottom right;background:linear-gradient(#ffffff45,#ffffff45) 8px 50%/calc(100% - 16px) 3px no-repeat,#5534b2}
+@keyframes msgrise{0%{transform:translateY(0) scale(.2);opacity:0}8%{transform:translateY(-10px) scale(1.12);opacity:.75}14%{transform:translateY(-16px) scale(1);opacity:.7}85%{opacity:.45}100%{transform:translateY(-150px) scale(1);opacity:0}}
+.tdot{right:var(--x);bottom:16px;width:5px;height:5px;border-radius:50%;background:#b9a3ff;animation:tbounce var(--d) ease-in-out var(--delay) infinite}
+@keyframes tbounce{0%,60%,100%{transform:translateY(0);opacity:.35}30%{transform:translateY(-5px);opacity:1}}
+.online{top:14px;right:18px;width:7px;height:7px;border-radius:50%;background:#3ba55d;box-shadow:0 0 6px #3ba55d;animation:ping var(--d) ease-out infinite}
+@keyframes ping{0%{box-shadow:0 0 0 0 #3ba55daa}70%,100%{box-shadow:0 0 0 9px #3ba55d00}}
 @media(prefers-reduced-motion:reduce){
   .fx{display:none}
   .game-card.fx-ember{animation:cardIn .6s cubic-bezier(.22,1,.36,1) both}
@@ -311,6 +331,7 @@ const GAMES = [
     color: '#ffffff',
     disabled: false,
     reason: '',
+    fx:    'defend',
   },
   {
     name:  'MiniCord',
@@ -320,6 +341,7 @@ const GAMES = [
     color: '#5534b2',
     disabled: false,
     reason: 'Server offline I Think :<',
+    fx:    'chat',
   },
   {
     name:  'MiniTube',
@@ -398,10 +420,18 @@ const FX = {
   },
   defend(c) {
     mk(c, 'tdline');
-    for (let i = 0; i < 7; i++) mk(c, 'pip', { top: R(12, 88) + '%', '--d': R(2.6, 4.4) + 's', '--delay': -R(0, 4) + 's' });
+    [22, 42, 62, 82].forEach((y, i) => {
+      const v = { top: y + '%', '--d': (3.4 + i * .35).toFixed(2) + 's', '--delay': (-i * 0.9).toFixed(2) + 's' };
+      mk(c, 'twr', { top: y + '%', '--d': v['--d'], '--delay': v['--delay'] });
+      mk(c, 'foe', v);
+      mk(c, 'shot', v);
+    });
+    mk(c, 'leak', { top: '52%', '--d': '5.2s', '--delay': '-1.5s' });
   },
   chat(c) {
-    for (let i = 0; i < 6; i++) mk(c, 'bub', { left: R(4, 92) + '%', '--w': R(24, 48) + 'px', '--d': R(3.2, 5) + 's', '--delay': -R(0, 5) + 's' });
+    for (let i = 0; i < 7; i++) mk(c, 'msg' + (i % 2 ? ' me' : ''), { left: R(4, 90) + '%', '--w': R(28, 56) + 'px', '--d': R(3.4, 5.2) + 's', '--delay': -R(0, 5) + 's' });
+    [0, 1, 2].forEach(i => mk(c, 'tdot', { '--x': (88 - i * 9) + 'px', '--d': '1.2s', '--delay': (i * .15) + 's' }));
+    mk(c, 'online', { '--d': '2s' });
   },
   tube(c) {
     mk(c, 'tbar');
