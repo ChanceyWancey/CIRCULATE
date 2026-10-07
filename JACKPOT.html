@@ -11,7 +11,7 @@ box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:en
 :root[data-theme="dark"]{--bg:#0b0f14;--panel:#141b24;--ink:#f2efe6;--mute:#8b97a6;--gold:#f5c542;--red:#ff4d5e;--green:#3ddc84;--card:#fbf8ee}
 *{box-sizing:border-box}
 html,body{margin:0;min-height:100%;background:var(--bg);color:var(--ink);font-family:Georgia,"Times New Roman",serif}
-body{max-width:1000px;margin:0 auto;padding:16px}
+body{max-width:1120px;margin:0 auto;padding:16px}
 h1{font-size:22px;letter-spacing:3px;text-transform:uppercase;margin:0;color:var(--gold)}
 header{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
 .bank{font:700 26px ui-monospace,Menlo,monospace;color:var(--gold)}
@@ -48,11 +48,11 @@ header{display:flex;justify-content:space-between;align-items:center;gap:8px;fle
 .hist .h{color:var(--green)}.hist .l{color:var(--red)}
 .foot{margin-top:14px;font-size:11px;color:var(--mute);text-align:center}
 .hide{display:none}
-.lay{display:grid;grid-template-columns:150px minmax(0,1fr) 150px;gap:14px;align-items:start}
-.side{max-height:calc(100vh - 24px);overflow:auto;display:flex;flex-direction:column;gap:6px;position:sticky;top:12px}
+.lay{display:grid;grid-template-columns:minmax(0,1fr) 200px;gap:14px;align-items:start}
+.gw{position:sticky;top:12px}.gw .lbl{margin:0 0 6px;display:flex;justify-content:space-between}.side{max-height:calc(100vh - 60px);overflow-y:scroll;display:flex;flex-direction:column;gap:6px;padding-right:6px;scrollbar-width:thin;scrollbar-color:var(--gold) #ffffff14}.side::-webkit-scrollbar{width:10px}.side::-webkit-scrollbar-track{background:#ffffff14;border-radius:6px}.side::-webkit-scrollbar-thumb{background:var(--gold);border-radius:6px;border:2px solid transparent;background-clip:padding-box}
 .side button{padding:10px 8px;background:var(--panel);color:var(--mute);border:1px solid var(--mute);border-radius:8px;font:inherit;font-size:13px;cursor:pointer;text-align:left}
 .side button.on{color:var(--bg);background:var(--gold);border-color:var(--gold);font-weight:700}
-@media(max-width:860px){.lay{grid-template-columns:1fr}.main{order:3}.side{position:static;flex-direction:row;flex-wrap:wrap}.side button{flex:1 1 28%;text-align:center;font-size:12px;padding:8px 4px}}
+@media(max-width:860px){.lay{grid-template-columns:1fr}.gw{position:static;order:-1}.side{max-height:150px;flex-direction:row;flex-wrap:wrap;align-content:flex-start}.side button{flex:1 1 28%;text-align:center;font-size:12px;padding:8px 4px}}
 .gr{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin:10px 0}.gr.g3{grid-template-columns:repeat(3,1fr)}
 .tile{aspect-ratio:1;border:0;border-radius:8px;background:#ffffff1f;font-size:26px;cursor:pointer;color:var(--ink)}.tile.ok{background:var(--green)}.tile:disabled{opacity:1}
 .pb,.wheel{display:flex;gap:4px;margin:14px 0}.wheel{display:grid;grid-template-columns:repeat(8,1fr)}
@@ -73,13 +73,25 @@ input{padding:10px;border-radius:10px;border:1px solid var(--mute);background:va
 .dart{position:absolute;font-size:26px;transform:translate(-50%,-100%);transition:left .7s ease-out,top .7s ease-out,opacity .2s}
 .gl{position:relative;width:300px;max-width:100%;height:150px;margin:10px auto;border:4px solid var(--ink);border-bottom:0;background:#ffffff10}
 .kp{position:absolute;font-size:32px;transform:translate(-50%,-50%);transition:left .45s,top .45s}
+
+.wwrap{position:relative;display:flex;justify-content:center;margin:10px 0}
+.wwrap canvas{width:100%;max-width:340px;height:auto;aspect-ratio:1;display:block}
+/* controller cursor */
+#gpc{position:fixed;left:0;top:0;width:28px;height:28px;margin:-4px 0 0 -4px;pointer-events:none;z-index:9999;display:none;
+ filter:drop-shadow(0 2px 3px #000a);transition:transform .08s}
+#gpc.on{display:block}#gpc.press{transform:scale(.8)}
+.gph{outline:3px solid var(--gold)!important;outline-offset:2px;box-shadow:0 0 14px var(--gold)}
+#gphint{font-size:11px;color:var(--mute);margin:-8px 0 12px}
+#gphint b{color:var(--gold)}
 </style>
 </head>
 <body>
+<svg id="gpc" viewBox="0 0 28 28"><path d="M4 2 L4 22 L9 17.5 L12.5 25 L16 23.5 L12.5 16 L19 16 Z" fill="#f5c542" stroke="#111" stroke-width="1.6" stroke-linejoin="round"/></svg>
 <header><h1>♠ High Roller</h1><div class="bank" id="bank">$0</div></header>
 <div class="sub">Play money only. No real money, ever. Peak: <span id="peak"></span></div>
+<div id="gphint">🎮 <b>Controller:</b> left stick = cursor · A = click · right stick = scroll · LB/RB = prev/next game · X = main action · Y = bet size · Start = hide/show cursor &nbsp;|&nbsp; ⌨️ press <b>C</b> for keyboard cursor (arrows, Enter, PgUp/PgDn)</div>
 
-<div class="lay"><div class="side" id="tl"></div>
+<div class="lay">
 <div class="panel main">
   <div class="lbl">Your bet: <b id="bet" style="color:var(--gold)">$0</b></div>
   <div class="chips" id="chips"></div>
@@ -137,7 +149,7 @@ input{padding:10px;border-radius:10px;border:1px solid var(--mute);background:va
     <div class="row"><button class="btn" id="mstart">Start (3 mines)</button><button class="btn g" id="mcash" disabled>Cash out</button></div></div>
   <div id="pl" class="hide"><canvas id="plc" style="width:100%;max-width:420px;display:block;margin:10px auto"></canvas><div class="lbl" style="text-align:center" id="pinfo">Drop as many balls as you like</div><div class="row"><button class="btn" id="pdrop">Drop</button><button class="btn" id="pauto">Auto: Off</button></div></div>
   <div id="tg" class="hide"><div class="big" id="tgn">00.00</div><input type="range" id="tgs" min="5" max="95" value="50"><div class="lbl" id="tgl"></div><div class="row"><button class="btn" id="tgr">Roll</button></div></div>
-  <div id="wf" class="hide"><div class="wheel" id="wc"></div><div class="row"><button class="btn" id="wspin">Spin the wheel</button></div></div>
+  <div id="wf" class="hide"><div class="wwrap" id="wc"></div><div class="row"><button class="btn" id="wspin">Spin the wheel</button></div></div>
   <div id="sc" class="hide"><div class="gr g3" id="sg"></div><div class="row"><button class="btn" id="sbuy">Buy ticket</button></div></div>
   <div id="hr" class="hide"><div id="hrt"></div><div class="lbl">Tap a horse to bet and start the race</div></div>
   <div id="sh" class="hide"><div class="row" id="shc"></div><div class="row"><button class="btn" id="shs">Shuffle</button></div></div>
@@ -150,7 +162,7 @@ input{padding:10px;border-radius:10px;border:1px solid var(--mute);background:va
 
   <div class="msg" id="msg">Pick your stake and tempt fate.</div>
 </div>
-<div class="side" id="tr"></div></div>
+<aside class="gw"><div class="lbl"><span>All games</span><span id="gcount"></span></div><div class="side" id="tr"></div></aside></div>
 <div class="foot">Blackjack pays 3:2 · Dealer peeks for blackjack, stands on all 17s · 4-deck shoe reshuffled at the cut card · The rocket can crash at 1.00x. Every game has a house edge. Gamble responsibly, even with fake chips.</div>
 
 <script>
@@ -175,8 +187,8 @@ function msg(t,c){const m=$("msg");m.textContent=t;m.className="msg "+(c||"")}
 
 // Tabs
 const G={bj:"Blackjack",cr:"Rocket Crash",sl:"Slots",ro:"Roulette",dc:"Dice",cf:"Coin Ladder",hl:"Hi-Lo",mn:"Mines",pl:"Plinko",tg:"Target Roll",wf:"Wheel",sc:"Scratch Card",hr:"Horse Race",sh:"Shell Game",tw:"Door Climb",wr:"Card War",pk:"Poker Dice",vp:"Video Poker"};
-Object.keys(G).forEach((k,i)=>{const b=document.createElement("button");b.id="t"+k;b.textContent=G[k];b.onclick=()=>tab(k);$(i<9?"tl":"tr").appendChild(b)});
-function tab(k){if(busy)return;for(const g in G){$("t"+g).classList.toggle("on",g==k);$(g).classList.toggle("hide",g!=k)}msg("Place your bet.")}
+Object.keys(G).forEach((k,i)=>{const b=document.createElement("button");b.id="t"+k;b.textContent=G[k];b.onclick=()=>tab(k);$("tr").appendChild(b)});
+function tab(k){if(busy)return;for(const g in G){$("t"+g).classList.toggle("on",g==k);$(g).classList.toggle("hide",g!=k)}msg("Place your bet.");const sb=$("tr"),bt=$("t"+k);if(sb.scrollHeight>sb.clientHeight||sb.scrollWidth>sb.clientWidth){const r=bt.getBoundingClientRect(),q=sb.getBoundingClientRect();if(r.top<q.top||r.bottom>q.bottom)sb.scrollTop+=r.top-q.top-q.height/2+r.height/2}}
 
 // Blackjack
 let deck=[],P=[],D=[],stake=0,hideD=true;
@@ -392,11 +404,45 @@ $("tgr").onclick=()=>{if(busy||!ok())return;const s=bet,v=+$("tgs").value,r=Math
   const iv=setInterval(()=>{n++;$("tgn").textContent=(n<14?Math.random()*100:r).toFixed(2);
     if(n>=14){clearInterval(iv);res(s,r<v?s*96/v:0,"Rolled "+r.toFixed(2)+".")}},60)};
 
+
+// Animated wheel
+function makeWheel(labels,mults){
+  const n=labels.length,seg=2*Math.PI/n,S=680,box=document.createElement("div");box.className="wwrap";
+  const cv=document.createElement("canvas");cv.width=cv.height=S;box.appendChild(cv);const x=cv.getContext("2d");
+  const col=(m,i)=>m===0?(i%2?"#1b222c":"#2a3340"):m<1?"#b23a48":m===1?"#2e86de":m===2?"#2ca66b":m===3?"#8e5bd6":m>=7?"#f5c542":"#e67e22";
+  let R=0,tick=0,flash=0;
+  function draw(){
+    const c=S/2,r=c-26;x.clearRect(0,0,S,S);
+    x.beginPath();x.arc(c,c,c-4,0,7);x.fillStyle="#3a2a0a";x.fill();x.lineWidth=6;x.strokeStyle="#f5c542";x.stroke();
+    for(let i=0;i<n*2;i++){const a=i*Math.PI/n+R*.5;x.beginPath();x.arc(c+Math.cos(a)*(c-14),c+Math.sin(a)*(c-14),4,0,7);
+      x.fillStyle=(i+flash)%2?"#fff6c8":"#a67c12";x.fill()}
+    for(let i=0;i<n;i++){
+      const a0=i*seg+R-Math.PI/2-seg/2,a1=a0+seg;
+      x.beginPath();x.moveTo(c,c);x.arc(c,c,r,a0,a1);x.closePath();x.fillStyle=col(mults[i],i);x.fill();
+      x.lineWidth=2;x.strokeStyle="#0008";x.stroke();
+      x.save();x.translate(c,c);x.rotate(a0+seg/2);x.fillStyle=mults[i]>=7?"#111":"#fff";
+      x.font="700 "+(n>16?26:32)+"px ui-monospace,Menlo,monospace";x.textAlign="right";x.textBaseline="middle";x.fillText(labels[i],r-18,0);x.restore()}
+    const g=x.createRadialGradient(c,c,4,c,c,50);g.addColorStop(0,"#fff6c8");g.addColorStop(1,"#c9971c");
+    x.beginPath();x.arc(c,c,46,0,7);x.fillStyle=g;x.fill();x.lineWidth=4;x.strokeStyle="#5a3f06";x.stroke();
+    // pointer (tilts as pegs pass)
+    x.save();x.translate(c,10);x.rotate(tick*.35);x.beginPath();x.moveTo(-20,-4);x.lineTo(20,-4);x.lineTo(0,52);x.closePath();
+    x.fillStyle="#ff4d5e";x.fill();x.lineWidth=4;x.strokeStyle="#fff";x.stroke();x.restore();
+  }
+  draw();
+  async function spin(f,ms=5200){
+    const R0=R,d=(((-f*seg-R0)%(2*Math.PI))+2*Math.PI)%(2*Math.PI)+(5+Math.floor(Math.random()*2))*2*Math.PI;
+    return new Promise(done=>{const t0=performance.now();let last=Math.round(R0/seg);
+      (function fr(now){const p=Math.min(1,(now-t0)/ms),e=1-Math.pow(1-p,4);R=R0+d*e;
+        const idx=Math.floor(R/seg+.5);if(idx!==last){last=idx;tick=1;flash++}tick*=.82;
+        draw();if(p<1)requestAnimationFrame(fr);else{R=R0+d;tick=0;draw();done()}})(t0)})}
+  return{box,spin}
+}
+
 // Wheel
 let wcur=0;const WS=[0,.5,0,1,0,2,0,.5,0,3,0,1,0,7,0,0];
-WS.forEach(m=>{const e=document.createElement("span");e.textContent=m?m+"×":"✖";$("wc").appendChild(e)});
-$("wspin").onclick=()=>{if(busy||!ok())return;const s=bet,f=rnd(16),T=32+(f-wcur+16)%16,c=[...$("wc").children];bank-=s;busy=true;save();let i=0;
-  (function st(){wcur=(wcur+1)%16;c.forEach((e,j)=>e.classList.toggle("hit",j===wcur));if(++i<T)setTimeout(st,40+i*6);else res(s,s*WS[wcur],WS[wcur]?WS[wcur]+"×!":"Bust.")})()};
+const WW=makeWheel(WS.map(m=>m?m+"×":"✖"),WS);$("wc").appendChild(WW.box);
+$("wspin").onclick=async()=>{if(busy||!ok())return;const s=bet,f=rnd(16);bank-=s;busy=true;save();msg("Spinning…");$("wspin").disabled=true;
+  await WW.spin(f);$("wspin").disabled=false;wcur=f;res(s,s*WS[f],WS[f]?WS[f]+"×!":"Bust.")};
 
 // Scratch card
 const SC=["🍀","🍋","🍒","🔔","⭐","🎁","💎"],SP=[1,2,2,2,3,5,7];let sk=[],sn=0,ss=0;
@@ -492,7 +538,7 @@ const el=(t,c,x,f)=>{const e=document.createElement(t);e.className=c;e.textConte
 const wt=t=>new Promise(r=>setTimeout(r,t));
 function game(k,n,intro){G[k]=n;const d=el("div","hide");d.id=k;const o=el("div","big","");o.style.cssText="font-size:34px;letter-spacing:2px;min-height:56px";
   const l=el("div","lbl",intro);l.style.textAlign="center";const r=el("div","row");d.append(o,l,r);$("msg").before(d);
-  const b=el("button","",n,()=>tab(k));b.id="t"+k;($("tl").children.length<=$("tr").children.length?$("tl"):$("tr")).append(b);
+  const b=el("button","",n,()=>tab(k));b.id="t"+k;$("tr").append(b);
   return{o,l,r,add:(t,f,c)=>{const x=el("button","btn "+(c||""),t,f);r.append(x);return x}}}
 function shot(g,t,f,c){return g.add(t,async()=>{if(busy||!ok())return;const s=bet;bank-=s;busy=true;save();msg("…");const[w,l,v]=f(s);
   if(g.an)await g.an(v,w);else if(v!=null)g.o.textContent=v;res(s,w,l)},c)}
@@ -558,9 +604,9 @@ pick("en","Lucky Envelopes","✉️","📄 ",[0,0,1,2.8]);pick("tc","Treasure Ch
  g.an=async v=>{const s=[];for(const x of v.split(" ")){await tum(g.o,()=>s.concat("🪙").join(" "),s.concat(x).join(" "),7,70);s.push(x)}};
  [["All alike",1],["Mixed",0]].forEach(([t,a])=>shot(g,t,s=>{const c=[rnd(2),rnd(2),rnd(2)],same=c[0]==c[1]&&c[1]==c[2];return[(same?1:0)==a?s*(a?3.8:1.26):0,same?"All alike.":"Mixed.",c.map(x=>x?"H":"T").join(" ")]}))}
 // Lucky Wheel: ring of 20 slots with a decelerating light
-{const W=[...Array(11).fill(0),1,1,1,1,2,2,3,3,5],g=game("lw","Lucky Wheel","20 slots: 11 bust · 1× ×4 · 2× ×2 · 3× ×2 · 5× ×1"),ring=el("div","wheel","");ring.style.gridTemplateColumns="repeat(10,1fr)";
- const sp=W.map(m=>{const x=el("span","",m?m+"×":"✖");x.style.padding="10px 0";ring.append(x);return x});g.o.after(ring);let cur=0;
- g.an=async f=>{const T=24+(f-cur+20)%20;g.o.textContent="";for(let i=0;i<T;i++){cur=(cur+1)%20;sp.forEach((x,j)=>x.classList.toggle("hit",j==cur));await wt(30+i*3)}g.o.textContent=W[cur]?W[cur]+"×":"✖"};
+{const W=[...Array(11).fill(0),1,1,1,1,2,2,3,3,5],g=game("lw","Lucky Wheel","20 slots: 11 bust · 1× ×4 · 2× ×2 · 3× ×2 · 5× ×1"),
+ wl=makeWheel(W.map(m=>m?m+"×":"✖"),W);g.o.after(wl.box);
+ g.an=async f=>{g.o.textContent="";await wl.spin(f);g.o.textContent=W[f]?W[f]+"×":"✖"};
  shot(g,"Spin",s=>{const f=rnd(20),m=W[f];return[s*m,m?m+"×!":"Bust.",f]})}
 // Darts: dart flies to the board
 {const g=game("da","Darts","Bullseye 10× · inner ring 2× · outer ring 0.35× · miss 0"),bd=el("div","dbd",""),dt=el("span","dart","📍");bd.append(dt);g.o.after(bd);
@@ -582,6 +628,74 @@ function lad(k,n,p,intro,ic,vis){const g=game(k,n,intro);let on=0,lv=0,s0=0;cons
  const cash=g.add("Cash out",()=>{on=0;cash.disabled=1;res(s0,s0*mu(lv),"Cashed out at level "+lv+".")},"g");cash.disabled=1}
 lad("bz","Balloon Pump",.08,"Each pump has an 8% pop chance. The balloon keeps growing. Cash out any time.","🎈 Pump",(o,lv,b)=>{o.style.fontSize=b?"70px":Math.min(130,40+lv*9)+"px";o.textContent=b?"💥":"🎈"});
 lad("lh","Lava Hop",.25,"Hop across the rocks. 25% chance of lava each hop.","🐸 Hop",(o,lv,b)=>{const a=Array(lv+8).fill("🪨");a[0]="🏁";if(b){a[lv]="🪨";a[lv+1]="🌋"}else a[lv]="🐸";const s=Math.max(0,lv-3);o.textContent=a.slice(s,s+8).join("")});
+</script>
+<script>
+// ===== Controller / cursor support =====
+(()=>{
+const cur=document.getElementById("gpc");
+let cx=innerWidth/2,cy=innerHeight/2,vis=false,kb=false,hov=null,prev=[],kbk={},last=performance.now();
+const CLICKABLE='button,input,select,textarea,a,.tile,.vc,[onclick]';
+document.getElementById("gcount").textContent=Object.keys(G).length;
+function show(v){vis=v;cur.classList.toggle("on",v);if(!v&&hov){hov.classList.remove("gph");hov=null}}
+function place(){cx=Math.max(0,Math.min(innerWidth-2,cx));cy=Math.max(0,Math.min(innerHeight-2,cy));
+  cur.style.left=cx+"px";cur.style.top=cy+"px";
+  const t=document.elementFromPoint(cx,cy),h=t&&t.closest(CLICKABLE);
+  if(h!==hov){if(hov)hov.classList.remove("gph");hov=h&&!h.disabled?h:null;if(hov)hov.classList.add("gph")}}
+function press(){cur.classList.add("press");setTimeout(()=>cur.classList.remove("press"),120);
+  const t=document.elementFromPoint(cx,cy),h=t&&t.closest(CLICKABLE);if(!h||h.disabled)return;
+  if(h.type==="range"){const r=h.getBoundingClientRect(),p=Math.max(0,Math.min(1,(cx-r.left)/r.width)),mn=+h.min||0,mx=+h.max||100;
+    h.value=Math.round(mn+p*(mx-mn));h.dispatchEvent(new Event("input",{bubbles:true}))}
+  else if(h.tagName==="INPUT"||h.tagName==="TEXTAREA")h.focus();else h.click()}
+function scroller(el){while(el&&el!==document.body){const s=getComputedStyle(el);if(/(auto|scroll)/.test(s.overflowY)&&el.scrollHeight>el.clientHeight)return el;el=el.parentElement}return null}
+function scrollAt(dy){const t=document.elementFromPoint(cx,cy),s=scroller(t);if(s)s.scrollTop+=dy;else scrollBy(0,dy)}
+function cycleGame(d){const ks=Object.keys(G),on=ks.findIndex(k=>document.getElementById("t"+k).classList.contains("on")),n=(on+d+ks.length)%ks.length;tab(ks[n])}
+function mainAction(){const g=[...document.querySelectorAll(".main > div:not(.hide) .btn")].find(b=>!b.disabled);if(g)g.click()}
+function cycleBet(){const ch=[...document.querySelectorAll("#chips .chip")].filter(c=>!c.disabled);if(!ch.length)return;
+  const i=ch.findIndex(c=>c.classList.contains("on"));ch[(i+1)%ch.length].click()}
+function btn(pad,i){return pad.buttons[i]&&pad.buttons[i].pressed}
+function loop(now){
+  const dt=Math.min(50,now-last)/16.7;last=now;
+  const pads=(navigator.getGamepads?navigator.getGamepads():[])||[];
+  for(const p of pads){if(!p)continue;
+    const dz=v=>Math.abs(v)<.18?0:v,lx=dz(p.axes[0]||0),ly=dz(p.axes[1]||0),ry=dz(p.axes[3]||0);
+    const sp=(btn(p,6)?.35:btn(p,7)?2.2:1)*13*dt;
+    let dx=lx,dy=ly;if(btn(p,14))dx=-1;if(btn(p,15))dx=1;if(btn(p,12))dy=-1;if(btn(p,13))dy=1;
+    if(dx||dy||ry||[...p.buttons].some(b=>b.pressed)){if(!vis)show(true)}
+    if(dx||dy){cx+=dx*sp*(Math.abs(dx)>.01?1:0);cy+=dy*sp}
+    if(ry)scrollAt(ry*22*dt);
+    const pr=prev[p.index]||[];
+    const edge=i=>btn(p,i)&&!pr[i];
+    if(edge(0))press();
+    if(edge(1))show(!vis);
+    if(edge(2))mainAction();
+    if(edge(3))cycleBet();
+    if(edge(4))cycleGame(-1);
+    if(edge(5))cycleGame(1);
+    if(edge(9))show(!vis);
+    prev[p.index]=p.buttons.map(b=>b.pressed)}
+  if(vis)place();
+  requestAnimationFrame(loop)}
+addEventListener("gamepadconnected",e=>{show(true);msg("🎮 Controller connected: "+e.gamepad.id.slice(0,32))});
+addEventListener("mousemove",e=>{if(e.isTrusted&&!kb){cx=e.clientX;cy=e.clientY;show(false)}});
+// keyboard cursor mode
+addEventListener("keydown",e=>{
+  const typing=/INPUT|TEXTAREA/.test(document.activeElement.tagName)&&document.activeElement.type!=="range";
+  if(typing)return;
+  if(e.key==="c"||e.key==="C"){kb=!kb;show(kb);msg(kb?"⌨️ Keyboard cursor ON (arrows move · Enter clicks · Shift = fast · C = off)":"Keyboard cursor off");return}
+  if(!kb)return;
+  const k=e.key;
+  if(["ArrowLeft","ArrowRight","ArrowUp","ArrowDown"].includes(k)){e.preventDefault();kbk[k]=1;const s=e.shiftKey?60:24;
+    if(k==="ArrowLeft")cx-=s;if(k==="ArrowRight")cx+=s;if(k==="ArrowUp")cy-=s;if(k==="ArrowDown")cy+=s;place()}
+  else if(k==="Enter"||k===" "){e.preventDefault();press()}
+  else if(k==="PageUp"){e.preventDefault();cycleGame(-1)}
+  else if(k==="PageDown"){e.preventDefault();cycleGame(1)}
+  else if(k==="b"||k==="B")cycleBet();
+  else if(k==="x"||k==="X")mainAction();
+});
+addEventListener("resize",()=>{if(vis)place()});
+cur.style.left=cx+"px";cur.style.top=cy+"px";
+requestAnimationFrame(loop);
+})();
 </script>
 </body>
 </html>
