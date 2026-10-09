@@ -1297,6 +1297,25 @@
             #archive-list { flex-basis: auto; width: 100%; max-height: 40vh; }
             #archive-reader { width: 100%; }
         }
+        /* Controller focus cursor in menus */
+        .pad-focus {
+            outline: 2px solid #ffd166 !important;
+            outline-offset: 2px;
+            box-shadow: 0 0 14px rgba(255, 209, 102, 0.6) !important;
+        }
+        #pad-help {
+            display: none;
+            margin-top: 14px;
+            background: rgba(39, 33, 59, 0.7);
+            border: 1px solid #6c5b7b;
+            border-radius: 8px;
+            padding: 10px 14px;
+            text-align: left;
+            min-width: 280px;
+        }
+        .pad-help-title { color: #8ee3ff; font-size: 0.7rem; letter-spacing: 1.5px; margin-bottom: 6px; }
+        .pad-help-row { display: flex; justify-content: space-between; gap: 18px; font-size: 0.7rem; color: #c7b198; padding: 2px 0; }
+        .pad-help-row b { color: #ffd166; font-weight: normal; }
     </style>
 </head>
 <body>
@@ -1329,6 +1348,10 @@
                 <div class="update-log-title">Patch List</div>
                 <div id="update-log-entries">
                     <!-- Add new patches at the TOP of this list. -->
+                    <div class="update-log-entry">
+                        <span class="update-log-version">Controller Support</span>
+                        <span class="update-log-text">Xbox and PlayStation controllers now work everywhere: flying, boarding wrecks on foot, and every menu. Left stick flies, right stick aims, the right trigger fires. Prompts switch to controller buttons while you're using one, the hull rumbles when you take a hit, and the pause screen shows the full layout.</span>
+                    </div>
                     <div class="update-log-entry">
                         <span class="update-log-version">Boardable Wrecks</span>
                         <span class="update-log-text">Big derelict ships now drift through the sector with their airlocks still cycling. Fly alongside and press <strong>E</strong> to board on foot: dark rooms, limited suit air, security drones that never stood down, and crews still sitting at their stations. Find the keycard to open the captain's vault and pull the bridge recorder for a new Archive chapter. Loot only counts once you make it back through the airlock.</span>
@@ -1372,6 +1395,7 @@
                 </div>
             </div>
             <h2>COZY SECTOR</h2>
+            <p style="margin-bottom:6px;font-size:0.75rem;color:#8ee3ff;">Xbox and PlayStation controllers work too, just plug one in or pair it.</p>
             <p>Pilot your zero-g cursor using <strong>W A S D</strong> through the open sector. Harvest crystals for Stardust, manage fuel and health, dock at the Sanctuary station to shop, and press <strong>ESC</strong> to pause!</p>
             <div class="btn-group">
                 <button class="btn" id="to-slots-btn">SELECT DRIFT</button>
@@ -1762,6 +1786,7 @@
                 <button class="btn" id="resume-btn">RESUME DRIFT</button>
                 <button class="btn btn-warm" id="menu-from-pause-btn">MAIN MENU</button>
             </div>
+            <div id="pad-help"></div>
         </div>
 
         <div id="gameover-screen" class="screen hidden">
@@ -6107,6 +6132,7 @@
                 ctx.fillStyle = `rgba(0, 0, 0, ${I.fade})`;
                 ctx.fillRect(0, 0, W, H);
             }
+            padAfterDraw();
         }
 
         function drawInteriorHud(I) {
@@ -11875,6 +11901,7 @@
                 ctx.fillStyle = `rgba(225, 210, 255, ${seamFlash * 0.7})`;
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
             }
+            padAfterDraw();
         }
 
         function loop(timestamp) {
@@ -11999,6 +12026,327 @@
             }
             resumeEvents.forEach(evt => document.addEventListener(evt, resumeOnInteract));
         })();
+
+        // ================= CONTROLLER SUPPORT (XBOX / PLAYSTATION) =================
+        // Polls the Gamepad API every frame and feeds the game the same
+        // inputs the keyboard and mouse already do: held movement keys, a
+        // mouse position for aiming, mouseDown for firing, and synthetic
+        // key presses for one-shot actions. Menus get a focus cursor you
+        // move with the D-pad or left stick.
+        //
+        //   Left stick / D-pad   fly (walk, when aboard a wreck)
+        //   Right stick          aim
+        //   RT / R2              fire
+        //   A / Cross            blessing (Space)
+        //   X / Square           interact: dock, salvage, board, cross (E)
+        //   Y / Triangle         cycle Sector Beacon (B)
+        //   LB / L1              precision drift (Shift)
+        //   Start / Options      pause (Esc)
+        //   View / Share         next tutorial step
+        //   In menus: D-pad or left stick to move, A / Cross to press, B / Circle to go back.
+        const PAD_DEADZONE = 0.25;
+        const PAD_MOVE_THRESHOLD = 0.35;
+        const PAD_AIM_RADIUS = 230;
+        const PAD = { A: 0, B: 1, X: 2, Y: 3, LB: 4, RB: 5, LT: 6, RT: 7, VIEW: 8, START: 9, LS: 10, RS: 11, UP: 12, DOWN: 13, LEFT: 14, RIGHT: 15 };
+        let padIndex = null;
+        let padStyle = 'xbox';
+        let padActive = false;        // last input came from the controller
+        let padPrevButtons = [];
+        const padHeldKeys = {};       // keys this module is currently holding down
+        let padFiring = false;
+        let padFocus = null;
+        let padNavDir = null;
+        let padNavNext = 0;
+        let padLastHealth = null;
+
+        const PAD_LABELS = {
+            xbox: { interact: 'X', ability: 'A', beacon: 'Y', back: 'B' },
+            ps: { interact: '□', ability: '✕', beacon: '△', back: '○' }
+        };
+
+        function padStyleFor(gp) {
+            const id = (gp.id || '').toLowerCase();
+            return /sony|playstation|dualshock|dualsense|054c/.test(id) ? 'ps' : 'xbox';
+        }
+
+        window.addEventListener('gamepadconnected', (e) => {
+            padIndex = e.gamepad.index;
+            padStyle = padStyleFor(e.gamepad);
+            padPrevButtons = e.gamepad.buttons.map(b => b.pressed);
+            if (typeof showSectorToast === 'function') {
+                showSectorToast(`${padStyle === 'ps' ? 'PlayStation' : 'Xbox'} controller connected`, '#8ee3ff');
+            }
+        });
+        window.addEventListener('gamepaddisconnected', (e) => {
+            if (e.gamepad.index !== padIndex) return;
+            padIndex = null;
+            padActive = false;
+            padReleaseAll();
+            if (typeof showSectorToast === 'function') showSectorToast('Controller disconnected', '#e2738a');
+        });
+        // Any real mouse movement hands aiming back to the mouse.
+        window.addEventListener('mousemove', () => { padActive = false; });
+
+        function padGet() {
+            const pads = navigator.getGamepads ? navigator.getGamepads() : [];
+            if (padIndex !== null && pads[padIndex]) return pads[padIndex];
+            for (const gp of pads) {
+                if (gp && gp.connected) { padIndex = gp.index; padStyle = padStyleFor(gp); return gp; }
+            }
+            return null;
+        }
+
+        function padSetKey(code, down) {
+            if (down) {
+                if (!keys[code]) keys[code] = true;
+                padHeldKeys[code] = true;
+            } else if (padHeldKeys[code]) {
+                keys[code] = false;
+                delete padHeldKeys[code];
+            }
+        }
+
+        function padReleaseAll() {
+            for (const code of Object.keys(padHeldKeys)) { keys[code] = false; delete padHeldKeys[code]; }
+            if (padFiring) { mouseDown = false; padFiring = false; }
+        }
+
+        function padTapKey(code) {
+            window.dispatchEvent(new KeyboardEvent('keydown', { code, key: code, bubbles: true }));
+            window.dispatchEvent(new KeyboardEvent('keyup', { code, key: code, bubbles: true }));
+        }
+
+        function padRumble(gp, strength, ms) {
+            try {
+                if (gp && gp.vibrationActuator && gp.vibrationActuator.playEffect) {
+                    gp.vibrationActuator.playEffect('dual-rumble', { duration: ms, strongMagnitude: strength, weakMagnitude: strength * 0.6 });
+                }
+            } catch (e) {}
+        }
+
+        // ---- Menus -------------------------------------------------------------
+        function padTopLayer() {
+            const crate = document.getElementById('crate-reveal-overlay');
+            if (crate && !crate.classList.contains('hidden')) return crate;
+            const screens = [...document.querySelectorAll('.screen:not(.hidden)')];
+            return screens.length ? screens[screens.length - 1] : null;
+        }
+
+        function padFocusables(layer) {
+            return [...layer.querySelectorAll('button, select, input[type="range"]')]
+                .filter(el => !el.disabled && el.offsetParent !== null && el.getClientRects().length);
+        }
+
+        function padSetFocus(el) {
+            if (padFocus && padFocus !== el) padFocus.classList.remove('pad-focus');
+            padFocus = el;
+            if (el) {
+                el.classList.add('pad-focus');
+                el.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+            }
+        }
+
+        function padMoveFocus(layer, dir) {
+            const items = padFocusables(layer);
+            if (!items.length) return;
+            if (!padFocus || !items.includes(padFocus)) { padSetFocus(items[0]); return; }
+            const r0 = padFocus.getBoundingClientRect();
+            const cx = r0.left + r0.width / 2, cy = r0.top + r0.height / 2;
+            let best = null, bestScore = Infinity;
+            for (const el of items) {
+                if (el === padFocus) continue;
+                const r = el.getBoundingClientRect();
+                const dx = r.left + r.width / 2 - cx, dy = r.top + r.height / 2 - cy;
+                const main = dir === 'up' ? -dy : dir === 'down' ? dy : dir === 'left' ? -dx : dx;
+                const cross = (dir === 'up' || dir === 'down') ? Math.abs(dx) : Math.abs(dy);
+                if (main <= 2) continue;
+                const score = main + cross * 2.2;
+                if (score < bestScore) { bestScore = score; best = el; }
+            }
+            if (best) padSetFocus(best);
+        }
+
+        function padMenuBack(layer) {
+            if (layer.id === 'crate-reveal-overlay') { document.getElementById('crate-reveal-close-btn').click(); return; }
+            const backIds = ['archive-back-btn', 'back-to-menu-shop', 'resume-btn', 'slots-back-btn', 'tutorial-back-btn', 'emblem-cancel-btn'];
+            for (const id of backIds) {
+                const el = document.getElementById(id);
+                if (el && layer.contains(el) && el.offsetParent !== null) { el.click(); return; }
+            }
+        }
+
+        function padMenus(gp, pressed, justPressed) {
+            const layer = padTopLayer();
+            if (!layer) { if (padFocus) padSetFocus(null); return false; }
+            const items = padFocusables(layer);
+            if (padFocus && !items.includes(padFocus)) padSetFocus(null);
+            // The first press only lands the cursor on the first button.
+            let justLanded = false;
+            if (!padFocus && items.length && (padActive || justPressed.some(Boolean))) { padSetFocus(items[0]); justLanded = true; }
+
+            const ax = gp.axes[0] || 0, ay = gp.axes[1] || 0;
+            let dir = null;
+            if (pressed[PAD.UP] || ay < -0.6) dir = 'up';
+            else if (pressed[PAD.DOWN] || ay > 0.6) dir = 'down';
+            else if (pressed[PAD.LEFT] || ax < -0.6) dir = 'left';
+            else if (pressed[PAD.RIGHT] || ax > 0.6) dir = 'right';
+            const now = performance.now();
+            if (dir && justLanded) {
+                padActive = true;
+                padNavNext = now + 320;
+            } else if (dir) {
+                padActive = true;
+                if (dir !== padNavDir) { padMoveFocus(layer, dir); padNavNext = now + 320; }
+                else if (now >= padNavNext) { padMoveFocus(layer, dir); padNavNext = now + 130; }
+            }
+            padNavDir = dir;
+
+            // Sliders (the volume control) nudge with left / right while focused.
+            if (padFocus && padFocus.type === 'range' && (justPressed[PAD.LEFT] || justPressed[PAD.RIGHT])) {
+                padFocus.value = Number(padFocus.value) + (justPressed[PAD.RIGHT] ? 5 : -5);
+                padFocus.dispatchEvent(new Event('input', { bubbles: true }));
+            }
+            if (justPressed[PAD.A] && padFocus && !justLanded) { padActive = true; padFocus.click(); }
+            if (justPressed[PAD.B]) { padActive = true; padMenuBack(layer); }
+            if (justPressed[PAD.START] && layer === document.getElementById('pause-screen')) togglePause();
+            return true;
+        }
+
+        // ---- Flying / walking --------------------------------------------------
+        function padGameplay(gp, pressed, justPressed) {
+            const lx = gp.axes[0] || 0, ly = gp.axes[1] || 0;
+            const rx = gp.axes[2] || 0, ry = gp.axes[3] || 0;
+            const up = ly < -PAD_MOVE_THRESHOLD || pressed[PAD.UP];
+            const down = ly > PAD_MOVE_THRESHOLD || pressed[PAD.DOWN];
+            const left = lx < -PAD_MOVE_THRESHOLD || pressed[PAD.LEFT];
+            const right = lx > PAD_MOVE_THRESHOLD || pressed[PAD.RIGHT];
+            if (up || down || left || right) padActive = true;
+            padSetKey('KeyW', up);
+            padSetKey('KeyS', down);
+            padSetKey('KeyA', left);
+            padSetKey('KeyD', right);
+            padSetKey('ShiftLeft', !!pressed[PAD.LB]);
+
+            // Aim: the ship always sits in the middle of the screen, so the
+            // aim point is just the middle plus the right stick.
+            if (Math.hypot(rx, ry) > PAD_DEADZONE) {
+                padActive = true;
+                const m = Math.hypot(rx, ry);
+                mouseScreenX = canvas.width / 2 + rx / m * PAD_AIM_RADIUS;
+                mouseScreenY = canvas.height / 2 + ry / m * PAD_AIM_RADIUS;
+            }
+            const trigger = gp.buttons[PAD.RT] ? Math.max(gp.buttons[PAD.RT].value || 0, gp.buttons[PAD.RT].pressed ? 1 : 0) : 0;
+            if (trigger > 0.3) {
+                padActive = true;
+                mouseDown = true;
+                padFiring = true; // the game's own loop fires while mouseDown is held
+            } else if (padFiring) {
+                mouseDown = false;
+                padFiring = false;
+            }
+
+            if (justPressed[PAD.A]) { padActive = true; padTapKey('Space'); }
+            if (justPressed[PAD.X]) { padActive = true; padTapKey('KeyE'); }
+            if (justPressed[PAD.Y]) { padActive = true; padTapKey('KeyB'); }
+            if (justPressed[PAD.START]) { padActive = true; padTapKey('Escape'); }
+            if (justPressed[PAD.VIEW]) {
+                const next = document.getElementById('tutorial-banner-next-btn');
+                if (next && next.offsetParent !== null) next.click();
+            }
+
+            // Rumble when the hull takes a hit.
+            if (padLastHealth !== null && health < padLastHealth - 0.5) {
+                padRumble(gp, Math.min(1, 0.35 + (padLastHealth - health) / 60), 160);
+            }
+            padLastHealth = health;
+        }
+
+        // Swap keyboard prompts for controller ones while the pad is in use.
+        function padRelabelPrompts() {
+            if (!padActive) return;
+            const L = PAD_LABELS[padStyle];
+            if (dockPrompt && dockPrompt.textContent.includes('PRESS E') && !dockPrompt.textContent.includes('PRESS [')) {
+                dockPrompt.textContent = dockPrompt.textContent.replace('PRESS E', `PRESS [${L.interact}]`);
+            }
+            if (abilityHud && abilityHud.textContent.includes('[SPACE]')) {
+                abilityHud.textContent = abilityHud.textContent.replace('[SPACE]', `[${L.ability}]`);
+            }
+            if (beaconHud && beaconHud.textContent.includes('[B]')) {
+                beaconHud.textContent = beaconHud.textContent.replace('[B]', `[${L.beacon}]`);
+            }
+        }
+
+        // Crafting pops a native alert, which a controller can't dismiss.
+        // While a pad is plugged in, those become in-game toasts instead.
+        const nativeAlert = window.alert.bind(window);
+        window.alert = function (msg) {
+            if (padIndex !== null && typeof showSectorToast === 'function') {
+                showSectorToast(String(msg), '#ffd166');
+            } else {
+                nativeAlert(msg);
+            }
+        };
+
+        // A small reticle where the right stick is pointing.
+        function drawPadReticle() {
+            if (!padActive || padIndex === null) return;
+            ctx.save();
+            ctx.strokeStyle = '#ffd166';
+            ctx.globalAlpha = 0.85;
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.arc(mouseScreenX, mouseScreenY, 9, 0, Math.PI * 2);
+            ctx.moveTo(mouseScreenX - 15, mouseScreenY); ctx.lineTo(mouseScreenX - 5, mouseScreenY);
+            ctx.moveTo(mouseScreenX + 5, mouseScreenY); ctx.lineTo(mouseScreenX + 15, mouseScreenY);
+            ctx.moveTo(mouseScreenX, mouseScreenY - 15); ctx.lineTo(mouseScreenX, mouseScreenY - 5);
+            ctx.moveTo(mouseScreenX, mouseScreenY + 5); ctx.lineTo(mouseScreenX, mouseScreenY + 15);
+            ctx.stroke();
+            ctx.restore();
+        }
+
+        function padPoll() {
+            requestAnimationFrame(padPoll);
+            const gp = padGet();
+            if (!gp) return;
+            const pressed = gp.buttons.map(b => b.pressed || b.value > 0.5);
+            const justPressed = pressed.map((p, i) => p && !padPrevButtons[i]);
+            if (justPressed.some(Boolean)) padActive = true;
+            padPrevButtons = pressed;
+
+            const inMenus = padMenus(gp, pressed, justPressed);
+            if (inMenus || !gameRunning || gamePaused || docked) {
+                padReleaseAll();
+                return;
+            }
+            padGameplay(gp, pressed, justPressed);
+        }
+
+        // Called at the end of every draw, after the game has written its
+        // own prompt text for the frame.
+        function padAfterDraw() {
+            padRelabelPrompts();
+            drawPadReticle();
+        }
+
+        function padHelpHtml() {
+            const ps = padStyle === 'ps';
+            const rows = [
+                ['Left stick', 'fly / walk'], ['Right stick', 'aim'], [ps ? 'R2' : 'RT', 'fire'],
+                [ps ? '✕' : 'A', 'blessing'], [ps ? '□' : 'X', 'dock, salvage, board, cross'],
+                [ps ? '△' : 'Y', 'cycle beacon'], [ps ? 'L1' : 'LB', 'precision drift'],
+                [ps ? 'Options' : 'Start', 'pause'], ['Menus', `D-pad to move, ${ps ? '✕' : 'A'} to press, ${ps ? '○' : 'B'} to go back`]
+            ];
+            return `<div class="pad-help-title">${ps ? 'PLAYSTATION' : 'XBOX'} CONTROLLER</div>` +
+                rows.map(([k, v]) => `<div class="pad-help-row"><b>${k}</b><span>${v}</span></div>`).join('');
+        }
+        setInterval(() => {
+            const el = document.getElementById('pad-help');
+            if (!el) return;
+            const show = padIndex !== null;
+            el.style.display = show ? 'block' : 'none';
+            if (show && el.dataset.style !== padStyle) { el.innerHTML = padHelpHtml(); el.dataset.style = padStyle; }
+        }, 500);
+        requestAnimationFrame(padPoll);
 
         loadGameData();
     </script>
