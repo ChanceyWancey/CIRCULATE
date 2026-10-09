@@ -1166,6 +1166,137 @@
         #emoji-input-btn {
             margin-top: 8px;
         }
+
+        /* ===== The Long Quiet: archive, recorders, whispers ===== */
+        .comms-line.recorder { border-left-color: #ff9f5a; color: #f3dccb; }
+        .comms-line.recorder .comms-who { color: #ff9f5a; }
+        .comms-line.whisper {
+            border-left-color: #9ff0d8;
+            color: #bfeee0;
+            font-style: italic;
+            background: rgba(14, 34, 32, 0.92);
+        }
+        .comms-line.whisper .comms-who { color: #9ff0d8; }
+
+        .shop-bottom-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+        /* The shop is taller than short screens. Stay centered when it fits,
+           start at the top and scroll when it doesn't. */
+        #shop-screen { justify-content: safe center; overflow-y: auto; }
+
+        #archive-screen {
+            justify-content: flex-start;
+            overflow-y: auto;
+            padding-top: 46px;
+        }
+        #archive-progress {
+            color: #ff9f5a;
+            font-size: 0.75rem;
+            letter-spacing: 1.5px;
+            margin: -10px 0 16px;
+        }
+        #archive-body {
+            display: flex;
+            gap: 16px;
+            width: 100%;
+            max-width: 920px;
+            align-items: flex-start;
+            text-align: left;
+        }
+        #archive-list {
+            flex: 0 0 310px;
+            max-height: 62vh;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            padding-right: 4px;
+        }
+        .archive-chapter {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        .archive-chapter-title {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.72rem;
+            letter-spacing: 1.5px;
+            color: #ffd166;
+        }
+        .archive-chapter-title span { color: #9b8da9; }
+        .archive-chapter-hint {
+            font-size: 0.6rem;
+            color: #9b8da9;
+            line-height: 1.45;
+            margin-bottom: 2px;
+        }
+        .archive-entry {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid #453a56;
+            border-radius: 6px;
+            padding: 7px 10px;
+            font-size: 0.72rem;
+            font-family: 'Georgia', serif;
+            color: #e2d9f3;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+        button.archive-entry:hover { border-color: #ff9f5a; background: rgba(255, 159, 90, 0.07); }
+        .archive-entry.selected { border-color: #ff9f5a; background: rgba(255, 159, 90, 0.12); }
+        .archive-entry.locked { color: #6c6478; font-style: italic; cursor: default; }
+        .archive-entry .rec-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #ff9f5a;
+            box-shadow: 0 0 6px #ff9f5a;
+            flex-shrink: 0;
+        }
+        .archive-entry.locked .rec-dot { background: #453a56; box-shadow: none; }
+        #archive-reader {
+            flex: 1;
+            min-height: 240px;
+            background: rgba(39, 33, 59, 0.6);
+            border: 1px solid #6c5b7b;
+            border-radius: 10px;
+            padding: 16px 18px;
+        }
+        .archive-reader-empty { color: #9b8da9; font-size: 0.78rem; line-height: 1.6; font-style: italic; }
+        .archive-reader-title { color: #ffd166; font-size: 1.05rem; margin-bottom: 4px; }
+        .archive-reader-meta { color: #9b8da9; font-size: 0.62rem; letter-spacing: 1px; margin-bottom: 14px; }
+        .archive-line {
+            font-size: 0.8rem;
+            line-height: 1.55;
+            color: #d6dbe8;
+            margin-bottom: 10px;
+            padding-left: 10px;
+            border-left: 2px solid #ff9f5a;
+        }
+        .archive-line .who {
+            display: block;
+            font-size: 0.6rem;
+            color: #ff9f5a;
+            letter-spacing: 1px;
+            margin-bottom: 2px;
+        }
+        .archive-note {
+            margin-top: 16px;
+            font-size: 0.74rem;
+            color: #c7b198;
+            font-style: italic;
+            line-height: 1.55;
+        }
+        .archive-note strong { color: #ffd166; font-style: normal; font-weight: normal; letter-spacing: 0.5px; }
+        @media (max-width: 760px) {
+            #archive-body { flex-direction: column; }
+            #archive-list { flex-basis: auto; width: 100%; max-height: 40vh; }
+            #archive-reader { width: 100%; }
+        }
     </style>
 </head>
 <body>
@@ -1198,6 +1329,14 @@
                 <div class="update-log-title">Patch List</div>
                 <div id="update-log-entries">
                     <!-- Add new patches at the TOP of this list. -->
+                    <div class="update-log-entry">
+                        <span class="update-log-version">Five New Regions</span>
+                        <span class="update-log-text"><strong>The Bell Foundry</strong>, where the yard still tolls on its own, and <strong>The Overgrown Orchard</strong>, where nothing stopped growing. Both have their own Archive chapter drifting loose inside. Plus three <strong>anomalies</strong> HQ can't explain, which turn up somewhere new every drift: <strong>The Mirror Field</strong> (every shot fires both ways), <strong>The Hourglass Shoal</strong> (hazards at half speed) and <strong>The Ricochet Reef</strong> (wreckage bounces you instead of hurting you). Five new materials and five new crafts: Bell Toll, Hourglass, Orchard Graft, Mirror Rounds and Springstone Bumpers.</span>
+                    </div>
+                    <div class="update-log-entry">
+                        <span class="update-log-version">The Long Quiet</span>
+                        <span class="update-log-text">Flight recorders now turn up across the sector and play back over the radio. Every one you recover is kept for good in the new <strong>Archive</strong>, even after your hull gives out. A new region, <strong>The Choir Drift</strong>, hums on the long channel: Echoes drift through it, Stress climbs fast, and something sings loudest at its heart. <strong>Rift Seams</strong> tear open far from home and throw you tens of thousands of meters outward, once each. New crafts: Tuning Fork and Salvage Drone. Pulse and Overload no longer erase bosses outright, they hit them hard instead.</span>
+                    </div>
                     <div class="update-log-entry">
                         <span class="update-log-version">Long Channel</span>
                         <span class="update-log-text">HQ signs on as <strong>Halcyon Control</strong> now, every Derelict Sanctuary reads out a registry name when you pull its first cache, and there's more traffic on the radio the further out you get. Some manifest entries won't show up in the shop until you've earned them.</span>
@@ -1235,6 +1374,7 @@
                 <button class="btn" id="difficulty-toggle-btn">MODE: NORMAL</button>
                 <button class="btn" id="to-tutorial-btn">TUTORIAL</button>
                 <button class="btn" id="to-emblem-btn">CUSTOMIZE SHIP</button>
+                <button class="btn" id="to-archive-btn">ARCHIVE</button>
             </div>
         </div>
 
@@ -1334,6 +1474,19 @@
                 <button class="btn" id="emblem-save-btn">SAVE &amp; RETURN</button>
                 <button class="btn" id="emblem-clear-btn">CLEAR ALL</button>
                 <button class="btn btn-warm" id="emblem-cancel-btn">CANCEL</button>
+            </div>
+        </div>
+
+        <div id="archive-screen" class="screen hidden">
+            <h2>THE ARCHIVE</h2>
+            <p>Flight recorders pulled out of the sector, across every drift you've flown. A recorder stays logged even after your hull gives out.</p>
+            <div id="archive-progress"></div>
+            <div id="archive-body">
+                <div id="archive-list"></div>
+                <div id="archive-reader"></div>
+            </div>
+            <div class="btn-group" style="margin-top: 16px;">
+                <button class="btn btn-warm" id="archive-back-btn">RETURN</button>
             </div>
         </div>
 
@@ -1469,6 +1622,30 @@
                     </div>
                     <button class="btn" id="buy-supplydrop-btn" onclick="buyAbility('supplydrop')">CRAFT</button>
                 </div>
+                <div class="shop-item">
+                    <div class="shop-info">
+                        <h4>Tuning Fork</h4>
+                        <span>Strikes a counter-note against the hum. Shatters every Echo nearby for Stardust, stuns aliens in range, and dissolves incoming fire around you. Bosses only flinch / 12s cooldown</span>
+                        <span class="craft-cost" id="cost-tuningfork"></span>
+                    </div>
+                    <button class="btn" id="buy-tuningfork-btn" onclick="buyAbility('tuningfork')">CRAFT</button>
+                </div>
+                <div class="shop-item">
+                    <div class="shop-info">
+                        <h4>Bell Toll</h4>
+                        <span>Rings a Foundry bell on your hull. Shoves wreckage and aliens away, turns incoming fire back around, and shakes nearby crystals partway full / 9s cooldown</span>
+                        <span class="craft-cost" id="cost-toll"></span>
+                    </div>
+                    <button class="btn" id="buy-toll-btn" onclick="buyAbility('toll')">CRAFT</button>
+                </div>
+                <div class="shop-item">
+                    <div class="shop-info">
+                        <h4>Hourglass</h4>
+                        <span>Pours out a pocket of Still Sand. Wreckage, aliens and their fire slow to a crawl while you move at full speed / 5s duration / 15s cooldown</span>
+                        <span class="craft-cost" id="cost-hourglass"></span>
+                    </div>
+                    <button class="btn" id="buy-hourglass-btn" onclick="buyAbility('hourglass')">CRAFT</button>
+                </div>
                 <div class="shop-item" id="gilbertbullets-item" style="display:none;">
                     <div class="shop-info">
                         <h4>Gilbert Bullets</h4>
@@ -1502,7 +1679,7 @@
                 <div class="shop-item">
                     <div class="shop-info">
                         <h4>Sector Beacon (Passive)</h4>
-                        <span>Pick a biome (or an un-stripped Derelict Sanctuary) and follow a compass to the nearest one, press B in-flight to cycle targets</span>
+                        <span>Pick a biome (or an un-stripped Derelict Sanctuary, or an open Rift Seam) and follow a compass to the nearest one, press B in-flight to cycle targets</span>
                         <span class="craft-cost" id="cost-beacon"></span>
                     </div>
                     <button class="btn" id="buy-beacon-btn" onclick="buyBeacon()">CRAFT</button>
@@ -1531,12 +1708,47 @@
                     </div>
                     <button class="btn" id="buy-steelnerves-btn" onclick="buySteelNerves()">CRAFT</button>
                 </div>
+                <div class="shop-item">
+                    <div class="shop-info">
+                        <h4>Salvage Drone (Passive)</h4>
+                        <span>A little tug drone rides your hull, towing in nearby fuel, hull kits, salvage, and flight recorders, and widening your crystal harvest range, always on</span>
+                        <span class="craft-cost" id="cost-salvagedrone"></span>
+                    </div>
+                    <button class="btn" id="buy-salvagedrone-btn" onclick="buySalvageDrone()">CRAFT</button>
+                </div>
+                <div class="shop-item">
+                    <div class="shop-info">
+                        <h4>Orchard Graft (Passive)</h4>
+                        <span>Living plating grown from Orchard seed. Every crystal you harvest patches 12 hull, and hull kits mend half again as much, always on</span>
+                        <span class="craft-cost" id="cost-graft"></span>
+                    </div>
+                    <button class="btn" id="buy-graft-btn" onclick="buyGraft()">CRAFT</button>
+                </div>
+                <div class="shop-item">
+                    <div class="shop-info">
+                        <h4>Mirror Rounds (Passive)</h4>
+                        <span>Every shot you fire also fires a reflected shot straight out of your tail, always on</span>
+                        <span class="craft-cost" id="cost-mirrorrounds"></span>
+                    </div>
+                    <button class="btn" id="buy-mirrorrounds-btn" onclick="buyMirrorRounds()">CRAFT</button>
+                </div>
+                <div class="shop-item">
+                    <div class="shop-info">
+                        <h4>Springstone Bumpers (Passive)</h4>
+                        <span>Wreckage bounces off you instead of breaking your hull. Each bounce costs a little fuel, always on</span>
+                        <span class="craft-cost" id="cost-bumpers"></span>
+                    </div>
+                    <button class="btn" id="buy-bumpers-btn" onclick="buyBumpers()">CRAFT</button>
+                </div>
             </div>
             </div>
             </div>
 
             <div id="cheat-status"></div>
-            <button class="btn btn-warm" id="back-to-menu-shop">UNDOCK</button>
+            <div class="shop-bottom-row">
+                <button class="btn" id="shop-archive-btn">OPEN ARCHIVE</button>
+                <button class="btn btn-warm" id="back-to-menu-shop">UNDOCK</button>
+            </div>
         </div>
 
         <div id="pause-screen" class="screen hidden">
@@ -1908,6 +2120,128 @@
                 hasSalvage: false, salvageReward: 0,
                 material: { id: 'singularity', name: 'Singularity Shard', color: '#c9a7ff' }
             },
+            // The Long Quiet: the region where the long channel hums. Stress
+            // builds faster here (stressMult) and Echoes drift in (hasEchoes).
+            choir: {
+                id: 'choir',
+                name: 'The Choir Drift',
+                desc: 'The long channel hums here, low and patient. Stress climbs fast, Echoes drift through the dark, and the crystals sing.',
+                starColor: '#9ff0d8',
+                tint: 'rgba(40, 140, 120, 0.12)',
+                fog: 0.18,
+                debrisMult: 0.6, alienMult: 0.4, crystalMult: 1.4, fuelPickupMult: 0.9, healthPickupMult: 0.9,
+                debrisReward: 7, alienReward: 14, crystalReward: 85, crystalFillMult: 1.0,
+                debrisColor: '#3c6b60', alienColor: '#7fe0c4',
+                fuelDrainMult: 1.0, passiveFuelDrain: 0, fuelRegenBonus: 0,
+                guardianChance: 0.05,
+                debrisSpeedMult: 0.7, debrisHealthMult: 1.0,
+                frictionBoost: 0,
+                alienShootMult: 1.0, alienBulletSpeedMult: 1.0,
+                hasSalvage: false, salvageReward: 0,
+                stressMult: 1.45, hasEchoes: true,
+                material: { id: 'echoglass', name: 'Echo Glass', color: '#9ff0d8' }
+            },
+            // ---- Five new regions ----------------------------------------
+            // Two places with a past...
+            foundry: {
+                id: 'foundry',
+                name: 'The Bell Foundry',
+                desc: 'Bell Industries cast their instruments here. The yard still tolls on its own every few seconds, shoving wreckage outward and shaking crystals loose.',
+                starColor: '#e8b04b',
+                tint: 'rgba(200, 140, 40, 0.12)',
+                fog: 0.05,
+                debrisMult: 1.2, alienMult: 0.6, crystalMult: 1.2, fuelPickupMult: 1.0, healthPickupMult: 0.9,
+                debrisReward: 9, alienReward: 14, crystalReward: 70, crystalFillMult: 1.0,
+                debrisColor: '#a8742c', alienColor: '#f2c46b',
+                fuelDrainMult: 1.0, passiveFuelDrain: 0, fuelRegenBonus: 0,
+                guardianChance: 0.08,
+                debrisSpeedMult: 0.8, debrisHealthMult: 1.5,
+                frictionBoost: 0,
+                alienShootMult: 1.0, alienBulletSpeedMult: 1.0,
+                hasSalvage: false, salvageReward: 0,
+                tolls: true, debrisShape: 'bell', stressMult: 1.15,
+                material: { id: 'bellbronze', name: 'Bell Bronze', color: '#e8b04b' }
+            },
+            orchard: {
+                id: 'orchard',
+                name: 'The Overgrown Orchard',
+                desc: "Orchard Prospecting's greenhouse ring, untended since the quiet minute. Nothing stopped growing. Your hull mends slowly here, and seed pods split when you break them.",
+                starColor: '#9be37a',
+                tint: 'rgba(60, 150, 60, 0.12)',
+                fog: 0.12,
+                debrisMult: 1.3, alienMult: 0.5, crystalMult: 1.0, fuelPickupMult: 1.0, healthPickupMult: 2.2,
+                debrisReward: 5, alienReward: 10, crystalReward: 60, crystalFillMult: 1.0,
+                debrisColor: '#5f9e4a', alienColor: '#b6f28d',
+                fuelDrainMult: 1.0, passiveFuelDrain: 0, fuelRegenBonus: 0,
+                guardianChance: 0,
+                debrisSpeedMult: 0.6, debrisHealthMult: 1.0,
+                frictionBoost: 0,
+                alienShootMult: 1.0, alienBulletSpeedMult: 1.0,
+                hasSalvage: false, salvageReward: 0,
+                splitDebris: true, debrisShape: 'pod', hullRegen: 0.012,
+                material: { id: 'seedpod', name: 'Orchard Seed', color: '#9be37a' }
+            },
+            // ...and three anomalies. They aren't part of the normal tile
+            // rotation: getBiome drops them onto random tiles instead, and
+            // the dice are re-rolled every drift, so they never sit in the
+            // same place twice.
+            mirror: {
+                id: 'mirror', anomaly: true,
+                name: 'The Mirror Field',
+                desc: 'Anomaly. Nothing on the charts, nothing in the records. Every shot fired in here comes out both ends of the ship, yours and theirs.',
+                starColor: '#d8e2f0',
+                tint: 'rgba(200, 215, 235, 0.10)',
+                fog: 0,
+                debrisMult: 1.0, alienMult: 1.2, crystalMult: 1.0, fuelPickupMult: 1.0, healthPickupMult: 1.0,
+                debrisReward: 8, alienReward: 16, crystalReward: 65, crystalFillMult: 1.0,
+                debrisColor: '#8a96a8', alienColor: '#e6eefa',
+                fuelDrainMult: 1.0, passiveFuelDrain: 0, fuelRegenBonus: 0,
+                guardianChance: 0.06,
+                debrisSpeedMult: 1.0, debrisHealthMult: 1.0,
+                frictionBoost: 0,
+                alienShootMult: 1.0, alienBulletSpeedMult: 1.0,
+                hasSalvage: false, salvageReward: 0,
+                mirrored: true, debrisShape: 'shard',
+                material: { id: 'mirrorshard', name: 'Mirror Shard', color: '#d8e2f0' }
+            },
+            hourglass: {
+                id: 'hourglass', anomaly: true,
+                name: 'The Hourglass Shoal',
+                desc: 'Anomaly. Time is thick here. Wreckage, aliens and their fire all crawl at half speed, but your engines burn extra to push through it.',
+                starColor: '#f0d9a8',
+                tint: 'rgba(180, 150, 90, 0.14)',
+                fog: 0.1,
+                debrisMult: 1.3, alienMult: 1.0, crystalMult: 1.0, fuelPickupMult: 1.0, healthPickupMult: 1.0,
+                debrisReward: 7, alienReward: 12, crystalReward: 60, crystalFillMult: 1.3,
+                debrisColor: '#b49a6a', alienColor: '#f5e3b8',
+                fuelDrainMult: 1.35, passiveFuelDrain: 0, fuelRegenBonus: 0,
+                guardianChance: 0.05,
+                debrisSpeedMult: 1.0, debrisHealthMult: 1.0,
+                frictionBoost: 0,
+                alienShootMult: 1.0, alienBulletSpeedMult: 1.0,
+                hasSalvage: false, salvageReward: 0,
+                timeScale: 0.5, debrisShape: 'sand',
+                material: { id: 'stillsand', name: 'Still Sand', color: '#f0d9a8' }
+            },
+            ricochet: {
+                id: 'ricochet', anomaly: true,
+                name: 'The Ricochet Reef',
+                desc: "Anomaly. Everything bounces. Wreckage here won't hurt you, it throws you, and every bounce pays a little Stardust. The aliens still bite.",
+                starColor: '#ff8fd8',
+                tint: 'rgba(230, 80, 190, 0.10)',
+                fog: 0,
+                debrisMult: 1.6, alienMult: 0.7, crystalMult: 0.9, fuelPickupMult: 1.0, healthPickupMult: 1.0,
+                debrisReward: 6, alienReward: 12, crystalReward: 60, crystalFillMult: 1.0,
+                debrisColor: '#c44fa0', alienColor: '#ffc2ec',
+                fuelDrainMult: 1.0, passiveFuelDrain: 0, fuelRegenBonus: 0,
+                guardianChance: 0.04,
+                debrisSpeedMult: 1.4, debrisHealthMult: 0.8,
+                frictionBoost: 0,
+                alienShootMult: 1.0, alienBulletSpeedMult: 1.0,
+                hasSalvage: false, salvageReward: 0,
+                bouncy: true, debrisShape: 'blob',
+                material: { id: 'springstone', name: 'Springstone', color: '#ff8fd8' }
+            },
             // Hidden penalty biome: only enters the tile rotation while a
             // Konami cheat is active (see getBiome). Not part of
             // WILD_BIOME_IDS, so it never appears on a clean run, is never
@@ -1932,7 +2266,12 @@
                 material: { id: 'cheateralloy', name: "Cheater's Alloy", color: '#ff2e63' }
             }
         };
-        const WILD_BIOME_IDS = ['debris', 'hive', 'nebula', 'void', 'storm', 'ice', 'ember', 'ghost', 'warzone', 'comet', 'flare', 'gravity'];
+        const WILD_BIOME_IDS = ['debris', 'hive', 'nebula', 'void', 'storm', 'ice', 'ember', 'ghost', 'warzone', 'comet', 'flare', 'gravity', 'choir', 'foundry', 'orchard'];
+        // Anomalies sit outside the rotation (see getBiome).
+        const ANOMALY_BIOME_IDS = ['mirror', 'hourglass', 'ricochet'];
+        const ANOMALY_TILE_CHANCE = 70; // out of 1000 tiles
+        // Everything the Sector Beacon can point at, in cycle order.
+        const BEACON_BIOME_IDS = WILD_BIOME_IDS.concat(ANOMALY_BIOME_IDS);
 
         // ---- SECTOR EVENTS ----
         // Two independent event layers sit on top of the biome grid:
@@ -2104,6 +2443,14 @@
                     return BIOMES.cheaters; // exempt from events too
                 }
             }
+            // Anomalies "just got there": a separate roll per tile, salted
+            // with this drift's spawn point so they move every drift.
+            const anomalySalt = (Math.floor(spawnAnchor.x) * 7 + Math.floor(spawnAnchor.y) * 13) | 0;
+            const anomalyRoll = biomeHash(tx * 3 + 11 + anomalySalt, ty * 5 - 7 - anomalySalt);
+            if (anomalyRoll % 1000 < ANOMALY_TILE_CHANCE) {
+                const anomalyId = ANOMALY_BIOME_IDS[(anomalyRoll >>> 10) % ANOMALY_BIOME_IDS.length];
+                return withActiveEvents(BIOMES[anomalyId], tx, ty);
+            }
             const idx = biomeHash(tx, ty) % WILD_BIOME_IDS.length;
             const base = BIOMES[WILD_BIOME_IDS[idx]];
             return withActiveEvents(base, tx, ty);
@@ -2183,8 +2530,9 @@
         // slot at the end for Derelict Sanctuaries - they aren't a biome, so
         // they're handled as a special-cased target index rather than an
         // entry in WILD_BIOME_IDS itself.
-        const BEACON_DERELICT_INDEX = WILD_BIOME_IDS.length;
-        const BEACON_TARGET_COUNT = WILD_BIOME_IDS.length + 1;
+        const BEACON_DERELICT_INDEX = BEACON_BIOME_IDS.length;
+        const BEACON_SEAM_INDEX = BEACON_BIOME_IDS.length + 1;
+        const BEACON_TARGET_COUNT = BEACON_BIOME_IDS.length + 2;
         const DERELICT_BEACON_COLOR = "#c08457";
 
         let beaconTargetIndex = 0;
@@ -2230,14 +2578,15 @@
                 return;
             }
             const isDerelict = beaconTargetIndex === BEACON_DERELICT_INDEX;
-            const label = isDerelict ? "DERELICT SANCTUARY" : BIOMES[WILD_BIOME_IDS[beaconTargetIndex]].name.toUpperCase();
-            const color = isDerelict ? DERELICT_BEACON_COLOR : BIOMES[WILD_BIOME_IDS[beaconTargetIndex]].starColor;
+            const isSeam = beaconTargetIndex === BEACON_SEAM_INDEX;
+            const label = isDerelict ? "DERELICT SANCTUARY" : isSeam ? "RIFT SEAM" : BIOMES[BEACON_BIOME_IDS[beaconTargetIndex]].name.toUpperCase();
+            const color = isDerelict ? DERELICT_BEACON_COLOR : isSeam ? SEAM_COLOR : BIOMES[BEACON_BIOME_IDS[beaconTargetIndex]].starColor;
             beaconHud.style.display = "block";
             beaconHud.style.borderColor = color;
             beaconHud.style.color = color;
             if (beaconTarget) {
                 beaconHud.textContent = `BEACON [B]: ${label}, ${Math.round(beaconTarget.dist)}m`;
-            } else if (isDerelict) {
+            } else if (isDerelict || isSeam) {
                 beaconHud.textContent = `BEACON [B]: ${label}, none found nearby`;
             } else {
                 beaconHud.textContent = `BEACON [B]: ${label}, locating...`;
@@ -2254,7 +2603,7 @@
             currentBiomeId = biome.id;
             regionLabel.textContent = biome.name.toUpperCase();
 
-            biomeBannerName.textContent = biome.name;
+            biomeBannerName.textContent = biome.anomaly ? `${biome.name} (ANOMALY)` : biome.name;
             biomeBannerDesc.textContent = biome.desc;
             biomeBanner.style.color = biome.starColor;
             biomeBanner.style.background = 'rgba(23, 21, 38, 0.92)';
@@ -2331,7 +2680,7 @@
                 if (homeDist < HOME_SAFE_RADIUS + BIOME_TILE_SIZE / 2) continue;
                 if (homeDist > MAX_EVENT_SPAWN_DIST) continue;
                 const idx = biomeHash(tx, ty) % WILD_BIOME_IDS.length;
-                const biomeId = WILD_BIOME_IDS[idx];
+                const biomeId = getBiome(cx, cy).id; // may be an anomaly
                 const ids = Object.keys(LOCAL_EVENTS);
                 const def = LOCAL_EVENTS[ids[Math.floor(Math.random() * ids.length)]];
                 const localDuration = Math.round(def.duration * 1.4); // extra buffer so travel time doesn't eat the whole event
@@ -2502,7 +2851,7 @@
         // dropped by that biome's crystals/debris/aliens. In-memory only,
         // same as totalCredits (resets on refresh).
         let materials = {};
-        const MATERIAL_LIST = WILD_BIOME_IDS.map(id => ({ ...BIOMES[id].material, biomeName: BIOMES[id].name }));
+        const MATERIAL_LIST = BEACON_BIOME_IDS.map(id => ({ ...BIOMES[id].material, biomeName: BIOMES[id].name }));
         // Cheater's Alloy is looked up here (materialName, craftCostLabel,
         // hasMaterials, etc.) but kept OUT of MATERIAL_LIST itself, so the
         // pouch UI - which renders straight from MATERIAL_LIST - never shows
@@ -2524,7 +2873,7 @@
         }
         let materialToastTimeouts = [];
         function showMaterialToast(id, amount) {
-            const info = MATERIAL_LIST.find(m => m.id === id);
+            const info = ALL_MATERIALS_LOOKUP.find(m => m.id === id);
             const name = info ? info.name : id;
             const color = info ? info.color : "#ffd166";
             const toast = document.createElement('div');
@@ -2572,6 +2921,7 @@
             commsActivePriority = -1;
             commsActiveUntil = 0;
             if (commsLog) commsLog.innerHTML = '';
+            if (typeof pendingPlaybacks !== 'undefined') pendingPlaybacks = [];
         }
 
         function pushCommsLine(who, text, cls, priority) {
@@ -2977,6 +3327,13 @@
             ventstress: { sd: 45, mats: { cinder: 1, shard: 1 } },
             supplydrop: { sd: 70, mats: { scrap: 2, circuit: 1 } },
             steelnerves: { sd: 50, mats: { chitin: 1, scrap: 1 } },
+            tuningfork: { sd: 45, mats: { echoglass: 2, coil: 1 } },
+            salvagedrone: { sd: 55, mats: { echoglass: 1, circuit: 1, scrap: 1 } },
+            toll: { sd: 45, mats: { bellbronze: 2, coil: 1 } },
+            hourglass: { sd: 50, mats: { stillsand: 2, nullfrag: 1 } },
+            graft: { sd: 50, mats: { seedpod: 2, chitin: 1 } },
+            mirrorrounds: { sd: 55, mats: { mirrorshard: 2, prism: 1 } },
+            bumpers: { sd: 50, mats: { springstone: 2, scrap: 1 } },
             // Not tied to the single-passive-slot rotation like the four
             // above - this is a permanent unlock once crafted, purely
             // cosmetic (see buyGilbertBullets / playerBullets rendering).
@@ -3153,7 +3510,10 @@
         const JUGGERNAUT_FUEL_DRAIN_MULT = 0.7; // thrusting drain
         const JUGGERNAUT_SHIP_SCALE = 1.55; // visual + hitbox size multiplier
         const JUGGERNAUT_MATS = {};
-        for (const m of MATERIAL_LIST) JUGGERNAUT_MATS[m.id] = JUGGERNAUT_MAT_COST;
+        // Echo Glass arrived after the Juggernaut was priced, so it stays
+        // off the toll rather than quietly making the refit harder.
+        const POST_JUGGERNAUT_MATERIALS = new Set(['echoglass', 'bellbronze', 'seedpod', 'mirrorshard', 'stillsand', 'springstone']);
+        for (const m of MATERIAL_LIST) if (!POST_JUGGERNAUT_MATERIALS.has(m.id)) JUGGERNAUT_MATS[m.id] = JUGGERNAUT_MAT_COST;
         CRAFT_RECIPES.juggernaut = { sd: JUGGERNAUT_SD_COST, mats: JUGGERNAUT_MATS };
 
 
@@ -3401,8 +3761,1343 @@
                     { who: COMMS_HQ, text: `That's ${d.name} stripped to the frame, Drifter. No survivors logged, that's ${d.company} closed out. Their reserves are yours; they'd have wanted it that way.`, cls: 'hq' },
                     { who: COMMS_YOU, text: "Understood, HQ. Another empty one. Moving on.", cls: 'you' }
                 ], 0, COMMS_PRIORITY.HIGH);
+                // The vault always has the crew's flight recorder in it.
+                collectRecorder('outfits');
             }
         }
+
+        // ================= THE LONG QUIET =================
+        // Everything below this banner is the "Long Quiet" update: flight
+        // recorders and the Archive, The Choir Drift and its Echoes, The
+        // Lantern, Rift Seams, and the two new crafts that go with them.
+        // It plugs into the same comms, materials, alien and pickup systems
+        // everything above already uses.
+
+        // ---- ARCHIVE / FLIGHT RECORDERS ----------------------------------
+        // Each recorder is one Archive entry. Unlike the run economy, the
+        // Archive lives in its own localStorage key and is never wiped by a
+        // death or a new drift, so the story keeps filling in over time.
+        const ARCHIVE_STORAGE_KEY = "stellarDrift_archive";
+        const RECORDER_SD_BONUS = 25;      // paid the first time an entry is recovered
+        const RECORDER_DUPLICATE_SD = 40;  // paid when that source has nothing new left
+        const RECORDER_COLOR = '#ff9f5a';
+
+        const ARCHIVE_CHAPTERS = [
+            { pool: 'outfits', title: 'I. THE OUTFITS', hint: 'Recovered from the vault cache of a Derelict Sanctuary, the last cache you cut free.' },
+            { pool: 'quiet', title: 'II. THE QUIET MINUTE', hint: "Pulled from The Warden's core, or found drifting loose in The Ghost Sector and The Crimson Rift." },
+            { pool: 'gilbert', title: 'III. GILBERT', hint: 'Cut out of The Settler, or out of the Gilberts themselves, a million meters from home.' },
+            { pool: 'choir', title: 'IV. THE CHOIR', hint: 'Shaken loose from Echoes in The Choir Drift. The last two only come from whatever sings loudest out there.' }
+        ];
+
+        // lines: what plays back over the radio. hq: Halcyon's note after.
+        const ARCHIVE_ENTRIES = [
+            // I. THE OUTFITS
+            { id: 'o1', pool: 'outfits', title: 'Ops Deck, Shift Change', who: 'BELL INDUSTRIES OPS', source: 'Japanese Bell Industries',
+              lines: [
+                "Shift change logged. Ore bay at ninety percent, crew in good spirits. Somebody's birthday tomorrow, the cake's already in the cooler.",
+                "Long channel has been carrying a hum since breakfast. Comms thinks it's a loose coupling. We'll have it looked at after the party."
+              ],
+              hq: "Bell Industries was the biggest outfit on the register. That's the last thing they ever filed." },
+            { id: 'o2', pool: 'outfits', title: 'Bridge Audio', who: 'VESPER SALVAGE BRIDGE', source: 'Norwegian Vesper Salvage',
+              lines: [
+                "Vesper bridge. We have the hum too. Every outfit on the register is asking about it.",
+                "It isn't noise. It has a shape. Four notes, over and over, like somebody humming under their breath.",
+                "Captain says log it and keep working. So. Logged."
+              ],
+              hq: "Four notes. Remember that, Drifter." },
+            { id: 'o3', pool: 'outfits', title: 'Galley Recording', who: 'MARROW RECLAMATION GALLEY', source: 'Brazilian Marrow Reclamation',
+              lines: [
+                "Has anyone else noticed the quiet? Not the hum. The gap between the notes.",
+                "Cook stopped mid-sentence an hour ago and just listened. Then he went back to chopping like nothing happened. Doesn't remember doing it."
+              ],
+              hq: "Our own cook heard this one over my shoulder. He sleeps with the galley radio unplugged now." },
+            { id: 'o4', pool: 'outfits', title: 'Claims Desk Memo', who: 'CANDLEWICK CLAIMS DESK', source: 'Australian Candlewick Mutual',
+              lines: [
+                "Candlewick claims desk, recording for the underwriters. All long channel traffic is suspended, effective immediately.",
+                "Three of our haulers went quiet while they were on it. Not dead. Quiet. They open the airlock. They just don't answer.",
+                "If you are hearing this and you are not us, turn your antenna off."
+              ],
+              hq: "They were the only outfit that figured it out in time. It didn't matter." },
+            { id: 'o5', pool: 'outfits', title: 'Personal Log', who: 'HOLLOWMERE DECKHAND', source: 'Kenyan Hollowmere Freight',
+              lines: [
+                "Personal log. My daughter's on the Lullaby Holdings station this rotation. I call her on the long channel every night.",
+                "Tonight she sang it back to me. The four notes. She said it was beautiful and that I should listen properly.",
+                "I'm going to listen properly."
+              ],
+              hq: "...log it and move on, Drifter. Please." },
+            { id: 'o6', pool: 'outfits', title: 'Final Manifest', who: 'NOCTURNE TRANSIT', source: 'New Zealand Nocturne Transit Co.',
+              lines: [
+                "Nocturne Transit to anyone. Every clock on this station just stopped. Same second. Every one.",
+                "The hum is so loud now. No. Not loud. Close.",
+                "Halcyon, if you're out there, don't open the long chan..."
+              ],
+              hq: "We weren't listening. That's the only reason any of us are still here." },
+
+            // II. THE QUIET MINUTE
+            { id: 'q1', pool: 'quiet', title: 'Maintenance Ticket 4471', who: 'HALCYON MAINTENANCE', source: 'Halcyon Control',
+              lines: [
+                "Ticket 4471. Long channel array offline for refit, estimated nine days. All traffic on the short band until further notice.",
+                "Apologies for the inconvenience. Halcyon Control will be deaf for a little while."
+              ],
+              hq: "Nine days. The quiet minute landed on day four. That's the whole reason Halcyon is still on the register, Drifter. Dumb luck and a broken dish." },
+            { id: 'q2', pool: 'quiet', title: 'Picket Wing Combat Log', who: 'CRIMSON PICKET LEAD', source: 'The Crimson Rift',
+              lines: [
+                "Picket wing, weapons free. Contact everywhere and nowhere. Scopes show nothing. Ears show everything.",
+                "Wing two stopped firing. Wing three stopped firing. I'm the only one still shooting and I don't know at what."
+              ],
+              hq: "The Crimson Rift isn't the leftovers of an old war, Drifter. It's one side shooting at a song." },
+            { id: 'q3', pool: 'quiet', title: 'Security Directive', who: 'WARDEN CORE', source: 'The Warden',
+              lines: [
+                "Directive: hold position. Engage only if fired upon. Do not transmit. Do not receive.",
+                "Directive reason: field left blank. Directive signed by the entire board, all in the same minute."
+              ],
+              hq: "That's why the Wardens never call home. They were ordered deaf, same as us." },
+            { id: 'q4', pool: 'quiet', title: 'Registry Audit', who: 'HALCYON REGISTRY', source: 'Halcyon Control',
+              lines: [
+                "Registry audit, quiet season. Twelve outfits on the books before. One after. Us.",
+                "No wreck counts. No casualty counts. Every station intact, every crew aboard, every light on. Nobody home."
+              ],
+              hq: "I filed that audit, Drifter. I still don't know what to write in the cause field." },
+            { id: 'q5', pool: 'quiet', title: 'The Minute', who: 'UNKNOWN STATION', source: 'Unregistered',
+              lines: [
+                "It is 14:06 on every clock in the sector, and it has been 14:06 for a while now.",
+                "We aren't afraid. That's what scares me. We should be afraid."
+              ],
+              hq: "14:06. Every derelict you've stripped stopped at 14:06." },
+
+            // III. GILBERT
+            { id: 'g1', pool: 'gilbert', title: 'Retrieval Contract 001', who: 'HALCYON DISPATCH', source: 'Halcyon Control',
+              lines: [
+                "Retrieval contract zero zero one. Pilot: Gilbert Hale. Find survivors, strip what's left, find the source of the hum.",
+                "Long channel stays off the whole way. You fly deaf, Gil. That's the only rule."
+              ],
+              hq: "Gil was the first one we sent. Before you. Before there was a Drifter on the roster at all." },
+            { id: 'g2', pool: 'gilbert', title: 'Day Forty', who: 'GILBERT HALE', source: 'The Settler',
+              lines: [
+                "Day forty. Nobody's alive out here, HQ. They're all still sitting at their stations. Some of them are smiling.",
+                "Getting cold the further out I go. Instruments say the hum is coming from past the line. A million meters, give or take."
+              ],
+              hq: "He got further than anyone. He got exactly as far as the ring." },
+            { id: 'g3', pool: 'gilbert', title: 'Day Seventy-One', who: 'GILBERT HALE', source: 'The Settler',
+              lines: [
+                "I turned the long channel on. Just for a second. I had to know what it sounds like.",
+                "HQ, it sounds like home. It sounds exactly like home."
+              ],
+              hq: "He never said which home he meant." },
+            { id: 'g4', pool: 'gilbert', title: 'Final Entry', who: 'GILBERT HALE', source: 'The Settler',
+              lines: [
+                "Parking her right here, on the line. The ice is coming in fast and I think it's coming from me.",
+                "I'm going to keep broadcasting my name so the next one knows where the line is. Gilbert. Gilbert. Gilbert."
+              ],
+              hq: "That's why every chunk of ice out there answers to his name. He's still holding the line for you, Drifter." },
+            { id: 'g5', pool: 'gilbert', title: 'Contract Struck Off', who: 'HALCYON DISPATCH', source: 'Halcyon Control',
+              lines: [
+                "Retrieval contract zero zero one struck from the register. Pilot listed lost.",
+                "Contract zero zero two opens today. Pilot designation: Drifter. Same rules. Fly deaf."
+              ],
+              hq: "Same rules. We broke them the day we put you on the long channel for Supply Drops. I'm sorry, Drifter." },
+
+            // IV. THE CHOIR
+            { id: 'c1', pool: 'choir', title: 'Echo Sample A', who: 'ECHO', source: 'The Choir Drift',
+              lines: [ "...is anyone still on this channel... we can hear you breathing..." ],
+              hq: "Science desk thinks Echoes are the crews themselves, played back on the hum. Don't answer them." },
+            { id: 'c2', pool: 'choir', title: 'Echo Sample B', who: 'ECHO', source: 'The Choir Drift',
+              lines: [ "...it's warm here... come and sit... there's a place at the table with your name on it..." ],
+              hq: "There isn't. Keep flying." },
+            { id: 'c3', pool: 'choir', title: 'Science Desk Brief', who: 'HALCYON SCIENCE DESK', source: 'Halcyon Control',
+              lines: [
+                "The hum isn't a signal. It's a song riding a carrier wave. Every voice it takes becomes another note in it.",
+                "The bigger the choir, the louder the song. The louder the song, the further it reaches."
+              ],
+              hq: "Twelve outfits. Every crew. That's a lot of voices, Drifter." },
+            { id: 'c4', pool: 'choir', title: 'Echo Sample C', who: 'ECHO', source: 'The Choir Drift',
+              lines: [ "...Halcyon... Halcyon... you never sang with us... why didn't you sing..." ],
+              hq: "...it knows our name. Of course it knows our name." },
+            { id: 'c5', pool: 'choir', lanternOnly: true, title: 'Carrier Trace', who: 'LANTERN CORE', source: 'The Lantern',
+              lines: [
+                "Carrier trace recovered. Lanterns are relays. They hold the song steady so it can travel.",
+                "Silencing one buys the sector a little quiet. It does not stop the song."
+              ],
+              hq: "Then we put out every Lantern we find. One at a time." },
+            { id: 'c6', pool: 'choir', lanternOnly: true, title: 'Origin Vector', who: 'LANTERN CORE', source: 'The Lantern',
+              lines: [
+                "Origin vector resolved. The song does not come from past the line.",
+                "It comes from behind you. It has always been loudest at home."
+              ],
+              hq: "...Drifter. Come back to the Sanctuary when you can. We need to check something." }
+        ];
+
+        const ARCHIVE_MILESTONE_LINES = {
+            1: "Drifter, that was a flight recorder, and it's intact. Everything you pull out of the sector goes in the Archive now, and it stays there, whatever happens to your hull.",
+            6: "Six recorders logged. The picture's filling in, and I don't like the shape of it.",
+            11: "That's half the Archive, Drifter. Whatever happened out there, it happened to everyone at once."
+        };
+        ARCHIVE_MILESTONE_LINES[ARCHIVE_ENTRIES.length] = "That's every recorder on the register. All of it, logged. ...We should have stayed deaf, Drifter. Both of us.";
+
+        const RECORDER_INTRO_LINES = [
+            e => `Recorder's intact, Drifter. ${e.source} unit. Playing it back now.`,
+            e => `Got a clean read off that recorder. Source: ${e.source}. Here it comes.`,
+            e => `Black box is talking. ${e.source}. Patching it through to you.`
+        ];
+
+        let archiveFound = new Set();
+
+        function loadArchive() {
+            try {
+                const raw = localStorage.getItem(ARCHIVE_STORAGE_KEY);
+                if (raw) {
+                    const parsed = JSON.parse(raw);
+                    if (Array.isArray(parsed)) {
+                        archiveFound = new Set(parsed.filter(id => ARCHIVE_ENTRIES.some(e => e.id === id)));
+                    }
+                }
+            } catch (e) {}
+        }
+
+        function saveArchive() {
+            try { localStorage.setItem(ARCHIVE_STORAGE_KEY, JSON.stringify([...archiveFound])); } catch (e) {}
+        }
+
+        // Entries inside a pool are handed out in order, so each source
+        // tells its part of the story front to back. The Lantern prefers
+        // its own two entries before it falls back to the rest of the pool.
+        function nextArchiveEntry(pool, fromLantern) {
+            const open = ARCHIVE_ENTRIES.filter(e => e.pool === pool && !archiveFound.has(e.id));
+            if (fromLantern) {
+                return open.find(e => e.lanternOnly) || open[0] || null;
+            }
+            return open.find(e => !e.lanternOnly) || null;
+        }
+
+        // Recorder playback is long, and it usually lands right on top of
+        // some other big exchange (a boss kill, a vault cache). Rather than
+        // fight that exchange for the channel, playbacks wait in line and go
+        // out the moment the radio is free again.
+        let pendingPlaybacks = [];
+        function queuePlayback(lines) { pendingPlaybacks.push(lines); }
+        function processPlaybackQueue() {
+            if (!pendingPlaybacks.length) return;
+            if (Date.now() < commsActiveUntil + 500) return;
+            playCommsExchange(pendingPlaybacks.shift(), 0, COMMS_PRIORITY.HIGH);
+        }
+
+        function showSectorToast(text, color) {
+            const toast = document.createElement('div');
+            toast.className = 'material-toast';
+            toast.innerHTML = `<span class="dot" style="background:${color}; box-shadow:0 0 5px ${color};"></span><span>${text}</span>`;
+            materialToastContainer.appendChild(toast);
+            requestAnimationFrame(() => toast.classList.add('visible'));
+            const t = setTimeout(() => {
+                toast.classList.remove('visible');
+                setTimeout(() => toast.remove(), 300);
+            }, 2800);
+            materialToastTimeouts.push(t);
+        }
+
+        function collectRecorder(pool, fromLantern) {
+            const entry = nextArchiveEntry(pool, fromLantern);
+            if (!entry) {
+                score += RECORDER_DUPLICATE_SD;
+                totalCredits += RECORDER_DUPLICATE_SD;
+                scoreDisplay.textContent = `STARDUST: ${score}`;
+                showSectorToast(`Recorder already archived: +${RECORDER_DUPLICATE_SD} SD for parts`, RECORDER_COLOR);
+                playSound('fuel');
+                return null;
+            }
+            archiveFound.add(entry.id);
+            saveArchive();
+            score += RECORDER_SD_BONUS;
+            totalCredits += RECORDER_SD_BONUS;
+            scoreDisplay.textContent = `STARDUST: ${score}`;
+            showSectorToast(`Flight recorder: ${entry.title} (${archiveFound.size}/${ARCHIVE_ENTRIES.length})`, RECORDER_COLOR);
+            playSound('event');
+
+            const intro = RECORDER_INTRO_LINES[Math.floor(Math.random() * RECORDER_INTRO_LINES.length)](entry);
+            const lines = [{ who: COMMS_HQ, text: intro, cls: 'hq' }];
+            for (const text of entry.lines) lines.push({ who: 'RECORDER', text, cls: 'recorder' });
+            if (entry.hq) lines.push({ who: COMMS_HQ, text: entry.hq, cls: 'hq' });
+            queuePlayback(lines);
+
+            const milestone = ARCHIVE_MILESTONE_LINES[archiveFound.size];
+            if (milestone) queuePlayback([{ who: COMMS_HQ, text: milestone, cls: 'static' }]);
+            return entry;
+        }
+
+        // Loose recorders: either drifting in the field (Ghost Sector,
+        // Crimson Rift) or knocked loose by something you just broke.
+        let recorders = [];
+        let recorderSpawnTimer = 0;
+        const RECORDER_FIELD_BIOMES = { ghost: 'quiet', warzone: 'quiet' };
+        const RECORDER_FIELD_INTERVAL = 2600;
+
+        function dropRecorder(x, y, pool, persistent) {
+            recorders.push({ x, y, size: 9, pool, persistent: !!persistent, phase: Math.random() * Math.PI * 2 });
+        }
+
+        function spawnFieldRecorder(pool) {
+            const angle = Math.random() * Math.PI * 2;
+            const dist = 450 + Math.random() * 450;
+            dropRecorder(player.x + Math.cos(angle) * dist, player.y + Math.sin(angle) * dist, pool, false);
+        }
+
+        // ---- ARCHIVE SCREEN ----------------------------------------------
+        const archiveScreen = document.getElementById('archive-screen');
+        let archiveReturnTo = null;
+        let archiveSelectedId = null;
+
+        function openArchive(from) {
+            archiveReturnTo = from || null;
+            renderArchive();
+            showScreen(archiveScreen);
+        }
+
+        function closeArchive() {
+            if (archiveReturnTo === 'shop' && docked) {
+                showScreen(shopScreen);
+                updateCraftShopUI();
+            } else {
+                showScreen(menuScreen);
+            }
+            archiveReturnTo = null;
+        }
+
+        function renderArchive() {
+            const list = document.getElementById('archive-list');
+            const progress = document.getElementById('archive-progress');
+            if (!list || !progress) return;
+            progress.textContent = `${archiveFound.size} / ${ARCHIVE_ENTRIES.length} RECORDERS RECOVERED`;
+            let html = '';
+            for (const ch of ARCHIVE_CHAPTERS) {
+                const entries = ARCHIVE_ENTRIES.filter(e => e.pool === ch.pool);
+                const found = entries.filter(e => archiveFound.has(e.id)).length;
+                html += `<div class="archive-chapter"><div class="archive-chapter-title">${ch.title}<span>${found}/${entries.length}</span></div>`;
+                html += `<div class="archive-chapter-hint">${ch.hint}</div>`;
+                entries.forEach((e, idx) => {
+                    if (archiveFound.has(e.id)) {
+                        html += `<button class="archive-entry${archiveSelectedId === e.id ? ' selected' : ''}" data-entry="${e.id}"><span class="rec-dot"></span>${e.title}</button>`;
+                    } else {
+                        html += `<div class="archive-entry locked"><span class="rec-dot"></span>Recorder ${idx + 1}: not recovered</div>`;
+                    }
+                });
+                html += `</div>`;
+            }
+            list.innerHTML = html;
+            renderArchiveReader();
+        }
+
+        function renderArchiveReader() {
+            const reader = document.getElementById('archive-reader');
+            if (!reader) return;
+            const e = ARCHIVE_ENTRIES.find(x => x.id === archiveSelectedId && archiveFound.has(x.id));
+            if (!e) {
+                reader.innerHTML = archiveFound.size
+                    ? `<div class="archive-reader-empty">Pick a recovered recorder to play it back.</div>`
+                    : `<div class="archive-reader-empty">No recorders recovered yet. They turn up in the vaults of Derelict Sanctuaries, in the cores of things that should not still be running, and drifting loose in the quieter corners of the sector.</div>`;
+                return;
+            }
+            const ch = ARCHIVE_CHAPTERS.find(c => c.pool === e.pool);
+            reader.innerHTML =
+                `<div class="archive-reader-title">${e.title}</div>` +
+                `<div class="archive-reader-meta">${ch ? ch.title : ''} · SOURCE: ${e.source.toUpperCase()}</div>` +
+                e.lines.map(l => `<div class="archive-line"><span class="who">${e.who}</span>${l}</div>`).join('') +
+                (e.hq ? `<div class="archive-note"><strong>HALCYON CONTROL:</strong> ${e.hq}</div>` : '');
+        }
+
+        document.getElementById('archive-list').addEventListener('click', (ev) => {
+            const btn = ev.target.closest('[data-entry]');
+            if (!btn) return;
+            archiveSelectedId = btn.dataset.entry;
+            renderArchive();
+        });
+        document.getElementById('archive-back-btn').addEventListener('click', closeArchive);
+        document.getElementById('to-archive-btn').addEventListener('click', () => openArchive('menu'));
+        document.getElementById('shop-archive-btn').addEventListener('click', () => openArchive('shop'));
+
+        // ---- THE CHOIR DRIFT: ECHOES -------------------------------------
+        // Echoes are hollow, see-through drifter hulls. They never shoot and
+        // never do hull damage, but they drift toward you, and brushing one
+        // spikes Stress and drags your speed. Two shots pop one.
+        let echoes = [];
+        let echoSpawnTimer = 0;
+        let echoesSilenced = 0; // this drift, feeds The Lantern's arrival
+        let echoWhisperCooldown = 0;
+        const ECHO_MAX = 5;
+        const ECHO_SPAWN_INTERVAL = 380;
+        const ECHO_HEALTH = 60;
+        const ECHO_SIZE = 34;
+        const ECHO_REWARD = 18;
+        const ECHO_TOUCH_STRESS = 16;
+        const ECHO_GLASS_CHANCE = 0.35;
+        const ECHO_RECORDER_CHANCE = 0.08;
+        const ECHO_COLOR = '#9ff0d8';
+
+        const ECHO_WHISPERS = [
+            "...you can stop now... it's warm here...",
+            "...we kept a seat for you...",
+            "...listen properly...",
+            "...fourteen oh six... fourteen oh six...",
+            "...turn it up... just a little...",
+            "...Halcyon... why aren't you singing...",
+            "...we're all still here..."
+        ];
+
+        function spawnEcho(nearX, nearY) {
+            let x, y;
+            if (nearX != null) {
+                const a = Math.random() * Math.PI * 2;
+                x = nearX + Math.cos(a) * 80;
+                y = nearY + Math.sin(a) * 80;
+            } else {
+                const offDist = Math.min(Math.hypot(canvas.width / 2, canvas.height / 2) + 60, DESPAWN_RADIUS - 500);
+                const a = Math.random() * Math.PI * 2;
+                const d = offDist + Math.random() * 300;
+                x = player.x + Math.cos(a) * d;
+                y = player.y + Math.sin(a) * d;
+            }
+            const echo = {
+                x, y, vx: 0, vy: 0,
+                size: ECHO_SIZE * (0.85 + Math.random() * 0.35),
+                health: ECHO_HEALTH, maxHealth: ECHO_HEALTH,
+                phase: Math.random() * Math.PI * 2,
+                touchCd: 0
+            };
+            echoes.push(echo);
+            return echo;
+        }
+
+        function silenceEcho(e, rewardMult) {
+            shatterObject(e, ECHO_COLOR);
+            const sd = Math.round(ECHO_REWARD * (rewardMult || 1));
+            score += sd;
+            totalCredits += sd;
+            scoreDisplay.textContent = `STARDUST: ${score}`;
+            if (Math.random() < ECHO_GLASS_CHANCE) addMaterial('echoglass', 1);
+            echoesSilenced++;
+            if (Math.random() < ECHO_RECORDER_CHANCE) dropRecorder(e.x, e.y, 'choir', true);
+            playSound('score');
+        }
+
+        // ---- THE LANTERN -------------------------------------------------
+        // A relay that holds the song steady. Lives in the aliens array like
+        // the Warden and the Settler, but runs its own movement and its own
+        // bullet patterns (see lanternSing), and is never shattered by the
+        // Mini Sanctuary's field.
+        const LANTERN_HEALTH = 12000;
+        const LANTERN_SIZE = 86;
+        const LANTERN_REWARD = 900;
+        const LANTERN_RAM_DAMAGE = 30;
+        const LANTERN_BULLET_DAMAGE = 10;
+        const LANTERN_MIN_HOME_DIST = 8000;
+        const LANTERN_SPAWN_CHANCE = 0.05; // per alien spawn slot inside The Choir Drift
+        const LANTERN_ECHO_TRIGGER = 8;    // or guaranteed once you've silenced this many Echoes
+        const LANTERN_GLASS_MIN = 5;
+        const LANTERN_COLOR = '#9ff0d8';
+        let lanternSpawnedThisDrift = false;
+        let lanternsSilenced = 0;
+
+        function spawnLantern(x, y) {
+            lanternSpawnedThisDrift = true;
+            aliens.push({
+                x, y, vx: 0, vy: 0,
+                size: LANTERN_SIZE,
+                health: LANTERN_HEALTH, maxHealth: LANTERN_HEALTH,
+                shootCooldown: 0, wanderTimer: 1e9,
+                reward: LANTERN_REWARD,
+                color: LANTERN_COLOR,
+                shootMult: 1, bulletSpeedMult: 1,
+                isGuardian: false, isLantern: true,
+                pattern: 0, patternTimer: 320, fireTick: 0,
+                spinAngle: Math.random() * Math.PI * 2,
+                stunTimer: 0,
+                material: 'echoglass'
+            });
+        }
+
+        function spawnLanternOffscreen() {
+            const offDist = Math.min(Math.hypot(canvas.width / 2, canvas.height / 2) + 140, DESPAWN_RADIUS - 400);
+            const a = Math.random() * Math.PI * 2;
+            spawnLantern(player.x + Math.cos(a) * offDist, player.y + Math.sin(a) * offDist);
+        }
+
+        function lanternSing(a, angToPlayer, enraged) {
+            a.patternTimer--;
+            if (a.patternTimer <= 0) {
+                a.pattern = (a.pattern + 1) % 3;
+                a.patternTimer = [460, 320, 260][a.pattern];
+                a.fireTick = 0;
+            }
+            a.fireTick++;
+            const push = (ang, speed, life) => alienBullets.push({
+                x: a.x + Math.cos(ang) * a.size * 0.3,
+                y: a.y + Math.sin(ang) * a.size * 0.3,
+                vx: Math.cos(ang) * speed,
+                vy: Math.sin(ang) * speed,
+                life, color: LANTERN_COLOR, damage: LANTERN_BULLET_DAMAGE, r: 4.2
+            });
+            if (a.pattern === 0) {
+                // The Hymn: a slow rotating spiral.
+                const every = enraged ? 8 : 12;
+                if (a.fireTick % every === 0) {
+                    const arms = enraged ? 3 : 2;
+                    for (let k = 0; k < arms; k++) push(a.spinAngle + k * Math.PI * 2 / arms, 2.3, 340);
+                    a.spinAngle += 0.27;
+                    if (a.fireTick % (every * 4) === 0) playSound('alienShoot');
+                }
+            } else if (a.pattern === 1) {
+                // The Chorus: full rings with one gap to slip through.
+                const every = enraged ? 75 : 100;
+                if (a.fireTick % every === 1) {
+                    const n = enraged ? 24 : 18;
+                    const gapAt = Math.floor(Math.random() * n);
+                    const off = Math.random() * Math.PI * 2;
+                    for (let k = 0; k < n; k++) {
+                        if (k === gapAt || k === (gapAt + 1) % n) continue;
+                        push(off + k * Math.PI * 2 / n, 2.0, 380);
+                    }
+                    playSound('pulse');
+                }
+            } else {
+                // The Call: summons Echoes, then aims short volleys at you.
+                if (a.fireTick === 30 && echoes.length < 8) {
+                    const n = enraged ? 3 : 2;
+                    for (let k = 0; k < n; k++) spawnEcho(a.x, a.y).fromLantern = true;
+                    playSound('event');
+                }
+                if (a.fireTick > 60 && a.fireTick % (enraged ? 40 : 55) === 0) {
+                    for (const off of [-0.2, 0, 0.2]) push(angToPlayer + off, 3.0, 260);
+                    playSound('alienShoot');
+                }
+            }
+        }
+
+        // ---- BOSS DAMAGE / KILLS -----------------------------------------
+        function isBossAlien(a) {
+            return !!(a && (a.isWarden || a.isSettler || a.isLantern));
+        }
+
+        // Every alien kill goes through here, from bullets or from a blast,
+        // so the rewards, drops, recorders and radio are always the same.
+        function onAlienKilled(a) {
+            shatterObject(a, a.color || ALIEN_COLOR);
+            score += a.reward || 10;
+            totalCredits += a.reward || 10;
+            if (a.isWarden) {
+                if (a.material) addMaterial(a.material, 1);
+                if (!commsWardenKilled) {
+                    commsWardenKilled = true;
+                    playCommsExchange(wardenKillExchange(a.company), 300, COMMS_PRIORITY.HIGH);
+                }
+                collectRecorder('quiet');
+            } else if (a.isSettler) {
+                // Guaranteed haul, cracking one open is the whole reason to
+                // be out at the line.
+                addMaterial('gilstone', SETTLER_GILSTONE_MIN + Math.floor(Math.random() * 3));
+                if (!commsSettlerKilled) {
+                    commsSettlerKilled = true;
+                    playCommsExchange(SETTLER_KILL_EXCHANGE, 400, COMMS_PRIORITY.HIGH);
+                }
+                collectRecorder('gilbert');
+            } else if (a.isLantern) {
+                for (let k = 0; k < 4; k++) {
+                    shatterObject({ x: a.x + (Math.random() - 0.5) * 60, y: a.y + (Math.random() - 0.5) * 60, size: a.size * 0.8 }, LANTERN_COLOR);
+                }
+                addMaterial('echoglass', LANTERN_GLASS_MIN + Math.floor(Math.random() * 3));
+                // Its choir comes apart with it.
+                for (let k = echoes.length - 1; k >= 0; k--) {
+                    if (Math.hypot(echoes[k].x - a.x, echoes[k].y - a.y) < 1100) {
+                        shatterObject(echoes[k], ECHO_COLOR);
+                        echoes.splice(k, 1);
+                    }
+                }
+                alienBullets = alienBullets.filter(b => b.color !== LANTERN_COLOR);
+                fxRings.push({ x: a.x, y: a.y, r: 20, maxR: 520, life: 1, color: LANTERN_COLOR });
+                lanternsSilenced++;
+                playCommsExchange(LANTERN_KILL_EXCHANGE, 300, COMMS_PRIORITY.HIGH);
+                collectRecorder('choir', true);
+                collectRecorder('choir', true);
+            } else if (a.material) {
+                const dropChance = a.material === 'cheateralloy' ? 0.1 : (a.isGuardian ? 0.4 : 0.2);
+                if (Math.random() < dropChance) addMaterial(a.material, 1);
+            }
+            playSound('score');
+            scoreDisplay.textContent = `STARDUST: ${score}`;
+        }
+
+        // Supernova Pulse and Overload Burst used to delete anything inside
+        // their radius outright, bosses included, with no reward and no log.
+        // Bosses now just take a heavy hit instead. Returns true on a kill.
+        const BOSS_PULSE_DAMAGE = 500;
+        const BOSS_OVERLOAD_DAMAGE = 800;
+        function blastBoss(a, dmg) {
+            if (a.isWarden && !a.aggro) {
+                a.aggro = true;
+                a.color = WARDEN_AGGRO_COLOR;
+                playCommsExchange(WARDEN_AGGRO_EXCHANGE, 0, COMMS_PRIORITY.HIGH);
+            }
+            a.health -= dmg;
+            if (a.health <= 0) {
+                onAlienKilled(a);
+                return true;
+            }
+            return false;
+        }
+
+        // ---- TUNING FORK / SALVAGE DRONE ---------------------------------
+        const TUNING_FORK_ECHO_RADIUS = 420;
+        const TUNING_FORK_STUN_RADIUS = 340;
+        const TUNING_FORK_BULLET_RADIUS = 260;
+        const TUNING_FORK_STUN = 420;
+        const TUNING_FORK_BOSS_STUN = 160;
+        const SALVAGE_DRONE_RANGE = 240;
+
+        function droneTow(o) {
+            const ang = Math.atan2(player.y - o.y, player.x - o.x);
+            o.x += Math.cos(ang) * 2.4;
+            o.y += Math.sin(ang) * 2.4;
+        }
+
+        const ABILITY_DISPLAY_NAMES = { ventstress: 'STRESS VENT', supplydrop: 'SUPPLY DROP', tuningfork: 'TUNING FORK' };
+        function abilityDisplayName(type) {
+            return ABILITY_DISPLAY_NAMES[type] || String(type).toUpperCase();
+        }
+
+        // ---- RIFT SEAMS --------------------------------------------------
+        // Tears left over from the quiet minute. They sit on their own
+        // deterministic grid, never near home, and each one throws you a long
+        // way OUTWARD from home, then collapses for the rest of the drift.
+        const SEAM_CELL_SIZE = 16000;
+        const SEAM_SPAWN_CHANCE = 0.3;
+        const SEAM_RADIUS = 46;
+        const SEAM_INTERACT_RANGE = 95;
+        const SEAM_MIN_HOME_DIST = 7000;
+        const SEAM_JUMP_MIN = 30000;
+        const SEAM_JUMP_MAX = 80000;
+        const SEAM_COLOR = '#b48cff';
+        let usedSeams = {};
+        let seamFlash = 0;
+
+        function seamHash(tx, ty) {
+            return (derelictHash(tx * 31 + 17, ty * 47 - 29) ^ 0x5bd1e995) >>> 0;
+        }
+
+        function getSeamInCell(tx, ty) {
+            const h = seamHash(tx, ty);
+            if ((h % 1000) / 1000 >= SEAM_SPAWN_CHANCE) return null;
+            const ox = ((h >>> 10) % 1000) / 1000;
+            const oy = ((h >>> 20) % 1000) / 1000;
+            const x = (tx + 0.2 + ox * 0.6) * SEAM_CELL_SIZE;
+            const y = (ty + 0.2 + oy * 0.6) * SEAM_CELL_SIZE;
+            if (Math.hypot(x - spawnAnchor.x, y - spawnAnchor.y) < SEAM_MIN_HOME_DIST) return null;
+            const key = `${tx},${ty}`;
+            return { key, x, y, seed: h, used: !!usedSeams[key], tilt: ((h >>> 3) % 628) / 100 };
+        }
+
+        function getNearbySeams() {
+            const tx0 = Math.floor(player.x / SEAM_CELL_SIZE);
+            const ty0 = Math.floor(player.y / SEAM_CELL_SIZE);
+            const found = [];
+            for (let dx = -1; dx <= 1; dx++) {
+                for (let dy = -1; dy <= 1; dy++) {
+                    const s = getSeamInCell(tx0 + dx, ty0 + dy);
+                    if (s) found.push(s);
+                }
+            }
+            return found;
+        }
+
+        function getSeamInRange() {
+            let best = null;
+            let bestDist = SEAM_INTERACT_RANGE;
+            for (const s of getNearbySeams()) {
+                if (s.used) continue;
+                const d = Math.hypot(player.x - s.x, player.y - s.y);
+                if (d < bestDist) { bestDist = d; best = s; }
+            }
+            return best;
+        }
+
+        function findNearestSeam(x, y, maxRingRadius = 10) {
+            const tx0 = Math.floor(x / SEAM_CELL_SIZE);
+            const ty0 = Math.floor(y / SEAM_CELL_SIZE);
+            for (let r = 0; r <= maxRingRadius; r++) {
+                let best = null;
+                let bestDist = Infinity;
+                for (let dx = -r; dx <= r; dx++) {
+                    for (let dy = -r; dy <= r; dy++) {
+                        if (Math.max(Math.abs(dx), Math.abs(dy)) !== r) continue;
+                        const s = getSeamInCell(tx0 + dx, ty0 + dy);
+                        if (s && !s.used) {
+                            const d = Math.hypot(s.x - x, s.y - y);
+                            if (d < bestDist) { bestDist = d; best = { x: s.x, y: s.y, dist: d }; }
+                        }
+                    }
+                }
+                if (best) return best;
+            }
+            return null;
+        }
+
+        function crossSeam(s) {
+            if (!s || s.used) return;
+            usedSeams[s.key] = true;
+            const rng = mulberry32(s.seed);
+            const away = Math.atan2(s.y - spawnAnchor.y, s.x - spawnAnchor.x);
+            const ang = away + (rng() - 0.5) * 1.1;
+            const jump = SEAM_JUMP_MIN + rng() * (SEAM_JUMP_MAX - SEAM_JUMP_MIN);
+            shatterObject({ x: s.x, y: s.y, size: SEAM_RADIUS }, SEAM_COLOR);
+            player.x = s.x + Math.cos(ang) * jump;
+            player.y = s.y + Math.sin(ang) * jump;
+            player.vx = Math.cos(ang) * 4;
+            player.vy = Math.sin(ang) * 4;
+            positionHistory = []; // Chrono Rewind can't drag you back through a closed seam
+            invulnTime = Math.max(invulnTime, 160);
+            stress = Math.min(STRESS_MAX, stress + 10);
+            seamFlash = 1;
+            fxRings.push({ x: player.x, y: player.y, r: 8, maxR: 280, life: 1, color: SEAM_COLOR });
+            beaconRecalcTimer = 999;
+            playSound('blink');
+            const homeDist = Math.round(Math.hypot(player.x - spawnAnchor.x, player.y - spawnAnchor.y));
+            if (!commsSeamCrossed) {
+                commsSeamCrossed = true;
+                playCommsExchange(SEAM_FIRST_EXCHANGE, 300, COMMS_PRIORITY.HIGH);
+            } else {
+                const line = SEAM_LINES[Math.floor(Math.random() * SEAM_LINES.length)];
+                sayComms(COMMS_HQ, line(homeDist.toLocaleString()), 'hq', COMMS_PRIORITY.NORMAL);
+            }
+        }
+
+        // ---- SMALL VISUAL FX ---------------------------------------------
+        let fxRings = []; // expanding shockwave rings, purely cosmetic
+
+        // ---- MORE RADIO ---------------------------------------------------
+        let commsChoirEntered = false;
+        let commsEchoSighted = false;
+        let commsSeamCrossed = false;
+        let commsLanternSighted = false;
+        let commsLanternMidfight = false;
+
+        const CHOIR_ENTRY_EXCHANGE = [
+            { who: COMMS_YOU, text: "HQ, Drifter. New region. There's something on the long channel out here. Four notes, over and over.", cls: 'you' },
+            { who: COMMS_HQ, text: "...turn your gain down, Drifter. Don't listen to it. Do your work and get out.", cls: 'hq' },
+            { who: COMMS_HQ, text: "That's the Choir Drift. We don't send people there on purpose.", cls: 'static' }
+        ];
+        const ECHO_SIGHT_EXCHANGE = [
+            { who: COMMS_YOU, text: "HQ, there's a ship out here and I can see straight through it.", cls: 'you' },
+            { who: COMMS_HQ, text: "That's an Echo. Don't let it touch you. If it talks, don't talk back.", cls: 'hq' },
+            { who: COMMS_YOU, text: "And if I shoot it?", cls: 'you' },
+            { who: COMMS_HQ, text: "Then it stops talking.", cls: 'hq' }
+        ];
+        const LANTERN_SIGHT_EXCHANGE = [
+            { who: COMMS_YOU, text: "HQ, contact. Big. It looks like... a lantern? It's singing.", cls: 'you' },
+            { who: COMMS_HQ, text: "That's a relay for the song. Science desk calls them Lanterns.", cls: 'hq' },
+            { who: COMMS_HQ, text: "Put it out, Drifter. Whatever it takes.", cls: 'hq' }
+        ];
+        const LANTERN_MIDFIGHT_EXCHANGE = [
+            { who: COMMS_YOU, text: "HQ, it's getting louder! I can feel it in the hull!", cls: 'you' },
+            { who: COMMS_HQ, text: "Then it's working. Don't let up.", cls: 'hq' }
+        ];
+        const LANTERN_KILL_EXCHANGE = [
+            { who: COMMS_HQ, text: "...it's quiet. Listen to that, Drifter. Actual quiet.", cls: 'hq' },
+            { who: COMMS_YOU, text: "Core's still warm. Pulling its recorder now.", cls: 'you' }
+        ];
+        const SEAM_FIRST_EXCHANGE = [
+            { who: COMMS_YOU, text: "HQ! I just went through something. My odometer jumped tens of thousands of meters!", cls: 'you' },
+            { who: COMMS_HQ, text: "Rift seam. Space tore along lines like that during the quiet minute. They throw you outward and close up behind you.", cls: 'hq' },
+            { who: COMMS_HQ, text: "One crossing each, Drifter. Don't count on one for the ride home.", cls: 'hq' }
+        ];
+        const SEAM_LINES = [
+            d => `Seam crossing logged, Drifter. You're ${d}m from home now.`,
+            d => `Felt that one on our scopes. ${d}m out. Watch your fuel.`,
+            d => `Another seam closed behind you. ${d}m and counting.`
+        ];
+        const CHOIR_DEATH_EXCHANGE = [
+            { who: COMMS_YOU, text: "HQ... I can hear it now. The four notes. It's actually kind of...", cls: 'you' },
+            { who: COMMS_HQ, text: "Drifter? Drifter, turn it off. Drifter!", cls: 'hq' },
+            { who: COMMS_HQ, text: "...channel's gone quiet. Logging it. Logging it.", cls: 'static' }
+        ];
+
+        IDLE_EXCHANGES.push(
+            [
+                { who: COMMS_HQ, text: "Drifter, the cook says hello. Also says you owe him a plate.", cls: 'hq' },
+                { who: COMMS_YOU, text: "Tell him I'm good for it.", cls: 'you' }
+            ],
+            [
+                { who: COMMS_YOU, text: "HQ, you ever wonder why we're the only outfit left?", cls: 'you' },
+                { who: COMMS_HQ, text: "Every day, Drifter. Keep your transmissions short.", cls: 'hq' }
+            ],
+            [
+                { who: COMMS_HQ, text: "Reminder from the science desk: if you hear humming, it isn't the engine.", cls: 'hq' },
+                { who: COMMS_YOU, text: "...noted.", cls: 'you' }
+            ],
+            [
+                { who: COMMS_HQ, text: "Odometer check, Drifter. You're further out than most ever got.", cls: 'hq' },
+                { who: COMMS_YOU, text: "Most of them didn't have you on the radio.", cls: 'you' }
+            ]
+        );
+        // Only once you've been to the line and know the name.
+        const IDLE_EXCHANGES_DEEP = [
+            [
+                { who: COMMS_HQ, text: "Radio check. Say something so I know it's you.", cls: 'hq' },
+                { who: COMMS_YOU, text: "It's me. Gilbert.", cls: 'you' },
+                { who: COMMS_HQ, text: "Not funny, Drifter.", cls: 'hq' }
+            ]
+        ];
+        function pickIdleExchange() {
+            const pool = millionReached ? IDLE_EXCHANGES.concat(IDLE_EXCHANGES_DEEP) : IDLE_EXCHANGES;
+            return pool[Math.floor(Math.random() * pool.length)];
+        }
+
+        DERELICT_LOGS.push(
+            "their long channel array is still powered. Don't touch it. I mean it, Drifter.",
+            "every seat on the bridge is still drawing life support. Nobody answers the hail.",
+            "manifest says they were hauling instruments. Bells, mostly. Odd cargo for a mining outfit."
+        );
+
+        // ---- DRAWING HELPERS FOR ALL OF THE ABOVE -------------------------
+        function drawSeams(camX, camY) {
+            const now = Date.now();
+            for (const s of getNearbySeams()) {
+                const sx = s.x - camX;
+                const sy = s.y - camY;
+                if (sx < -260 || sy < -260 || sx > canvas.width + 260 || sy > canvas.height + 260) continue;
+                if (s.used) {
+                    ctx.save();
+                    ctx.translate(sx, sy);
+                    ctx.rotate(s.tilt);
+                    ctx.strokeStyle = 'rgba(180, 140, 255, 0.28)';
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.moveTo(-SEAM_RADIUS, 0);
+                    ctx.quadraticCurveTo(0, 9, SEAM_RADIUS, 0);
+                    ctx.stroke();
+                    ctx.restore();
+                    ctx.save();
+                    ctx.font = "10px 'Segoe UI', sans-serif";
+                    ctx.textAlign = "center";
+                    ctx.fillStyle = "#6c6478";
+                    ctx.fillText("COLLAPSED SEAM", sx, sy - 22);
+                    ctx.restore();
+                    continue;
+                }
+                const t = now / 1000;
+                ctx.save();
+                ctx.translate(sx, sy);
+                const grad = ctx.createRadialGradient(0, 0, 3, 0, 0, SEAM_RADIUS * 1.9);
+                grad.addColorStop(0, 'rgba(255, 255, 255, 0.95)');
+                grad.addColorStop(0.14, 'rgba(180, 140, 255, 0.6)');
+                grad.addColorStop(0.55, 'rgba(110, 60, 200, 0.18)');
+                grad.addColorStop(1, 'rgba(40, 20, 80, 0)');
+                ctx.fillStyle = grad;
+                ctx.beginPath();
+                ctx.arc(0, 0, SEAM_RADIUS * 1.9, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.rotate(s.tilt);
+                ctx.scale(1, 0.55);
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = SEAM_COLOR;
+                for (let k = 0; k < 5; k++) {
+                    const r = SEAM_RADIUS * (1 - k * 0.17);
+                    const spin = t * (1.2 + k * 0.5) * (k % 2 ? -1 : 1);
+                    ctx.strokeStyle = k % 2 ? 'rgba(159, 240, 216, 0.75)' : 'rgba(180, 140, 255, 0.9)';
+                    ctx.lineWidth = 2.4 - k * 0.3;
+                    ctx.beginPath();
+                    ctx.arc(0, 0, r, spin, spin + Math.PI * 1.3);
+                    ctx.stroke();
+                }
+                ctx.restore();
+                ctx.save();
+                ctx.font = "bold 11px 'Segoe UI', sans-serif";
+                ctx.textAlign = "center";
+                ctx.fillStyle = SEAM_COLOR;
+                ctx.shadowBlur = 6;
+                ctx.shadowColor = SEAM_COLOR;
+                ctx.fillText("RIFT SEAM", sx, sy - SEAM_RADIUS - 22);
+                ctx.font = "9px 'Segoe UI', sans-serif";
+                ctx.shadowBlur = 0;
+                ctx.fillStyle = "#9b8da9";
+                ctx.fillText("ONE CROSSING, OUTWARD ONLY", sx, sy - SEAM_RADIUS - 10);
+                ctx.restore();
+            }
+        }
+
+        function drawRecorders(camX, camY) {
+            const now = Date.now();
+            for (const r of recorders) {
+                const rx = r.x - camX;
+                const ry = r.y - camY;
+                if (rx < -60 || ry < -60 || rx > canvas.width + 60 || ry > canvas.height + 60) continue;
+                const pulse = (Math.sin(now / 300 + r.phase) + 1) / 2;
+                const blink = Math.floor(now / 420 + r.phase) % 2 === 0;
+                ctx.save();
+                ctx.globalAlpha = 0.3 + pulse * 0.4;
+                ctx.strokeStyle = RECORDER_COLOR;
+                ctx.lineWidth = 1.5;
+                ctx.beginPath();
+                ctx.arc(rx, ry, 15 + pulse * 5, 0, Math.PI * 2);
+                ctx.stroke();
+                ctx.globalAlpha = 1;
+                ctx.translate(rx, ry);
+                ctx.rotate(Math.sin(now / 900 + r.phase) * 0.3);
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = RECORDER_COLOR;
+                ctx.fillStyle = '#2a2233';
+                ctx.strokeStyle = RECORDER_COLOR;
+                ctx.lineWidth = 2;
+                ctx.fillRect(-9, -7, 18, 14);
+                ctx.strokeRect(-9, -7, 18, 14);
+                ctx.fillStyle = RECORDER_COLOR;
+                ctx.fillRect(-9, 1, 18, 2);
+                if (blink) {
+                    ctx.fillStyle = '#ff4d4d';
+                    ctx.shadowColor = '#ff4d4d';
+                    ctx.beginPath();
+                    ctx.arc(4.5, -3, 2.2, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+                ctx.restore();
+                ctx.save();
+                ctx.font = "bold 9px 'Segoe UI', sans-serif";
+                ctx.textAlign = "center";
+                ctx.fillStyle = RECORDER_COLOR;
+                ctx.fillText("FLIGHT RECORDER", rx, ry - 24);
+                ctx.restore();
+            }
+        }
+
+        function echoHullPath(s) {
+            ctx.beginPath();
+            ctx.moveTo(0, -s / 2);
+            ctx.lineTo(-s / 2.6, s / 2.4);
+            ctx.lineTo(0, s / 4);
+            ctx.lineTo(s / 2.6, s / 2.4);
+            ctx.closePath();
+        }
+
+        function drawEchoes(camX, camY) {
+            const now = Date.now();
+            for (const e of echoes) {
+                const ex = e.x - camX;
+                const ey = e.y - camY;
+                if (ex < -100 || ey < -100 || ex > canvas.width + 100 || ey > canvas.height + 100) continue;
+                const flick = 0.5 + 0.22 * Math.sin(now / 220 + e.phase * 3) + (Math.random() < 0.03 ? 0.3 : 0);
+                const face = Math.atan2(player.y - e.y, player.x - e.x) + Math.PI / 2;
+                ctx.save();
+                ctx.translate(ex, ey);
+                ctx.rotate(face);
+                ctx.globalAlpha = Math.max(0.12, Math.min(0.85, flick));
+                ctx.shadowBlur = 14;
+                ctx.shadowColor = ECHO_COLOR;
+                ctx.strokeStyle = ECHO_COLOR;
+                ctx.lineWidth = 1.5;
+                ctx.fillStyle = 'rgba(159, 240, 216, 0.12)';
+                echoHullPath(e.size);
+                ctx.fill();
+                ctx.stroke();
+                // Smeared afterimage trailing behind it.
+                ctx.globalAlpha *= 0.4;
+                ctx.translate(Math.sin(now / 300 + e.phase) * 4, 7);
+                echoHullPath(e.size);
+                ctx.stroke();
+                ctx.restore();
+                if (e.health < e.maxHealth) {
+                    drawMiniHealthBar(ex, ey - e.size / 2 - 10, e.health / e.maxHealth, e.size + 6, ECHO_COLOR);
+                }
+            }
+        }
+
+        function drawLantern(a, ax, ay) {
+            const now = Date.now();
+            const enraged = a.health < a.maxHealth * 0.5;
+            const pulse = (Math.sin(now / (enraged ? 140 : 320)) + 1) / 2;
+            // The song itself, rippling outward.
+            ctx.save();
+            ctx.strokeStyle = LANTERN_COLOR;
+            ctx.lineWidth = 1.5;
+            for (let k = 0; k < 3; k++) {
+                const ph = ((now / 1600) + k / 3) % 1;
+                ctx.globalAlpha = (1 - ph) * 0.35;
+                ctx.beginPath();
+                ctx.arc(ax, ay, a.size * 0.5 + ph * a.size * 1.6, 0, Math.PI * 2);
+                ctx.stroke();
+            }
+            ctx.restore();
+
+            ctx.save();
+            ctx.translate(ax, ay);
+            ctx.shadowBlur = 16 + pulse * 12;
+            ctx.shadowColor = LANTERN_COLOR;
+            // Gyroscope cage.
+            for (let k = 0; k < 3; k++) {
+                ctx.save();
+                ctx.rotate((now / 2000) * (k % 2 ? -1 : 1) * (enraged ? 1.8 : 1) + k * Math.PI / 3);
+                ctx.scale(1, 0.38);
+                ctx.strokeStyle = k === 1 ? '#d8fff2' : LANTERN_COLOR;
+                ctx.lineWidth = 2.5;
+                ctx.beginPath();
+                ctx.arc(0, 0, a.size / 2, 0.2, Math.PI * 2 - 0.2);
+                ctx.stroke();
+                ctx.restore();
+            }
+            // Housing caps, top and bottom.
+            ctx.fillStyle = '#1d2b2a';
+            ctx.strokeStyle = LANTERN_COLOR;
+            ctx.lineWidth = 2;
+            for (const dir of [-1, 1]) {
+                ctx.beginPath();
+                ctx.moveTo(-a.size * 0.22, dir * a.size * 0.62);
+                ctx.lineTo(a.size * 0.22, dir * a.size * 0.62);
+                ctx.lineTo(a.size * 0.13, dir * a.size * 0.5);
+                ctx.lineTo(-a.size * 0.13, dir * a.size * 0.5);
+                ctx.closePath();
+                ctx.fill();
+                ctx.stroke();
+            }
+            // The flame.
+            const core = ctx.createRadialGradient(0, 0, 2, 0, 0, a.size * 0.34);
+            core.addColorStop(0, 'rgba(255, 255, 255, 1)');
+            core.addColorStop(0.35, enraged ? 'rgba(255, 210, 160, 0.9)' : 'rgba(159, 240, 216, 0.85)');
+            core.addColorStop(1, 'rgba(159, 240, 216, 0)');
+            ctx.globalAlpha = 0.7 + pulse * 0.3;
+            ctx.fillStyle = core;
+            ctx.beginPath();
+            ctx.arc(0, 0, a.size * (0.26 + pulse * 0.06), 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+
+            ctx.save();
+            ctx.font = "bold 13px 'Segoe UI', sans-serif";
+            ctx.textAlign = "center";
+            ctx.fillStyle = LANTERN_COLOR;
+            ctx.shadowBlur = 6;
+            ctx.shadowColor = LANTERN_COLOR;
+            ctx.fillText("THE LANTERN", ax, ay - a.size * 0.62 - 38);
+            ctx.font = "9px 'Segoe UI', sans-serif";
+            ctx.shadowBlur = 0;
+            ctx.fillStyle = "#9aa7b0";
+            ctx.fillText(a.stunTimer > 0 ? "CARRIER RELAY: STUNNED" : (enraged ? "CARRIER RELAY: SINGING LOUDER" : "CARRIER RELAY: SINGING"), ax, ay - a.size * 0.62 - 25);
+            ctx.restore();
+            drawMiniHealthBar(ax, ay - a.size * 0.62 - 14, a.health / a.maxHealth, a.size + 30, LANTERN_COLOR);
+        }
+
+        function drawStunRing(sx, sy, size) {
+            ctx.save();
+            ctx.strokeStyle = ECHO_COLOR;
+            ctx.globalAlpha = 0.5 + 0.5 * ((Math.sin(Date.now() / 90) + 1) / 2);
+            ctx.lineWidth = 1.5;
+            ctx.setLineDash([2, 4]);
+            ctx.lineDashOffset = Date.now() / 40;
+            ctx.beginPath();
+            ctx.arc(sx, sy, size / 2 + 11, 0, Math.PI * 2);
+            ctx.stroke();
+            ctx.restore();
+        }
+
+        function drawFxRings(camX, camY) {
+            for (const r of fxRings) {
+                ctx.save();
+                ctx.globalAlpha = Math.max(0, r.life);
+                ctx.strokeStyle = r.color;
+                ctx.shadowBlur = 12;
+                ctx.shadowColor = r.color;
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.arc(r.x - camX, r.y - camY, r.r, 0, Math.PI * 2);
+                ctx.stroke();
+                ctx.restore();
+            }
+        }
+
+        function drawSalvageDrone(px, py) {
+            const t = Date.now() / 520;
+            const orbit = 24 * (player.hasJuggernaut ? JUGGERNAUT_SHIP_SCALE : 1);
+            const dx = px + Math.cos(t) * orbit;
+            const dy = py + Math.sin(t) * orbit;
+            ctx.save();
+            ctx.strokeStyle = 'rgba(154, 209, 255, 0.25)';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(px, py);
+            ctx.lineTo(dx, dy);
+            ctx.stroke();
+            ctx.translate(dx, dy);
+            ctx.rotate(t * 2);
+            ctx.shadowBlur = 8;
+            ctx.shadowColor = '#9ad1ff';
+            ctx.fillStyle = '#9ad1ff';
+            ctx.fillRect(-3, -3, 6, 6);
+            if (Math.floor(Date.now() / 350) % 2 === 0) {
+                ctx.fillStyle = '#ffd166';
+                ctx.fillRect(-1, -1, 2, 2);
+            }
+            ctx.restore();
+        }
+
+        // ================= FIVE NEW REGIONS =================
+        // Two places with a past (The Bell Foundry, The Overgrown Orchard)
+        // and three anomalies nobody can explain (The Mirror Field, The
+        // Hourglass Shoal, The Ricochet Reef). The biomes themselves live in
+        // BIOMES; this block holds the mechanics, crafts and radio for them.
+
+        // ---- The Bell Foundry: the yard tolls on its own -----------------
+        const BELL_TOLL_INTERVAL = 1100; // sim ticks between natural tolls
+        const BELL_COLOR = '#e8b04b';
+        let bellTollTimer = 0;
+
+        function playBellSound(loud) {
+            try {
+                if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                if (!sfxMasterGain) {
+                    sfxMasterGain = audioCtx.createGain();
+                    sfxMasterGain.gain.value = SFX_MASTER_VOLUME;
+                    sfxMasterGain.connect(audioCtx.destination);
+                }
+                const now = audioCtx.currentTime;
+                // A struck bell: a low fundamental plus two inharmonic partials.
+                for (const [freq, vol] of [[196, 0.14], [466, 0.06], [741, 0.035]]) {
+                    const o = audioCtx.createOscillator();
+                    const g = audioCtx.createGain();
+                    o.type = 'sine';
+                    o.frequency.setValueAtTime(freq, now);
+                    g.gain.setValueAtTime(vol * (loud ? 1.3 : 1), now);
+                    g.gain.exponentialRampToValueAtTime(0.0001, now + 1.8);
+                    o.connect(g);
+                    g.connect(sfxMasterGain);
+                    o.start(now);
+                    o.stop(now + 1.8);
+                }
+            } catch (e) {}
+        }
+
+        // Shoves wreckage and hostiles outward, shakes nearby crystals
+        // partway full, and (when you ring it yourself) turns incoming fire
+        // around.
+        function ringBell(x, y, radius, byPlayer) {
+            for (const obs of obstacles) {
+                const d = Math.hypot(obs.x - x, obs.y - y);
+                if (d < radius && d > 0.01) {
+                    const push = 3.5 * (1 - d / radius) + 1;
+                    obs.vx += (obs.x - x) / d * push;
+                    obs.vy += (obs.y - y) / d * push;
+                }
+            }
+            for (const a of aliens) {
+                if (isBossAlien(a)) continue;
+                const d = Math.hypot(a.x - x, a.y - y);
+                if (d < radius && d > 0.01) {
+                    a.vx += (a.x - x) / d * 2.5;
+                    a.vy += (a.y - y) / d * 2.5;
+                }
+            }
+            if (byPlayer) {
+                for (const b of alienBullets) {
+                    if (Math.hypot(b.x - x, b.y - y) < radius) { b.vx = -b.vx; b.vy = -b.vy; }
+                }
+            }
+            for (const c of crystals) {
+                if (Math.hypot(c.x - x, c.y - y) < radius * 1.3) {
+                    c.progress = Math.min(c.maxProgress - 1, c.progress + c.maxProgress * 0.2);
+                }
+            }
+            fxRings.push({ x, y, r: 10, maxR: radius, life: 1, color: BELL_COLOR });
+            fxRings.push({ x, y, r: 4, maxR: radius * 0.6, life: 0.8, color: '#fff1c9' });
+            playBellSound(byPlayer);
+        }
+
+        // ---- The Overgrown Orchard: seed pods split -----------------------
+        function splitPod(obs) {
+            const ang = Math.atan2(obs.vy, obs.vx) + Math.PI / 2;
+            for (const dir of [-1, 1]) {
+                const size = obs.size * 0.62;
+                const hp = Math.round(size * 2);
+                obstacles.push({
+                    x: obs.x + Math.cos(ang) * dir * size * 0.6,
+                    y: obs.y + Math.sin(ang) * dir * size * 0.6,
+                    vx: obs.vx * 0.6 + Math.cos(ang) * dir * 1.6,
+                    vy: obs.vy * 0.6 + Math.sin(ang) * dir * 1.6,
+                    size, health: hp, maxHealth: hp,
+                    reward: Math.max(1, Math.ceil((obs.reward || 5) / 2)),
+                    color: obs.color, material: obs.material,
+                    shape: obs.shape, splits: true,
+                    spin: Math.random() * Math.PI * 2,
+                    nearMissDone: true
+                });
+            }
+        }
+
+        // ---- Debris silhouettes for the new regions -----------------------
+        function drawDebrisShape(obs, ox, oy) {
+            const r = obs.size / 2;
+            if (!obs.shape) {
+                ctx.beginPath();
+                ctx.arc(ox, oy, r, 0, Math.PI * 2);
+                ctx.fill();
+                return;
+            }
+            const spin = obs.spin || 0;
+            ctx.save();
+            ctx.translate(ox, oy);
+            ctx.rotate(spin + (Date.now() / 4000) * (spin > Math.PI ? 1 : -1));
+            if (obs.shape === 'bell') {
+                ctx.beginPath();
+                ctx.moveTo(-r * 0.32, -r * 0.88);
+                ctx.quadraticCurveTo(-r * 0.55, -r * 0.1, -r * 0.98, r * 0.72);
+                ctx.lineTo(r * 0.98, r * 0.72);
+                ctx.quadraticCurveTo(r * 0.55, -r * 0.1, r * 0.32, -r * 0.88);
+                ctx.closePath();
+                ctx.fill();
+                ctx.strokeStyle = 'rgba(255, 225, 160, 0.55)';
+                ctx.lineWidth = 1.5;
+                ctx.beginPath();
+                ctx.moveTo(-r * 0.85, r * 0.5);
+                ctx.lineTo(r * 0.85, r * 0.5);
+                ctx.stroke();
+                ctx.fillStyle = 'rgba(255, 230, 170, 0.75)';
+                ctx.beginPath();
+                ctx.arc(0, r * 0.82, r * 0.15, 0, Math.PI * 2);
+                ctx.fill();
+            } else if (obs.shape === 'pod') {
+                ctx.beginPath();
+                ctx.ellipse(0, 0, r * 0.72, r, 0, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.strokeStyle = 'rgba(210, 255, 180, 0.55)';
+                ctx.lineWidth = 1.5;
+                ctx.beginPath();
+                ctx.moveTo(0, -r * 0.9);
+                ctx.quadraticCurveTo(r * 0.25, 0, 0, r * 0.9);
+                ctx.stroke();
+                ctx.fillStyle = '#7ccf5a';
+                ctx.beginPath();
+                ctx.ellipse(r * 0.2, -r * 1.02, r * 0.28, r * 0.12, -0.6, 0, Math.PI * 2);
+                ctx.fill();
+            } else if (obs.shape === 'shard') {
+                ctx.beginPath();
+                ctx.moveTo(0, -r);
+                ctx.lineTo(r * 0.62, 0);
+                ctx.lineTo(0, r);
+                ctx.lineTo(-r * 0.62, 0);
+                ctx.closePath();
+                ctx.fill();
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.45)';
+                ctx.beginPath();
+                ctx.moveTo(0, -r);
+                ctx.lineTo(r * 0.62, 0);
+                ctx.lineTo(0, -r * 0.1);
+                ctx.closePath();
+                ctx.fill();
+            } else if (obs.shape === 'sand') {
+                ctx.beginPath();
+                ctx.moveTo(-r * 0.7, -r);
+                ctx.lineTo(r * 0.7, -r);
+                ctx.lineTo(r * 0.12, 0);
+                ctx.lineTo(r * 0.7, r);
+                ctx.lineTo(-r * 0.7, r);
+                ctx.lineTo(-r * 0.12, 0);
+                ctx.closePath();
+                ctx.fill();
+                ctx.fillStyle = 'rgba(255, 240, 200, 0.6)';
+                ctx.fillRect(-r * 0.4, r * 0.55, r * 0.8, r * 0.35);
+            } else if (obs.shape === 'blob') {
+                const wob = Math.sin(Date.now() / 160 + spin * 3) * 0.08;
+                ctx.beginPath();
+                ctx.ellipse(0, 0, r * (1 + wob), r * (1 - wob), 0, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.35)';
+                ctx.beginPath();
+                ctx.arc(-r * 0.3, -r * 0.3, r * 0.25, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            ctx.restore();
+        }
+
+        // ---- Radio ---------------------------------------------------------
+        const BIOME_ENTRY_EXCHANGES = {
+            foundry: [
+                { who: COMMS_YOU, text: "HQ, there's a yard out here full of half-cast bells. They're ringing on their own.", cls: 'you' },
+                { who: COMMS_HQ, text: "Bell Industries' foundry. Keep your gain down when they toll, Drifter.", cls: 'hq' },
+                { who: COMMS_HQ, text: "Those bells went out as gifts, the season before the quiet minute. Every outfit on the register got one.", cls: 'static' }
+            ],
+            orchard: [
+                { who: COMMS_YOU, text: "HQ, I'm inside a greenhouse. A whole ring of it, and it's gone wild.", cls: 'you' },
+                { who: COMMS_HQ, text: "Orchard Prospecting. They fed half the sector out of that ring.", cls: 'hq' },
+                { who: COMMS_HQ, text: "Funny thing, Drifter. It's the only place out there where something's still alive.", cls: 'static' }
+            ],
+            mirror: [
+                { who: COMMS_YOU, text: "HQ, my shots are coming out both ends of the ship. So are theirs.", cls: 'you' },
+                { who: COMMS_HQ, text: "That region wasn't on the charts last drift. Science desk has no idea. Neither do I.", cls: 'hq' },
+                { who: COMMS_HQ, text: "Logging it as an anomaly. Watch your back. Literally.", cls: 'hq' }
+            ],
+            hourglass: [
+                { who: COMMS_YOU, text: "HQ, everything out here just slowed down. Everything except me.", cls: 'you' },
+                { who: COMMS_HQ, text: "We're reading it too. Clocks in that patch run slow. Not stopped, Drifter. Slow.", cls: 'hq' },
+                { who: COMMS_YOU, text: "Is that better or worse than stopped?", cls: 'you' },
+                { who: COMMS_HQ, text: "Ask me when you're out of it.", cls: 'hq' }
+            ],
+            ricochet: [
+                { who: COMMS_YOU, text: "HQ, I just hit a rock and it bounced me like a ball. Hull's fine. Hull's totally fine.", cls: 'you' },
+                { who: COMMS_HQ, text: "...that shouldn't be possible. That region wasn't there yesterday either.", cls: 'hq' },
+                { who: COMMS_HQ, text: "Anomaly. Enjoy it while it lasts, it'll probably be somewhere else next drift.", cls: 'hq' }
+            ]
+        };
+
+        // ---- Crafts --------------------------------------------------------
+        const BELL_TOLL_PLAYER_RADIUS = 420;
+        const HOURGLASS_SLOW = 0.3;
+        const GRAFT_CRYSTAL_HEAL = 12;
+        const BUMPER_FUEL_COST = 6;
+        ABILITY_DISPLAY_NAMES.toll = 'BELL TOLL';
+        ABILITY_DISPLAY_NAMES.hourglass = 'HOURGLASS';
+
+        // ---- Archive: two new chapters ------------------------------------
+        ARCHIVE_CHAPTERS.push(
+            { pool: 'foundry', title: 'V. THE FOUNDRY', hint: 'Drifting loose in The Bell Foundry.' },
+            { pool: 'orchard', title: 'VI. THE ORCHARD', hint: 'Drifting loose in The Overgrown Orchard.' }
+        );
+        ARCHIVE_ENTRIES.push(
+            { id: 'f1', pool: 'foundry', title: 'Purchase Order 0001', who: 'BELL INDUSTRIES SALES', source: 'The Bell Foundry',
+              lines: [
+                "Order received from an unlisted buyer. Twelve bells, one for every outfit on the register. Payment already cleared.",
+                "Tuning spec attached. Four notes. The buyer was very particular about the four notes."
+              ],
+              hq: "Twelve bells. Twelve outfits. Somebody wanted every mess hall in the sector to have one." },
+            { id: 'f2', pool: 'foundry', title: 'Casting Floor', who: 'FOUNDRY FOREMAN', source: 'The Bell Foundry',
+              lines: [
+                "Pour went perfect. Too perfect. The bronze set before it should have, and it stayed warm the whole time.",
+                "When we struck the first one to test it, every radio on the floor hummed along."
+              ],
+              hq: "And nobody thought to stop pouring." },
+            { id: 'f3', pool: 'foundry', title: 'Delivery Confirmations', who: 'BELL INDUSTRIES LOGISTICS', source: 'The Bell Foundry',
+              lines: [
+                "Eleven bells delivered as gifts, with Bell Industries' compliments. Every outfit hung theirs in the mess hall.",
+                "Twelfth bell refused at the dock. Halcyon Control says their dish is down and they can't sign for it. Returned to the foundry."
+              ],
+              hq: "...the twelfth one was ours, Drifter. It's still out there in that yard. Still ringing." },
+            { id: 'h1', pool: 'orchard', title: 'Greenhouse Rota', who: 'ORCHARD HORTICULTURE', source: 'The Overgrown Orchard',
+              lines: [
+                "Harvest rota for the season. Apples on Tuesdays, beans on Fridays, and somebody please water the far ring for once.",
+                "Half the sector eats out of this greenhouse. If we go down, they go hungry."
+              ],
+              hq: "They didn't go hungry. They just stopped eating." },
+            { id: 'h2', pool: 'orchard', title: "Gardener's Note", who: 'ORCHARD GARDENER', source: 'The Overgrown Orchard',
+              lines: [
+                "Crew stopped coming to the rows this morning. They're all in the mess hall, listening to that bell we got as a gift.",
+                "So I'll water. Somebody has to water."
+              ],
+              hq: "The orchard's still alive out there. Maybe that's why." },
+            { id: 'h3', pool: 'orchard', title: 'Last Watering', who: 'ORCHARD GARDENER', source: 'The Overgrown Orchard',
+              lines: [
+                "I can hear it from out here now. Through the glass. Through the soil, almost.",
+                "If anybody finds this: the plants don't hear it. Plants don't listen. Take the seeds. Plant them somewhere quiet."
+              ],
+              hq: "We'll find somewhere quiet. I promise." }
+        );
+        RECORDER_FIELD_BIOMES.foundry = 'foundry';
+        RECORDER_FIELD_BIOMES.orchard = 'orchard';
+        // Milestones are keyed on how many recorders exist, so re-key the
+        // halfway and complete lines now that the Archive is bigger.
+        delete ARCHIVE_MILESTONE_LINES[11];
+        delete ARCHIVE_MILESTONE_LINES[22];
+        ARCHIVE_MILESTONE_LINES[Math.floor(ARCHIVE_ENTRIES.length / 2)] = "That's half the Archive, Drifter. Whatever happened out there, it happened to everyone at once.";
+        ARCHIVE_MILESTONE_LINES[ARCHIVE_ENTRIES.length] = "That's every recorder on the register. All of it, logged. ...We should have stayed deaf, Drifter. Both of us.";
 
         const konamiSequence = [
             "ArrowUp", "ArrowUp", 
@@ -3496,6 +5191,7 @@
                 const savedEmoji = localStorage.getItem("stellarDrift_emoji");
                 if (savedEmoji) equippedEmoji = savedEmoji;
             } catch (e) {}
+            loadArchive();
             applyUpgradeStats();
             fuel = maxFuel;
             health = maxHealth;
@@ -3506,6 +5202,7 @@
         }
 
         function saveGameData() {
+            saveArchive();
             try {
                 localStorage.setItem("stellarDrift_highScore", String(highScore));
             } catch (e) {}
@@ -3559,7 +5256,9 @@
                     hasShield: player.hasShield, hasMending: player.hasMending,
                     hasBeacon: player.hasBeacon, hasGravPlate: player.hasGravPlate,
                     hasHoming: player.hasHoming, hasGilbertBullets: player.hasGilbertBullets,
-                    hasSteelNerves: player.hasSteelNerves, hasJuggernaut: player.hasJuggernaut
+                    hasSteelNerves: player.hasSteelNerves, hasJuggernaut: player.hasJuggernaut,
+                    hasSalvageDrone: player.hasSalvageDrone,
+                    hasGraft: player.hasGraft, hasMirrorRounds: player.hasMirrorRounds, hasBumpers: player.hasBumpers
                 },
                 camera: { x: camera.x, y: camera.y },
                 spawnAnchor: { x: spawnAnchor.x, y: spawnAnchor.y },
@@ -3586,7 +5285,11 @@
                 // along automatically (aggro included), but whether one has
                 // spawned yet this drift needs to persist too, or a reload
                 // would let a second one spawn on top of a dead or dormant one.
-                wardenSpawnedThisDrift, commsWardenSighted, commsWardenKilled, commsWardenMidfight
+                wardenSpawnedThisDrift, commsWardenSighted, commsWardenKilled, commsWardenMidfight,
+                // The Long Quiet: loose recorders, Echoes, which seams have
+                // already collapsed, and whether the Lantern has surfaced.
+                recorders, echoes, usedSeams, echoesSilenced, lanternSpawnedThisDrift, lanternsSilenced,
+                commsChoirEntered, commsEchoSighted, commsSeamCrossed, commsLanternSighted, commsLanternMidfight
             };
         }
 
@@ -3721,7 +5424,9 @@
                 hasShield: !!p.hasShield, hasMending: !!p.hasMending,
                 hasBeacon: !!p.hasBeacon, hasGravPlate: !!p.hasGravPlate,
                 hasHoming: !!p.hasHoming, hasGilbertBullets: !!p.hasGilbertBullets,
-                hasSteelNerves: !!p.hasSteelNerves, hasJuggernaut: !!p.hasJuggernaut
+                hasSteelNerves: !!p.hasSteelNerves, hasJuggernaut: !!p.hasJuggernaut,
+                hasSalvageDrone: !!p.hasSalvageDrone,
+                hasGraft: !!p.hasGraft, hasMirrorRounds: !!p.hasMirrorRounds, hasBumpers: !!p.hasBumpers
             });
 
             camera.x = data.camera ? data.camera.x : player.x;
@@ -3737,6 +5442,22 @@
             commsWardenSighted = !!data.commsWardenSighted;
             commsWardenKilled = !!data.commsWardenKilled;
             commsWardenMidfight = !!data.commsWardenMidfight;
+            recorders = data.recorders || [];
+            echoes = data.echoes || [];
+            usedSeams = data.usedSeams || {};
+            echoesSilenced = data.echoesSilenced || 0;
+            lanternSpawnedThisDrift = !!data.lanternSpawnedThisDrift;
+            lanternsSilenced = data.lanternsSilenced || 0;
+            commsChoirEntered = !!data.commsChoirEntered;
+            commsEchoSighted = !!data.commsEchoSighted;
+            commsSeamCrossed = !!data.commsSeamCrossed;
+            commsLanternSighted = !!data.commsLanternSighted;
+            commsLanternMidfight = !!data.commsLanternMidfight;
+            echoSpawnTimer = 0;
+            recorderSpawnTimer = 0;
+            echoWhisperCooldown = 0;
+            fxRings = [];
+            seamFlash = 0;
 
             obstacles = data.obstacles || [];
             aliens = data.aliens || [];
@@ -4254,6 +5975,10 @@
 
         window.addEventListener("keydown", (e) => {
             keys[e.code] = true;
+            if (e.code === "Escape" && !archiveScreen.classList.contains("hidden")) {
+                closeArchive();
+                return;
+            }
             if (e.code === "Escape") {
                 if (docked) {
                     undock();
@@ -4271,6 +5996,8 @@
                     dock(false);
                 } else if (outpost && Math.hypot(player.x - outpost.x, player.y - outpost.y) < OUTPOST_DOCK_RANGE) {
                     dock(true);
+                } else if (getSeamInRange()) {
+                    crossSeam(getSeamInRange());
                 } else if (derelictPullCooldown <= 0) {
                     // No dock here - a derelict has no working airlock, you
                     // just cut a cache free from outside.
@@ -4339,6 +6066,7 @@
             pauseScreen.classList.add("hidden");
             gameoverScreen.classList.add("hidden");
             emblemScreen.classList.add("hidden");
+            archiveScreen.classList.add("hidden");
             screenEl.classList.remove("hidden");
         }
 
@@ -5615,186 +7343,70 @@
             player.equippedAbility = type;
             player.cooldownTime = 0; // don't inherit a leftover cooldown from whichever ability was equipped before
             playSound('crystal');
-            alert(`Crafted blessing: ${type.toUpperCase()}`);
+            alert(`Crafted blessing: ${abilityDisplayName(type)}`);
             updateHudDisplay();
             updateShopWallet();
         }
 
-        function buyMending() {
-            if (player.hasMending) return; // already your equipped passive
-            const recipe = CRAFT_RECIPES.mending;
+        // Every passive shares one slot: crafting a new one swaps out
+        // whichever passive you had before. One table drives all of them
+        // so adding a passive is one line here plus its shop entry.
+        const PASSIVES = [
+            { type: 'mending', flag: 'hasMending' },
+            { type: 'beacon', flag: 'hasBeacon' },
+            { type: 'gravplate', flag: 'hasGravPlate' },
+            { type: 'homing', flag: 'hasHoming' },
+            { type: 'steelnerves', flag: 'hasSteelNerves' },
+            { type: 'salvagedrone', flag: 'hasSalvageDrone' },
+            { type: 'graft', flag: 'hasGraft' },
+            { type: 'mirrorrounds', flag: 'hasMirrorRounds' },
+            { type: 'bumpers', flag: 'hasBumpers' }
+        ];
+        function equipPassive(type) {
+            const def = PASSIVES.find(p => p.type === type);
+            if (!def || player[def.flag]) return; // already your equipped passive
+            const recipe = CRAFT_RECIPES[type];
             if (!canAffordRecipe(recipe)) {
                 alert(`Missing materials or Stardust! Need ${craftCostLabel(recipe)}.`);
                 return;
             }
             craftRecipe(recipe);
-            // Only one passive can be equipped at a time - crafting a new
-            // one swaps out whichever passive you had before.
-            player.hasMending = true;
-            player.hasBeacon = false;
-            player.hasGravPlate = false;
-            player.hasHoming = false;
-            player.hasSteelNerves = false;
+            for (const p of PASSIVES) player[p.flag] = (p.type === type);
             playSound('crystal');
-            updateMendingButton();
-            updateBeaconButton();
-            updateGravPlateButton();
-            updateHomingButton();
-            updateSteelNervesButton();
+            updatePassiveButtons();
             updateBeaconHud();
             updateShopWallet();
         }
-
-        function updateMendingButton() {
-            const btn = document.getElementById('buy-mending-btn');
-            if (!btn) return;
-            if (player.hasMending) {
+        function updatePassiveButton(type) {
+            const def = PASSIVES.find(p => p.type === type);
+            const btn = document.getElementById(`buy-${type}-btn`);
+            if (!def || !btn) return;
+            if (player[def.flag]) {
                 btn.textContent = "OWNED";
                 btn.disabled = true;
             } else {
                 btn.textContent = "CRAFT";
-                btn.disabled = !canAffordRecipe(CRAFT_RECIPES.mending);
+                btn.disabled = !canAffordRecipe(CRAFT_RECIPES[type]);
             }
         }
-
-        function buyBeacon() {
-            if (player.hasBeacon) return; // already your equipped passive
-            const recipe = CRAFT_RECIPES.beacon;
-            if (!canAffordRecipe(recipe)) {
-                alert(`Missing materials or Stardust! Need ${craftCostLabel(recipe)}.`);
-                return;
-            }
-            craftRecipe(recipe);
-            // Only one passive can be equipped at a time - crafting a new
-            // one swaps out whichever passive you had before.
-            player.hasBeacon = true;
-            player.hasMending = false;
-            player.hasGravPlate = false;
-            player.hasHoming = false;
-            player.hasSteelNerves = false;
-            playSound('crystal');
-            updateMendingButton();
-            updateBeaconButton();
-            updateGravPlateButton();
-            updateHomingButton();
-            updateSteelNervesButton();
-            updateShopWallet();
-            updateBeaconHud();
-        }
-
-        function updateBeaconButton() {
-            const btn = document.getElementById('buy-beacon-btn');
-            if (!btn) return;
-            if (player.hasBeacon) {
-                btn.textContent = "OWNED";
-                btn.disabled = true;
-            } else {
-                btn.textContent = "CRAFT";
-                btn.disabled = !canAffordRecipe(CRAFT_RECIPES.beacon);
-            }
-        }
-
-        function buyGravPlate() {
-            if (player.hasGravPlate) return; // already your equipped passive
-            const recipe = CRAFT_RECIPES.gravplate;
-            if (!canAffordRecipe(recipe)) {
-                alert(`Missing materials or Stardust! Need ${craftCostLabel(recipe)}.`);
-                return;
-            }
-            craftRecipe(recipe);
-            // Only one passive can be equipped at a time - crafting a new
-            // one swaps out whichever passive you had before.
-            player.hasGravPlate = true;
-            player.hasMending = false;
-            player.hasBeacon = false;
-            player.hasHoming = false;
-            player.hasSteelNerves = false;
-            playSound('crystal');
-            updateMendingButton();
-            updateBeaconButton();
-            updateGravPlateButton();
-            updateHomingButton();
-            updateSteelNervesButton();
-            updateBeaconHud();
-            updateShopWallet();
-        }
-
-        function buyHoming() {
-            if (player.hasHoming) return; // already your equipped passive
-            const recipe = CRAFT_RECIPES.homing;
-            if (!canAffordRecipe(recipe)) {
-                alert(`Missing materials or Stardust! Need ${craftCostLabel(recipe)}.`);
-                return;
-            }
-            craftRecipe(recipe);
-            // Only one passive can be equipped at a time - crafting a new
-            // one swaps out whichever passive you had before.
-            player.hasHoming = true;
-            player.hasMending = false;
-            player.hasBeacon = false;
-            player.hasGravPlate = false;
-            player.hasSteelNerves = false;
-            playSound('crystal');
-            updateMendingButton();
-            updateBeaconButton();
-            updateGravPlateButton();
-            updateHomingButton();
-            updateSteelNervesButton();
-            updateBeaconHud();
-            updateShopWallet();
-        }
-
-        function updateHomingButton() {
-            const btn = document.getElementById('buy-homing-btn');
-            if (!btn) return;
-            if (player.hasHoming) {
-                btn.textContent = "OWNED";
-                btn.disabled = true;
-            } else {
-                btn.textContent = "CRAFT";
-                btn.disabled = !canAffordRecipe(CRAFT_RECIPES.homing);
-            }
-        }
-
-        // Steel Nerves: the calm counterpart to Stress Vent - halves how
-        // fast stress builds up, so crystal harvesting stays closer to
-        // full-reward even out in messy, debris/alien-crowded pockets of
-        // space. Same one-passive-slot rotation as Mending/Beacon/
-        // GravPlate/Homing above.
-        function buySteelNerves() {
-            if (player.hasSteelNerves) return; // already your equipped passive
-            const recipe = CRAFT_RECIPES.steelnerves;
-            if (!canAffordRecipe(recipe)) {
-                alert(`Missing materials or Stardust! Need ${craftCostLabel(recipe)}.`);
-                return;
-            }
-            craftRecipe(recipe);
-            player.hasSteelNerves = true;
-            player.hasMending = false;
-            player.hasBeacon = false;
-            player.hasGravPlate = false;
-            player.hasHoming = false;
-            playSound('crystal');
-            updateMendingButton();
-            updateBeaconButton();
-            updateGravPlateButton();
-            updateHomingButton();
-            updateSteelNervesButton();
-            updateBeaconHud();
-            updateShopWallet();
-        }
-
-        function updateSteelNervesButton() {
-            const btn = document.getElementById('buy-steelnerves-btn');
-            if (!btn) return;
-            if (player.hasSteelNerves) {
-                btn.textContent = "OWNED";
-                btn.disabled = true;
-            } else {
-                btn.textContent = "CRAFT";
-                btn.disabled = !canAffordRecipe(CRAFT_RECIPES.steelnerves);
-            }
-        }
+        function updatePassiveButtons() { for (const p of PASSIVES) updatePassiveButton(p.type); }
+        function buyMending() { equipPassive('mending'); }
+        function updateMendingButton() { updatePassiveButton('mending'); }
+        function buyBeacon() { equipPassive('beacon'); }
+        function updateBeaconButton() { updatePassiveButton('beacon'); }
+        function buyGravPlate() { equipPassive('gravplate'); }
+        function buyHoming() { equipPassive('homing'); }
+        function updateHomingButton() { updatePassiveButton('homing'); }
+        // Steel Nerves: the calm counterpart to Stress Vent, halves how
+        // fast stress builds up.
+        function buySteelNerves() { equipPassive('steelnerves'); }
+        function updateSteelNervesButton() { updatePassiveButton('steelnerves'); }
+        // Salvage Drone: tows nearby pickups in and widens crystal range.
+        function buySalvageDrone() { equipPassive('salvagedrone'); }
+        function updateSalvageDroneButton() { updatePassiveButton('salvagedrone'); }
+        function buyGraft() { equipPassive('graft'); }
+        function buyMirrorRounds() { equipPassive('mirrorrounds'); }
+        function buyBumpers() { equipPassive('bumpers'); }
 
         // The Juggernaut refit - not part of the passive rotation, not
         // repeatable, and not just Stardust: it's locked behind every other
@@ -5931,7 +7543,7 @@
                 }).join('');
             }
             for (const type of Object.keys(CRAFT_RECIPES)) {
-                if (type === 'mending' || type === 'beacon' || type === 'gravplate' || type === 'homing' || type === 'gilbertbullets' || type === 'cheaterscure' || type === 'steelnerves') continue; // handled by their own buttons
+                if (type === 'mending' || type === 'beacon' || type === 'gravplate' || type === 'homing' || type === 'gilbertbullets' || type === 'cheaterscure' || type === 'steelnerves' || type === 'salvagedrone' || type === 'graft' || type === 'mirrorrounds' || type === 'bumpers') continue; // handled by their own buttons
                 const recipe = CRAFT_RECIPES[type];
                 const costEl = document.getElementById(`cost-${type}`);
                 const btn = document.getElementById(`buy-${type}-btn`);
@@ -5983,6 +7595,11 @@
                 steelnervesCost.textContent = `Craft: ${craftCostLabel(CRAFT_RECIPES.steelnerves)}`;
                 steelnervesCost.classList.toggle('insufficient', !canAffordRecipe(CRAFT_RECIPES.steelnerves));
             }
+            const salvageDroneCost = document.getElementById('cost-salvagedrone');
+            if (salvageDroneCost) {
+                salvageDroneCost.textContent = `Craft: ${craftCostLabel(CRAFT_RECIPES.salvagedrone)}`;
+                salvageDroneCost.classList.toggle('insufficient', !canAffordRecipe(CRAFT_RECIPES.salvagedrone));
+            }
             const gilbertBulletsCost = document.getElementById('cost-gilbertbullets');
             if (gilbertBulletsCost) {
                 gilbertBulletsCost.textContent = `Craft: ${craftCostLabel(CRAFT_RECIPES.gilbertbullets)}`;
@@ -5992,7 +7609,16 @@
             updateBeaconButton();
             updateGravPlateButton();
             updateHomingButton();
+            for (const t of ['graft', 'mirrorrounds', 'bumpers']) {
+                const el = document.getElementById(`cost-${t}`);
+                if (el) {
+                    el.textContent = `Craft: ${craftCostLabel(CRAFT_RECIPES[t])}`;
+                    el.classList.toggle('insufficient', !canAffordRecipe(CRAFT_RECIPES[t]));
+                }
+            }
             updateSteelNervesButton();
+            updateSalvageDroneButton();
+            updatePassiveButtons();
             updateGilbertBulletsButton();
         }
 
@@ -6065,6 +7691,16 @@
                 vy: Math.sin(angle) * PLAYER_BULLET_SPEED,
                 life: PLAYER_BULLET_LIFE
             });
+            if ((activeBiome && activeBiome.mirrored) || player.hasMirrorRounds) {
+                const back = angle + Math.PI;
+                playerBullets.push({
+                    x: player.x + Math.cos(back) * 16,
+                    y: player.y + Math.sin(back) * 16,
+                    vx: Math.cos(back) * PLAYER_BULLET_SPEED,
+                    vy: Math.sin(back) * PLAYER_BULLET_SPEED,
+                    life: PLAYER_BULLET_LIFE
+                });
+            }
             shotCooldown = SHOT_COOLDOWN_FRAMES;
             playSound('shoot');
         }
@@ -6107,9 +7743,10 @@
                     }
                     return true;
                 });
+                // Bosses don't vanish in the blast any more, they take a heavy hit.
                 aliens = aliens.filter(a => {
                     const d = Math.hypot(player.x - a.x, player.y - a.y);
-                    if (d <= 190) return false;
+                    if (d <= 190) return isBossAlien(a) ? !blastBoss(a, BOSS_PULSE_DAMAGE) : false;
                     if (d <= 320) {
                         const knockAngle = Math.atan2(a.y - player.y, a.x - player.x);
                         a.vx += Math.cos(knockAngle) * 4;
@@ -6117,6 +7754,13 @@
                     }
                     return true;
                 });
+                for (let j = echoes.length - 1; j >= 0; j--) {
+                    if (Math.hypot(player.x - echoes[j].x, player.y - echoes[j].y) <= 190) {
+                        const e = echoes[j];
+                        echoes.splice(j, 1);
+                        silenceEcho(e);
+                    }
+                }
                 player.cooldownTime = 660;
             }
             else if (ab === 'magnet') {
@@ -6181,12 +7825,20 @@
                 });
                 aliens = aliens.filter(a => {
                     if (Math.hypot(player.x - a.x, player.y - a.y) <= 260) {
+                        if (isBossAlien(a)) return !blastBoss(a, BOSS_OVERLOAD_DAMAGE);
                         totalCredits += (a.reward || 10) * 2;
                         score += (a.reward || 10) * 2;
                         return false;
                     }
                     return true;
                 });
+                for (let j = echoes.length - 1; j >= 0; j--) {
+                    if (Math.hypot(player.x - echoes[j].x, player.y - echoes[j].y) <= 260) {
+                        const e = echoes[j];
+                        echoes.splice(j, 1);
+                        silenceEcho(e, 2);
+                    }
+                }
                 scoreDisplay.textContent = `STARDUST: ${score}`;
                 player.cooldownTime = 780;
             }
@@ -6262,6 +7914,34 @@
                 }
                 player.cooldownTime = SUPPLY_DROP_COOLDOWN_FRAMES;
             }
+            else if (ab === 'tuningfork') {
+                playSound('pulse');
+                for (let j = echoes.length - 1; j >= 0; j--) {
+                    const e = echoes[j];
+                    if (Math.hypot(player.x - e.x, player.y - e.y) <= TUNING_FORK_ECHO_RADIUS) {
+                        echoes.splice(j, 1);
+                        silenceEcho(e);
+                    }
+                }
+                for (const a of aliens) {
+                    if (Math.hypot(player.x - a.x, player.y - a.y) <= TUNING_FORK_STUN_RADIUS) {
+                        a.stunTimer = isBossAlien(a) ? TUNING_FORK_BOSS_STUN : TUNING_FORK_STUN;
+                    }
+                }
+                alienBullets = alienBullets.filter(b => Math.hypot(player.x - b.x, player.y - b.y) > TUNING_FORK_BULLET_RADIUS);
+                fxRings.push({ x: player.x, y: player.y, r: 12, maxR: TUNING_FORK_ECHO_RADIUS, life: 1, color: ECHO_COLOR });
+                player.cooldownTime = 720;
+            }
+            else if (ab === 'toll') {
+                ringBell(player.x, player.y, BELL_TOLL_PLAYER_RADIUS, true);
+                player.cooldownTime = 540;
+            }
+            else if (ab === 'hourglass') {
+                playSound('special');
+                activeEffectTimer = 300;
+                fxRings.push({ x: player.x, y: player.y, r: 10, maxR: 360, life: 1, color: '#f0d9a8' });
+                player.cooldownTime = 900;
+            }
         }
 
         function startGame(slot, isTutorial) {
@@ -6296,6 +7976,11 @@
             player.hasGilbertBullets = false;
             player.hasSteelNerves = false;
             player.hasJuggernaut = false;
+            player.hasSalvageDrone = false;
+            player.hasGraft = false;
+            player.hasMirrorRounds = false;
+            player.hasBumpers = false;
+            bellTollTimer = 0;
             applyUpgradeStats();
             fuel = maxFuel;
             health = maxHealth;
@@ -6347,6 +8032,24 @@
             commsWardenSighted = false;
             commsWardenKilled = false;
             commsWardenMidfight = false;
+            // The Long Quiet: every seam is open again and the Choir is
+            // quiet until you go looking. The Archive itself is NOT reset.
+            recorders = [];
+            recorderSpawnTimer = 0;
+            echoes = [];
+            echoSpawnTimer = 0;
+            echoesSilenced = 0;
+            echoWhisperCooldown = 0;
+            usedSeams = {};
+            lanternSpawnedThisDrift = false;
+            lanternsSilenced = 0;
+            fxRings = [];
+            seamFlash = 0;
+            commsChoirEntered = false;
+            commsEchoSighted = false;
+            commsSeamCrossed = false;
+            commsLanternSighted = false;
+            commsLanternMidfight = false;
             if (!isTutorial) {
                 playCommsExchange(NEW_DRIFT_EXCHANGES[Math.floor(Math.random() * NEW_DRIFT_EXCHANGES.length)], 600, COMMS_PRIORITY.NORMAL);
             }
@@ -6574,13 +8277,13 @@
                     ? `COOLDOWN: ${Math.floor(cdSecs / 60)}:${String(cdSecs % 60).padStart(2, '0')}`
                     : `COOLDOWN: ${cdSecs}s`;
             } else if (activeEffectTimer > 0) {
-                abilityHud.textContent = `ACTIVE: ${player.equippedAbility.toUpperCase()} (${Math.ceil(activeEffectTimer/60)}s)`;
+                abilityHud.textContent = `ACTIVE: ${abilityDisplayName(player.equippedAbility)} (${Math.ceil(activeEffectTimer/60)}s)`;
             } else if (player.equippedAbility === 'rewind') {
                 abilityHud.textContent = `CHRONO REWIND: READY [AUTO]`;
             } else if (player.equippedAbility === 'supplydrop') {
                 abilityHud.textContent = `READY [SPACE]: SUPPLY DROP`;
             } else {
-                abilityHud.textContent = `READY [SPACE]: ${player.equippedAbility.toUpperCase()}`;
+                abilityHud.textContent = `READY [SPACE]: ${abilityDisplayName(player.equippedAbility)}`;
             }
         }
 
@@ -6613,7 +8316,10 @@
             // a moment, so the exchange is actually visible before it's
             // covered and cleared.
             clearComms();
-            playCommsExchange(DEATH_EXCHANGES[Math.floor(Math.random() * DEATH_EXCHANGES.length)], 0, COMMS_PRIORITY.CRITICAL);
+            const deathExchange = (activeBiome && activeBiome.id === 'choir')
+                ? CHOIR_DEATH_EXCHANGE
+                : DEATH_EXCHANGES[Math.floor(Math.random() * DEATH_EXCHANGES.length)];
+            playCommsExchange(deathExchange, 0, COMMS_PRIORITY.CRITICAL);
             setTimeout(() => {
                 clearComms();
                 finishGameOver();
@@ -6696,7 +8402,10 @@
                 reward: biome.debrisReward,
                 color: biome.debrisColor,
                 material: biome.material ? biome.material.id : null,
-                isGilbert: biome.id === 'frozenGilberts'
+                isGilbert: biome.id === 'frozenGilberts',
+                shape: biome.debrisShape || null,
+                splits: !!biome.splitDebris,
+                spin: Math.random() * Math.PI * 2
             });
         }
 
@@ -6730,6 +8439,13 @@
             // they take the slot an ordinary hostile would have used.
             const spawnHomeDist = Math.hypot(x - spawnAnchor.x, y - spawnAnchor.y);
             const isSettler = spawnHomeDist >= DEEP_SPACE_UNCAPPED_DIST && Math.random() < SETTLER_SPAWN_CHANCE;
+
+            // The Lantern only ever surfaces inside The Choir Drift, once per drift.
+            if (!isSettler && !lanternSpawnedThisDrift && !tutorialMode && biome.id === 'choir' &&
+                spawnHomeDist >= LANTERN_MIN_HOME_DIST && Math.random() < LANTERN_SPAWN_CHANCE) {
+                spawnLantern(x, y);
+                return;
+            }
 
             // The Warden takes an alien slot too, but only once per drift
             // and only once it's actually clear of the Sanctuary.
@@ -6900,6 +8616,7 @@
             if (!outpost) outpostBreakArmed = false; // nothing to break if it's already gone
 
             updateEvents();
+            processPlaybackQueue();
 
             // Idle radio filler - keeps the channel feeling staffed even
             // when nothing else is triggering a line. Skipped during the
@@ -6909,7 +8626,7 @@
                 if (commsIdleTimer >= commsIdleTarget) {
                     commsIdleTimer = 0;
                     commsIdleTarget = rollNextIdleTimer();
-                    playCommsExchange(IDLE_EXCHANGES[Math.floor(Math.random() * IDLE_EXCHANGES.length)], 0, COMMS_PRIORITY.IDLE);
+                    playCommsExchange(pickIdleExchange(), 0, COMMS_PRIORITY.IDLE);
                 }
             }
 
@@ -6931,11 +8648,21 @@
             }
 
             const currentBiome = getBiome(player.x, player.y);
+            // Hourglass Shoal and the Hourglass blessing slow every hazard.
+            const hourglassActive = player.equippedAbility === 'hourglass' && activeEffectTimer > 0;
+            const hazardTime = (currentBiome.timeScale || 1) * (hourglassActive ? HOURGLASS_SLOW : 1);
             activeBiome = currentBiome;
             announceBiome(currentBiome);
             if (currentBiome.id !== 'home' && !commsBiomesAnnounced[currentBiome.id]) {
                 commsBiomesAnnounced[currentBiome.id] = true;
-                sayComms(COMMS_HQ, FIRST_BIOME_LINES(currentBiome.name), 'hq', COMMS_PRIORITY.NORMAL);
+                if (currentBiome.id === 'choir' && !commsChoirEntered && !tutorialMode) {
+                    commsChoirEntered = true;
+                    playCommsExchange(CHOIR_ENTRY_EXCHANGE, 0, COMMS_PRIORITY.HIGH);
+                } else if (BIOME_ENTRY_EXCHANGES[currentBiome.id] && !tutorialMode) {
+                    playCommsExchange(BIOME_ENTRY_EXCHANGES[currentBiome.id], 0, COMMS_PRIORITY.HIGH);
+                } else {
+                    sayComms(COMMS_HQ, FIRST_BIOME_LINES(currentBiome.name), 'hq', COMMS_PRIORITY.NORMAL);
+                }
             }
 
             if (player.hasBeacon) {
@@ -6944,8 +8671,10 @@
                     beaconRecalcTimer = 0;
                     if (beaconTargetIndex === BEACON_DERELICT_INDEX) {
                         beaconTarget = findNearestDerelict(player.x, player.y);
+                    } else if (beaconTargetIndex === BEACON_SEAM_INDEX) {
+                        beaconTarget = findNearestSeam(player.x, player.y);
                     } else {
-                        const targetId = WILD_BIOME_IDS[beaconTargetIndex];
+                        const targetId = BEACON_BIOME_IDS[beaconTargetIndex];
                         beaconTarget = findNearestBiomeTile(targetId, player.x, player.y);
                     }
                     updateBeaconHud();
@@ -6965,6 +8694,9 @@
                 dockPrompt.textContent = (outpost && outpost.isReal)
                     ? "DOCKING RANGE: PRESS E TO ENTER SANCTUARY"
                     : `DOCKING RANGE: PRESS E TO CRAFT AT MINI SANCTUARY (${OUTPOST_CRAFT_MULTIPLIER}x COST)`;
+                dockPrompt.classList.add("visible");
+            } else if (getSeamInRange()) {
+                dockPrompt.textContent = "RIFT SEAM: PRESS E TO CROSS (ONE WAY, OUTWARD)";
                 dockPrompt.classList.add("visible");
             } else {
                 const wreckInRange = getDerelictInRange();
@@ -7079,9 +8811,9 @@
                 const nerveMult = player.hasSteelNerves ? 0.5 : 1;
 
                 if (currentVel < STRESS_STILL_SPEED) {
-                    stress += (STRESS_STILL_GAIN + harshness) * nerveMult;
+                    stress += (STRESS_STILL_GAIN + harshness) * nerveMult * (currentBiome.stressMult || 1);
                 } else {
-                    stress += (STRESS_MOVING_GAIN + harshness * 0.5) * nerveMult; // moving still creeps stress up, just slower than sitting still
+                    stress += (STRESS_MOVING_GAIN + harshness * 0.5) * nerveMult * (currentBiome.stressMult || 1); // moving still creeps stress up, just slower than sitting still
                 }
             }
             stress = Math.max(0, Math.min(STRESS_MAX, stress));
@@ -7213,7 +8945,7 @@
                     c.y += Math.sin(angleToPlayer) * 3;
                 }
 
-                if (distToPlayer <= 35) {
+                if (distToPlayer <= (player.hasSalvageDrone ? 58 : 35)) {
                     const baseGain = (cheatedAbilityMode === 'vacuum' || (player.equippedAbility === 'magnet' && activeEffectTimer > 0)) ? 25 : 1;
                     const stressRatio = stress / STRESS_MAX;
                     c.progress += baseGain * (1 + stressRatio * STRESS_FILL_BONUS);
@@ -7228,6 +8960,7 @@
                                 addMaterial(c.material, Math.random() < 0.15 ? 2 : 1);
                             }
                         }
+                        if (player.hasGraft) health = Math.min(maxHealth, health + GRAFT_CRYSTAL_HEAL);
                         playSound('crystal');
                         crystals.splice(i, 1);
                         scoreDisplay.textContent = `STARDUST: ${score}`;
@@ -7251,6 +8984,8 @@
                     const angleToPlayer = Math.atan2(player.y - f.y, player.x - f.x);
                     f.x += Math.cos(angleToPlayer) * 3;
                     f.y += Math.sin(angleToPlayer) * 3;
+                } else if (player.hasSalvageDrone && distToPlayer < SALVAGE_DRONE_RANGE) {
+                    droneTow(f);
                 }
                 if (distToPlayer < 25) {
                     fuel = Math.min(maxFuel, fuel + 40);
@@ -7271,9 +9006,11 @@
                     const angleToPlayer = Math.atan2(player.y - h.y, player.x - h.x);
                     h.x += Math.cos(angleToPlayer) * 3;
                     h.y += Math.sin(angleToPlayer) * 3;
+                } else if (player.hasSalvageDrone && distToPlayer < SALVAGE_DRONE_RANGE) {
+                    droneTow(h);
                 }
                 if (distToPlayer < 25) {
-                    health = Math.min(maxHealth, health + 30);
+                    health = Math.min(maxHealth, health + (player.hasGraft ? 45 : 30));
                     playSound('fuel');
                     healthPickups.splice(i, 1);
                 }
@@ -7285,6 +9022,8 @@
                     const angleToPlayer = Math.atan2(player.y - s.y, player.x - s.x);
                     s.x += Math.cos(angleToPlayer) * 3;
                     s.y += Math.sin(angleToPlayer) * 3;
+                } else if (player.hasSalvageDrone && Math.hypot(player.x - s.x, player.y - s.y) < SALVAGE_DRONE_RANGE) {
+                    droneTow(s);
                 }
                 if (Math.hypot(player.x - s.x, player.y - s.y) < 25) {
                     score += s.reward;
@@ -7307,6 +9046,108 @@
                     salvageCrates.splice(i, 1);
                 }
             }
+
+            // ---- The Long Quiet: recorders, Echoes, the Lantern, fx ----
+            if (!tutorialMode) {
+                const fieldPool = RECORDER_FIELD_BIOMES[currentBiome.id];
+                if (fieldPool) {
+                    recorderSpawnTimer++;
+                    if (recorderSpawnTimer >= RECORDER_FIELD_INTERVAL) {
+                        recorderSpawnTimer = 0;
+                        if (!recorders.some(r => !r.persistent) && Math.random() < 0.6) spawnFieldRecorder(fieldPool);
+                    }
+                }
+            }
+            for (let i = recorders.length - 1; i >= 0; i--) {
+                const r = recorders[i];
+                const dR = Math.hypot(player.x - r.x, player.y - r.y);
+                if (!r.persistent && dR > PICKUP_DESPAWN_RADIUS) {
+                    recorders.splice(i, 1);
+                    continue;
+                }
+                if (magnetActive || (player.hasSalvageDrone && dR < SALVAGE_DRONE_RANGE)) droneTow(r);
+                if (dR < 26) {
+                    recorders.splice(i, 1);
+                    collectRecorder(r.pool);
+                }
+            }
+
+            if (currentBiome.hasEchoes && !tutorialMode) {
+                echoSpawnTimer++;
+                if (echoSpawnTimer >= ECHO_SPAWN_INTERVAL && echoes.length < ECHO_MAX) {
+                    echoSpawnTimer = 0;
+                    spawnEcho();
+                }
+            }
+            if (echoWhisperCooldown > 0) echoWhisperCooldown--;
+            const shelteredFromEchoes = docked || inSanctuaryField || inOutpostField;
+            const phasedThroughEchoes = player.equippedAbility === 'cloak' && activeEffectTimer > 0;
+            for (let i = echoes.length - 1; i >= 0; i--) {
+                const e = echoes[i];
+                e.phase += 0.015;
+                if (Math.hypot(e.x - sanctuary.x, e.y - sanctuary.y) < sanctuary.safeRadius ||
+                    (outpost && Math.hypot(e.x - outpost.x, e.y - outpost.y) < OUTPOST_SAFE_RADIUS)) {
+                    shatterObject(e, ECHO_COLOR);
+                    echoes.splice(i, 1);
+                    continue;
+                }
+                const dE = Math.hypot(player.x - e.x, player.y - e.y);
+                if (dE > DESPAWN_RADIUS) {
+                    echoes.splice(i, 1);
+                    continue;
+                }
+                if (!commsEchoSighted && !tutorialMode && dE < 650) {
+                    commsEchoSighted = true;
+                    playCommsExchange(ECHO_SIGHT_EXCHANGE, 0, COMMS_PRIORITY.HIGH);
+                }
+                const angE = Math.atan2(player.y - e.y, player.x - e.x);
+                const drift = shelteredFromEchoes ? -0.012 : 0.01;
+                e.vx += Math.cos(angE) * drift;
+                e.vy += Math.sin(angE) * drift;
+                const spE = Math.hypot(e.vx, e.vy);
+                const maxE = e.fromLantern ? 0.95 : 0.7;
+                if (spE > maxE) { e.vx = e.vx / spE * maxE; e.vy = e.vy / spE * maxE; }
+                e.x += e.vx + Math.cos(e.phase) * 0.22;
+                e.y += e.vy + Math.sin(e.phase * 1.3) * 0.22;
+                if (e.touchCd > 0) e.touchCd--;
+                if (!shelteredFromEchoes && !phasedThroughEchoes && e.touchCd <= 0 && dE < player.size + e.size / 2) {
+                    e.touchCd = 220;
+                    stress = Math.min(STRESS_MAX, stress + ECHO_TOUCH_STRESS * (player.hasSteelNerves ? 0.5 : 1));
+                    player.vx *= 0.55;
+                    player.vy *= 0.55;
+                    playSound('bounce');
+                    if (echoWhisperCooldown <= 0) {
+                        echoWhisperCooldown = 1400;
+                        sayComms('???', ECHO_WHISPERS[Math.floor(Math.random() * ECHO_WHISPERS.length)], 'whisper', COMMS_PRIORITY.NORMAL);
+                    }
+                }
+            }
+            // Make enough noise in its drift and the Lantern comes to you.
+            if (!lanternSpawnedThisDrift && !tutorialMode && currentBiome.id === 'choir' &&
+                echoesSilenced >= LANTERN_ECHO_TRIGGER &&
+                Math.hypot(player.x - spawnAnchor.x, player.y - spawnAnchor.y) >= LANTERN_MIN_HOME_DIST) {
+                spawnLanternOffscreen();
+            }
+
+            if (currentBiome.tolls && !tutorialMode) {
+                bellTollTimer++;
+                if (bellTollTimer >= BELL_TOLL_INTERVAL) {
+                    bellTollTimer = 0;
+                    ringBell(player.x, player.y, 520, false);
+                    stress = Math.min(STRESS_MAX, stress + 3);
+                }
+            }
+            if (currentBiome.hullRegen && health > 0 && health < maxHealth) {
+                health = Math.min(maxHealth, health + currentBiome.hullRegen);
+            }
+
+            for (let i = fxRings.length - 1; i >= 0; i--) {
+                const r = fxRings[i];
+                r.r += (r.maxR - r.r) * 0.05;
+                r.life -= 0.012;
+                if (r.life <= 0) fxRings.splice(i, 1);
+            }
+            if (seamFlash > 0) seamFlash = Math.max(0, seamFlash - 0.01);
 
             spawnTimer += currentBiome.debrisMult;
             if (spawnTimer >= spawnInterval) {
@@ -7343,8 +9184,8 @@
                     obs.vy += Math.sin(angleToDecoy) * 0.09;
                 }
 
-                obs.x += obs.vx * obsSpeedFactor;
-                obs.y += obs.vy * obsSpeedFactor;
+                obs.x += obs.vx * obsSpeedFactor * hazardTime;
+                obs.y += obs.vy * obsSpeedFactor * hazardTime;
 
                 const distToSanctuaryCenter = Math.hypot(obs.x - sanctuary.x, obs.y - sanctuary.y);
                 if (distToSanctuaryCenter < sanctuary.safeRadius) {
@@ -7382,6 +9223,27 @@
                 }
 
                 if (hitDist < player.size + obs.size / 2 && invulnTime <= 0) {
+                    const phasedThrough = player.equippedAbility === 'cloak' && activeEffectTimer > 0;
+                    if ((currentBiome.bouncy || player.hasBumpers) && !phasedThrough) {
+                        const kA = Math.atan2(player.y - obs.y, player.x - obs.x);
+                        const obsSpeed = Math.max(2, Math.hypot(obs.vx, obs.vy));
+                        player.vx += Math.cos(kA) * 6.5;
+                        player.vy += Math.sin(kA) * 6.5;
+                        obs.vx = -Math.cos(kA) * obsSpeed;
+                        obs.vy = -Math.sin(kA) * obsSpeed;
+                        obs.x -= Math.cos(kA) * 6;
+                        obs.y -= Math.sin(kA) * 6;
+                        invulnTime = 22;
+                        playSound('bounce');
+                        if (currentBiome.bouncy) {
+                            score += 3;
+                            totalCredits += 3;
+                            scoreDisplay.textContent = `STARDUST: ${score}`;
+                        } else {
+                            fuel = Math.max(0, fuel - BUMPER_FUEL_COST);
+                        }
+                        continue;
+                    }
                     let isCloaked = (player.equippedAbility === 'cloak' && activeEffectTimer > 0);
                     if (cheatedAbilityMode === 'godmode' || isCloaked) {
                         playSound('hit');
@@ -7432,6 +9294,30 @@
                 }
             }
 
+            // In the Ricochet Reef the wreckage bounces off itself, too.
+            if (currentBiome.bouncy) {
+                for (let i = 0; i < obstacles.length; i++) {
+                    const A = obstacles[i];
+                    for (let j = i + 1; j < obstacles.length; j++) {
+                        const B = obstacles[j];
+                        const dx = B.x - A.x, dy = B.y - A.y;
+                        const minD = (A.size + B.size) / 2;
+                        const d2 = dx * dx + dy * dy;
+                        if (d2 < minD * minD && d2 > 0.01) {
+                            const d = Math.sqrt(d2), nx = dx / d, ny = dy / d;
+                            const rel = (A.vx - B.vx) * nx + (A.vy - B.vy) * ny;
+                            if (rel > 0) {
+                                A.vx -= rel * nx; A.vy -= rel * ny;
+                                B.vx += rel * nx; B.vy += rel * ny;
+                            }
+                            const push = (minD - d) / 2;
+                            A.x -= nx * push; A.y -= ny * push;
+                            B.x += nx * push; B.y += ny * push;
+                        }
+                    }
+                }
+            }
+
             alienSpawnTimer += currentBiome.alienMult;
             if (alienSpawnTimer >= 500 && aliens.length < MAX_ALIENS) {
                 spawnAlien();
@@ -7454,13 +9340,66 @@
                     continue;
                 }
 
-                if (outpost) {
+                if (outpost && !a.isLantern) {
                     const distToOutpostA = Math.hypot(a.x - outpost.x, a.y - outpost.y);
                     if (distToOutpostA < OUTPOST_SAFE_RADIUS) {
                         shatterObject(a, a.color || ALIEN_COLOR);
                         aliens.splice(i, 1);
                         continue;
                     }
+                }
+
+                if (a.isLantern) {
+                    const dL = Math.hypot(a.x - player.x, a.y - player.y);
+                    if (dL > DESPAWN_RADIUS * 1.8) {
+                        // Fly far enough away and it sinks back into the hum.
+                        aliens.splice(i, 1);
+                        lanternSpawnedThisDrift = false;
+                        echoesSilenced = Math.floor(echoesSilenced / 2);
+                        sayComms(COMMS_HQ, "Lost the Lantern's signal, Drifter. It's still out there singing somewhere.", 'hq', COMMS_PRIORITY.NORMAL);
+                        continue;
+                    }
+                    if (!commsLanternSighted && dL < 900) {
+                        commsLanternSighted = true;
+                        playCommsExchange(LANTERN_SIGHT_EXCHANGE, 0, COMMS_PRIORITY.HIGH);
+                    }
+                    const angL = Math.atan2(player.y - a.y, player.x - a.x);
+                    const lanternStunned = a.stunTimer > 0;
+                    if (lanternStunned) a.stunTimer--;
+                    if (!lanternStunned && !playerInSanctuary) {
+                        if (dL > 430) { a.vx += Math.cos(angL) * 0.025; a.vy += Math.sin(angL) * 0.025; }
+                        else if (dL < 300) { a.vx -= Math.cos(angL) * 0.025; a.vy -= Math.sin(angL) * 0.025; }
+                    }
+                    a.vx *= 0.99;
+                    a.vy *= 0.99;
+                    const spL = Math.hypot(a.vx, a.vy);
+                    if (spL > 0.85) { a.vx = a.vx / spL * 0.85; a.vy = a.vy / spL * 0.85; }
+                    a.x += a.vx * hazardTime;
+                    a.y += a.vy * hazardTime;
+                    const enraged = a.health < a.maxHealth * 0.5;
+                    if (enraged && !commsLanternMidfight) {
+                        commsLanternMidfight = true;
+                        playCommsExchange(LANTERN_MIDFIGHT_EXCHANGE, 0, COMMS_PRIORITY.NORMAL);
+                    }
+                    if (!lanternStunned && !playerInSanctuary && dL < 1150 && cheatedAbilityMode !== 'freeze' && Math.random() < hazardTime) {
+                        lanternSing(a, angL, enraged);
+                    }
+                    if (dL < player.size + a.size / 2 && invulnTime <= 0) {
+                        playSound('hit');
+                        player.vx += Math.cos(angL + Math.PI) * 6;
+                        player.vy += Math.sin(angL + Math.PI) * 6;
+                        invulnTime = INVULN_FRAMES;
+                        const cloakedL = (player.equippedAbility === 'cloak' && activeEffectTimer > 0);
+                        if (cheatedAbilityMode !== 'godmode' && !cloakedL) {
+                            health -= LANTERN_RAM_DAMAGE;
+                            if (health <= 0) {
+                                health = 0;
+                                gameOver();
+                                return;
+                            }
+                        }
+                    }
+                    continue;
                 }
 
                 a.wanderTimer--;
@@ -7470,6 +9409,14 @@
                     a.vx = Math.cos(wanderAngle) * wanderSpeed;
                     a.vy = Math.sin(wanderAngle) * wanderSpeed;
                     a.wanderTimer = 120 + Math.random() * 120;
+                }
+
+                // Tuning Fork stun: drifts helplessly, no steering, no shots.
+                const stunned = a.stunTimer > 0;
+                if (stunned) {
+                    a.stunTimer--;
+                    a.vx *= 0.96;
+                    a.vy *= 0.96;
                 }
 
                 // A dormant Warden ignores the player entirely - no chase,
@@ -7486,8 +9433,8 @@
                         a.vy = (a.vy / alienSpeedDormant) * 0.5;
                     }
                     const alienSpeedFactorDormant = cheatedAbilityMode === 'freeze' ? 0.15 : 1.0;
-                    a.x += a.vx * alienSpeedFactorDormant;
-                    a.y += a.vy * alienSpeedFactorDormant;
+                    a.x += a.vx * alienSpeedFactorDormant * hazardTime;
+                    a.y += a.vy * alienSpeedFactorDormant * hazardTime;
                     if (Math.hypot(a.x - player.x, a.y - player.y) > DESPAWN_RADIUS) {
                         aliens.splice(i, 1);
                     }
@@ -7504,7 +9451,7 @@
                         a.vx += Math.cos(angleAwayFromPlayer) * 0.08;
                         a.vy += Math.sin(angleAwayFromPlayer) * 0.08;
                     }
-                } else if (distToPlayer < ALIEN_DETECT_RANGE) {
+                } else if (!stunned && distToPlayer < ALIEN_DETECT_RANGE) {
                     const angleToPlayer = Math.atan2(player.y - a.y, player.x - a.x);
                     if (distToPlayer < ALIEN_PREFERRED_DIST - 40) {
                         a.vx -= Math.cos(angleToPlayer) * 0.05;
@@ -7521,7 +9468,7 @@
                         a.vy += Math.sin(angleToDecoyA) * 0.06;
                     }
 
-                    a.shootCooldown--;
+                    a.shootCooldown -= hazardTime;
                     if (a.shootCooldown <= 0 && (cheatedAbilityMode !== 'freeze')) {
                         // Settlers and an aggroed Warden fire a three-round
                         // spread instead of the single aimed shot everything
@@ -7531,6 +9478,10 @@
                             : a.isWarden
                             ? [angleToPlayer - WARDEN_SPREAD, angleToPlayer, angleToPlayer + WARDEN_SPREAD]
                             : [angleToPlayer];
+                        if (currentBiome.mirrored) {
+                            const n = shotAngles.length;
+                            for (let k = 0; k < n; k++) shotAngles.push(shotAngles[k] + Math.PI);
+                        }
                         for (const sa of shotAngles) {
                             alienBullets.push({
                                 x: a.x,
@@ -7555,8 +9506,8 @@
                 }
 
                 const alienSpeedFactor = cheatedAbilityMode === 'freeze' ? 0.15 : 1.0;
-                a.x += a.vx * alienSpeedFactor;
-                a.y += a.vy * alienSpeedFactor;
+                a.x += a.vx * alienSpeedFactor * hazardTime;
+                a.y += a.vy * alienSpeedFactor * hazardTime;
 
                 // Recycle aliens that have wandered far out of range instead of
                 // bouncing them off a finite edge - the sector is infinite.
@@ -7644,9 +9595,9 @@
 
             for (let i = alienBullets.length - 1; i >= 0; i--) {
                 const b = alienBullets[i];
-                b.x += b.vx;
-                b.y += b.vy;
-                b.life--;
+                b.x += b.vx * hazardTime;
+                b.y += b.vy * hazardTime;
+                b.life -= hazardTime;
                 if (b.life <= 0) {
                     alienBullets.splice(i, 1);
                     continue;
@@ -7691,7 +9642,7 @@
                         player.cooldownTime = 480;
                     } else {
                         playSound('hit');
-                        health -= ALIEN_BULLET_DAMAGE;
+                        health -= (b.damage || ALIEN_BULLET_DAMAGE);
                         invulnTime = INVULN_FRAMES;
                         if (health <= 0) {
                             health = 0;
@@ -7754,6 +9705,9 @@
                                 const dropChance = obs.material === 'cheateralloy' ? 0.1 : 0.12;
                                 if (Math.random() < dropChance) addMaterial(obs.material, 1);
                             }
+                            // Every so often a Gilbert still has Gil's log frozen inside it.
+                            if (obs.isGilbert && Math.random() < 0.03) dropRecorder(obs.x, obs.y, 'gilbert', true);
+                            if (obs.splits && obs.size >= 20) splitPod(obs);
                             playSound('score');
                             scoreDisplay.textContent = `STARDUST: ${score}`;
                         }
@@ -7785,33 +9739,26 @@
                             playCommsExchange(wardenMidfightExchange(a.company), 200, COMMS_PRIORITY.NORMAL);
                         }
                         if (a.health <= 0) {
-                            shatterObject(a, a.color || ALIEN_COLOR);
                             aliens.splice(j, 1);
-                            score += a.reward || 10;
-                            totalCredits += a.reward || 10;
-                            if (a.isWarden) {
-                                if (a.material) addMaterial(a.material, 1);
-                                if (!commsWardenKilled) {
-                                    commsWardenKilled = true;
-                                    playCommsExchange(wardenKillExchange(a.company), 300, COMMS_PRIORITY.HIGH);
-                                }
-                            } else if (a.isSettler) {
-                                // Guaranteed haul - cracking one open is the
-                                // whole reason to be out at the line.
-                                addMaterial('gilstone', SETTLER_GILSTONE_MIN + Math.floor(Math.random() * 3));
-                                if (!commsSettlerKilled) {
-                                    commsSettlerKilled = true;
-                                    playCommsExchange(SETTLER_KILL_EXCHANGE, 400, COMMS_PRIORITY.HIGH);
-                                }
-                            } else if (a.material) {
-                                const dropChance = a.material === 'cheateralloy' ? 0.1 : (a.isGuardian ? 0.4 : 0.2);
-                                if (Math.random() < dropChance) addMaterial(a.material, 1);
-                            }
-                            playSound('score');
-                            scoreDisplay.textContent = `STARDUST: ${score}`;
+                            onAlienKilled(a); // rewards, drops, recorders, radio
                         }
                         playerBullets.splice(i, 1);
                         hitSomething = true;
+                        break;
+                    }
+                }
+                if (hitSomething) continue;
+
+                for (let j = echoes.length - 1; j >= 0; j--) {
+                    const e = echoes[j];
+                    if (Math.hypot(pb.x - e.x, pb.y - e.y) < e.size / 2 + 4) {
+                        e.health -= playerBulletDamage;
+                        playSound('hit');
+                        if (e.health <= 0) {
+                            echoes.splice(j, 1);
+                            silenceEcho(e);
+                        }
+                        playerBullets.splice(i, 1);
                         break;
                     }
                 }
@@ -8091,6 +10038,8 @@
                 ctx.restore();
             }
 
+            drawSeams(camX, camY);
+
             // Draw Sanctuary station
             ctx.save();
             const sx = sanctuary.x - camX;
@@ -8187,8 +10136,10 @@
             if (player.hasBeacon && beaconTarget) {
                 if (beaconTargetIndex === BEACON_DERELICT_INDEX) {
                     drawBeaconPointer(beaconTarget.x - camX, beaconTarget.y - camY, DERELICT_BEACON_COLOR, "Derelict Sanctuary");
+                } else if (beaconTargetIndex === BEACON_SEAM_INDEX) {
+                    drawBeaconPointer(beaconTarget.x - camX, beaconTarget.y - camY, SEAM_COLOR, "Rift Seam");
                 } else {
-                    const targetBiome = BIOMES[WILD_BIOME_IDS[beaconTargetIndex]];
+                    const targetBiome = BIOMES[BEACON_BIOME_IDS[beaconTargetIndex]];
                     drawBeaconPointer(beaconTarget.x - camX, beaconTarget.y - camY, targetBiome.starColor, targetBiome.name);
                 }
             }
@@ -8223,6 +10174,32 @@
                 }
                 if (nearestDrop) {
                     drawEventPointer(nearestDrop.x - camX, nearestDrop.y - camY, "#9ad1ff", "SUPPLY DROP");
+                }
+            }
+
+            // Loose flight recorders get their own pointer while they're
+            // reasonably close, since they're the one thing worth a detour.
+            {
+                let nearestRec = null;
+                let nearestRecDist = 4000;
+                for (const r of recorders) {
+                    const d = Math.hypot(player.x - r.x, player.y - r.y);
+                    if (d < nearestRecDist) { nearestRecDist = d; nearestRec = r; }
+                }
+                if (nearestRec) {
+                    drawEventPointer(nearestRec.x - camX, nearestRec.y - camY, RECORDER_COLOR, `RECORDER · ${Math.round(nearestRecDist)}m`);
+                }
+                if (!(player.hasBeacon && beaconTargetIndex === BEACON_SEAM_INDEX)) {
+                    let nearestSeam = null;
+                    let nearestSeamDist = 2600;
+                    for (const sm of getNearbySeams()) {
+                        if (sm.used) continue;
+                        const d = Math.hypot(player.x - sm.x, player.y - sm.y);
+                        if (d < nearestSeamDist) { nearestSeamDist = d; nearestSeam = sm; }
+                    }
+                    if (nearestSeam) {
+                        drawBeaconPointer(nearestSeam.x - camX, nearestSeam.y - camY, SEAM_COLOR, `Rift Seam · ${Math.round(nearestSeamDist)}m`);
+                    }
                 }
             }
 
@@ -8333,6 +10310,8 @@
                 ctx.restore();
             }
 
+            drawRecorders(camX, camY);
+
             if (decoyEntity) {
                 ctx.save();
                 ctx.strokeStyle = "#ffd166";
@@ -8438,6 +10417,10 @@
                 ctx.restore();
             }
 
+            if (player.hasSalvageDrone && flickerVisible) {
+                drawSalvageDrone(playerScreenX, playerScreenY);
+            }
+
             if (cheatedAbilityMode === 'godmode') {
                 ctx.strokeStyle = "#06d6a0";
                 ctx.lineWidth = 2;
@@ -8452,9 +10435,7 @@
                 const ox = obs.x - camX;
                 const oy = obs.y - camY;
                 ctx.fillStyle = obs.color || "#453a56";
-                ctx.beginPath();
-                ctx.arc(ox, oy, obs.size/2, 0, Math.PI * 2);
-                ctx.fill();
+                drawDebrisShape(obs, ox, oy);
                 const obsBarY = oy - obs.size / 2 - 10;
                 drawMiniHealthBar(ox, obsBarY, obs.health / obs.maxHealth, obs.size + 6, "#e2738a");
                 if (obs.isGilbert) {
@@ -8475,6 +10456,10 @@
                 const ax = a.x - camX;
                 const ay = a.y - camY;
                 const angleToPlayer = Math.atan2(player.y - a.y, player.x - a.x);
+                if (a.isLantern) {
+                    drawLantern(a, ax, ay);
+                    continue;
+                }
                 if (a.isWarden) {
                     // A hexagonal drone that just slowly tumbles in place
                     // while dormant, no rotation locked to the player at
@@ -8625,6 +10610,10 @@
                 drawMiniHealthBar(ax, ay - a.size / 2 - 12, a.health / a.maxHealth, a.size + 8, "#c77dff");
             }
             ctx.shadowBlur = 0;
+            for (const a of aliens) {
+                if (a.stunTimer > 0) drawStunRing(a.x - camX, a.y - camY, a.size);
+            }
+            drawEchoes(camX, camY);
 
             for (let pb of playerBullets) {
                 ctx.save();
@@ -8651,14 +10640,16 @@
             for (let b of alienBullets) {
                 ctx.save();
                 ctx.shadowBlur = 6;
-                ctx.shadowColor = ALIEN_COLOR;
-                ctx.fillStyle = ALIEN_COLOR;
+                ctx.shadowColor = b.color || ALIEN_COLOR;
+                ctx.fillStyle = b.color || ALIEN_COLOR;
                 ctx.beginPath();
-                ctx.arc(b.x - camX, b.y - camY, 3.5, 0, Math.PI * 2);
+                ctx.arc(b.x - camX, b.y - camY, b.r || 3.5, 0, Math.PI * 2);
                 ctx.fill();
                 ctx.restore();
             }
             
+            drawFxRings(camX, camY);
+
             ctx.shadowBlur = 0;
             ctx.textAlign = "left";
 
@@ -8686,6 +10677,18 @@
                 const evColor = (activeBiome.localEvent || activeBiome.globalEvent).color;
                 const evPulse = 0.05 + 0.05 * ((Math.sin(Date.now() / 500) + 1) / 2);
                 ctx.fillStyle = hexToRgba(evColor, evPulse);
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            }
+
+            // Hourglass blessing: the world goes sepia while time is thick.
+            if (player.equippedAbility === 'hourglass' && activeEffectTimer > 0) {
+                ctx.fillStyle = 'rgba(240, 217, 168, 0.12)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            }
+
+            // Crossing a Rift Seam whites the screen out for a moment.
+            if (seamFlash > 0) {
+                ctx.fillStyle = `rgba(225, 210, 255, ${seamFlash * 0.7})`;
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
             }
         }
