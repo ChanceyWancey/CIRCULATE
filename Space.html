@@ -1330,6 +1330,10 @@
                 <div id="update-log-entries">
                     <!-- Add new patches at the TOP of this list. -->
                     <div class="update-log-entry">
+                        <span class="update-log-version">Boardable Wrecks</span>
+                        <span class="update-log-text">Big derelict ships now drift through the sector with their airlocks still cycling. Fly alongside and press <strong>E</strong> to board on foot: dark rooms, limited suit air, security drones that never stood down, and crews still sitting at their stations. Find the keycard to open the captain's vault and pull the bridge recorder for a new Archive chapter. Loot only counts once you make it back through the airlock.</span>
+                    </div>
+                    <div class="update-log-entry">
                         <span class="update-log-version">Five New Regions</span>
                         <span class="update-log-text"><strong>The Bell Foundry</strong>, where the yard still tolls on its own, and <strong>The Overgrown Orchard</strong>, where nothing stopped growing. Both have their own Archive chapter drifting loose inside. Plus three <strong>anomalies</strong> HQ can't explain, which turn up somewhere new every drift: <strong>The Mirror Field</strong> (every shot fires both ways), <strong>The Hourglass Shoal</strong> (hazards at half speed) and <strong>The Ricochet Reef</strong> (wreckage bounces you instead of hurting you). Five new materials and five new crafts: Bell Toll, Hourglass, Orchard Graft, Mirror Rounds and Springstone Bumpers.</span>
                     </div>
@@ -4936,7 +4940,7 @@
             const spin = obs.spin || 0;
             ctx.save();
             ctx.translate(ox, oy);
-            ctx.rotate(spin + (Date.now() / 4000) * (spin > Math.PI ? 1 : -1));
+            ctx.rotate(obs.fixed ? 0 : spin + (Date.now() / 4000) * (spin > Math.PI ? 1 : -1));
             if (obs.shape === 'bell') {
                 ctx.beginPath();
                 ctx.moveTo(-r * 0.32, -r * 0.88);
@@ -5098,6 +5102,1146 @@
         delete ARCHIVE_MILESTONE_LINES[22];
         ARCHIVE_MILESTONE_LINES[Math.floor(ARCHIVE_ENTRIES.length / 2)] = "That's half the Archive, Drifter. Whatever happened out there, it happened to everyone at once.";
         ARCHIVE_MILESTONE_LINES[ARCHIVE_ENTRIES.length] = "That's every recorder on the register. All of it, logged. ...We should have stayed deaf, Drifter. Both of us.";
+
+        // ================= BOARDABLE WRECKS =================
+        // Big derelict ships with a working airlock. Outside they sit on
+        // their own deterministic grid like the Derelict Sanctuaries; press E
+        // near one and the whole game swaps to a top-down interior: a set of
+        // generated rooms you explore on foot with limited suit air. Loot is
+        // carried, not banked, until you make it back through the airlock.
+        // While you're aboard, the sector outside is frozen.
+
+        const HULK_CELL_SIZE = 7000;
+        const HULK_SPAWN_CHANCE = 0.25;
+        const HULK_MIN_HOME_DIST = 3000;
+        const HULK_BOARD_RANGE = 150;
+        const HULK_LENGTH = 280;
+        const HULK_WIDTH = 78;
+        const HULK_COLOR = '#7fa7c9';
+        const HULK_NAME_A = ['GENTLE', 'PATIENT', 'LONG', 'QUIET', 'KIND', 'TUESDAY', 'HARBOR', 'LANTERN', 'SLOW', 'WARM'];
+        const HULK_NAME_B = ['SUPPER', 'HYMN', 'PROMISE', 'HARVEST', 'TIDE', 'LIGHT', 'SONG', 'WELCOME'];
+
+        // key "tx,ty" -> { visited, cleared, vaultOpen, taken: { entityId: true } }
+        let hulkState = {};
+        // The interior currently being explored, or null when flying.
+        let interior = null;
+        let commsHulkBoarded = false;
+
+        function hulkHash(tx, ty) {
+            return (derelictHash(tx * 13 - 71, ty * 17 + 29) ^ 0x27d4eb2d) >>> 0;
+        }
+
+        function getHulkInCell(tx, ty) {
+            const h = hulkHash(tx, ty);
+            if ((h % 1000) / 1000 >= HULK_SPAWN_CHANCE) return null;
+            const ox = ((h >>> 10) % 1000) / 1000;
+            const oy = ((h >>> 20) % 1000) / 1000;
+            const x = (tx + 0.22 + ox * 0.56) * HULK_CELL_SIZE;
+            const y = (ty + 0.22 + oy * 0.56) * HULK_CELL_SIZE;
+            if (Math.hypot(x - spawnAnchor.x, y - spawnAnchor.y) < HULK_MIN_HOME_DIST) return null;
+            if (Math.hypot(x - sanctuary.x, y - sanctuary.y) < 1200) return null;
+            const key = `${tx},${ty}`;
+            const st = hulkState[key] || {};
+            return {
+                key, x, y, seed: h,
+                tilt: ((h >>> 4) % 628) / 100,
+                name: `${HULK_NAME_A[h % HULK_NAME_A.length]} ${HULK_NAME_B[(h >>> 6) % HULK_NAME_B.length]}`,
+                company: DERELICT_COMPANIES[(h >>> 9) % DERELICT_COMPANIES.length],
+                cleared: !!st.cleared,
+                visited: !!st.visited
+            };
+        }
+
+        function getNearbyHulks() {
+            const tx0 = Math.floor(player.x / HULK_CELL_SIZE);
+            const ty0 = Math.floor(player.y / HULK_CELL_SIZE);
+            const found = [];
+            for (let dx = -1; dx <= 1; dx++) {
+                for (let dy = -1; dy <= 1; dy++) {
+                    const h = getHulkInCell(tx0 + dx, ty0 + dy);
+                    if (h) found.push(h);
+                }
+            }
+            return found;
+        }
+
+        function getHulkInRange() {
+            let best = null;
+            let bestDist = HULK_BOARD_RANGE;
+            for (const h of getNearbyHulks()) {
+                const d = Math.hypot(player.x - h.x, player.y - h.y);
+                if (d < bestDist) { bestDist = d; best = h; }
+            }
+            return best;
+        }
+
+        // ---- Archive chapter VII ------------------------------------------
+        ARCHIVE_CHAPTERS.push({ pool: 'hulks', title: 'VII. THE HULKS', hint: 'Waiting on the bridge of a boardable wreck.' });
+        ARCHIVE_ENTRIES.push(
+            { id: 'k1', pool: 'hulks', title: 'Bridge Log', who: 'HULK CAPTAIN', source: 'A boardable wreck',
+              lines: [
+                "Crew asked if they could bring the bell up to the bridge so they could hear it while they work. I said yes.",
+                "It's good for morale. Everyone's so calm lately."
+              ],
+              hq: "By the end, the bells were on every bridge in the sector." },
+            { id: 'k2', pool: 'hulks', title: 'Quartermaster Inventory', who: 'HULK QUARTERMASTER', source: 'A boardable wreck',
+              lines: [
+                "Inventory. Rations untouched for six days. Water untouched. Nobody's hungry. Nobody's thirsty.",
+                "Everybody's smiling. I'm logging the smiling. I don't know which column it goes in."
+              ],
+              hq: "..." },
+            { id: 'k3', pool: 'hulks', title: 'Security Chief', who: 'HULK SECURITY CHIEF', source: 'A boardable wreck',
+              lines: [
+                "I welded the bridge door shut from the outside. They're still in there, singing.",
+                "I can't hear it through the door. I don't know if that makes me lucky."
+              ],
+              hq: "Did you find the security chief anywhere on that ship, Drifter? ...No. Neither did we." },
+            { id: 'k4', pool: 'hulks', title: 'Ship Computer', who: 'HULK SHIP COMPUTER', source: 'A boardable wreck',
+              lines: [
+                "Life support nominal. Crew vital signs nominal. Crew response to commands: none.",
+                "Logging as a hardware fault. Logging as a hardware fault. Logging as a hardware fault."
+              ],
+              hq: "Even the computer didn't want to believe it." },
+            { id: 'k5', pool: 'hulks', title: 'Note on the Airlock', who: 'UNKNOWN CREWMATE', source: 'A boardable wreck',
+              lines: [
+                "To whoever boards us: the crates are yours. Take the air tanks too.",
+                "Don't sit down. Whatever you do in here, don't sit down."
+              ],
+              hq: "You heard them. Keep moving in there." }
+        );
+        delete ARCHIVE_MILESTONE_LINES[Math.floor((ARCHIVE_ENTRIES.length - 5) / 2)];
+        delete ARCHIVE_MILESTONE_LINES[ARCHIVE_ENTRIES.length - 5];
+        ARCHIVE_MILESTONE_LINES[Math.floor(ARCHIVE_ENTRIES.length / 2)] = "That's half the Archive, Drifter. Whatever happened out there, it happened to everyone at once.";
+        ARCHIVE_MILESTONE_LINES[ARCHIVE_ENTRIES.length] = "That's every recorder on the register. All of it, logged. ...We should have stayed deaf, Drifter. Both of us.";
+
+        // ---- Radio ---------------------------------------------------------
+        const HULK_BOARD_EXCHANGE = [
+            { who: COMMS_YOU, text: "HQ, Drifter. Found a hulk with its airlock still cycling. I'm going in on foot.", cls: 'you' },
+            { who: COMMS_HQ, text: "Copy. Suit air is limited, watch it. Whatever you pick up isn't yours until you're back through that airlock.", cls: 'hq' },
+            { who: COMMS_HQ, text: "And Drifter. If you see the crew, don't sit down with them.", cls: 'static' }
+        ];
+        const HULK_REBOARD_LINES = [
+            "Back aboard? Same rules, Drifter. Watch your air.",
+            "Airlock's cycling. We've got your suit on our board.",
+            "Copy, you're inside. Make it quick."
+        ];
+        const HULK_CREW_EXCHANGE = [
+            { who: COMMS_YOU, text: "HQ... they're here. The whole crew. Still sitting at their stations.", cls: 'you' },
+            { who: COMMS_HQ, text: "Don't touch them. Don't talk to them. Get what you came for.", cls: 'hq' }
+        ];
+        const HULK_BELL_EXCHANGE = [
+            { who: COMMS_YOU, text: "There's a bell in the mess hall. It's humming.", cls: 'you' },
+            { who: COMMS_HQ, text: "Shoot it, Drifter. Shoot it right now.", cls: 'hq' }
+        ];
+        const HULK_DRONE_EXCHANGE = [
+            { who: COMMS_YOU, text: "HQ, their security's still running in here!", cls: 'you' },
+            { who: COMMS_HQ, text: "Their drones never got the memo either. Watch yourself.", cls: 'hq' }
+        ];
+        const HULK_VAULT_EXCHANGE = [
+            { who: COMMS_YOU, text: "Keycard took. Captain's vault is open.", cls: 'you' },
+            { who: COMMS_HQ, text: "Whatever's in there, it was meant to outlast them. Take it.", cls: 'hq' }
+        ];
+        const HULK_BLACKOUT_EXCHANGE = [
+            { who: COMMS_HQ, text: "Drifter! Your suit's failing! Hauling you back on the tether, hold on!", cls: 'hq' },
+            { who: COMMS_YOU, text: "...dropped it. Dropped everything in there.", cls: 'static' }
+        ];
+
+        // ---- Interior layout -----------------------------------------------
+        const IT = 40;          // tile size, px
+        const HULK_RW = 4;      // rooms across
+        const HULK_RH = 3;      // rooms down
+        const HULK_ROOM_W = 10; // tiles per room, incl. one shared wall
+        const HULK_ROOM_H = 8;
+        const SUIT_O2_DRAIN = 100 / (80 * 144); // a full tank lasts about 80 seconds
+        const HULK_ROOM_LABELS = {
+            airlock: 'AIRLOCK', bridge: 'BRIDGE', vault: "CAPTAIN'S VAULT", cargo: 'CARGO HOLD',
+            quarters: 'CREW QUARTERS', engine: 'ENGINE ROOM', mess: 'MESS HALL', corridor: 'SERVICE BAY', security: 'SECURITY OFFICE'
+        };
+
+        function buildHulkInterior(hulk) {
+            const rng = mulberry32((hulk.seed ^ 0x9e3779b9) >>> 0);
+            const cols = HULK_RW * HULK_ROOM_W + 1;
+            const rows = HULK_RH * HULK_ROOM_H + 1;
+            const tiles = new Uint8Array(cols * rows).fill(1);
+            const rooms = [];
+            for (let ry = 0; ry < HULK_RH; ry++) {
+                for (let rx = 0; rx < HULK_RW; rx++) {
+                    const room = { rx, ry, x0: rx * HULK_ROOM_W, y0: ry * HULK_ROOM_H, links: [], type: null, visited: false, dist: 0 };
+                    for (let y = room.y0 + 1; y < room.y0 + HULK_ROOM_H; y++) {
+                        for (let x = room.x0 + 1; x < room.x0 + HULK_ROOM_W; x++) tiles[y * cols + x] = 0;
+                    }
+                    rooms.push(room);
+                }
+            }
+            const roomAt = (rx, ry) => (rx < 0 || ry < 0 || rx >= HULK_RW || ry >= HULK_RH) ? null : rooms[ry * HULK_RW + rx];
+            const neighbours = r => [roomAt(r.rx - 1, r.ry), roomAt(r.rx + 1, r.ry), roomAt(r.rx, r.ry - 1), roomAt(r.rx, r.ry + 1)].filter(Boolean);
+
+            // Spanning tree from the airlock, so every room is reachable.
+            const start = roomAt(rng() < 0.5 ? 0 : HULK_RW - 1, Math.floor(rng() * HULK_RH));
+            const seen = new Set([start]);
+            const stack = [start];
+            const edges = [];
+            while (stack.length) {
+                const r = stack[stack.length - 1];
+                const open = neighbours(r).filter(n => !seen.has(n));
+                if (!open.length) { stack.pop(); continue; }
+                const n = open[Math.floor(rng() * open.length)];
+                seen.add(n);
+                r.links.push(n);
+                n.links.push(r);
+                edges.push([r, n]);
+                stack.push(n);
+            }
+            // Distance from the airlock, for placing the vault and bridge deep in.
+            const queue = [start];
+            const distSeen = new Set([start]);
+            while (queue.length) {
+                const r = queue.shift();
+                for (const n of r.links) if (!distSeen.has(n)) { distSeen.add(n); n.dist = r.dist + 1; queue.push(n); }
+            }
+            const leaves = rooms.filter(r => r !== start && r.links.length === 1).sort((a, b) => b.dist - a.dist);
+            const vault = leaves[0] || rooms.filter(r => r !== start).sort((a, b) => b.dist - a.dist)[0];
+            // A couple of extra doors so it isn't a pure maze (never into the vault).
+            for (let k = 0; k < 2; k++) {
+                const a = rooms[Math.floor(rng() * rooms.length)];
+                const options = neighbours(a).filter(n => !a.links.includes(n) && n !== vault && a !== vault);
+                if (options.length) {
+                    const b = options[Math.floor(rng() * options.length)];
+                    a.links.push(b);
+                    b.links.push(a);
+                    edges.push([a, b]);
+                }
+            }
+            for (const [a, b] of edges) {
+                const door = (a === vault || b === vault) ? 2 : 0;
+                if (a.ry === b.ry) {
+                    const x = Math.max(a.x0, b.x0);
+                    for (let y = a.y0 + 3; y <= a.y0 + 5; y++) tiles[y * cols + x] = door;
+                } else {
+                    const y = Math.max(a.y0, b.y0);
+                    for (let x = a.x0 + 4; x <= a.x0 + 6; x++) tiles[y * cols + x] = door;
+                }
+            }
+
+            start.type = 'airlock';
+            vault.type = 'vault';
+            const rest = rooms.filter(r => !r.type).sort((a, b) => b.dist - a.dist);
+            const bridge = rest[0];
+            bridge.type = 'bridge';
+            const securityPick = rest.filter(r => r !== bridge && r.dist >= 1);
+            const security = securityPick[Math.floor(rng() * securityPick.length)] || rest[1];
+            security.type = 'security';
+            let messPlaced = false;
+            for (const r of rooms) {
+                if (r.type) continue;
+                const pool = messPlaced ? ['cargo', 'quarters', 'engine', 'corridor'] : ['cargo', 'quarters', 'engine', 'mess', 'corridor'];
+                r.type = pool[Math.floor(rng() * pool.length)];
+                if (r.type === 'mess') messPlaced = true;
+            }
+
+            // ---- What's in each room ----
+            const ents = [];
+            const used = new Set();
+            let counter = 0;
+            const spot = (room, margin = 1) => {
+                for (let tries = 0; tries < 40; tries++) {
+                    const tx = room.x0 + 1 + margin + Math.floor(rng() * (HULK_ROOM_W - 1 - margin * 2));
+                    const ty = room.y0 + 1 + margin + Math.floor(rng() * (HULK_ROOM_H - 1 - margin * 2));
+                    const k = tx + ',' + ty;
+                    if (used.has(k)) continue;
+                    used.add(k);
+                    return { x: tx * IT + IT / 2, y: ty * IT + IT / 2 };
+                }
+                return { x: (room.x0 + HULK_ROOM_W / 2) * IT, y: (room.y0 + HULK_ROOM_H / 2) * IT };
+            };
+            const put = (kind, room, extra, margin) => {
+                const p = spot(room, margin);
+                const e = Object.assign({ id: `${kind}_${counter++}`, kind, x: p.x, y: p.y, room }, extra || {});
+                ents.push(e);
+                return e;
+            };
+            const crate = (room, big) => put('crate', room, {
+                sd: big ? 60 + Math.floor(rng() * 50) : 15 + Math.floor(rng() * 25),
+                matChance: big ? 1 : 0.35, matAmount: big ? 2 : 1, big: !!big
+            });
+            const crewAtConsole = (room) => {
+                const c = put('console', room, {}, 1);
+                ents.push({ id: `crew_${counter++}`, kind: 'crew', x: c.x, y: c.y + 22, room, phase: rng() * 6 });
+            };
+            const drone = (room) => put('drone', room, { hp: 60, maxHp: 60, vx: 0, vy: 0, r: 13, cd: 60 + Math.floor(rng() * 120), aggro: false });
+
+            for (const room of rooms) {
+                switch (room.type) {
+                    case 'airlock': {
+                        const left = room.rx === 0;
+                        const ax = (left ? room.x0 + 1.5 : room.x0 + HULK_ROOM_W - 1.5) * IT;
+                        const ay = (room.y0 + HULK_ROOM_H / 2) * IT;
+                        ents.push({ id: 'airlock', kind: 'airlock', x: ax, y: ay, room, facingLeft: left });
+                        break;
+                    }
+                    case 'bridge':
+                        crewAtConsole(room); crewAtConsole(room);
+                        put('recorder', room, {}, 2);
+                        drone(room);
+                        break;
+                    case 'vault':
+                        crate(room, true); crate(room, true); crate(room, true);
+                        if (rng() < 0.5) put('med', room);
+                        break;
+                    case 'security':
+                        put('keycard', room, {}, 2);
+                        drone(room);
+                        if (rng() < 0.5) drone(room);
+                        break;
+                    case 'cargo':
+                        crate(room); crate(room); crate(room);
+                        if (rng() < 0.4) drone(room);
+                        break;
+                    case 'quarters':
+                        crewAtConsole(room); crewAtConsole(room);
+                        crate(room);
+                        if (rng() < 0.4) put('med', room);
+                        break;
+                    case 'engine':
+                        put('spark', room, { phase: Math.floor(rng() * 300) }, 1);
+                        put('spark', room, { phase: Math.floor(rng() * 300) }, 1);
+                        put('spark', room, { phase: Math.floor(rng() * 300) }, 1);
+                        put('o2', room);
+                        if (rng() < 0.5) drone(room);
+                        break;
+                    case 'mess': {
+                        const cx = (room.x0 + HULK_ROOM_W / 2) * IT;
+                        const cy = (room.y0 + HULK_ROOM_H / 2) * IT;
+                        ents.push({ id: 'table', kind: 'table', x: cx, y: cy, room });
+                        for (let k = -1; k <= 1; k += 2) {
+                            ents.push({ id: `crew_${counter++}`, kind: 'crew', x: cx + k * 50, y: cy - 46, room, phase: rng() * 6, flip: true });
+                            ents.push({ id: `crew_${counter++}`, kind: 'crew', x: cx + k * 50, y: cy + 46, room, phase: rng() * 6 });
+                        }
+                        ents.push({ id: 'bell', kind: 'bell', x: cx, y: cy, room, hp: 90 });
+                        for (let tx = room.x0 + 3; tx <= room.x0 + 7; tx++) for (let ty = room.y0 + 3; ty <= room.y0 + 5; ty++) used.add(tx + ',' + ty);
+                        break;
+                    }
+                    default:
+                        drone(room);
+                        if (rng() < 0.4) crate(room);
+                }
+            }
+            // Spare air somewhere deeper in.
+            const deep = rooms.filter(r => r.dist >= 1 && r.type !== 'vault');
+            for (let k = 0; k < 2 && deep.length; k++) put('o2', deep[Math.floor(rng() * deep.length)]);
+
+            // Nothing left to read? The bridge keeps a stash instead.
+            if (!nextArchiveEntry('hulks')) {
+                const rec = ents.find(e => e.kind === 'recorder');
+                if (rec) { rec.kind = 'crate'; rec.sd = 70; rec.matChance = 1; rec.matAmount = 2; rec.big = true; }
+            }
+
+            const st = hulkState[hulk.key] || {};
+            const taken = st.taken || {};
+            const live = ents.filter(e => !taken[e.id]);
+            return { cols, rows, tiles, rooms, ents: live, start, vaultOpen: !!st.vaultOpen };
+        }
+
+        // ---- Tile collision -------------------------------------------------
+        function hulkSolidTile(I, tx, ty) {
+            if (tx < 0 || ty < 0 || tx >= I.cols || ty >= I.rows) return true;
+            const t = I.tiles[ty * I.cols + tx];
+            return t === 1 || (t === 2 && !I.vaultOpen);
+        }
+        function hulkSolidAt(I, px, py) {
+            return hulkSolidTile(I, Math.floor(px / IT), Math.floor(py / IT));
+        }
+        function hulkCircleHits(I, x, y, r) {
+            const tx0 = Math.floor((x - r) / IT), tx1 = Math.floor((x + r) / IT);
+            const ty0 = Math.floor((y - r) / IT), ty1 = Math.floor((y + r) / IT);
+            for (let ty = ty0; ty <= ty1; ty++) {
+                for (let tx = tx0; tx <= tx1; tx++) {
+                    if (!hulkSolidTile(I, tx, ty)) continue;
+                    const cx = Math.max(tx * IT, Math.min(x, tx * IT + IT));
+                    const cy = Math.max(ty * IT, Math.min(y, ty * IT + IT));
+                    if ((x - cx) * (x - cx) + (y - cy) * (y - cy) < r * r) return true;
+                }
+            }
+            return false;
+        }
+        function hulkMove(I, o, dx, dy) {
+            if (!hulkCircleHits(I, o.x + dx, o.y, o.r)) o.x += dx; else o.vx = 0;
+            if (!hulkCircleHits(I, o.x, o.y + dy, o.r)) o.y += dy; else o.vy = 0;
+        }
+        function hulkLOS(I, x0, y0, x1, y1) {
+            const steps = Math.ceil(Math.hypot(x1 - x0, y1 - y0) / 12);
+            for (let k = 1; k < steps; k++) {
+                const t = k / steps;
+                if (hulkSolidAt(I, x0 + (x1 - x0) * t, y0 + (y1 - y0) * t)) return false;
+            }
+            return true;
+        }
+        function hulkRoomAt(I, px, py) {
+            const rx = Math.max(0, Math.min(HULK_RW - 1, Math.floor(px / IT / HULK_ROOM_W)));
+            const ry = Math.max(0, Math.min(HULK_RH - 1, Math.floor(py / IT / HULK_ROOM_H)));
+            return I.rooms[ry * HULK_RW + rx];
+        }
+
+        // ---- Boarding / leaving -------------------------------------------
+        const hudBottom = document.querySelector('.ui-bottom-container');
+
+        function boardHulk(hulk) {
+            const layout = buildHulkInterior(hulk);
+            const airlock = layout.ents.find(e => e.kind === 'airlock');
+            const biome = getBiome(hulk.x, hulk.y);
+            interior = Object.assign(layout, {
+                hulk, biome,
+                accent: biome.starColor || HULK_COLOR,
+                p: { x: airlock.x + (airlock.facingLeft ? 30 : -30), y: airlock.y, vx: 0, vy: 0, r: 9, aim: 0 },
+                o2: 100, suit: 100, inv: 0, shotCd: 0,
+                bullets: [], ebullets: [], pieces: [], floats: [],
+                carried: { sd: 0, mats: {}, recorder: false, key: false, taken: [] },
+                cam: { x: 0, y: 0 }, fade: 1, time: 0,
+                warned30: false, warned10: false, crewSeen: false, bellSeen: false, droneHit: false
+            });
+            layout.start.visited = true;
+            hulkState[hulk.key] = Object.assign({ taken: {} }, hulkState[hulk.key], { visited: true });
+            if (hudBottom) hudBottom.style.display = 'none';
+            dockPrompt.classList.remove('visible');
+            mouseDown = false;
+            playSound('special');
+            if (!commsHulkBoarded) {
+                commsHulkBoarded = true;
+                playCommsExchange(HULK_BOARD_EXCHANGE, 200, COMMS_PRIORITY.HIGH);
+            } else {
+                sayComms(COMMS_HQ, HULK_REBOARD_LINES[Math.floor(Math.random() * HULK_REBOARD_LINES.length)], 'hq', COMMS_PRIORITY.NORMAL);
+            }
+        }
+
+        function leaveHulk(success) {
+            const I = interior;
+            if (!I) return;
+            const st = hulkState[I.hulk.key] || (hulkState[I.hulk.key] = { taken: {} });
+            if (!st.taken) st.taken = {};
+            st.vaultOpen = I.vaultOpen;
+            if (success) {
+                const c = I.carried;
+                for (const id of c.taken) st.taken[id] = true;
+                if (c.sd) {
+                    score += c.sd;
+                    totalCredits += c.sd;
+                    scoreDisplay.textContent = `STARDUST: ${score}`;
+                }
+                for (const [id, amt] of Object.entries(c.mats)) addMaterial(id, amt);
+                if (c.recorder) collectRecorder('hulks');
+                const left = I.ents.filter(e => (e.kind === 'crate' || e.kind === 'recorder' || e.kind === 'keycard') && !c.taken.includes(e.id)).length;
+                st.cleared = left === 0 && I.vaultOpen;
+                const matCount = Object.values(c.mats).reduce((a, b) => a + b, 0);
+                const manifest = c.sd || matCount || c.recorder
+                    ? `Good to have you back in the seat, Drifter. Manifest: ${c.sd} Stardust, ${matCount} material${matCount === 1 ? '' : 's'}${c.recorder ? ', one flight recorder' : ''}.`
+                    : "Back in the seat with empty pockets, Drifter. Better than not coming back.";
+                sayComms(COMMS_HQ, manifest, 'hq', COMMS_PRIORITY.NORMAL);
+                playSound('fuel');
+            } else {
+                health = Math.max(1, health - 25);
+                invulnTime = Math.max(invulnTime, INVULN_FRAMES);
+                playCommsExchange(HULK_BLACKOUT_EXCHANGE, 0, COMMS_PRIORITY.HIGH);
+                playSound('hit');
+            }
+            interior = null;
+            if (hudBottom) hudBottom.style.display = '';
+            dockPrompt.classList.remove('visible');
+            mouseDown = false;
+            invulnTime = Math.max(invulnTime, 60);
+            updateHudDisplay();
+        }
+
+        function hulkFloat(I, x, y, text, color) {
+            I.floats.push({ x, y, text, color: color || '#ffd166', life: 1 });
+        }
+
+        function hulkBurst(I, x, y, color, n) {
+            for (let k = 0; k < (n || 8); k++) {
+                const a = Math.random() * Math.PI * 2;
+                const sp = 1 + Math.random() * 2.5;
+                I.pieces.push({ x, y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, life: 1, size: 2 + Math.random() * 3, color });
+            }
+        }
+
+        function interiorFire() {
+            const I = interior;
+            if (!I || I.shotCd > 0) return;
+            const wx = mouseScreenX + I.cam.x;
+            const wy = mouseScreenY + I.cam.y;
+            const a = Math.atan2(wy - I.p.y, wx - I.p.x);
+            I.bullets.push({ x: I.p.x + Math.cos(a) * 12, y: I.p.y + Math.sin(a) * 12, vx: Math.cos(a) * 7, vy: Math.sin(a) * 7, life: 90 });
+            I.shotCd = 50;
+            playSound('shoot');
+        }
+
+        function nearestOf(I, kind, range) {
+            let best = null, bestD = range;
+            for (const e of I.ents) {
+                if (e.kind !== kind) continue;
+                const d = Math.hypot(I.p.x - e.x, I.p.y - e.y);
+                if (d < bestD) { bestD = d; best = e; }
+            }
+            return best;
+        }
+
+        function nearLockedDoor(I) {
+            const ptx = Math.floor(I.p.x / IT), pty = Math.floor(I.p.y / IT);
+            for (let dy = -2; dy <= 2; dy++) {
+                for (let dx = -2; dx <= 2; dx++) {
+                    const tx = ptx + dx, ty = pty + dy;
+                    if (tx >= 0 && ty >= 0 && tx < I.cols && ty < I.rows && I.tiles[ty * I.cols + tx] === 2) return true;
+                }
+            }
+            return false;
+        }
+
+        function interiorInteract() {
+            const I = interior;
+            if (!I) return;
+            if (nearestOf(I, 'airlock', 50)) { leaveHulk(true); return; }
+            if (!I.vaultOpen && nearLockedDoor(I)) {
+                if (I.carried.key) {
+                    I.vaultOpen = true;
+                    I.carried.key = false;
+                    hulkState[I.hulk.key].vaultOpen = true;
+                    hulkBurst(I, I.p.x, I.p.y, '#ffd166', 14);
+                    playSound('cheat');
+                    playCommsExchange(HULK_VAULT_EXCHANGE, 0, COMMS_PRIORITY.HIGH);
+                } else {
+                    hulkFloat(I, I.p.x, I.p.y - 20, 'LOCKED: FIND THE KEYCARD', '#e2738a');
+                    playSound('hit');
+                }
+            }
+        }
+
+        function damageSuit(I, amount) {
+            if (I.inv > 0) return;
+            if (typeof testActive !== 'undefined' && testActive && testFlags.god) return;
+            I.suit -= amount;
+            I.inv = 110;
+            playSound('hit');
+            if (!I.droneHit) {
+                I.droneHit = true;
+                playCommsExchange(HULK_DRONE_EXCHANGE, 0, COMMS_PRIORITY.HIGH);
+            }
+        }
+
+        // ---- Interior simulation -------------------------------------------
+        function updateInterior() {
+            const I = interior;
+            const P = I.p;
+            I.time++;
+            if (I.fade > 0) I.fade = Math.max(0, I.fade - 0.02);
+            if (I.inv > 0) I.inv--;
+            if (I.shotCd > 0) I.shotCd--;
+
+            // Walking: snappy acceleration, quick stop.
+            const precise = !!(keys["ShiftLeft"] || keys["ShiftRight"]);
+            const accel = precise ? 0.18 : 0.32;
+            const maxS = precise ? 1.4 : 2.5;
+            let ix = 0, iy = 0;
+            if (keys["KeyW"] || keys["ArrowUp"]) iy -= 1;
+            if (keys["KeyS"] || keys["ArrowDown"]) iy += 1;
+            if (keys["KeyA"] || keys["ArrowLeft"]) ix -= 1;
+            if (keys["KeyD"] || keys["ArrowRight"]) ix += 1;
+            if (ix || iy) {
+                const l = Math.hypot(ix, iy);
+                P.vx += ix / l * accel;
+                P.vy += iy / l * accel;
+            } else {
+                P.vx *= 0.78;
+                P.vy *= 0.78;
+            }
+            const sp = Math.hypot(P.vx, P.vy);
+            if (sp > maxS) { P.vx = P.vx / sp * maxS; P.vy = P.vy / sp * maxS; }
+            hulkMove(I, P, P.vx, P.vy);
+            P.aim = Math.atan2(mouseScreenY + I.cam.y - P.y, mouseScreenX + I.cam.x - P.x);
+            if (mouseDown) interiorFire();
+
+            const room = hulkRoomAt(I, P.x, P.y);
+            room.visited = true;
+
+            // Air.
+            I.o2 -= SUIT_O2_DRAIN * (precise ? 0.8 : 1);
+            if (typeof testActive !== 'undefined' && testActive && testFlags.god) { I.o2 = 100; I.suit = 100; }
+            if (!I.warned30 && I.o2 <= 30) {
+                I.warned30 = true;
+                sayComms(COMMS_HQ, "Drifter, your suit's below a third on air. Start thinking about the way out.", 'hq', COMMS_PRIORITY.HIGH);
+            }
+            if (!I.warned10 && I.o2 <= 10) {
+                I.warned10 = true;
+                sayComms(COMMS_HQ, "Air's critical! Get to the airlock, now!", 'hq', COMMS_PRIORITY.CRITICAL);
+            }
+
+            // Your shots.
+            for (let i = I.bullets.length - 1; i >= 0; i--) {
+                const b = I.bullets[i];
+                b.x += b.vx; b.y += b.vy; b.life--;
+                if (b.life <= 0 || hulkSolidAt(I, b.x, b.y)) {
+                    hulkBurst(I, b.x, b.y, '#ffd166', 3);
+                    I.bullets.splice(i, 1);
+                    continue;
+                }
+                let hit = false;
+                for (let j = I.ents.length - 1; j >= 0; j--) {
+                    const e = I.ents[j];
+                    if (e.kind === 'drone' && Math.hypot(b.x - e.x, b.y - e.y) < e.r + 3) {
+                        e.hp -= playerBulletDamage;
+                        e.aggro = true;
+                        hit = true;
+                        playSound('hit');
+                        if (e.hp <= 0) {
+                            hulkBurst(I, e.x, e.y, '#ff6b5e', 14);
+                            I.ents.splice(j, 1);
+                            I.carried.sd += 12;
+                            hulkFloat(I, e.x, e.y, '+12 SD');
+                            playSound('score');
+                        }
+                        break;
+                    }
+                    if (e.kind === 'bell' && Math.hypot(b.x - e.x, b.y - e.y) < 20) {
+                        e.hp -= playerBulletDamage;
+                        hit = true;
+                        playBellSound(false);
+                        if (e.hp <= 0) {
+                            hulkBurst(I, e.x, e.y, BELL_COLOR, 18);
+                            I.ents.splice(j, 1);
+                            I.carried.mats.bellbronze = (I.carried.mats.bellbronze || 0) + 2;
+                            I.carried.taken.push(e.id);
+                            hulkFloat(I, e.x, e.y, '+2 Bell Bronze', BELL_COLOR);
+                            sayComms(COMMS_HQ, "Good. Quiet's better.", 'hq', COMMS_PRIORITY.NORMAL);
+                        }
+                        break;
+                    }
+                }
+                if (hit) I.bullets.splice(i, 1);
+            }
+
+            // Everything else in the ship.
+            for (let j = I.ents.length - 1; j >= 0; j--) {
+                const e = I.ents[j];
+                const d = Math.hypot(P.x - e.x, P.y - e.y);
+                if (e.kind === 'drone') {
+                    const sees = d < 430 && hulkLOS(I, e.x, e.y, P.x, P.y);
+                    if (sees) e.aggro = true;
+                    if (e.aggro && sees) {
+                        const a = Math.atan2(P.y - e.y, P.x - e.x);
+                        const want = d > 150 ? 1 : (d < 90 ? -1 : 0);
+                        e.vx += Math.cos(a) * 0.05 * want;
+                        e.vy += Math.sin(a) * 0.05 * want;
+                        e.cd--;
+                        if (e.cd <= 0) {
+                            e.cd = 170;
+                            I.ebullets.push({ x: e.x, y: e.y, vx: Math.cos(a) * 3.4, vy: Math.sin(a) * 3.4, life: 220 });
+                            playSound('alienShoot');
+                        }
+                    } else {
+                        e.vx += (Math.random() - 0.5) * 0.04;
+                        e.vy += (Math.random() - 0.5) * 0.04;
+                    }
+                    e.vx *= 0.97; e.vy *= 0.97;
+                    const ds = Math.hypot(e.vx, e.vy);
+                    if (ds > 1.3) { e.vx = e.vx / ds * 1.3; e.vy = e.vy / ds * 1.3; }
+                    hulkMove(I, e, e.vx, e.vy);
+                    if (d < P.r + e.r) {
+                        damageSuit(I, 12);
+                        const a = Math.atan2(P.y - e.y, P.x - e.x);
+                        P.vx += Math.cos(a) * 3; P.vy += Math.sin(a) * 3;
+                    }
+                } else if (e.kind === 'spark') {
+                    const t = (I.time + e.phase) % 300;
+                    e.active = t < 70;
+                    if (e.active && d < 36) damageSuit(I, 10);
+                } else if (e.kind === 'crew') {
+                    if (!I.crewSeen && d < 200 && hulkLOS(I, P.x, P.y, e.x, e.y)) {
+                        I.crewSeen = true;
+                        playCommsExchange(HULK_CREW_EXCHANGE, 0, COMMS_PRIORITY.HIGH);
+                    }
+                } else if (e.kind === 'bell') {
+                    if (!I.bellSeen && d < 220 && hulkLOS(I, P.x, P.y, e.x, e.y)) {
+                        I.bellSeen = true;
+                        playCommsExchange(HULK_BELL_EXCHANGE, 0, COMMS_PRIORITY.HIGH);
+                    }
+                } else if (d < P.r + 14) {
+                    // Pickups.
+                    const c = I.carried;
+                    if (e.kind === 'crate') {
+                        c.sd += e.sd;
+                        let text = `+${e.sd} SD`;
+                        if (Math.random() < e.matChance && I.biome && I.biome.material) {
+                            const mid = I.biome.material.id;
+                            c.mats[mid] = (c.mats[mid] || 0) + e.matAmount;
+                            text += ` +${e.matAmount} ${I.biome.material.name}`;
+                        } else if (e.big) {
+                            const m = MATERIAL_LIST[Math.floor(Math.random() * MATERIAL_LIST.length)];
+                            c.mats[m.id] = (c.mats[m.id] || 0) + e.matAmount;
+                            text += ` +${e.matAmount} ${m.name}`;
+                        }
+                        hulkFloat(I, e.x, e.y, text);
+                        hulkBurst(I, e.x, e.y, '#c08457', 8);
+                        playSound('crystal');
+                    } else if (e.kind === 'o2') {
+                        I.o2 = Math.min(100, I.o2 + 35);
+                        if (I.o2 > 30) I.warned30 = false;
+                        if (I.o2 > 10) I.warned10 = false;
+                        hulkFloat(I, e.x, e.y, '+35 AIR', '#8ee3ff');
+                        playSound('fuel');
+                    } else if (e.kind === 'med') {
+                        I.suit = Math.min(100, I.suit + 40);
+                        hulkFloat(I, e.x, e.y, '+40 SUIT', '#e2738a');
+                        playSound('fuel');
+                    } else if (e.kind === 'keycard') {
+                        c.key = true;
+                        hulkFloat(I, e.x, e.y, 'KEYCARD', '#ffd166');
+                        playSound('special');
+                        sayComms(COMMS_YOU, "Got a keycard. Captain's clearance. There's a vault on this ship somewhere.", 'you', COMMS_PRIORITY.NORMAL);
+                    } else if (e.kind === 'recorder') {
+                        c.recorder = true;
+                        hulkFloat(I, e.x, e.y, 'FLIGHT RECORDER', RECORDER_COLOR);
+                        playSound('event');
+                    } else {
+                        continue;
+                    }
+                    c.taken.push(e.id);
+                    I.ents.splice(j, 1);
+                }
+            }
+
+            // Their shots.
+            for (let i = I.ebullets.length - 1; i >= 0; i--) {
+                const b = I.ebullets[i];
+                b.x += b.vx; b.y += b.vy; b.life--;
+                if (b.life <= 0 || hulkSolidAt(I, b.x, b.y)) { I.ebullets.splice(i, 1); continue; }
+                if (Math.hypot(b.x - P.x, b.y - P.y) < P.r + 3) {
+                    damageSuit(I, 10);
+                    I.ebullets.splice(i, 1);
+                }
+            }
+
+            for (let i = I.pieces.length - 1; i >= 0; i--) {
+                const p = I.pieces[i];
+                p.x += p.vx; p.y += p.vy; p.vx *= 0.94; p.vy *= 0.94; p.life -= 0.025;
+                if (p.life <= 0) I.pieces.splice(i, 1);
+            }
+            for (let i = I.floats.length - 1; i >= 0; i--) {
+                const f = I.floats[i];
+                f.y -= 0.35; f.life -= 0.008;
+                if (f.life <= 0) I.floats.splice(i, 1);
+            }
+
+            // Prompt.
+            if (nearestOf(I, 'airlock', 50)) {
+                dockPrompt.textContent = "AIRLOCK: PRESS E TO LEAVE THE WRECK AND BANK YOUR HAUL";
+                dockPrompt.classList.add('visible');
+            } else if (!I.vaultOpen && nearLockedDoor(I)) {
+                dockPrompt.textContent = I.carried.key ? "VAULT DOOR: PRESS E TO USE THE KEYCARD" : "VAULT DOOR: LOCKED, FIND THE KEYCARD";
+                dockPrompt.classList.add('visible');
+            } else {
+                dockPrompt.classList.remove('visible');
+            }
+
+            if (I.o2 <= 0 || I.suit <= 0) leaveHulk(false);
+        }
+
+        // ---- Interior drawing ----------------------------------------------
+        function drawInterior() {
+            const I = interior;
+            const P = I.p;
+            const W = canvas.width, H = canvas.height;
+            I.cam.x = P.x - W / 2;
+            I.cam.y = P.y - H / 2;
+            const cx = I.cam.x, cy = I.cam.y;
+            const now = Date.now();
+            ctx.fillStyle = '#07060c';
+            ctx.fillRect(0, 0, W, H);
+
+            // Tiles.
+            const tx0 = Math.max(0, Math.floor(cx / IT)), tx1 = Math.min(I.cols - 1, Math.floor((cx + W) / IT));
+            const ty0 = Math.max(0, Math.floor(cy / IT)), ty1 = Math.min(I.rows - 1, Math.floor((cy + H) / IT));
+            for (let ty = ty0; ty <= ty1; ty++) {
+                for (let tx = tx0; tx <= tx1; tx++) {
+                    const t = I.tiles[ty * I.cols + tx];
+                    const sx = tx * IT - cx, sy = ty * IT - cy;
+                    if (t === 0 || (t === 2 && I.vaultOpen)) {
+                        ctx.fillStyle = (tx + ty) % 2 ? '#1a1726' : '#1d1a2b';
+                        ctx.fillRect(sx, sy, IT, IT);
+                        ctx.strokeStyle = 'rgba(255, 255, 255, 0.03)';
+                        ctx.strokeRect(sx + 0.5, sy + 0.5, IT - 1, IT - 1);
+                    } else if (t === 2) {
+                        ctx.fillStyle = '#4a3418';
+                        ctx.fillRect(sx, sy, IT, IT);
+                        ctx.fillStyle = '#ffd166';
+                        for (let k = 0; k < 4; k++) ctx.fillRect(sx + k * 10 + 2, sy + 4, 4, IT - 8);
+                    } else {
+                        ctx.fillStyle = '#2d2940';
+                        ctx.fillRect(sx, sy, IT, IT);
+                        ctx.fillStyle = '#3d3856';
+                        ctx.fillRect(sx, sy, IT, 5);
+                    }
+                }
+            }
+
+            // Room stencils painted on the floor.
+            ctx.save();
+            ctx.font = "bold 22px 'Segoe UI', sans-serif";
+            ctx.textAlign = 'center';
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.05)';
+            for (const r of I.rooms) {
+                ctx.fillText(HULK_ROOM_LABELS[r.type] || '', (r.x0 + HULK_ROOM_W / 2) * IT - cx, (r.y0 + HULK_ROOM_H - 0.8) * IT - cy);
+            }
+            ctx.restore();
+
+            // Props and pickups.
+            for (const e of I.ents) {
+                const ex = e.x - cx, ey = e.y - cy;
+                if (ex < -60 || ey < -60 || ex > W + 60 || ey > H + 60) continue;
+                ctx.save();
+                ctx.translate(ex, ey);
+                switch (e.kind) {
+                    case 'airlock': {
+                        const pulse = (Math.sin(now / 300) + 1) / 2;
+                        ctx.strokeStyle = '#ffd166';
+                        ctx.lineWidth = 4;
+                        ctx.setLineDash([8, 6]);
+                        ctx.beginPath(); ctx.arc(0, 0, 24, 0, Math.PI * 2); ctx.stroke();
+                        ctx.setLineDash([]);
+                        ctx.fillStyle = `rgba(6, 214, 160, ${0.25 + pulse * 0.35})`;
+                        ctx.beginPath(); ctx.arc(0, 0, 16, 0, Math.PI * 2); ctx.fill();
+                        ctx.fillStyle = '#06d6a0';
+                        ctx.font = "bold 10px 'Segoe UI', sans-serif";
+                        ctx.textAlign = 'center';
+                        ctx.fillText('EXIT', 0, 4);
+                        break;
+                    }
+                    case 'crate':
+                        ctx.fillStyle = e.big ? '#5a4520' : '#4a3a2c';
+                        ctx.strokeStyle = e.big ? '#ffd166' : '#c08457';
+                        ctx.lineWidth = 2;
+                        ctx.fillRect(-12, -10, 24, 20);
+                        ctx.strokeRect(-12, -10, 24, 20);
+                        ctx.beginPath(); ctx.moveTo(-12, 0); ctx.lineTo(12, 0); ctx.stroke();
+                        break;
+                    case 'o2':
+                        ctx.fillStyle = '#8ee3ff';
+                        ctx.shadowBlur = 8; ctx.shadowColor = '#8ee3ff';
+                        ctx.fillRect(-6, -12, 12, 24);
+                        ctx.fillStyle = '#e2f7ff';
+                        ctx.fillRect(-3, -15, 6, 4);
+                        break;
+                    case 'med':
+                        ctx.fillStyle = '#f7ede2';
+                        ctx.fillRect(-10, -10, 20, 20);
+                        ctx.fillStyle = '#e2738a';
+                        ctx.fillRect(-2, -7, 4, 14);
+                        ctx.fillRect(-7, -2, 14, 4);
+                        break;
+                    case 'keycard':
+                        ctx.translate(0, Math.sin(now / 250) * 3);
+                        ctx.fillStyle = '#ffd166';
+                        ctx.shadowBlur = 10; ctx.shadowColor = '#ffd166';
+                        ctx.fillRect(-11, -7, 22, 14);
+                        ctx.fillStyle = '#5a4520';
+                        ctx.fillRect(-11, -3, 22, 3);
+                        break;
+                    case 'recorder': {
+                        const blink = Math.floor(now / 420) % 2 === 0;
+                        ctx.fillStyle = '#2a2233';
+                        ctx.strokeStyle = RECORDER_COLOR;
+                        ctx.lineWidth = 2;
+                        ctx.shadowBlur = 10; ctx.shadowColor = RECORDER_COLOR;
+                        ctx.fillRect(-10, -8, 20, 16);
+                        ctx.strokeRect(-10, -8, 20, 16);
+                        if (blink) { ctx.fillStyle = '#ff4d4d'; ctx.beginPath(); ctx.arc(5, -3, 2.4, 0, Math.PI * 2); ctx.fill(); }
+                        break;
+                    }
+                    case 'console':
+                        ctx.fillStyle = '#2b3440';
+                        ctx.fillRect(-16, -9, 32, 14);
+                        ctx.fillStyle = `rgba(127, 167, 201, ${0.3 + 0.2 * Math.sin(now / 400 + e.x)})`;
+                        ctx.fillRect(-12, -6, 24, 7);
+                        break;
+                    case 'table':
+                        ctx.fillStyle = '#2b2638';
+                        ctx.strokeStyle = '#4d4566';
+                        ctx.lineWidth = 2;
+                        ctx.fillRect(-90, -22, 180, 44);
+                        ctx.strokeRect(-90, -22, 180, 44);
+                        break;
+                    case 'crew': {
+                        // A seated figure. The visor drifts toward you when you're close.
+                        const d = Math.hypot(P.x - e.x, P.y - e.y);
+                        const look = d < 140 ? Math.atan2(P.y - e.y, P.x - e.x) : (e.flip ? Math.PI / 2 : -Math.PI / 2);
+                        ctx.fillStyle = '#3a3a48';
+                        ctx.fillRect(-10, -4, 20, 14);
+                        ctx.fillStyle = '#5b5f70';
+                        ctx.beginPath(); ctx.ellipse(0, 0, 9, 11, 0, 0, Math.PI * 2); ctx.fill();
+                        ctx.fillStyle = '#6e7385';
+                        ctx.beginPath(); ctx.arc(0, e.flip ? 9 : -9, 7, 0, Math.PI * 2); ctx.fill();
+                        ctx.fillStyle = 'rgba(159, 240, 216, 0.55)';
+                        ctx.beginPath(); ctx.arc(Math.cos(look) * 3, (e.flip ? 9 : -9) + Math.sin(look) * 3, 2.4, 0, Math.PI * 2); ctx.fill();
+                        break;
+                    }
+                    case 'bell': {
+                        const hum = (now / 900) % 1;
+                        ctx.strokeStyle = BELL_COLOR;
+                        ctx.globalAlpha = (1 - hum) * 0.4;
+                        ctx.beginPath(); ctx.arc(0, 0, 18 + hum * 50, 0, Math.PI * 2); ctx.stroke();
+                        ctx.globalAlpha = 1;
+                        ctx.fillStyle = BELL_COLOR;
+                        drawDebrisShape({ size: 30, shape: 'bell', fixed: true }, 0, 0);
+                        break;
+                    }
+                    case 'spark': {
+                        ctx.fillStyle = '#2b3440';
+                        ctx.fillRect(-8, -8, 16, 16);
+                        if (e.active) {
+                            ctx.strokeStyle = '#a8e6ff';
+                            ctx.shadowBlur = 14; ctx.shadowColor = '#3a86ff';
+                            ctx.lineWidth = 2;
+                            for (let k = 0; k < 3; k++) {
+                                ctx.beginPath();
+                                let px = 0, py = 0;
+                                ctx.moveTo(px, py);
+                                const a = Math.random() * Math.PI * 2;
+                                for (let s = 0; s < 5; s++) {
+                                    px += Math.cos(a) * 8 + (Math.random() - 0.5) * 10;
+                                    py += Math.sin(a) * 8 + (Math.random() - 0.5) * 10;
+                                    ctx.lineTo(px, py);
+                                }
+                                ctx.stroke();
+                            }
+                            ctx.globalAlpha = 0.15;
+                            ctx.fillStyle = '#a8e6ff';
+                            ctx.beginPath(); ctx.arc(0, 0, 36, 0, Math.PI * 2); ctx.fill();
+                        } else if (Math.random() < 0.05) {
+                            ctx.fillStyle = '#a8e6ff';
+                            ctx.fillRect((Math.random() - 0.5) * 16, (Math.random() - 0.5) * 16, 2, 2);
+                        }
+                        break;
+                    }
+                    case 'drone': {
+                        const a = Math.atan2(P.y - e.y, P.x - e.x);
+                        ctx.fillStyle = '#2a2f3a';
+                        ctx.strokeStyle = e.aggro ? '#ff6b5e' : '#6b7480';
+                        ctx.lineWidth = 2;
+                        ctx.beginPath();
+                        for (let k = 0; k < 8; k++) {
+                            const ang = k * Math.PI / 4;
+                            const px = Math.cos(ang) * e.r, py = Math.sin(ang) * e.r;
+                            if (k === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+                        }
+                        ctx.closePath(); ctx.fill(); ctx.stroke();
+                        ctx.fillStyle = e.aggro ? '#ff6b5e' : '#e0c060';
+                        ctx.shadowBlur = 8; ctx.shadowColor = ctx.fillStyle;
+                        ctx.beginPath(); ctx.arc(Math.cos(a) * 5, Math.sin(a) * 5, 3, 0, Math.PI * 2); ctx.fill();
+                        break;
+                    }
+                }
+                ctx.restore();
+                if (e.kind === 'drone' && e.hp < e.maxHp) drawMiniHealthBar(ex, ey - e.r - 9, e.hp / e.maxHp, 28, '#ff6b5e');
+            }
+
+            // Bullets and bits.
+            ctx.save();
+            for (const b of I.bullets) {
+                ctx.fillStyle = '#ffd166'; ctx.shadowBlur = 6; ctx.shadowColor = '#ffd166';
+                ctx.beginPath(); ctx.arc(b.x - cx, b.y - cy, 3, 0, Math.PI * 2); ctx.fill();
+            }
+            for (const b of I.ebullets) {
+                ctx.fillStyle = '#ff6b5e'; ctx.shadowBlur = 6; ctx.shadowColor = '#ff6b5e';
+                ctx.beginPath(); ctx.arc(b.x - cx, b.y - cy, 3.5, 0, Math.PI * 2); ctx.fill();
+            }
+            ctx.shadowBlur = 0;
+            for (const p of I.pieces) {
+                ctx.globalAlpha = Math.max(0, p.life);
+                ctx.fillStyle = p.color;
+                ctx.fillRect(p.x - cx - p.size / 2, p.y - cy - p.size / 2, p.size, p.size);
+            }
+            ctx.restore();
+
+            // The Drifter, on foot.
+            const px = P.x - cx, py = P.y - cy;
+            if (I.inv <= 0 || Math.floor(I.inv / 5) % 2 === 0) {
+                ctx.save();
+                ctx.translate(px, py);
+                ctx.rotate(P.aim);
+                ctx.fillStyle = '#e8e2f2';
+                ctx.beginPath(); ctx.arc(0, 0, P.r, 0, Math.PI * 2); ctx.fill();
+                ctx.fillStyle = '#8ee3ff';
+                ctx.beginPath(); ctx.ellipse(4, 0, 4, 6, 0, 0, Math.PI * 2); ctx.fill();
+                ctx.fillStyle = '#ffd166';
+                ctx.fillRect(6, -2, 9, 4);
+                ctx.fillStyle = '#9b8da9';
+                ctx.fillRect(-12, -5, 4, 10);
+                ctx.restore();
+            }
+
+            // Suit light: everything past it falls into the dark.
+            const flick = 1 + (Math.random() < 0.02 ? -0.25 : 0);
+            const lightR = 380 * flick;
+            const g = ctx.createRadialGradient(px, py, 50, px, py, lightR);
+            g.addColorStop(0, 'rgba(4, 3, 8, 0)');
+            g.addColorStop(0.65, 'rgba(4, 3, 8, 0.55)');
+            g.addColorStop(1, 'rgba(4, 3, 8, 0.94)');
+            ctx.fillStyle = g;
+            ctx.fillRect(0, 0, W, H);
+            if (I.o2 < 25) {
+                ctx.fillStyle = `rgba(200, 30, 50, ${0.08 + 0.08 * Math.sin(now / 200)})`;
+                ctx.fillRect(0, 0, W, H);
+            }
+
+            // Floating pickup text sits above the dark.
+            ctx.save();
+            ctx.textAlign = 'center';
+            ctx.font = "bold 12px 'Segoe UI', sans-serif";
+            for (const f of I.floats) {
+                ctx.globalAlpha = Math.max(0, f.life);
+                ctx.fillStyle = f.color;
+                ctx.fillText(f.text, f.x - cx, f.y - cy);
+            }
+            ctx.restore();
+
+            drawInteriorHud(I);
+
+            if (I.fade > 0) {
+                ctx.fillStyle = `rgba(0, 0, 0, ${I.fade})`;
+                ctx.fillRect(0, 0, W, H);
+            }
+        }
+
+        function drawInteriorHud(I) {
+            const W = canvas.width, H = canvas.height;
+            const bw = Math.min(380, W * 0.9);
+            const x0 = W / 2 - bw / 2;
+            const y0 = H - 92;
+            ctx.save();
+            ctx.fillStyle = 'rgba(23, 21, 38, 0.88)';
+            ctx.strokeStyle = '#6c5b7b';
+            ctx.lineWidth = 1;
+            ctx.fillRect(x0 - 12, y0 - 26, bw + 24, 104);
+            ctx.strokeRect(x0 - 12, y0 - 26, bw + 24, 104);
+            ctx.font = "bold 12px 'Georgia', serif";
+            ctx.fillStyle = '#ffd166';
+            ctx.textAlign = 'left';
+            ctx.fillText(`ABOARD THE ${I.hulk.name}`, x0, y0 - 8);
+            ctx.textAlign = 'right';
+            ctx.fillStyle = '#9b8da9';
+            ctx.font = "10px 'Georgia', serif";
+            ctx.fillText(I.hulk.company.toUpperCase(), x0 + bw, y0 - 8);
+            const bar = (y, label, v, color) => {
+                ctx.textAlign = 'left';
+                ctx.fillStyle = '#c7b198';
+                ctx.font = "10px 'Georgia', serif";
+                ctx.fillText(label, x0, y + 8);
+                ctx.fillStyle = 'rgba(39, 33, 59, 0.9)';
+                ctx.fillRect(x0 + 42, y, bw - 42, 9);
+                ctx.fillStyle = color;
+                ctx.fillRect(x0 + 42, y, (bw - 42) * Math.max(0, v) / 100, 9);
+            };
+            bar(y0 + 2, 'AIR', I.o2, I.o2 < 25 ? '#e2738a' : '#8ee3ff');
+            bar(y0 + 18, 'SUIT', I.suit, '#e2738a');
+            const c = I.carried;
+            const matCount = Object.values(c.mats).reduce((a, b) => a + b, 0);
+            const bits = [`${c.sd} SD`, `${matCount} MATERIAL${matCount === 1 ? '' : 'S'}`];
+            if (c.key) bits.push('KEYCARD');
+            if (c.recorder) bits.push('RECORDER');
+            ctx.textAlign = 'left';
+            ctx.fillStyle = '#f7ede2';
+            ctx.font = "bold 11px 'Georgia', serif";
+            ctx.fillText(`CARRIED: ${bits.join(' · ')}`, x0, y0 + 46);
+            ctx.fillStyle = '#9b8da9';
+            ctx.font = "italic 10px 'Georgia', serif";
+            ctx.fillText("Nothing's yours until you're back through the airlock.", x0, y0 + 62);
+
+            // Minimap of the rooms you've seen.
+            const cw = 22, ch = 15, gap = 3;
+            const mx = W - (HULK_RW * (cw + gap)) - 18;
+            const my = 60;
+            const here = hulkRoomAt(I, I.p.x, I.p.y);
+            ctx.fillStyle = 'rgba(23, 21, 38, 0.8)';
+            ctx.fillRect(mx - 8, my - 22, HULK_RW * (cw + gap) + 13, HULK_RH * (ch + gap) + 30);
+            ctx.fillStyle = '#9b8da9';
+            ctx.font = "9px 'Georgia', serif";
+            ctx.textAlign = 'left';
+            ctx.fillText('DECK PLAN', mx, my - 9);
+            for (const r of I.rooms) {
+                const rx = mx + r.rx * (cw + gap), ry = my + r.ry * (ch + gap);
+                if (r.visited) {
+                    ctx.fillStyle = r === here ? '#6c5b7b' : '#3a3550';
+                    ctx.fillRect(rx, ry, cw, ch);
+                    if (r.type === 'airlock') { ctx.fillStyle = '#06d6a0'; ctx.fillRect(rx + cw / 2 - 3, ry + ch / 2 - 3, 6, 6); }
+                    if (r.type === 'vault') { ctx.fillStyle = I.vaultOpen ? '#9b8da9' : '#ffd166'; ctx.fillRect(rx + cw / 2 - 3, ry + ch / 2 - 3, 6, 6); }
+                }
+                ctx.strokeStyle = r === here ? '#ffd166' : 'rgba(108, 91, 123, 0.6)';
+                ctx.strokeRect(rx + 0.5, ry + 0.5, cw - 1, ch - 1);
+            }
+            ctx.restore();
+        }
+
+        // ---- Outside: the hulks themselves ---------------------------------
+        function drawHulks(camX, camY) {
+            const now = Date.now();
+            for (const h of getNearbyHulks()) {
+                const hx = h.x - camX, hy = h.y - camY;
+                if (hx < -320 || hy < -320 || hx > canvas.width + 320 || hy > canvas.height + 320) continue;
+                ctx.save();
+                ctx.translate(hx, hy);
+                ctx.rotate(h.tilt);
+                ctx.shadowBlur = h.cleared ? 0 : 10;
+                ctx.shadowColor = HULK_COLOR;
+                ctx.fillStyle = h.cleared ? '#26232f' : '#2f3540';
+                ctx.strokeStyle = h.cleared ? '#4e4757' : '#7d8a99';
+                ctx.lineWidth = 2.5;
+                const L = HULK_LENGTH / 2, Wd = HULK_WIDTH / 2;
+                ctx.beginPath();
+                ctx.moveTo(-L, -Wd * 0.6);
+                ctx.lineTo(-L * 0.55, -Wd);
+                ctx.lineTo(L * 0.45, -Wd);
+                ctx.lineTo(L * 0.62, -Wd * 0.45);
+                ctx.lineTo(L * 0.7, -Wd * 0.85);
+                ctx.lineTo(L, -Wd * 0.2);
+                ctx.lineTo(L * 0.9, Wd * 0.3);
+                ctx.lineTo(L * 0.5, Wd);
+                ctx.lineTo(-L * 0.4, Wd);
+                ctx.lineTo(-L * 0.7, Wd * 0.55);
+                ctx.lineTo(-L, Wd * 0.7);
+                ctx.closePath();
+                ctx.fill();
+                ctx.stroke();
+                // Hull ribs and a dead window strip.
+                ctx.shadowBlur = 0;
+                ctx.strokeStyle = h.cleared ? '#3a3548' : '#4d5766';
+                ctx.lineWidth = 1.5;
+                for (let k = -3; k <= 3; k++) {
+                    ctx.beginPath();
+                    ctx.moveTo(k * L * 0.22, -Wd * 0.9);
+                    ctx.lineTo(k * L * 0.22, Wd * 0.9);
+                    ctx.stroke();
+                }
+                ctx.fillStyle = 'rgba(127, 167, 201, 0.18)';
+                ctx.fillRect(-L * 0.5, -Wd * 0.25, L * 0.9, Wd * 0.25);
+                // The airlock, still cycling.
+                if (!h.cleared) {
+                    const blink = (Math.sin(now / 260) + 1) / 2;
+                    ctx.fillStyle = `rgba(6, 214, 160, ${0.35 + blink * 0.65})`;
+                    ctx.shadowBlur = 12; ctx.shadowColor = '#06d6a0';
+                    ctx.fillRect(-L * 0.1, Wd - 6, 20, 8);
+                }
+                ctx.restore();
+
+                ctx.save();
+                ctx.textAlign = 'center';
+                ctx.font = "bold 12px 'Segoe UI', sans-serif";
+                ctx.fillStyle = h.cleared ? '#6c6478' : HULK_COLOR;
+                ctx.fillText(`${h.name}: BOARDABLE WRECK`, hx, hy - HULK_WIDTH - 40);
+                ctx.font = "10px 'Segoe UI', sans-serif";
+                ctx.fillStyle = h.cleared ? '#5d5566' : '#8e7f9a';
+                ctx.fillText(h.company.toUpperCase(), hx, hy - HULK_WIDTH - 27);
+                ctx.fillStyle = h.cleared ? '#5d5566' : '#9aa7b0';
+                ctx.fillText(h.cleared ? 'PICKED CLEAN' : (h.visited ? 'AIRLOCK CYCLING · PARTLY SALVAGED' : 'AIRLOCK CYCLING'), hx, hy - HULK_WIDTH - 14);
+                ctx.restore();
+            }
+        }
 
         const konamiSequence = [
             "ArrowUp", "ArrowUp", 
@@ -5289,7 +6433,10 @@
                 // The Long Quiet: loose recorders, Echoes, which seams have
                 // already collapsed, and whether the Lantern has surfaced.
                 recorders, echoes, usedSeams, echoesSilenced, lanternSpawnedThisDrift, lanternsSilenced,
-                commsChoirEntered, commsEchoSighted, commsSeamCrossed, commsLanternSighted, commsLanternMidfight
+                commsChoirEntered, commsEchoSighted, commsSeamCrossed, commsLanternSighted, commsLanternMidfight,
+                // Which wreck rooms have been looted. The interior itself
+                // isn't saved: a reload always puts you back in the pilot seat.
+                hulkState, commsHulkBoarded
             };
         }
 
@@ -5458,6 +6605,10 @@
             echoWhisperCooldown = 0;
             fxRings = [];
             seamFlash = 0;
+            hulkState = data.hulkState || {};
+            commsHulkBoarded = !!data.commsHulkBoarded;
+            interior = null;
+            if (hudBottom) hudBottom.style.display = '';
 
             obstacles = data.obstacles || [];
             aliens = data.aliens || [];
@@ -5992,10 +7143,14 @@
             }
             if (e.code === "KeyE" && gameRunning && !gamePaused && !docked) {
                 const distToSanctuary = Math.hypot(player.x - sanctuary.x, player.y - sanctuary.y);
-                if (distToSanctuary < sanctuary.dockRange) {
+                if (interior) {
+                    interiorInteract();
+                } else if (distToSanctuary < sanctuary.dockRange) {
                     dock(false);
                 } else if (outpost && Math.hypot(player.x - outpost.x, player.y - outpost.y) < OUTPOST_DOCK_RANGE) {
                     dock(true);
+                } else if (getHulkInRange()) {
+                    boardHulk(getHulkInRange());
                 } else if (getSeamInRange()) {
                     crossSeam(getSeamInRange());
                 } else if (derelictPullCooldown <= 0) {
@@ -7680,6 +8835,7 @@
         }
 
         function tryFireWeapon() {
+            if (interior) { if (gameRunning && !gamePaused) interiorFire(); return; }
             if (!gameRunning || gamePaused || docked || shotCooldown > 0) return;
             const worldX = mouseScreenX + camera.x;
             const worldY = mouseScreenY + camera.y;
@@ -7706,6 +8862,7 @@
         }
 
         function useAbility() {
+            if (interior) return; // no blessings on foot
             if (!player.equippedAbility || player.cooldownTime > 0) return;
             if (tutorialMode && tutorialLiveStep === 5) tutorialFlags.spaceUsed = true;
 
@@ -8045,6 +9202,10 @@
             lanternsSilenced = 0;
             fxRings = [];
             seamFlash = 0;
+            hulkState = {};
+            commsHulkBoarded = false;
+            interior = null;
+            if (hudBottom) hudBottom.style.display = '';
             commsChoirEntered = false;
             commsEchoSighted = false;
             commsSeamCrossed = false;
@@ -8327,6 +9488,8 @@
         }
 
         function finishGameOver() {
+            interior = null;
+            if (hudBottom) hudBottom.style.display = '';
             if (tutorialMode) {
                 const currentStep = tutorialLiveSteps[tutorialLiveStep];
                 if (currentStep && currentStep.cleanup) currentStep.cleanup();
@@ -8601,6 +9764,8 @@
 
         function update() {
             if (gamePaused) return;
+            // Aboard a wreck, the sector outside holds still.
+            if (interior) { updateInterior(); return; }
 
             if (tutorialMode) tutorialLiveTick();
 
@@ -8694,6 +9859,9 @@
                 dockPrompt.textContent = (outpost && outpost.isReal)
                     ? "DOCKING RANGE: PRESS E TO ENTER SANCTUARY"
                     : `DOCKING RANGE: PRESS E TO CRAFT AT MINI SANCTUARY (${OUTPOST_CRAFT_MULTIPLIER}x COST)`;
+                dockPrompt.classList.add("visible");
+            } else if (getHulkInRange()) {
+                dockPrompt.textContent = `BOARDABLE WRECK: PRESS E TO BOARD THE ${getHulkInRange().name} ON FOOT`;
                 dockPrompt.classList.add("visible");
             } else if (getSeamInRange()) {
                 dockPrompt.textContent = "RIFT SEAM: PRESS E TO CROSS (ONE WAY, OUTWARD)";
@@ -9957,6 +11125,7 @@
 
         function draw() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
+            if (interior) { drawInterior(); return; }
 
             camera.x = player.x - canvas.width / 2;
             camera.y = player.y - canvas.height / 2;
@@ -10039,6 +11208,7 @@
             }
 
             drawSeams(camX, camY);
+            drawHulks(camX, camY);
 
             // Draw Sanctuary station
             ctx.save();
@@ -10311,6 +11481,20 @@
             }
 
             drawRecorders(camX, camY);
+
+            // Point at the nearest wreck that's still worth boarding.
+            {
+                let nearestHulk = null;
+                let nearestHulkDist = 3200;
+                for (const h of getNearbyHulks()) {
+                    if (h.cleared) continue;
+                    const d = Math.hypot(player.x - h.x, player.y - h.y);
+                    if (d < nearestHulkDist) { nearestHulkDist = d; nearestHulk = h; }
+                }
+                if (nearestHulk) {
+                    drawBeaconPointer(nearestHulk.x - camX, nearestHulk.y - camY, HULK_COLOR, `Boardable Wreck · ${Math.round(nearestHulkDist)}m`);
+                }
+            }
 
             if (decoyEntity) {
                 ctx.save();
